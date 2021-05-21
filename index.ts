@@ -6,6 +6,9 @@ import _ from 'lodash';
 
 import logger from './logger';
 
+import { pingCmd } from './commands/ping';
+import { suggestCmd } from './commands/suggest';
+
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
 const BOT_PREFIX = '.';
@@ -43,9 +46,26 @@ const handleCommand = async (message: Discord.Message, command: string, args: st
 
   switch (command) {
     case 'ping':
-      await message.channel.send('pong');
+      pingCmd(message, command, args);
   }
 };
+
+const handleAnonCommand = async (message: Discord.Message, command: string, args: string[]) => {
+  // log command and its author info
+  logger.info({
+    event: 'command',
+    messageId: message.id,
+    command,
+    args
+  });
+
+  switch (command) {
+    case 'suggest':
+      suggestCmd(message, command, args);
+  }
+};
+
+const ANON_CMDS = new Set(['suggest', '2', '3']);
 
 const handleMessage = async (message: Discord.Message) => {
   // ignore messages without bot prefix and messages from other bots
@@ -55,7 +75,12 @@ const handleMessage = async (message: Discord.Message) => {
   if (!command) return;
 
   try {
-    await handleCommand(message, command, args);
+    // if cmd is a anon cmd
+    if (ANON_CMDS.has(command)) {
+      await handleAnonCommand(message, command, args);
+    } else {
+      await handleCommand(message, command, args);
+    }
   } catch (e) {
     // log error
     logger.error({

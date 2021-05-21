@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"yarn run-dev\" \"yarn watch\"",
-    "run-dev": "NODE_ENV=dev nodemon index.ts",
+    "run-dev": "nodemon index.ts",
     "watch": "tsc --watch",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
