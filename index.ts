@@ -3,7 +3,7 @@ dotenv.config();
 
 import Discord from 'discord.js';
 import _ from 'lodash';
-
+import { openDB, testDb } from './components/db';
 import logger from './logger';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
@@ -44,6 +44,12 @@ const handleCommand = async (message: Discord.Message, command: string, args: st
   switch (command) {
     case 'ping':
       await message.channel.send('pong');
+      break;
+  }
+
+  //dev testing
+  if (process.env.NODE_ENV == 'dev') {
+    testDb(message, command, args);
   }
 };
 
