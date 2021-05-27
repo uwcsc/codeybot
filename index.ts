@@ -4,6 +4,7 @@ dotenv.config();
 import Discord from 'discord.js';
 import _ from 'lodash';
 import { openDB, testDb } from './components/db';
+import { addInterviewer, initInterview } from './components/interview';
 import logger from './logger';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
@@ -45,6 +46,9 @@ const handleCommand = async (message: Discord.Message, command: string, args: st
     case 'ping':
       await message.channel.send('pong');
       break;
+    case 'interviewer':
+      addInterviewer(message, args);
+      break;
   }
 
   //dev testing
@@ -83,7 +87,7 @@ const startBot = async () => {
     const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
     notif.send('Codey is up!');
   });
-
+  initInterview();
   client.on('message', handleMessage);
 
   client.login(BOT_TOKEN);
