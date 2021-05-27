@@ -12,7 +12,7 @@ export async function addInterviewer(message: Discord.Message, args: string[]) {
   const name = args.shift();
   const link = args.shift();
   if (!name || !link) {
-    await message.channel.send('Missing arguments.');
+    await message.channel.send("Missing arguments: ```Usage: .interviewer [name] [calendar-link]```");
     return;
   }
   await openDB().then(async (db) => {
@@ -22,7 +22,7 @@ export async function addInterviewer(message: Discord.Message, args: string[]) {
         await message.channel.send(`<@${id}>, your info has been added.`);
       } else {
         await db.run('UPDATE Interviewers SET Name = ?, Link = ? WHERE UserID = ?', name, link, id);
-        await message.channel.send(`<@${id}, your info has been changed.`);
+        await message.channel.send(`<@${id}>, your info has been changed.`);
       }
     });
   });
