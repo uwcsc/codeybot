@@ -3,7 +3,7 @@ dotenv.config();
 
 import Discord from 'discord.js';
 import _ from 'lodash';
-
+import { openDB, testDb } from './components/db';
 import logger from './logger';
 
 import { pingCmd } from './commands/ping';
@@ -47,6 +47,11 @@ const handleCommand = async (message: Discord.Message, command: string, args: st
   switch (command) {
     case 'ping':
       pingCmd(message, command, args);
+  }
+
+  //dev testing
+  if (process.env.NODE_ENV == 'dev') {
+    testDb(message, command, args);
   }
 };
 
