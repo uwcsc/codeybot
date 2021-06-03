@@ -1,0 +1,10 @@
+services:
+  codey-bot:
+    image: codey:latest
+    container_name: codey-bot
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./src:/usr/app/src
+      - ./logs:/usr/app/logs
+      - ./db:/usr/app/db

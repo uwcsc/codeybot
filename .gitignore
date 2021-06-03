@@ -1,5 +1,7 @@
 /node_modules
 .env
-/logs
+/logs/*
+!/logs/.gitkeep
 /dist
-/db
+/db/*
+!/db/.gitkeep
