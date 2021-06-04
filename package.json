@@ -13,11 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/extract-domain": "^2.3.0",
     "concurrently": "^6.1.0",
     "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",
-    "extract-domain": "^2.3.3",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "sqlite": "^4.0.22",

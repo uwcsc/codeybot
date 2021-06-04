@@ -106,11 +106,6 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/node14/-/node14-1.0.0.tgz#5bd046e508b1ee90bc091766758838741fdefd6e"
   integrity sha512-RKkL8eTdPv6t5EHgFKIVQgsDapugbuOptNd9OOunN/HAkzmmTnZELx1kNCK0rSdUYGmiFMM3rRQMAWiyp023LQ==
 
-"@types/extract-domain@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@types/extract-domain/-/extract-domain-2.3.0.tgz#668bc0b3640ecb0d44ede11147a474650a4f28e9"
-  integrity sha512-4bIRTuVdhZAuW5s/z6F5oC6JfLyNOPkLvD8i/Lyw2+z7+8bLc19KwuZq/DF9fdF00dfaRPyM4WzMMvrHwQKHDA==
-
 "@types/json-schema@^7.0.3":
   version "7.0.7"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.7.tgz#98a993516c859eb0d5c4c8f098317a9ea68db9ad"
@@ -984,13 +979,6 @@ extend@~3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
-
-extract-domain@^2.3.3:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/extract-domain/-/extract-domain-2.3.3.tgz#6da5a559004f1efde57dd4aa2cabcd0b7e7fa597"
-  integrity sha512-xPMOPdDOikqBrY8mFuwfGfTOxdZz8mLg2wne4zVEpMi9B1SDK7FHao+KiYFj8PothdRf3rxId8pIdQ2m6xft8g==
-  optionalDependencies:
-    psl "^1.8.0"
 
 extsprintf@1.3.0:
   version "1.3.0"
@@ -2063,7 +2051,7 @@ progress@^2.0.0:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-psl@^1.1.28, psl@^1.8.0:
+psl@^1.1.28:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/psl/-/psl-1.8.0.tgz#9326f8bcfb013adcc005fdff056acce020e51c24"
   integrity sha512-RIdOzyoavK+hA18OGGWDqUTsCLhtA7IcZ/6NCs4fFJaHBDab+pDDmDIByWFRQJq2Cd7r1OoQxBGKOaztq+hjIQ==
