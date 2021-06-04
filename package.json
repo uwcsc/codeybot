@@ -14,6 +14,8 @@
     "start": "docker compose up -d",
     "restart": "docker compose restart",
     "logs": "docker logs -f codey-bot",
+    "lint": "eslint . --fix --max-warnings 0",
+    "format": "yarn prettier --write 'src/**/*.(ts|js)'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -38,7 +40,6 @@
     "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
-    "cross-env": "^7.0.3",
     "eslint": "^7.25.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
