@@ -10,7 +10,9 @@ export async function openDB() {
       filename: './db/bot.db',
       driver: sqlite3.Database
     });
+    //initialize all relevant tables
     await db.run('CREATE TABLE IF NOT EXISTS saved_data (msg_id INTEGER PRIMARY KEY,data TEXT NOT NULL);');
+    await db.run('CREATE TABLE IF NOT EXISTS Interviewers (UserId TEXT, Link TEXT)');
   }
   return db;
 }
