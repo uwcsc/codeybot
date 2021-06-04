@@ -1,10 +1,10 @@
-import sqlite3 = require('sqlite3');
+import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
 import Discord from 'discord.js';
 
 let db: Database | null = null;
 
-export async function openDB() {
+export const openDB = async (): Promise<Database> => {
   if (db == null) {
     db = await open({
       filename: 'db/bot.db',
@@ -13,9 +13,9 @@ export async function openDB() {
     await db.run('CREATE TABLE IF NOT EXISTS saved_data (msg_id INTEGER PRIMARY KEY,data TEXT NOT NULL);');
   }
   return db;
-}
+};
 
-export async function testDb(message: Discord.Message, command: string, args: string[]) {
+export const testDb = async (message: Discord.Message, command: string, args: string[]): Promise<void> => {
   switch (command) {
     case 'save':
       if (args.length < 1) {
@@ -29,7 +29,7 @@ export async function testDb(message: Discord.Message, command: string, args: st
       break;
     case 'dump':
       await openDB().then(async (db) => {
-        let flag: boolean = true;
+        const flag = true;
         let outEmbed = new Discord.MessageEmbed()
           .setColor('#0099ff')
           .setTitle('Database Dump')
@@ -63,6 +63,6 @@ export async function testDb(message: Discord.Message, command: string, args: st
         .catch();
       break;
   }
-}
+};
 
 console.log('connected to db');

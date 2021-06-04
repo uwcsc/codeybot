@@ -3,7 +3,7 @@ dotenv.config();
 
 import Discord from 'discord.js';
 import _ from 'lodash';
-import { openDB, testDb } from './components/db';
+import { testDb } from './components/db';
 import logger from './logger';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
@@ -74,7 +74,7 @@ const handleMessage = async (message: Discord.Message) => {
   }
 };
 
-export const startBot = async () => {
+export const startBot = async (): Promise<void> => {
   client.once('ready', async () => {
     // log bot init event and send system notification
     logger.info({
