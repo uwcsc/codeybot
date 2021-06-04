@@ -8,6 +8,7 @@ import logger from './logger';
 
 import { pingCmd } from './commands/ping';
 import { suggestCmd } from './commands/suggest';
+import { Database, Statement } from 'sqlite3';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
@@ -46,7 +47,7 @@ const handleCommand = async (message: Discord.Message, command: string, args: st
 
   switch (command) {
     case 'ping':
-      pingCmd(message, command, args);
+      pingCmd(message);
   }
 
   //dev testing
@@ -66,7 +67,7 @@ const handleAnonCommand = async (message: Discord.Message, command: string, args
 
   switch (command) {
     case 'suggest':
-      suggestCmd(message, command, args);
+      suggestCmd(message, args);
   }
 };
 

@@ -2,6 +2,6 @@
 
 import Discord from 'discord.js';
 
-export const pingCmd = async (message: Discord.Message, command: string, args: string[]) => {
+export const pingCmd = async (message: Discord.Message) => {
   message.channel.send('pong');
 };
