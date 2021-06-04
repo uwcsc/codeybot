@@ -1,0 +1,35 @@
+name: Build and test Codey
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run linter
+        run: yarn eslint . --max-warnings 0
+
+      - name: Run formatter
+        run: yarn prettier --check "src/**/*.(ts|js)"
+
+      - name: TypeScript build
+        run: yarn ts:build

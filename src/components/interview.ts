@@ -24,20 +24,27 @@ export async function handleInterview(message: Discord.Message, args: string[], 
       addInterviewer(message, args);
       break;
     case 'list':
-      listInterviewers(message, args, client);
+      listInterviewers(message, client);
       break;
     default:
+      help(message);
       break;
   }
+}
+
+export async function help(message:Discord.Message){
+    let response = "I can't seem to recognize your command; the commands I know for interviewers are: \n" + 
+    " ```.interviewer signup [calendly/xai link] ``` \n" + 
+    " ```.interviewer list ```";
+  await message.channel.send(response);
 }
 
 export async function addInterviewer(message: Discord.Message, args: string[]) {
   const db = await openDB();
   const id = message.author.id;
-  console.log(id);
   const link = args.shift();
   if (!link) {
-    message.channel.send('Missing arguments: ```Usage: .interviewer [name] [calendar-link]```');
+    help(message);
     return;
   }
   const parsedLink = parseLink(link);
@@ -55,17 +62,20 @@ export async function addInterviewer(message: Discord.Message, args: string[]) {
   }
 }
 
-export async function listInterviewers(message: Discord.Message, args: string[], client: Discord.Client) {
+export async function listInterviewers(message: Discord.Message, client: Discord.Client) {
   const db = await openDB();
   const res = shuffleArray(await db.all('SELECT * FROM Interviewers'));
-  console.log(res);
-  let outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Interviewers');
+  
+  let outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Available Interviewers');
+  let listString : String = "";
+  let count : number = 0;
   for (const rows of res) {
+    if(count == 6) break;
+    count++;
     console.log(rows.UserId.toString());
-    outEmbed = outEmbed.addField('\u200B', (await client.users.fetch(rows['UserId'].toString())).tag, true);
-    outEmbed = outEmbed.addField('\u200B', '\u200B', true);
-    outEmbed = outEmbed.addField('\u200B', rows['Link'], true);
+    listString += "**" + (await client.users.fetch(rows['UserId'].toString())).tag + "** | [Calendar]("+rows['Link'] + ")\n\n";
   }
+  outEmbed.setDescription(listString);
   await message.channel.send(outEmbed);
 }
 

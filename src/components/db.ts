@@ -1,13 +1,13 @@
-import sqlite3 = require('sqlite3');
+import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
 import Discord from 'discord.js';
 
 let db: Database | null = null;
 
-export async function openDB() {
+export const openDB = async (): Promise<Database> => {
   if (db == null) {
     db = await open({
-      filename: './db/bot.db',
+      filename: 'db/bot.db',
       driver: sqlite3.Database
     });
     //initialize all relevant tables
@@ -15,9 +15,9 @@ export async function openDB() {
     await db.run('CREATE TABLE IF NOT EXISTS Interviewers (UserId TEXT, Link TEXT)');
   }
   return db;
-}
+};
 
-export async function testDb(message: Discord.Message, command: string, args: string[]) {
+export const testDb = async (message: Discord.Message, command: string, args: string[]): Promise<void> => {
   switch (command) {
     case 'save':
       if (args.length < 1) {
@@ -31,7 +31,7 @@ export async function testDb(message: Discord.Message, command: string, args: st
       break;
     case 'dump':
       await openDB().then(async (db) => {
-        let flag: boolean = true;
+        const flag = true;
         let outEmbed = new Discord.MessageEmbed()
           .setColor('#0099ff')
           .setTitle('Database Dump')
@@ -65,6 +65,6 @@ export async function testDb(message: Discord.Message, command: string, args: st
         .catch();
       break;
   }
-}
+};
 
 console.log('connected to db');
