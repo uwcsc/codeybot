@@ -1,5 +1,5 @@
-const winston = require('winston');
-require('winston-daily-rotate-file');
+import * as winston from 'winston';
+import 'winston-daily-rotate-file';
 
 const dailyRotateTransport = new winston.transports.DailyRotateFile({
   filename: '%DATE%.log',
@@ -14,17 +14,10 @@ const dailyRotateErrorTransport = new winston.transports.DailyRotateFile({
   level: 'error'
 });
 
-const consoleTransport = new winston.transports.Console({
-  format: winston.format.prettyPrint()
-});
-
 const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
-    winston.format.printf(
-      ({ level, message, timestamp }: { level: string; message: string; timestamp: string }) =>
-        `[${timestamp}] ${level}: ${JSON.stringify(message)}`
-    )
+    winston.format.printf(({ level, message, timestamp }) => `[${timestamp}] ${level}: ${JSON.stringify(message)}`)
   ),
   transports: [dailyRotateTransport, dailyRotateErrorTransport]
 });
