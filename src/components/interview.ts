@@ -33,7 +33,7 @@ export async function handleInterview(message: Discord.Message, args: string[], 
 }
 
 export async function help(message: Discord.Message) {
-  let response =
+  const response =
     "I can't seem to recognize your command; the commands I know for interviewers are: \n" +
     ' ```.interviewer signup [calendly/xai link] ``` \n' +
     ' ```.interviewer list ```';
@@ -67,9 +67,9 @@ export async function listInterviewers(message: Discord.Message, client: Discord
   const db = await openDB();
   const res = shuffleArray(await db.all('SELECT * FROM Interviewers'));
 
-  let outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Available Interviewers');
-  let listString: String = '';
-  let count: number = 0;
+  const outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Available Interviewers');
+  let listString: string = '';
+  let count = 0;
   for (const rows of res) {
     if (count == 6) break;
     count++;
