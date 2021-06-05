@@ -2,6 +2,8 @@ import { openDB } from './db';
 import Discord from 'discord.js';
 import _ from 'lodash';
 
+const RESULTS_PER_PAGE = 6;
+
 interface Interviewer {
   user_id: number;
   link: string;
@@ -72,19 +74,11 @@ async function listInterviewers(message: Discord.Message, client: Discord.Client
   let listString = '';
   let count = 0;
   for (const rows of res) {
-    if (count == 6) break;
+    if (count == RESULTS_PER_PAGE) break;
     count++;
     listString +=
       '**' + (await client.users.fetch(rows['user_id'].toString())).tag + '** | [Calendar](' + rows['link'] + ')\n\n';
   }
   outEmbed.setDescription(listString);
   await message.channel.send(outEmbed);
-}
-
-function shuffleArray(array: Interviewer[]) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
 }
