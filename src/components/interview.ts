@@ -17,7 +17,7 @@ function parseLink(link: string) {
   }
 }
 
-export async function handleInterview(message: Discord.Message, args: string[], client: Discord.Client) {
+export async function handleInterview(message: Discord.Message, args: string[], client: Discord.Client): Promise<void> {
   const command = args.shift();
   switch (command) {
     case 'signup':
@@ -32,7 +32,7 @@ export async function handleInterview(message: Discord.Message, args: string[], 
   }
 }
 
-export async function help(message: Discord.Message) {
+export async function help(message: Discord.Message): Promise<void> {
   const response =
     "I can't seem to recognize your command; the commands I know for interviewers are: \n" +
     ' ```.interviewer signup [calendly/xai link] ``` \n' +
@@ -40,7 +40,7 @@ export async function help(message: Discord.Message) {
   await message.channel.send(response);
 }
 
-export async function addInterviewer(message: Discord.Message, args: string[]) {
+export async function addInterviewer(message: Discord.Message, args: string[]): Promise<void> {
   const db = await openDB();
   const id = message.author.id;
   const link = args.shift();
@@ -63,12 +63,12 @@ export async function addInterviewer(message: Discord.Message, args: string[]) {
   }
 }
 
-export async function listInterviewers(message: Discord.Message, client: Discord.Client) {
+export async function listInterviewers(message: Discord.Message, client: Discord.Client): Promise<void> {
   const db = await openDB();
   const res = shuffleArray(await db.all('SELECT * FROM Interviewers'));
 
   const outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Available Interviewers');
-  let listString: string = '';
+  let listString = '';
   let count = 0;
   for (const rows of res) {
     if (count == 6) break;
