@@ -35,4 +35,5 @@ export const suggestCmd = async (message: Discord.Message, args: string[]) => {
     // Confirm suggestion was taken
     message.channel.send('Codey has received your suggestion.');
   }
+  return;
 };
