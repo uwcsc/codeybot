@@ -21,6 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/lodash.shuffle": "^4.2.6",
     "concurrently": "^6.1.0",
     "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",

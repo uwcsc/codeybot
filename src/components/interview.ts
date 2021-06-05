@@ -1,9 +1,10 @@
 import { openDB } from './db';
 import Discord from 'discord.js';
+import _ from 'lodash';
 
 interface Interviewer {
-  UserId: number;
-  Link: string;
+  user_id: number;
+  link: string;
 }
 
 function parseLink(link: string) {
@@ -13,7 +14,7 @@ function parseLink(link: string) {
     }
     return link;
   } else {
-    return undefined;
+    return null;
   }
 }
 
@@ -32,7 +33,7 @@ export async function handleInterview(message: Discord.Message, args: string[], 
   }
 }
 
-export async function help(message: Discord.Message): Promise<void> {
+async function help(message: Discord.Message): Promise<void> {
   const response =
     "I can't seem to recognize your command; the commands I know for interviewers are: \n" +
     ' ```.interviewer signup [calendly/xai link] ``` \n' +
@@ -40,7 +41,7 @@ export async function help(message: Discord.Message): Promise<void> {
   await message.channel.send(response);
 }
 
-export async function addInterviewer(message: Discord.Message, args: string[]): Promise<void> {
+async function addInterviewer(message: Discord.Message, args: string[]): Promise<void> {
   const db = await openDB();
   const id = message.author.id;
   const link = args.shift();
@@ -53,19 +54,20 @@ export async function addInterviewer(message: Discord.Message, args: string[]): 
     message.channel.send(`Hmmm... I don't seem to recognize your meeting link. Be sure to use calendly or x.ai.`);
     return;
   }
-  const res = await db.get('SELECT * FROM Interviewers WHERE UserID = ?', id);
-  if (res == undefined) {
-    db.run('INSERT INTO Interviewers (UserId, Link) VALUES(? , ?)', id, parsedLink);
+  const res = await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
+  if (!res) {
+    db.run('INSERT INTO interviewers (user_id, link) VALUES(? , ?)', id, parsedLink);
     message.channel.send(`<@${id}>, your info has been added. Thanks for signing up to help out! :codeyLove:`);
   } else {
-    db.run('UPDATE Interviewers SET Link = ? WHERE UserID = ?', parsedLink, id);
+    db.run('UPDATE interviewers SET link = ? WHERE user_id = ?', parsedLink, id);
     message.channel.send(`<@${id}>, your info has been changed.`);
   }
 }
 
-export async function listInterviewers(message: Discord.Message, client: Discord.Client): Promise<void> {
+async function listInterviewers(message: Discord.Message, client: Discord.Client): Promise<void> {
   const db = await openDB();
-  const res = shuffleArray(await db.all('SELECT * FROM Interviewers'));
+  const res = _.shuffle(await db.all('SELECT * FROM interviewers')) as Interviewer[];
+  shuffleArray(await db.all('SELECT * FROM interviewers'));
 
   const outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Available Interviewers');
   let listString = '';
@@ -73,9 +75,9 @@ export async function listInterviewers(message: Discord.Message, client: Discord
   for (const rows of res) {
     if (count == 6) break;
     count++;
-    console.log(rows.UserId.toString());
+    console.log(rows.user_id.toString());
     listString +=
-      '**' + (await client.users.fetch(rows['UserId'].toString())).tag + '** | [Calendar](' + rows['Link'] + ')\n\n';
+      '**' + (await client.users.fetch(rows['user_id'].toString())).tag + '** | [Calendar](' + rows['link'] + ')\n\n';
   }
   outEmbed.setDescription(listString);
   await message.channel.send(outEmbed);
