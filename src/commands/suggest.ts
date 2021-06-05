@@ -2,38 +2,46 @@
 import Discord from 'discord.js';
 import { openDB } from '../components/db';
 
+/*
+  // Keeping this here just to keep my debugging tools
+  db.run('DROP TABLE suggestions');
+  const res = await db.all('SELECT * FROM suggestions');
+  for (const rows of res) {
+    console.log(rows['id'], rows['created_at'], rows['author'], rows['suggestion'], rows['state']);
+  }
+*/
+
+// All states of suggestion records
+enum SuggestionStates {
+  Create = 'Create',
+  Rejected = 'Rejected',
+  Accepted = 'Accepted',
+  Pending = 'Pending'
+}
+
 export const suggestCmd = async (message: Discord.Message, args: string[]) => {
-  const db = openDB();
-  const state = 'create';
+  const db = await openDB();
+
   const helpArg = 'help';
   let words = '';
-  let word = '';
   // Turn args into suggestion
-  for (word in args) {
+  for (let word in args) {
     words += args[word] + ' ';
   }
-
-  console.log('!' + args[0] + '!');
 
   if (words == '') {
     message.channel.send('Codey sees an empty suggestion! Try again.');
   } else if (args[0].toLowerCase() === helpArg) {
-    message.channel.send(
-      '.suggest <suggestion> \nYour <suggestion> should only contain text and is capped at about 100 words.'
-    );
+    message.channel.send('.suggest <suggestion> \nYour <suggestion> should only contain text.');
   } else {
     // Save suggestion into DB
-    (
-      await db
-    ).run('INSERT INTO suggestions (suggestion_id, suggestion_author, suggestion, suggestion_state) VALUES(?,?,?,?);', [
-      null,
+    db.run('INSERT INTO suggestions (author, suggestion, state) VALUES(?,?,?);', [
       message.author.id,
       words,
-      state
+      SuggestionStates.Create
     ]);
 
     // Confirm suggestion was taken
     message.channel.send('Codey has received your suggestion.');
   }
-  return;
 };
