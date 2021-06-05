@@ -14,7 +14,7 @@ export const suggestCmd = async (message: Discord.Message, args: string[]) => {
 
   try {
     // Save suggestion into DB
-    (await db).run('INSERT INTO suggestions(suggestion_author, suggestion, suggestion_state) VALUES("?","?","?");', [
+    (await db).run('INSERT INTO suggestions(suggestion_author, suggestion, suggestion_state) VALUES(?,?,?);', [
       message.id,
       words,
       state
