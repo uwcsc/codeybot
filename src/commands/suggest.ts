@@ -9,7 +9,7 @@ export const suggestCmd = async (message: Discord.Message, args: string[]) => {
   var word = '';
   // Turn args into suggestion
   for (word in args) {
-    words += word + ' ';
+    words += args[word] + ' ';
   }
 
   try {
@@ -25,5 +25,17 @@ export const suggestCmd = async (message: Discord.Message, args: string[]) => {
   } catch (err) {
     // Error message
     message.channel.send('Sorry! There has been an error. Please try again later or let a mod know this happened.');
+  }
+
+  // To delete - just printing out stuff to see
+  const res = await (await db).all('SELECT * FROM suggestions');
+  for (const rows of res) {
+    console.log(
+      rows['suggestion_id'],
+      rows['created_at'],
+      rows['suggestion_author'],
+      rows['suggestion'],
+      rows['suggestion_state']
+    );
   }
 };
