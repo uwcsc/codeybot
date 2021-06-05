@@ -67,7 +67,6 @@ async function addInterviewer(message: Discord.Message, args: string[]): Promise
 async function listInterviewers(message: Discord.Message, client: Discord.Client): Promise<void> {
   const db = await openDB();
   const res = _.shuffle(await db.all('SELECT * FROM interviewers')) as Interviewer[];
-  shuffleArray(await db.all('SELECT * FROM interviewers'));
 
   const outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Available Interviewers');
   let listString = '';
@@ -75,7 +74,6 @@ async function listInterviewers(message: Discord.Message, client: Discord.Client
   for (const rows of res) {
     if (count == 6) break;
     count++;
-    console.log(rows.user_id.toString());
     listString +=
       '**' + (await client.users.fetch(rows['user_id'].toString())).tag + '** | [Calendar](' + rows['link'] + ')\n\n';
   }
