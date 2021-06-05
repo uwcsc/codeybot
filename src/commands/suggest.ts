@@ -6,8 +6,8 @@ export const suggestCmd = async (message: Discord.Message, args: string[]) => {
   const db = openDB();
   const state = 'C'; // Create state = C
   const helpArg = 'help ';
-  var words = '';
-  var word = '';
+  let words = '';
+  let word = '';
   // Turn args into suggestion
   for (word in args) {
     words += args[word] + ' ';
