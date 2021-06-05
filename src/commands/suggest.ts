@@ -25,7 +25,7 @@ export const suggestCmd = async (message: Discord.Message, args: string[]): Prom
   const helpArg = 'help';
   let words = '';
   // Turn args into suggestion
-  for (let word in args) {
+  for (const word in args) {
     words += args[word] + ' ';
   }
 
