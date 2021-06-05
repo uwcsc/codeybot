@@ -14,10 +14,11 @@ export const suggestCmd = async (message: Discord.Message, args: string[]) => {
       words += word + ' ';
     }
 
-    (await db).run(
-      'INSERT INTO suggestions(suggestion_author, suggestion, suggestion_state) ' + 'VALUES(?,?,?) ',
-      [message.id, words, state] + ');'
-    );
+    (await db).run('INSERT INTO suggestions(suggestion_author, suggestion, suggestion_state) VALUES(?,?,?);', [
+      message.id,
+      words,
+      state
+    ]);
 
     // confirm suggestion was taken
     message.channel.send('Codey has recieved your suggestion.');
