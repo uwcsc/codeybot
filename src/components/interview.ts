@@ -32,10 +32,11 @@ export async function handleInterview(message: Discord.Message, args: string[], 
   }
 }
 
-export async function help(message:Discord.Message){
-    let response = "I can't seem to recognize your command; the commands I know for interviewers are: \n" + 
-    " ```.interviewer signup [calendly/xai link] ``` \n" + 
-    " ```.interviewer list ```";
+export async function help(message: Discord.Message) {
+  let response =
+    "I can't seem to recognize your command; the commands I know for interviewers are: \n" +
+    ' ```.interviewer signup [calendly/xai link] ``` \n' +
+    ' ```.interviewer list ```';
   await message.channel.send(response);
 }
 
@@ -65,15 +66,16 @@ export async function addInterviewer(message: Discord.Message, args: string[]) {
 export async function listInterviewers(message: Discord.Message, client: Discord.Client) {
   const db = await openDB();
   const res = shuffleArray(await db.all('SELECT * FROM Interviewers'));
-  
+
   let outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Available Interviewers');
-  let listString : String = "";
-  let count : number = 0;
+  let listString: String = '';
+  let count: number = 0;
   for (const rows of res) {
-    if(count == 6) break;
+    if (count == 6) break;
     count++;
     console.log(rows.UserId.toString());
-    listString += "**" + (await client.users.fetch(rows['UserId'].toString())).tag + "** | [Calendar]("+rows['Link'] + ")\n\n";
+    listString +=
+      '**' + (await client.users.fetch(rows['UserId'].toString())).tag + '** | [Calendar](' + rows['Link'] + ')\n\n';
   }
   outEmbed.setDescription(listString);
   await message.channel.send(outEmbed);
