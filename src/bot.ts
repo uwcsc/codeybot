@@ -11,7 +11,6 @@ import logger from './logger';
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
 const BOT_PREFIX = '.';
-const ANON_CMDS = new Set(['suggest', '2', '3']);
 
 const client = new Discord.Client();
 
@@ -47,26 +46,13 @@ const handleCommand = async (message: Discord.Message, command: string, args: st
   switch (command) {
     case 'ping':
       pingCmd(message);
+    case 'suggest':
+      suggestCmd(message, args);
   }
 
   //dev testing
   if (process.env.NODE_ENV == 'dev') {
     testDb(message, command, args);
-  }
-};
-
-const handleAnonCommand = async (message: Discord.Message, command: string, args: string[]) => {
-  // log command and its author info
-  logger.info({
-    event: 'command',
-    messageId: message.id,
-    command,
-    args
-  });
-
-  switch (command) {
-    case 'suggest':
-      suggestCmd(message, args);
   }
 };
 
@@ -78,12 +64,7 @@ const handleMessage = async (message: Discord.Message) => {
   if (!command) return;
 
   try {
-    // if cmd is a anon cmd
-    if (ANON_CMDS.has(command)) {
-      await handleAnonCommand(message, command, args);
-    } else {
-      await handleCommand(message, command, args);
-    }
+    await handleCommand(message, command, args);
   } catch (e) {
     // log error
     logger.error({

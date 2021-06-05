@@ -13,7 +13,7 @@ export const openDB = async (): Promise<Database> => {
     await db.run('CREATE TABLE IF NOT EXISTS saved_data (msg_id INTEGER PRIMARY KEY,data TEXT NOT NULL);');
     await db.run(
       'CREATE TABLE IF NOT EXISTS suggestions (suggestion_id INTEGER PRIMARY KEY NOT NULL, suggestion_author VARCHAR(255) NOT NULL,' +
-        'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,suggestion VARCHAR(500) NOT NULL, suggestion_state VARCHAR(1) NOT NULL);'
+        'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,suggestion VARCHAR(500) NOT NULL, suggestion_state VARCHAR(30) NOT NULL);'
     );
   }
   return db;
