@@ -19,7 +19,7 @@ enum SuggestionStates {
   Pending = 'Pending'
 }
 
-export const suggestCmd = async (message: Discord.Message, args: string[]) => {
+export const suggestCmd = async (message: Discord.Message, args: string[]): Promise<void> => {
   const db = await openDB();
 
   const helpArg = 'help';
