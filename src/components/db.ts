@@ -10,11 +10,13 @@ export const openDB = async (): Promise<Database> => {
       filename: 'db/bot.db',
       driver: sqlite3.Database
     });
+    //initialize all relevant tables
     await db.run('CREATE TABLE IF NOT EXISTS saved_data (msg_id INTEGER PRIMARY KEY,data TEXT NOT NULL);');
     await db.run(
       'CREATE TABLE IF NOT EXISTS suggestions (id INTEGER PRIMARY KEY NOT NULL, author VARCHAR(255) NOT NULL,' +
         'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, suggestion TEXT NOT NULL, state INTEGER NOT NULL);'
     );
+    await db.run('CREATE TABLE IF NOT EXISTS interviewers (user_id TEXT PRIMARY KEY, link TEXT NOT NULL)');
   }
   return db;
 };

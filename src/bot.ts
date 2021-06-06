@@ -7,6 +7,7 @@ import { pingCmd } from './commands/ping';
 import { suggestCmd } from './commands/suggest';
 import { testDb } from './components/db';
 import logger from './logger';
+import { handleInterview } from './components/interview';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
@@ -48,6 +49,9 @@ const handleCommand = async (message: Discord.Message, command: string, args: st
       pingCmd(message);
     case 'suggest':
       suggestCmd(message, args);
+    // enable for interviewer
+    case 'interviewer':
+      await handleInterview(message, args, client);
   }
 
   //dev testing
