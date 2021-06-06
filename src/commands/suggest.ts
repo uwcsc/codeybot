@@ -32,7 +32,7 @@ export const suggestCmd = async (message: Discord.Message, args: string[]): Prom
   if (words === '') {
     message.channel.send('Codey sees an empty suggestion! Try again.');
   } else if (args[0].toLowerCase() === helpArg) {
-    message.channel.send('.suggest <suggestion> \nYour <suggestion> should only contain text.');
+    message.channel.send('``.suggest <suggestion>`` \nYour <suggestion> should only contain text.');
   } else {
     // Save suggestion into DB
     db.run('INSERT INTO suggestions (author, suggestion, state) VALUES(?,?,?);', [
