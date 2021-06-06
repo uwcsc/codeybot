@@ -13,10 +13,10 @@ import { openDB } from '../components/db';
 
 // All states of suggestion records
 enum SuggestionStates {
-  Create = 'Create',
-  Rejected = 'Rejected',
-  Accepted = 'Accepted',
-  Pending = 'Pending'
+  Created = 1,
+  Rejected,
+  Pending,
+  Accepted
 }
 
 export const suggestCmd = async (message: Discord.Message, args: string[]): Promise<void> => {
@@ -29,7 +29,7 @@ export const suggestCmd = async (message: Discord.Message, args: string[]): Prom
     words += args[word] + ' ';
   }
 
-  if (words == '') {
+  if (words === '') {
     message.channel.send('Codey sees an empty suggestion! Try again.');
   } else if (args[0].toLowerCase() === helpArg) {
     message.channel.send('.suggest <suggestion> \nYour <suggestion> should only contain text.');
@@ -38,7 +38,7 @@ export const suggestCmd = async (message: Discord.Message, args: string[]): Prom
     db.run('INSERT INTO suggestions (author, suggestion, state) VALUES(?,?,?);', [
       message.author.id,
       words,
-      SuggestionStates.Create
+      SuggestionStates.Created
     ]);
 
     // Confirm suggestion was taken
