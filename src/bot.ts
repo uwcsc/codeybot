@@ -5,6 +5,7 @@ import Discord from 'discord.js';
 import _ from 'lodash';
 import { testDb } from './components/db';
 import logger from './logger';
+import { handleInterview } from './components/interview';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
@@ -45,6 +46,9 @@ const handleCommand = async (message: Discord.Message, command: string, args: st
     case 'ping':
       await message.channel.send('pong');
       break;
+    // enable for interviewer
+    case 'interviewer':
+      await handleInterview(message, args, client);
   }
 
   //dev testing
