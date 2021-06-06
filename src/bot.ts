@@ -3,6 +3,8 @@ dotenv.config();
 
 import Discord from 'discord.js';
 import _ from 'lodash';
+import { pingCmd } from './commands/ping';
+import { suggestCmd } from './commands/suggest';
 import { testDb } from './components/db';
 import logger from './logger';
 import { handleInterview } from './components/interview';
@@ -44,8 +46,9 @@ const handleCommand = async (message: Discord.Message, command: string, args: st
 
   switch (command) {
     case 'ping':
-      await message.channel.send('pong');
-      break;
+      pingCmd(message);
+    case 'suggest':
+      suggestCmd(message, args);
     // enable for interviewer
     case 'interviewer':
       await handleInterview(message, args, client);
