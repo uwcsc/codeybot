@@ -72,10 +72,8 @@ async function listInterviewers(message: Discord.Message, client: Discord.Client
 
   const outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Available Interviewers');
   let listString = '';
-  let count = 0;
-  for (const rows of res) {
-    if (count == RESULTS_PER_PAGE) break;
-    count++;
+  for (let count = 0; count < RESULTS_PER_PAGE && count < res.length; count++) {
+    const rows = res[count];
     listString +=
       '**' + (await client.users.fetch(rows['user_id'].toString())).tag + '** | [Calendar](' + rows['link'] + ')\n\n';
   }
