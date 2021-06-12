@@ -14,6 +14,19 @@ interface Interviewer {
   link: string;
 }
 
+function domainString() {
+  let output = '';
+  let first_domain = true;
+  for (const i of Object.values(available_domains)) {
+    if (!first_domain) {
+      output += ', ';
+    }
+    first_domain = false;
+    output += i;
+  }
+  return output;
+}
+
 function parseLink(link: string) {
   //checks if link is (roughly) one from calendly or x.ai
   if (link.includes('calendly.com') || link.includes('calendar.x.ai')) {
@@ -106,11 +119,7 @@ async function listInterviewers(message: Discord.Message, client: Discord.Client
   if (!domain) {
     res = await db.all('SELECT * FROM interviewers');
   } else if (!(domain in available_domains)) {
-    let output = 'Not a valid domain, valid domains are:';
-    for (const val of Object.values(available_domains)) {
-      output += ' ' + val;
-    }
-    await message.channel.send(output);
+    await message.channel.send('Not a valid domain, valid domains are: ' + domainString());
     return;
   } else {
     res = await db.all(
@@ -193,11 +202,7 @@ async function addDomain(message: Discord.Message, args: string[]): Promise<void
 
   //check if domain valid
   if (!(domain in available_domains)) {
-    let output = 'Not a valid domain, valid domains are:';
-    for (const i of Object.values(available_domains)) {
-      output += ' ' + i;
-    }
-    await message.channel.send(output);
+    await message.channel.send('Not a valid domain, valid domains are: ' + domainString());
     return;
   }
 
