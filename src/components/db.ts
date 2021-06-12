@@ -18,6 +18,7 @@ export const openDB = async (): Promise<Database> => {
     );
     await db.run('CREATE TABLE IF NOT EXISTS interviewers (user_id TEXT PRIMARY KEY, link TEXT NOT NULL)');
     await db.run('CREATE TABLE IF NOT EXISTS domains (user_id TEXT NOT NULL, domain TEXT NOT NULL)');
+    await db.run('CREATE INDEX IF NOT EXISTS ix_domains_domain ON domains (domain)');
   }
   return db;
 };
