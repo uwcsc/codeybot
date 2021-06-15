@@ -15,16 +15,7 @@ interface Interviewer {
 }
 
 function domainString() {
-  let output = '';
-  let first_domain = true;
-  for (const i of Object.values(available_domains)) {
-    if (!first_domain) {
-      output += ', ';
-    }
-    first_domain = false;
-    output += i;
-  }
-  return output;
+  return _.join(Object.values(available_domains), ', ');
 }
 
 function parseLink(link: string) {
@@ -103,10 +94,10 @@ async function addInterviewer(message: Discord.Message, args: string[]): Promise
   const res = await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
   if (!res) {
     db.run('INSERT INTO interviewers (user_id, link) VALUES(? , ?)', id, parsedLink);
-    message.reply(`<@${id}>, your info has been added. Thanks for helping out! :codeyLove:`);
+    message.reply(`Your info has been added. Thanks for helping out! :codeyLove:`);
   } else {
     db.run('UPDATE interviewers SET link = ? WHERE user_id = ?', parsedLink, id);
-    message.reply(`<@${id}>, your info has been changed.`);
+    message.reply(`Your info has been changed.`);
   }
 }
 
