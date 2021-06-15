@@ -94,7 +94,7 @@ async function addInterviewer(message: Discord.Message, args: string[]): Promise
   const res = await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
   if (!res) {
     db.run('INSERT INTO interviewers (user_id, link) VALUES(? , ?)', id, parsedLink);
-    message.reply(`Your info has been added. Thanks for helping out! :codeyLove:`);
+    message.reply(`Your info has been added. Thanks for helping out!`);
   } else {
     db.run('UPDATE interviewers SET link = ? WHERE user_id = ?', parsedLink, id);
     message.reply(`Your info has been changed.`);
