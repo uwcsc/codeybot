@@ -1,22 +1,24 @@
 import { openDB } from './db';
 import Discord from 'discord.js';
 import _ from 'lodash';
+import { Database } from 'sqlite3';
 
 const RESULTS_PER_PAGE = 6;
+
+//maps from key to readable string
 const available_domains: { [key: string]: string } = {
   frontend: 'Frontend',
   backend: 'Backend',
   design: 'Design',
   pm: 'PM'
 };
+
 interface Interviewer {
   user_id: string;
   link: string;
 }
 
-function domainString() {
-  return _.join(Object.values(available_domains), ', ');
-}
+const getDomainString = (domains: { [key: string]: string }) => _.join(Object.values(domains), ', ');
 
 function parseLink(link: string) {
   //checks if link is (roughly) one from calendly or x.ai
@@ -67,7 +69,7 @@ async function help(message: Discord.Message): Promise<void> {
       { name: 'Add Interviewer Domain', value: '`.interviewer domain [domain]`' },
       { name: 'Show Interviewer Profile', value: '`.interviewer profile`' },
       { name: 'Clear Profile', value: '`.interviewer clear`' },
-      { name: 'Available Domains', value: '`' + domainString() + '`' }
+      { name: 'Available Domains', value: '`' + getDomainString(available_domains) + '`' }
     );
   await message.reply(response);
 }
@@ -111,7 +113,7 @@ async function listInterviewers(message: Discord.Message, client: Discord.Client
   if (!domain) {
     res = await db.all('SELECT * FROM interviewers');
   } else if (!(domain in available_domains)) {
-    await message.reply('Not a valid domain, valid domains are: ' + domainString());
+    await message.reply('Not a valid domain, valid domains are: ' + getDomainString(available_domains));
     return;
   } else {
     res = await db.all(
@@ -194,15 +196,15 @@ async function addDomain(message: Discord.Message, args: string[]): Promise<void
 
   //check if domain valid
   if (!(domain in available_domains)) {
-    await message.reply('Not a valid domain, valid domains are: ' + domainString());
+    await message.reply('Not a valid domain, valid domains are: ' + getDomainString(available_domains));
     return;
   }
 
   //check if user already in domain
-  const res = await db.get('SELECT * FROM domains WHERE user_id = ? AND domain = ?', id, domain);
+  const inDomain = await db.get('SELECT * FROM domains WHERE user_id = ? AND domain = ?', id, domain);
 
   //toggles on/off user's domain
-  if (!res) {
+  if (!inDomain) {
     db.run('INSERT INTO domains (user_id, domain) VALUES(?, ?)', id, domain);
     await message.reply('You have been successfully added to ' + available_domains[domain]);
   } else {
