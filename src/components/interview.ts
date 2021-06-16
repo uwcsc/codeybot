@@ -159,15 +159,10 @@ async function showProfile(message: Discord.Message): Promise<void> {
 
   //get user's domains (if any)
   const res = await db.all('SELECT * FROM domains WHERE user_id = ?', id);
-  let domains = '';
-  let first_domain = true;
-  for (const i of res) {
-    if (!first_domain) {
-      domains += ', ';
-    }
-    first_domain = false;
-    domains += available_domains[i.domain];
-  }
+  const domains = _.join(
+    res.map((x) => available_domains[x.domain]),
+    ', '
+  );
 
   //build output embed
   const outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Interviewer Profile');
