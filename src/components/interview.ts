@@ -1,6 +1,7 @@
 import { openDB } from './db';
 import Discord from 'discord.js';
 import _ from 'lodash';
+import { Database, Statement } from 'sqlite3';
 
 const RESULTS_PER_PAGE = 6;
 
@@ -15,6 +16,14 @@ const available_domains: { [key: string]: string } = {
 interface Interviewer {
   user_id: string;
   link: string;
+}
+
+async function doesQueryExist(command: string, ...args: string[]) {
+  const db = await openDB();
+  const res = await db.get(command, args);
+  console.log(res);
+  console.log(!(res == null));
+  return !(res == null);
 }
 
 const getDomainString = (domains: { [key: string]: string }) => _.join(Object.values(domains), ', ');
@@ -175,8 +184,7 @@ async function addDomain(message: Discord.Message, args: string[]): Promise<void
   const { id } = message.author;
 
   //check user signed up to be an interviewer
-  const interviewer = await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
-  if (!interviewer) {
+  if (!(await doesQueryExist('SELECT * FROM interviewers WHERE user_id = ?', id))) {
     await message.reply("You don't seem to have signed up yet, run ```.interviewer signup [link]```");
     return;
   }
@@ -195,10 +203,9 @@ async function addDomain(message: Discord.Message, args: string[]): Promise<void
   }
 
   //check if user already in domain
-  const inDomain = await db.get('SELECT * FROM domains WHERE user_id = ? AND domain = ?', id, domain);
 
   //toggles on/off user's domain
-  if (!inDomain) {
+  if (!(await doesQueryExist('SELECT * FROM domains WHERE user_id = ? AND domain = ?', id, domain))) {
     db.run('INSERT INTO domains (user_id, domain) VALUES(?, ?)', id, domain);
     await message.reply('You have been successfully added to ' + available_domains[domain]);
   } else {
