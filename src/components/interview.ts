@@ -1,7 +1,6 @@
 import { openDB } from './db';
 import Discord from 'discord.js';
 import _ from 'lodash';
-import { Database, Statement } from 'sqlite3';
 
 const RESULTS_PER_PAGE = 6;
 
