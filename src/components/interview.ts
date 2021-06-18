@@ -17,12 +17,9 @@ interface Interviewer {
   link: string;
 }
 
-async function doesQueryExist(command: string, ...args: string[]) {
+async function getInterviewer(id: string) {
   const db = await openDB();
-  const res = await db.get(command, args);
-  console.log(res);
-  console.log(!(res == null));
-  return !(res == null);
+  return await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
 }
 
 const getDomainString = (domains: { [key: string]: string }) => _.join(Object.values(domains), ', ');
@@ -100,8 +97,7 @@ async function addInterviewer(message: Discord.Message, args: string[]): Promise
   }
 
   //checks if user is already an interviewer, adds/updates info accordingly
-  const res = await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
-  if (!res) {
+  if (!(await getInterviewer(id))) {
     db.run('INSERT INTO interviewers (user_id, link) VALUES(? , ?)', id, parsedLink);
     message.reply(`Your info has been added. Thanks for helping out!`);
   } else {
@@ -158,7 +154,7 @@ async function showProfile(message: Discord.Message): Promise<void> {
   const { id } = message.author;
 
   //check if user signed up to be interviewer
-  const interviewer = await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
+  const interviewer = await getInterviewer(id);
   if (!interviewer) {
     await message.reply("You don't seem to have signed up yet, run `.interviewer signup [link]`");
     return;
@@ -183,7 +179,7 @@ async function addDomain(message: Discord.Message, args: string[]): Promise<void
   const { id } = message.author;
 
   //check user signed up to be an interviewer
-  if (!(await doesQueryExist('SELECT * FROM interviewers WHERE user_id = ?', id))) {
+  if (!(await getInterviewer(id))) {
     await message.reply("You don't seem to have signed up yet, run ```.interviewer signup [link]```");
     return;
   }
@@ -202,9 +198,10 @@ async function addDomain(message: Discord.Message, args: string[]): Promise<void
   }
 
   //check if user already in domain
+  const inDomain = await db.get('SELECT * FROM domains WHERE user_id = ? AND domain = ?', id, domain);
 
   //toggles on/off user's domain
-  if (!(await doesQueryExist('SELECT * FROM domains WHERE user_id = ? AND domain = ?', id, domain))) {
+  if (!inDomain) {
     db.run('INSERT INTO domains (user_id, domain) VALUES(?, ?)', id, domain);
     await message.reply('You have been successfully added to ' + available_domains[domain]);
   } else {
