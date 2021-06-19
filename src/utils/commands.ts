@@ -1,8 +1,8 @@
-import { Message } from 'discord.js';
+import { Message, Permissions } from 'discord.js';
 import Commando, { CommandoMessage, CommandoClient, CommandInfo, ArgumentCollectorResult } from 'discord.js-commando';
 import logger, { logError } from '../components/logger';
 
-export abstract class Command extends Commando.Command {
+export abstract class BaseCommand extends Commando.Command {
   constructor(client: CommandoClient, info: CommandInfo) {
     super(client, info);
   }
@@ -36,6 +36,15 @@ export abstract class Command extends Commando.Command {
     fromPattern: boolean,
     result?: ArgumentCollectorResult
   ): Promise<Message | Message[] | null> | null;
+}
+
+export abstract class AdminCommand extends BaseCommand {
+  constructor(client: CommandoClient, info: CommandInfo) {
+    super(client, {
+      ...info,
+      userPermissions: [Permissions.FLAGS.ADMINISTRATOR]
+    });
+  }
 }
 
 const getMessageLogData = (message: CommandoMessage): { [key: string]: string } => {
