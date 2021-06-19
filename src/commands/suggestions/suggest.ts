@@ -1,9 +1,9 @@
 import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import { Command } from '../../utils/util';
+import { BaseCommand } from '../../utils/commands';
 import { addSuggestion } from '../../components/suggestions';
 
-class SuggestCommand extends Command {
+class SuggestCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'suggest',
