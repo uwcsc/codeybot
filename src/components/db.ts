@@ -2,7 +2,19 @@ import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
 import Discord from 'discord.js';
 
+import { initSuggestionsTable } from './suggestions';
+import { initInterviewTables } from './interview';
+
 let db: Database | null = null;
+
+export const openCommandoDB = async (): Promise<Database> =>
+  await open({ filename: 'db/commando.db', driver: sqlite3.Database });
+
+const initTables = async (db: Database): Promise<void> => {
+  //initialize all relevant tables
+  await initSuggestionsTable(db);
+  await initInterviewTables(db);
+};
 
 export const openDB = async (): Promise<Database> => {
   if (db == null) {
@@ -10,15 +22,8 @@ export const openDB = async (): Promise<Database> => {
       filename: 'db/bot.db',
       driver: sqlite3.Database
     });
-    //initialize all relevant tables
-    await db.run('CREATE TABLE IF NOT EXISTS saved_data (msg_id INTEGER PRIMARY KEY, data TEXT NOT NULL);');
-    await db.run(
-      'CREATE TABLE IF NOT EXISTS suggestions (id INTEGER PRIMARY KEY NOT NULL, author VARCHAR(255) NOT NULL,' +
-        'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, suggestion TEXT NOT NULL, state INTEGER NOT NULL);'
-    );
-    await db.run('CREATE TABLE IF NOT EXISTS interviewers (user_id TEXT PRIMARY KEY, link TEXT NOT NULL)');
-    await db.run('CREATE TABLE IF NOT EXISTS domains (user_id TEXT NOT NULL, domain TEXT NOT NULL)');
-    await db.run('CREATE INDEX IF NOT EXISTS ix_domains_domain ON domains (domain)');
+    await initTables(db);
+    console.log('Initialized database and tables.');
   }
   return db;
 };
@@ -72,5 +77,3 @@ export const testDb = async (message: Discord.Message, command: string, args: st
       break;
   }
 };
-
-console.log('connected to db');
