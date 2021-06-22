@@ -24,7 +24,11 @@ export abstract class BaseCommand extends Commando.Command {
     message: CommandoMessage,
     _args: unknown,
     _fromPattern: boolean,
+<<<<<<< HEAD
     _result: ArgumentCollectorResult | undefined
+=======
+    _result?: ArgumentCollectorResult | undefined
+>>>>>>> commando framework with suggest and interviewer
   ): Promise<Message> {
     return handleCommandError(err, message);
   }

@@ -3,6 +3,7 @@ import { open, Database } from 'sqlite';
 import Discord from 'discord.js';
 
 import { initSuggestionsTable } from './suggestions';
+import { initInterviewTables } from './interview';
 
 let db: Database | null = null;
 
@@ -12,7 +13,7 @@ export const openCommandoDB = async (): Promise<Database> =>
 const initTables = async (db: Database): Promise<void> => {
   //initialize all relevant tables
   await initSuggestionsTable(db);
-  await db.run('CREATE TABLE IF NOT EXISTS interviewers (user_id TEXT PRIMARY KEY, link TEXT NOT NULL)');
+  await initInterviewTables(db);
 };
 
 export const openDB = async (): Promise<Database> => {

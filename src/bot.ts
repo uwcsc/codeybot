@@ -20,7 +20,14 @@ const client = new Commando.Client({ owner: botOwners, commandPrefix: BOT_PREFIX
 // register command groups
 client.registry
   .registerDefaults()
+<<<<<<< HEAD
   .registerGroups([['suggestions', 'Suggestions']])
+=======
+  .registerGroups([
+    ['suggestions', 'Suggestions'],
+    ['interviews', 'Mock Interviews']
+  ])
+>>>>>>> commando framework with suggest and interviewer
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
 client.setProvider(openCommandoDB().then((db) => new Commando.SQLiteProvider(db))).catch(console.error);
