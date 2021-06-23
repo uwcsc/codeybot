@@ -1,20 +1,13 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { Argument, CommandoClient, CommandoMessage } from 'discord.js-commando';
+import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import _ from 'lodash';
 
 import { BaseCommand } from '../../utils/commands';
-import { availableDomains, getDomainString, getInterviewers, Interviewer } from '../../components/interview';
+import { availableDomains, getAvailableDomainsString, getInterviewers, Interviewer } from '../../components/interview';
 import { EMBED_COLOUR } from '../../utils/embeds';
+import { parseDomainArg, validateDomainArg } from './utils';
 
 const RESULTS_PER_PAGE = 6;
-
-const validateDomainArg = (value: string, _message: CommandoMessage, _arg: Argument) => {
-  // this argument is optional
-  if (value === '') return true;
-  // validate if this is one of the available domains
-  if (value in availableDomains) return true;
-  return `you entered an invalid domain, please enter one of ${getDomainString(availableDomains)}.`;
-};
 
 class InterviewersCommand extends BaseCommand {
   constructor(client: CommandoClient) {
@@ -26,10 +19,11 @@ class InterviewersCommand extends BaseCommand {
       args: [
         {
           key: 'domain',
-          prompt: `enter one of ${getDomainString(availableDomains)}.`,
+          prompt: `enter one of ${getAvailableDomainsString()}.`,
           type: 'string',
           default: '',
-          validate: validateDomainArg
+          validate: validateDomainArg,
+          parse: parseDomainArg
         }
       ],
       description: 'Shows you a list of available interviewers.',

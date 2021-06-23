@@ -1,4 +1,3 @@
-import Discord from 'discord.js';
 import _ from 'lodash';
 import { Database } from 'sqlite';
 
@@ -23,12 +22,14 @@ export const initInterviewTables = async (db: Database): Promise<void> => {
   await db.run('CREATE INDEX IF NOT EXISTS ix_domains_domain ON domains (domain)');
 };
 
-async function getInterviewer(id: string) {
+export const getInterviewer = async (id: string): Promise<Interviewer | undefined> => {
   const db = await openDB();
   return await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
-}
+};
 
-export const getDomainString = (domains: { [key: string]: string }): string => _.join(Object.values(domains), ', ');
+export const getDomainsString = (domains: string[]): string => _.join(domains, ', ');
+
+export const getAvailableDomainsString = (): string => getDomainsString(Object.values(availableDomains));
 
 export const parseLink = (link: string): string | null => {
   //checks if link is (roughly) one from calendly or x.ai
@@ -42,23 +43,6 @@ export const parseLink = (link: string): string | null => {
     return null;
   }
 };
-
-async function help(message: Discord.Message): Promise<void> {
-  //should be deprecated as soon as proper help handler is built.
-  const response = new Discord.MessageEmbed()
-    .setTitle('Help')
-    .setColor('#0099ff')
-    .setDescription("I can't seem to recognize your command; the commands I know for interviewers are:")
-    .addFields(
-      { name: 'Interviewer Signup', value: '`.interviewer signup [calendly/xai link]`' },
-      { name: 'Get Interviewer List', value: '`.interviewer list (domain)`' },
-      { name: 'Add Interviewer Domain', value: '`.interviewer domain [domain]`' },
-      { name: 'Show Interviewer Profile', value: '`.interviewer profile`' },
-      { name: 'Clear Profile', value: '`.interviewer clear`' },
-      { name: 'Available Domains', value: '`' + getDomainString(availableDomains) + '`' }
-    );
-  await message.reply(response);
-}
 
 export const upsertInterviewer = async (id: string, calendarUrl: string): Promise<void> => {
   const db = await openDB();
@@ -96,62 +80,33 @@ export const getInterviewers = async (domain: string | null): Promise<Interviewe
   return res;
 };
 
-async function clearProfile(message: Discord.Message): Promise<void> {
+export const clearProfile = async (id: string): Promise<void> => {
   const db = await openDB();
-  const { id } = message.author;
 
   //clear user data from both tables
-  await db.run('DELETE FROM interviewers WHERE user_id = ?', id);
   await db.run('DELETE FROM domains WHERE user_id = ?', id);
-  await message.reply('Your interviewer data has been cleared!');
-}
+  await db.run('DELETE FROM interviewers WHERE user_id = ?', id);
+};
 
-async function showProfile(message: Discord.Message): Promise<void> {
+export const getDomains = async (id: string): Promise<string[]> => {
   const db = await openDB();
-  const { id } = message.author;
-
-  //check if user signed up to be interviewer
-  const interviewer = await getInterviewer(id);
-  if (!interviewer) {
-    await message.reply("You don't seem to have signed up yet, run `.interviewer signup [link]`");
-    return;
-  }
 
   //get user's domains (if any)
-  const res = await db.all('SELECT * FROM domains WHERE user_id = ?', id);
-  const domains = _.join(
-    res.map((x) => availableDomains[x.domain]),
-    ', '
-  );
+  const res = await db.all('SELECT domain FROM domains WHERE user_id = ?', id);
+  return res.map((row) => availableDomains[row.domain]);
+};
 
-  //build output embed
-  const outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Interviewer Profile');
-  outEmbed.addField('**Link**', interviewer['link']);
-  outEmbed.addField('**Domains**', domains === '' ? 'None' : domains);
-  await message.reply(outEmbed);
-}
-
-async function addDomain(message: Discord.Message, args: string[]): Promise<void> {
+/*
+  If domain already exists, remove interivewer from the domain and return true.
+  If domain doesn't exist, add interviewer to the domain and return false.  
+  Throws an error if domain isn't provided or not valid.
+*/
+export const toggleDomain = async (id: string, domain: string): Promise<boolean> => {
   const db = await openDB();
-  const { id } = message.author;
-
-  //check user signed up to be an interviewer
-  if (!(await getInterviewer(id))) {
-    await message.reply("You don't seem to have signed up yet, run ```.interviewer signup [link]```");
-    return;
-  }
-
-  //get domain and check arg passed
-  const domain = args.length == 1 ? args[0].toLowerCase() : null;
-  if (!domain) {
-    help(message);
-    return;
-  }
 
   //check if domain valid
-  if (!(domain in availableDomains)) {
-    await message.reply('Not a valid domain, valid domains are: ' + getDomainString(availableDomains));
-    return;
+  if (!domain || !(domain in availableDomains)) {
+    throw 'Invalid domain.';
   }
 
   //check if user already in domain
@@ -159,10 +114,10 @@ async function addDomain(message: Discord.Message, args: string[]): Promise<void
 
   //toggles on/off user's domain
   if (!inDomain) {
-    db.run('INSERT INTO domains (user_id, domain) VALUES(?, ?)', id, domain);
-    await message.reply('You have been successfully added to ' + availableDomains[domain]);
+    await db.run('INSERT INTO domains (user_id, domain) VALUES(?, ?)', id, domain);
   } else {
-    db.run('DELETE FROM domains WHERE user_id = ? AND domain = ?', id, domain);
-    await message.reply('You have been successfully removed from ' + availableDomains[domain]);
+    await db.run('DELETE FROM domains WHERE user_id = ? AND domain = ?', id, domain);
   }
-}
+
+  return inDomain;
+};
