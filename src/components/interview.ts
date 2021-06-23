@@ -1,16 +1,40 @@
-import { openDB } from './db';
-import Discord from 'discord.js';
 import _ from 'lodash';
+import { Database } from 'sqlite';
 
-const RESULTS_PER_PAGE = 6;
+import { openDB } from './db';
 
-interface Interviewer {
-  user_id: number;
+//maps from key to readable string
+export const availableDomains: { [key: string]: string } = {
+  frontend: 'Frontend',
+  backend: 'Backend',
+  design: 'Design',
+  pm: 'PM'
+};
+
+export interface Interviewer {
+  user_id: string;
   link: string;
 }
 
-function parseLink(link: string) {
-  if (link.includes('calendly.com') || link.includes('x.ai')) {
+export const initInterviewTables = async (db: Database): Promise<void> => {
+  await db.run('CREATE TABLE IF NOT EXISTS interviewers (user_id TEXT PRIMARY KEY, link TEXT NOT NULL)');
+  await db.run('CREATE TABLE IF NOT EXISTS domains (user_id TEXT NOT NULL, domain TEXT NOT NULL)');
+  await db.run('CREATE INDEX IF NOT EXISTS ix_domains_domain ON domains (domain)');
+};
+
+export const getInterviewer = async (id: string): Promise<Interviewer | undefined> => {
+  const db = await openDB();
+  return await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
+};
+
+export const getDomainsString = (domains: string[]): string => _.join(domains, ', ');
+
+export const getAvailableDomainsString = (): string => getDomainsString(Object.values(availableDomains));
+
+export const parseLink = (link: string): string | null => {
+  //checks if link is (roughly) one from calendly or x.ai
+  if (link.includes('calendly.com') || link.includes('calendar.x.ai')) {
+    //adds https if no http start (helpful for discord link formatting)
     if (!link.startsWith('http')) {
       link = 'https://' + link;
     }
@@ -18,65 +42,86 @@ function parseLink(link: string) {
   } else {
     return null;
   }
-}
+};
 
-export async function handleInterview(message: Discord.Message, args: string[], client: Discord.Client): Promise<void> {
-  const command = args.shift();
-  switch (command) {
-    case 'signup':
-      addInterviewer(message, args);
-      break;
-    case 'list':
-      listInterviewers(message, client);
-      break;
-    default:
-      help(message);
-      break;
-  }
-}
-
-async function help(message: Discord.Message): Promise<void> {
-  const response =
-    "I can't seem to recognize your command; the commands I know for interviewers are: \n" +
-    ' ```.interviewer signup [calendly/xai link] ``` \n' +
-    ' ```.interviewer list ```';
-  await message.channel.send(response);
-}
-
-async function addInterviewer(message: Discord.Message, args: string[]): Promise<void> {
+/*
+  If interviewer doesn't exist, save the interviewer and their calendar link.
+  Otherwise, update the interviewer's calendar link.
+*/
+export const upsertInterviewer = async (id: string, calendarUrl: string): Promise<void> => {
   const db = await openDB();
-  const id = message.author.id;
-  const link = args.shift();
-  if (!link) {
-    help(message);
-    return;
-  }
-  const parsedLink = parseLink(link);
-  if (!parsedLink) {
-    message.channel.send(`Hmmm... I don't seem to recognize your meeting link. Be sure to use calendly or x.ai.`);
-    return;
-  }
-  const res = await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
-  if (!res) {
-    db.run('INSERT INTO interviewers (user_id, link) VALUES(? , ?)', id, parsedLink);
-    message.channel.send(`<@${id}>, your info has been added. Thanks for signing up to help out! :codeyLove:`);
+
+  //checks if user is already an interviewer, adds/updates info accordingly
+  if (!(await getInterviewer(id))) {
+    db.run('INSERT INTO interviewers (user_id, link) VALUES(? , ?)', id, calendarUrl);
   } else {
-    db.run('UPDATE interviewers SET link = ? WHERE user_id = ?', parsedLink, id);
-    message.channel.send(`<@${id}>, your info has been changed.`);
+    db.run('UPDATE interviewers SET link = ? WHERE user_id = ?', calendarUrl, id);
   }
-}
+};
 
-async function listInterviewers(message: Discord.Message, client: Discord.Client): Promise<void> {
+/*
+  Returns a list of interviewers by domain, if a domain is specified.
+  Throws an error if domain is not a valid key in availableDomains.
+*/
+export const getInterviewers = async (domain: string | null): Promise<Interviewer[]> => {
   const db = await openDB();
-  const res = _.shuffle(await db.all('SELECT * FROM interviewers')) as Interviewer[];
+  let res: Interviewer[];
 
-  const outEmbed = new Discord.MessageEmbed().setColor('#0099ff').setTitle('Available Interviewers');
-  let listString = '';
-  for (let count = 0; count < RESULTS_PER_PAGE && count < res.length; count++) {
-    const rows = res[count];
-    listString +=
-      '**' + (await client.users.fetch(rows['user_id'].toString())).tag + '** | [Calendar](' + rows['link'] + ')\n\n';
+  if (!domain) {
+    // no domain specified, query for all interviewers
+    res = await db.all('SELECT * FROM interviewers');
+  } else if (!(domain in availableDomains)) {
+    // domain not a valid key in availableDomains
+    throw 'Invalid domain.';
+  } else {
+    // query interviewers by domain
+    res = await db.all(
+      'SELECT * FROM interviewers WHERE user_id IN (SELECT user_id FROM domains WHERE domain = ?)',
+      domain
+    );
   }
-  outEmbed.setDescription(listString);
-  await message.channel.send(outEmbed);
-}
+
+  return res;
+};
+
+export const clearProfile = async (id: string): Promise<void> => {
+  const db = await openDB();
+
+  //clear user data from both tables
+  await db.run('DELETE FROM domains WHERE user_id = ?', id);
+  await db.run('DELETE FROM interviewers WHERE user_id = ?', id);
+};
+
+export const getDomains = async (id: string): Promise<string[]> => {
+  const db = await openDB();
+
+  //get user's domains (if any)
+  const res = await db.all('SELECT domain FROM domains WHERE user_id = ?', id);
+  return res.map((row) => availableDomains[row.domain]);
+};
+
+/*
+  If domain already exists, remove interivewer from the domain and return true.
+  If domain doesn't exist, add interviewer to the domain and return false.  
+  Throws an error if domain isn't provided or not valid.
+*/
+export const toggleDomain = async (id: string, domain: string): Promise<boolean> => {
+  const db = await openDB();
+
+  //check if domain valid
+  if (!domain || !(domain in availableDomains)) {
+    throw 'Invalid domain.';
+  }
+
+  //check if user already in domain
+  const inDomain = await db.get('SELECT * FROM domains WHERE user_id = ? AND domain = ?', id, domain);
+
+  //toggles on/off user's domain
+  if (!inDomain) {
+    await db.run('INSERT INTO domains (user_id, domain) VALUES(?, ?)', id, domain);
+  } else {
+    await db.run('DELETE FROM domains WHERE user_id = ? AND domain = ?', id, domain);
+  }
+
+  return inDomain;
+};

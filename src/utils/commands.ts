@@ -24,7 +24,7 @@ export abstract class BaseCommand extends Commando.Command {
     message: CommandoMessage,
     _args: unknown,
     _fromPattern: boolean,
-    _result: ArgumentCollectorResult | undefined
+    _result?: ArgumentCollectorResult | undefined
   ): Promise<Message> {
     return handleCommandError(err, message);
   }

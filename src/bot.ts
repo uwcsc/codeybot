@@ -20,7 +20,10 @@ const client = new Commando.Client({ owner: botOwners, commandPrefix: BOT_PREFIX
 // register command groups
 client.registry
   .registerDefaults()
-  .registerGroups([['suggestions', 'Suggestions']])
+  .registerGroups([
+    ['suggestions', 'Suggestions'],
+    ['interviews', 'Mock Interviews']
+  ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
 client.setProvider(openCommandoDB().then((db) => new Commando.SQLiteProvider(db))).catch(console.error);
@@ -34,8 +37,6 @@ export const startBot = async (): Promise<void> => {
     const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
     notif.send('Codey is up!');
   });
-
-  // client.on('message', handleMessage);
 
   client.on('error', logError);
 
