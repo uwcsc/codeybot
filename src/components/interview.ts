@@ -44,6 +44,10 @@ export const parseLink = (link: string): string | null => {
   }
 };
 
+/*
+  If interviewer doesn't exist, save the interviewer and their calendar link.
+  Otherwise, update the interviewer's calendar link.
+*/
 export const upsertInterviewer = async (id: string, calendarUrl: string): Promise<void> => {
   const db = await openDB();
 
