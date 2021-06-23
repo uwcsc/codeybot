@@ -34,7 +34,6 @@ class InterviewerClearCommand extends BaseCommand {
     //build output embed
     const profileEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle('Interviewer Profile');
     profileEmbed.addField('**Link**', interviewer.link);
-    console.log(_.isEmpty(domains) ? 'None' : getDomainsString(domains));
     profileEmbed.addField('**Domains**', _.isEmpty(domains) ? 'None' : getDomainsString(domains));
     return message.channel.send(profileEmbed);
   }
