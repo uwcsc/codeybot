@@ -5,5 +5,5 @@
     "preserveConstEnums": true,
     "esModuleInterop": true
   },
-  "include": ["src/**/*.ts", "index.ts"]
+  "include": ["**/*.ts"]
 }

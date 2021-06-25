@@ -27,7 +27,7 @@ class InterviewersCommand extends BaseCommand {
         }
       ],
       description: 'Shows you a list of available interviewers.',
-      examples: ['.interviewer signup calendly.com/codey/mock-interview']
+      examples: ['.interviewers', '.interviewers backend']
     });
   }
 
