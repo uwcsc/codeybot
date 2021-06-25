@@ -123,5 +123,6 @@ export const toggleDomain = async (id: string, domain: string): Promise<boolean>
     await db.run('DELETE FROM domains WHERE user_id = ? AND domain = ?', id, domain);
   }
 
-  return inDomain;
+  // cast to boolean
+  return !!inDomain;
 };
