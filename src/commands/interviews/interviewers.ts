@@ -1,5 +1,5 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { CommandoClient, CommandoMessage } from 'discord.js-commando';
+import { ArgumentCollectorResult, CommandoClient, CommandoMessage } from 'discord.js-commando';
 import _ from 'lodash';
 
 import { BaseCommand } from '../../utils/commands';

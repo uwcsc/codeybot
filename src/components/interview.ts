@@ -101,7 +101,7 @@ export const getDomains = async (id: string): Promise<string[]> => {
 };
 
 /*
-  If domain already exists, remove interivewer from the domain and return true.
+  If domain already exists, remove interviewer from the domain and return true.
   If domain doesn't exist, add interviewer to the domain and return false.  
   Throws an error if domain isn't provided or not valid.
 */
