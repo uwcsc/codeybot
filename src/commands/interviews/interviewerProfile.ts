@@ -24,7 +24,7 @@ class InterviewerClearCommand extends BaseCommand {
     const interviewer = await getInterviewer(id);
     if (!interviewer) {
       return message.reply(
-        "You don't seem to have signed up yet, please sign up using `.interviewer-signup <calendarUrl>`!"
+        "you don't seem to have signed up yet, please sign up using `.interviewer-signup <calendarUrl>`!"
       );
     }
 
