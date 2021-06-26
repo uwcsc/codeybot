@@ -1,4 +1,4 @@
-import { Message, Permissions } from 'discord.js';
+import { Message } from 'discord.js';
 import Commando, { CommandoMessage, CommandoClient, CommandInfo, ArgumentCollectorResult } from 'discord.js-commando';
 import logger, { logError } from '../components/logger';
 
@@ -13,7 +13,7 @@ export abstract class BaseCommand extends Commando.Command {
     args: object | string | string[],
     fromPattern: boolean,
     result?: ArgumentCollectorResult
-  ): Promise<Message | Message[] | null> | null {
+  ): Promise<Message | Message[] | null> {
     // log each incoming command
     onCommandRun(message);
     return this.onRun(message, args, fromPattern, result);
@@ -24,11 +24,7 @@ export abstract class BaseCommand extends Commando.Command {
     message: CommandoMessage,
     _args: unknown,
     _fromPattern: boolean,
-<<<<<<< HEAD
-    _result: ArgumentCollectorResult | undefined
-=======
-    _result?: ArgumentCollectorResult | undefined
->>>>>>> commando framework with suggest and interviewer
+    _result?: ArgumentCollectorResult
   ): Promise<Message> {
     return handleCommandError(err, message);
   }
@@ -39,14 +35,14 @@ export abstract class BaseCommand extends Commando.Command {
     args: object | string | string[],
     fromPattern: boolean,
     result?: ArgumentCollectorResult
-  ): Promise<Message | Message[] | null> | null;
+  ): Promise<Message | Message[] | null>;
 }
 
 export abstract class AdminCommand extends BaseCommand {
   constructor(client: CommandoClient, info: CommandInfo) {
     super(client, {
       ...info,
-      userPermissions: [Permissions.FLAGS.ADMINISTRATOR]
+      userPermissions: [...(info.userPermissions || []), 'ADMINISTRATOR']
     });
   }
 }
