@@ -29,12 +29,12 @@ class InterviewerSignupCommand extends BaseCommand {
     //parses link and checks for validity
     const parsedUrl = parseLink(calendarUrl);
     if (!parsedUrl) {
-      return message.reply(`Hmmm... I don't seem to recognize your meeting link. Be sure to use calendly or x.ai.`);
+      return message.reply(`I don't seem to recognize your meeting link. Be sure to use calendly or x.ai.`);
     }
 
     // Add or update interviewer info
     await upsertInterviewer(id, parsedUrl);
-    return message.reply(`Your info has been updated. Thanks for helping out!`);
+    return message.reply(`your info has been updated. Thanks for helping out!`);
   }
 }
 

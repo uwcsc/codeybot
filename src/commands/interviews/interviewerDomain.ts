@@ -31,7 +31,7 @@ class InterviewerDomainCommand extends BaseCommand {
     //check user signed up to be an interviewer
     if (!(await getInterviewer(id))) {
       return message.reply(
-        "You don't seem to have signed up yet, please sign up using `.interviewer-signup <calendarUrl>`!"
+        "you don't seem to have signed up yet, please sign up using `.interviewer-signup <calendarUrl>`!"
       );
     }
 
@@ -39,8 +39,8 @@ class InterviewerDomainCommand extends BaseCommand {
     const inDomain = await toggleDomain(id, domain);
     return message.reply(
       inDomain
-        ? `You have been successfully removed from ${availableDomains[domain]}`
-        : `You have been successfully added to ${availableDomains[domain]}`
+        ? `you have been successfully removed from ${availableDomains[domain]}`
+        : `you have been successfully added to ${availableDomains[domain]}`
     );
   }
 }
