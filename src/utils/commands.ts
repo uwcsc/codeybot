@@ -13,7 +13,7 @@ export abstract class BaseCommand extends Commando.Command {
     args: object | string | string[],
     fromPattern: boolean,
     result?: ArgumentCollectorResult
-  ): Promise<Message | Message[] | null> | null {
+  ): Promise<Message | Message[] | null> {
     // log each incoming command
     onCommandRun(message);
     return this.onRun(message, args, fromPattern, result);
@@ -24,7 +24,7 @@ export abstract class BaseCommand extends Commando.Command {
     message: CommandoMessage,
     _args: unknown,
     _fromPattern: boolean,
-    _result?: ArgumentCollectorResult | undefined
+    _result?: ArgumentCollectorResult
   ): Promise<Message> {
     return handleCommandError(err, message);
   }
@@ -35,7 +35,7 @@ export abstract class BaseCommand extends Commando.Command {
     args: object | string | string[],
     fromPattern: boolean,
     result?: ArgumentCollectorResult
-  ): Promise<Message | Message[] | null> | null;
+  ): Promise<Message | Message[] | null>;
 }
 
 export abstract class AdminCommand extends BaseCommand {

@@ -19,7 +19,7 @@ class InterviewerClearCommand extends BaseCommand {
 
     // clear interviewer data
     await clearProfile(id);
-    return await message.reply('Your interviewer profile has been cleared!');
+    return await message.reply('your interviewer profile has been cleared!');
   }
 }
 
