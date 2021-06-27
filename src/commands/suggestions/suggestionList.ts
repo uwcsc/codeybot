@@ -1,8 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import _ from 'lodash';
 
-import { BaseCommand, AdminCommand } from '../../utils/commands';
+import { BaseCommand } from '../../utils/commands';
 import { availableLists, getAvailableListsString, getSuggestions, Suggestion } from '../../components/suggestions';
 import { EMBED_COLOUR } from '../../utils/embeds';
 import { parseListArg, validateListArg } from './utils';
