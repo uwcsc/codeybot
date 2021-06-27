@@ -6,7 +6,7 @@ import { BaseCommand } from '../../utils/commands';
 import { getDomains, getDomainsString, getInterviewer } from '../../components/interview';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
-class InterviewerClearCommand extends BaseCommand {
+class InterviewerProfileCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewer-profile',
@@ -39,4 +39,4 @@ class InterviewerClearCommand extends BaseCommand {
   }
 }
 
-export default InterviewerClearCommand;
+export default InterviewerProfileCommand;
