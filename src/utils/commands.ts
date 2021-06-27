@@ -1,4 +1,4 @@
-import { Message, Permissions } from 'discord.js';
+import { Message } from 'discord.js';
 import Commando, { CommandoMessage, CommandoClient, CommandInfo, ArgumentCollectorResult } from 'discord.js-commando';
 import logger, { logError } from '../components/logger';
 
