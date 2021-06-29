@@ -1,27 +1,27 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 
-import { AdminCommand } from '../../utils/commands';
-import { availableLists, getAvailableListsString, getSuggestions, Suggestion } from '../../components/suggestions';
+import { BaseCommand, AdminCommand } from '../../utils/commands';
+import { suggestionStates, getAvailableListsString, getSuggestions, Suggestion } from '../../components/suggestions';
 import { EMBED_COLOUR } from '../../utils/embeds';
-import { parseListArg, validateListArg } from './utils';
+import { parseListArg, validateState } from './utils';
 
 const RESULTS_PER_PAGE = 6;
 
-class SuggestionsListCommand extends AdminCommand {
+class SuggestionsListCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'suggestions-list',
-      aliases: ['suggestions', 'suggestion-list', 'suggestions-list'],
+      aliases: ['suggestions', 'suggestion-list', 'suggestions-list', 'suggest-list'],
       group: 'suggestions',
       memberName: 'list',
       args: [
         {
-          key: 'list',
+          key: 'state',
           prompt: `enter one of ${getAvailableListsString()}.`,
           type: 'string',
           default: '',
-          validate: validateListArg,
+          validate: validateState,
           parse: parseListArg
         }
       ],
@@ -34,11 +34,11 @@ class SuggestionsListCommand extends AdminCommand {
     return '**' + suggestion['id'] + '** | ' + suggestion['state'] + ' | ' + suggestion['suggestion'] + '\n\n';
   }
 
-  async onRun(message: CommandoMessage, args: { list: string }): Promise<Message> {
-    const { list } = args;
+  async onRun(message: CommandoMessage, args: { state: string }): Promise<Message> {
+    const { state } = args;
 
     // query suggestions
-    const suggestions = await getSuggestions(args.list.toLowerCase());
+    const suggestions = await getSuggestions(state);
     // only show up to page limit
     const suggestionsToShow = suggestions.slice(0, RESULTS_PER_PAGE);
     // get information from each suggestion
@@ -47,7 +47,7 @@ class SuggestionsListCommand extends AdminCommand {
     );
 
     // construct embed for display
-    const title = list ? `${availableLists[list.toLowerCase()]} Suggestions` : 'Suggestions';
+    const title = state ? `${suggestionStates[state.toLowerCase()]} Suggestions` : 'Suggestions';
     const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(suggestionsInfo.join(''));
     return message.channel.send(outEmbed);

@@ -3,7 +3,7 @@ import { Database } from 'sqlite';
 import { openDB } from './db';
 
 // maps from key to readable string
-export const availableLists: { [key: string]: string } = {
+export const suggestionStates: { [key: string]: string } = {
   created: 'Created',
   pending: 'Pending',
   rejected: 'Rejected',
@@ -13,7 +13,7 @@ export const availableLists: { [key: string]: string } = {
 
 export const getListsString = (List: string[]): string => _.join(List, ', ');
 
-export const getAvailableListsString = (): string => getListsString(Object.values(availableLists));
+export const getAvailableListsString = (): string => getListsString(Object.values(suggestionStates));
 
 export interface Suggestion {
   id: string;
@@ -43,7 +43,7 @@ export const addSuggestion = async (
   authorId: string,
   authorUsername: string,
   suggestion: string,
-  state: string = availableLists['created']
+  state: string = suggestionStates['created']
 ): Promise<void> => {
   const db = await openDB();
 
@@ -63,13 +63,13 @@ export const getSuggestions = async (list: string | null): Promise<Suggestion[]>
 
   if (!list) {
     // no list specified, query for all suggestions
-    res = await db.all('SELECT * FROM suggestions');
-  } else if (!(list in availableLists)) {
-    // list not a valid key in availableLists
+    res = await db.all('SELECT * FROM suggestions ORDER BY created_at DESC');
+  } else if (!(list in suggestionStates)) {
+    // list not a valid key in suggestionStates
     throw 'Invalid list.';
   } else {
     // query suggestions by list
-    res = await db.all('SELECT * FROM suggestions WHERE state = ? ORDER BY created_at DESC', availableLists[list]);
+    res = await db.all('SELECT * FROM suggestions WHERE state = ? ORDER BY created_at DESC', suggestionStates[list]);
   }
 
   return res;
