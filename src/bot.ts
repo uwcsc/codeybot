@@ -10,10 +10,7 @@ import path from 'path';
 import { openCommandoDB } from './components/db';
 import logger, { logError } from './components/logger';
 
-// #<human>-test channel
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
-// #test (the original one, used when a diff channel is probs better)
-//const NOTIF_CHANNEL_ID_OLD: string = process.env.NOTIF_CHANNEL_ID_OLD || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
 const BOT_PREFIX = '.';
 
@@ -23,14 +20,10 @@ const client = new Commando.Client({ owner: botOwners, commandPrefix: BOT_PREFIX
 // register command groups
 client.registry
   .registerDefaults()
-<<<<<<< HEAD
-  .registerGroups([['suggestions', 'Suggestions']])
-=======
   .registerGroups([
     ['suggestions', 'Suggestions'],
     ['interviews', 'Mock Interviews']
   ])
->>>>>>> commando framework with suggest and interviewer
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
 client.setProvider(openCommandoDB().then((db) => new Commando.SQLiteProvider(db))).catch(console.error);
