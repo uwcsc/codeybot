@@ -27,7 +27,7 @@ class InterviewersCommand extends BaseCommand {
         }
       ],
       description: 'Shows you a list of available interviewers.',
-      examples: ['.interviewers', '.interviewers backend']
+      examples: [`${client.commandPrefix}interviewers`, `${client.commandPrefix}interviewers backend`]
     });
   }
 

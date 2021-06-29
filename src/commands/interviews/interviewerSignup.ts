@@ -17,7 +17,10 @@ class InterviewerSignupCommand extends BaseCommand {
         }
       ],
       description: 'Adds you to a list of available interviewers.',
-      examples: ['.interviewer-signup calendly.com/codey/interview', '.interviewersignup event.x.ai/codey/interview']
+      examples: [
+        `${client.commandPrefix}interviewer-signup calendly.com/codey/interview`,
+        `${client.commandPrefix}interviewersignup event.x.ai/codey/interview`
+      ]
     });
   }
 

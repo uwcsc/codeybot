@@ -10,7 +10,7 @@ class InterviewerClearCommand extends BaseCommand {
       group: 'interviews',
       memberName: 'clear',
       description: 'Clears your interviewer profile.',
-      examples: ['.interviewer-clear']
+      examples: [`${client.commandPrefix}interviewer-clear`]
     });
   }
 

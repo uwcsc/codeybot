@@ -26,7 +26,7 @@ class SuggestionsListCommand extends BaseCommand {
         }
       ],
       description: 'Shows you a list of suggestions.',
-      examples: ['.suggestions', '.suggestions-list actionable']
+      examples: [`${client.commandPrefix}suggestions`, `${client.commandPrefix}suggestions-list actionable`]
     });
   }
 
