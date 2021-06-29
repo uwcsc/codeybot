@@ -17,7 +17,7 @@ class SuggestCommand extends BaseCommand {
         }
       ],
       description: 'Submits a suggestion to the CSC executives.',
-      examples: ['.suggest I want a new Discord channel named #hobbies!'],
+      examples: [`${client.commandPrefix}suggest I want a new Discord channel named #hobbies!`],
       details: `This command will forward a suggestion to the CSC executives. \
 Please note that your suggestion is not anonymous, your Discord username and ID will be recorded. \
 If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.`

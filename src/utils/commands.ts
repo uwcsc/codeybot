@@ -42,7 +42,7 @@ export abstract class AdminCommand extends BaseCommand {
   constructor(client: CommandoClient, info: CommandInfo) {
     super(client, {
       ...info,
-      userPermissions: ['ADMINISTRATOR']
+      userPermissions: [...(info.userPermissions || []), 'ADMINISTRATOR']
     });
   }
 }

@@ -13,7 +13,7 @@ class InterviewerProfileCommand extends BaseCommand {
       group: 'interviews',
       memberName: 'profile',
       description: 'Shows your interviewer profile.',
-      examples: ['.interviewer-profile']
+      examples: [`${client.commandPrefix}interviewer-profile`]
     });
   }
 

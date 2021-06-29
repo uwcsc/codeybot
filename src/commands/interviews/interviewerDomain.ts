@@ -20,7 +20,7 @@ class InterviewerDomainCommand extends BaseCommand {
         }
       ],
       description: 'Adds or removes a domain from your interviewer profile.',
-      examples: ['.interviewer-domain frontend', '.interviewerdomain pm']
+      examples: [`${client.commandPrefix}interviewer-domain frontend`, `${client.commandPrefix}interviewerdomain pm`]
     });
   }
 
