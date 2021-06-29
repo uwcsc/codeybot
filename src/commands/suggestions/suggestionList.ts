@@ -1,14 +1,14 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 
-import { BaseCommand } from '../../utils/commands';
+import { AdminCommand } from '../../utils/commands';
 import { availableLists, getAvailableListsString, getSuggestions, Suggestion } from '../../components/suggestions';
 import { EMBED_COLOUR } from '../../utils/embeds';
 import { parseListArg, validateListArg } from './utils';
 
 const RESULTS_PER_PAGE = 6;
 
-class SuggestionsListCommand extends BaseCommand {
+class SuggestionsListCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'suggestions-list',
