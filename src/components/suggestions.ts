@@ -57,19 +57,19 @@ export const addSuggestion = async (
   );
 };
 
-export const getSuggestions = async (list: string | null): Promise<Suggestion[]> => {
+export const getSuggestions = async (state: string | null): Promise<Suggestion[]> => {
   const db = await openDB();
   let res: Suggestion[];
 
-  if (!list) {
-    // no list specified, query for all suggestions
+  if (!state) {
+    // no state specified, query for all suggestions
     res = await db.all('SELECT * FROM suggestions ORDER BY created_at DESC');
-  } else if (!(list in suggestionStates)) {
-    // list not a valid key in suggestionStates
-    throw 'Invalid list.';
+  } else if (!(state in suggestionStates)) {
+    // state not a valid key in suggestionStates
+    throw 'Invalid state.';
   } else {
-    // query suggestions by list
-    res = await db.all('SELECT * FROM suggestions WHERE state = ? ORDER BY created_at DESC', suggestionStates[list]);
+    // query suggestions by state
+    res = await db.all('SELECT * FROM suggestions WHERE state = ? ORDER BY created_at DESC', suggestionStates[state]);
   }
 
   return res;
