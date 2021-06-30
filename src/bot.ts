@@ -9,6 +9,7 @@ import path from 'path';
 
 import { openCommandoDB } from './components/db';
 import logger, { logError } from './components/logger';
+import { initEmotes } from './components/emotes';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
@@ -36,6 +37,7 @@ export const startBot = async (): Promise<void> => {
     });
     const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
     notif.send('Codey is up!');
+    initEmotes(client);
   });
 
   client.on('error', logError);
