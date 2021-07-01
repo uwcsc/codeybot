@@ -3,10 +3,10 @@ import { CommandoClient } from 'discord.js-commando';
 
 let client: CommandoClient;
 
-export const initEmotes = (cli: CommandoClient): void => {
+export const initEmojis = (cli: CommandoClient): void => {
   client = cli;
 };
 
-export const getEmoteByName = (name: string): Emoji | undefined => {
+export const getEmojiByName = (name: string): Emoji | undefined => {
   return client.emojis.cache.find((emoji) => emoji.name === name);
 };
