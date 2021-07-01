@@ -2,9 +2,9 @@ import { Message, MessageEmbed } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 
 import { AdminCommand } from '../../utils/commands';
-import { suggestionStates, getAvailableListsString, getSuggestions, Suggestion } from '../../components/suggestions';
+import { suggestionStates, getAvailableStatesString, getSuggestions, Suggestion } from '../../components/suggestions';
 import { EMBED_COLOUR } from '../../utils/embeds';
-import { parseListArg, validateState } from './utils';
+import { parseStateArg, validateState } from './utils';
 
 const RESULTS_PER_PAGE = 6;
 
@@ -18,11 +18,11 @@ class SuggestionsListCommand extends AdminCommand {
       args: [
         {
           key: 'state',
-          prompt: `enter one of ${getAvailableListsString()}.`,
+          prompt: `enter one of ${getAvailableStatesString()}.`,
           type: 'string',
           default: '',
           validate: validateState,
-          parse: parseListArg
+          parse: parseStateArg
         }
       ],
       description: 'Shows you a list of suggestions.',

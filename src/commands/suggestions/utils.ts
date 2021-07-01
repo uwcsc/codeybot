@@ -1,11 +1,11 @@
-import { suggestionStates, getAvailableListsString } from '../../components/suggestions';
+import { suggestionStates, getAvailableStatesString } from '../../components/suggestions';
 
 export const validateState = (value: string): boolean | string => {
   // validate if this is one of the available states
   if (value.toLowerCase() in suggestionStates) return true;
-  return `you entered an invalid state. Please enter one of ${getAvailableListsString()}.`;
+  return `you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`;
 };
 
-export const parseListArg = (value: string): string => {
+export const parseStateArg = (value: string): string => {
   return value.toLowerCase();
 };

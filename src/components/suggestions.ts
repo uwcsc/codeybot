@@ -13,7 +13,7 @@ export const suggestionStates: { [key: string]: string } = {
 
 export const getListsString = (List: string[]): string => _.join(List, ', ');
 
-export const getAvailableListsString = (): string => getListsString(Object.values(suggestionStates));
+export const getAvailableStatesString = (): string => getListsString(Object.values(suggestionStates));
 
 export interface Suggestion {
   id: string;
