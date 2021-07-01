@@ -20,6 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "concurrently": "^6.1.0",
+    "cron": "^1.8.2",
     "discord.js": "^12.5.3",
     "discord.js-commando": "^0.12.3",
     "dotenv": "^8.2.0",

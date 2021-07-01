@@ -57,6 +57,29 @@ export const addSuggestion = async (
   );
 };
 
+export const updateSuggestionCron = async (
+  state: string = 'pending',
+  oldState: string = 'created'
+): Promise<boolean> => {
+  const db = await openDB();
+  const numOfCreated = (await getSuggestions(oldState)).length;
+
+  if (numOfCreated === 0) {
+    return false;
+  }
+  // Update created suggestions to pending suggestions in DB
+  await db.run(
+    `
+    UPDATE suggestions
+    SET state = ?
+    WHERE state = ?;
+    `,
+    [suggestionStates[state], suggestionStates[oldState]]
+  );
+
+  return true;
+};
+
 export const getSuggestions = async (state: string | null): Promise<Suggestion[]> => {
   const db = await openDB();
   let res: Suggestion[];
