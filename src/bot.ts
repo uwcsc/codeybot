@@ -19,7 +19,9 @@ const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as str
 const client = new Commando.Client({ owner: botOwners, commandPrefix: BOT_PREFIX });
 // register command groups
 client.registry
-  .registerDefaults()
+  .registerDefaultTypes()
+  .registerDefaultGroups()
+  .registerDefaultCommands({ unknownCommand: false })
   .registerGroups([
     ['suggestions', 'Suggestions'],
     ['interviews', 'Mock Interviews']
