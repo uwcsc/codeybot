@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { BaseCommand } from '../../utils/commands';
 import { parseLink, upsertInterviewer } from '../../components/interview';
-import { emoteList } from '../../components/emotes';
+import { getEmojiByName } from '../../components/emojis';
 
 class InterviewerSignupCommand extends BaseCommand {
   constructor(client: CommandoClient) {
@@ -38,7 +38,9 @@ class InterviewerSignupCommand extends BaseCommand {
 
     // Add or update interviewer info
     await upsertInterviewer(id, parsedUrl);
-    return message.reply(`your info has been updated. Thanks for helping out! ` + emoteList['codeyLove'].toString());
+    return message.reply(
+      `your info has been updated. Thanks for helping out! ${getEmojiByName('codeyLove')?.toString()}`
+    );
   }
 }
 
