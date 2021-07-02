@@ -57,10 +57,7 @@ export const addSuggestion = async (
   );
 };
 
-export const updateSuggestionCron = async (
-  state: string = 'pending',
-  oldState: string = 'created'
-): Promise<boolean> => {
+export const updateSuggestionCron = async (state = 'pending', oldState = 'created'): Promise<boolean> => {
   const db = await openDB();
   const numOfCreated = (await getSuggestions(oldState)).length;
 
