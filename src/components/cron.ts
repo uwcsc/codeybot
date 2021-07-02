@@ -6,7 +6,7 @@ import { CronJob } from 'cron';
 const NOTIF_CHANNEL_ID_OLD: string = process.env.NOTIF_CHANNEL_ID_OLD || '.';
 
 // Checks for new suggestions every min
-export const createSuggestionCron = (client: CommandoClient) =>
+export const createSuggestionCron = (client: CommandoClient): CronJob =>
   new CronJob('0 */1 * * * *', async function () {
     const isSuggestionsChanged = await updateSuggestionCron();
     if (isSuggestionsChanged) {
