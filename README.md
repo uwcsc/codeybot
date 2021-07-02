@@ -4,6 +4,7 @@
 
 - `BOT_TOKEN`: the token found in the bot user account.
 - `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
+- `NOTIF_CHANNEL_ID_OLD` : the ID of the original test channel (used when NOTIF_CHANNEL_ID is not desired)
 
 ## Prerequisites
 
