@@ -3,6 +3,7 @@ import { open, Database } from 'sqlite';
 
 import { initSuggestionsTable } from './suggestions';
 import { initInterviewTables } from './interview';
+import logger from './logger';
 
 let db: Database | null = null;
 
@@ -22,7 +23,7 @@ export const openDB = async (): Promise<Database> => {
       driver: sqlite3.Database
     });
     await initTables(db);
-    console.log('Initialized database and tables.');
+    logger.info('Initialized database and tables.');
   }
   return db;
 };
