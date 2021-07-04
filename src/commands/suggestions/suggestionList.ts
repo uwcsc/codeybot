@@ -2,7 +2,12 @@ import { Message, MessageEmbed } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 
 import { AdminCommand } from '../../utils/commands';
-import { suggestionStates, getAvailableStatesString, getSuggestions, Suggestion } from '../../components/suggestions';
+import {
+  suggestionStatesReadable,
+  getAvailableStatesString,
+  getSuggestions,
+  Suggestion
+} from '../../components/suggestions';
 import { EMBED_COLOUR } from '../../utils/embeds';
 import { parseStateArg, validateState } from './utils';
 
@@ -47,7 +52,7 @@ class SuggestionsListCommand extends AdminCommand {
     );
 
     // construct embed for display
-    const title = state ? `${suggestionStates[state.toLowerCase()]} Suggestions` : 'Suggestions';
+    const title = state ? `${suggestionStatesReadable[state.toLowerCase()]} Suggestions` : 'Suggestions';
     const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(suggestionsInfo.join(''));
     return message.channel.send(outEmbed);
