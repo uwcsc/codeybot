@@ -1,20 +1,21 @@
-import { updateSuggestionCron } from './suggestions';
+import { getSuggestionIdsByState, updateSuggestionCron } from './suggestions';
 import { TextChannel } from 'discord.js';
 import { CommandoClient } from 'discord.js-commando';
 import { CronJob } from 'cron';
 
-const NOTIF_CHANNEL_ID_OLD: string = process.env.NOTIF_CHANNEL_ID_OLD || '.';
+const MOD_CHANNEL_ID: string = process.env.MOD_CHANNEL_ID || '.';
 
 // Checks for new suggestions every min
 export const createSuggestionCron = (client: CommandoClient): CronJob =>
   new CronJob('0 */1 * * * *', async function () {
-    const isSuggestionsChanged = await updateSuggestionCron();
-    if (isSuggestionsChanged) {
-      const messageChannel = client.channels.cache.get(NOTIF_CHANNEL_ID_OLD);
+    const createdSuggestionIds = await getSuggestionIdsByState();
+    if (createdSuggestionIds != undefined && createdSuggestionIds.length != 0) {
+      const messageChannel = client.channels.cache.get(MOD_CHANNEL_ID);
       if (messageChannel == undefined) {
-        throw 'Bad Channel';
+        throw 'Bad Channel from env file';
       } else if (messageChannel.type === 'text') {
-        (messageChannel as TextChannel).send(`New suggestions exist.`);
+        await updateSuggestionCron(createdSuggestionIds);
+        (messageChannel as TextChannel).send(`New suggestions exist with IDs:\n${createdSuggestionIds.join()}`);
       } else {
         throw 'Bad Channel Type';
       }

@@ -57,24 +57,19 @@ export const addSuggestion = async (
   );
 };
 
-export const updateSuggestionCron = async (state = 'pending', oldState = 'created'): Promise<boolean> => {
+export const updateSuggestionCron = async (ids: number[], state = 'pending'): Promise<void> => {
   const db = await openDB();
-  const numOfCreated = (await getSuggestions(oldState)).length;
-
-  if (numOfCreated === 0) {
-    return false;
-  }
-  // Update created suggestions to pending suggestions in DB
-  await db.run(
-    `
-    UPDATE suggestions
-    SET state = ?
-    WHERE state = ?;
-    `,
-    [suggestionStates[state], suggestionStates[oldState]]
-  );
-
-  return true;
+  // Update created suggestions to pending suggestions in DB via ids
+  ids.map(async function (id) {
+    await db.run(
+      `
+      UPDATE suggestions
+      SET state = ?
+      WHERE id = ?;
+      `,
+      [suggestionStates[state], id]
+    );
+  });
 };
 
 export const getSuggestions = async (state: string | null): Promise<Suggestion[]> => {
@@ -93,4 +88,21 @@ export const getSuggestions = async (state: string | null): Promise<Suggestion[]
   }
 
   return res;
+};
+
+export const getSuggestionIdsByState = async (state = 'created'): Promise<number[]> => {
+  const db = await openDB();
+  let res: Suggestion[];
+
+  if (!(state in suggestionStates)) {
+    // state not a valid key in suggestionStates
+    throw 'Invalid state.';
+  } else {
+    // query suggestions by state
+    res = await db.all('SELECT id FROM suggestions WHERE state = ?', suggestionStates[state]);
+  }
+
+  let result = res.map((a) => a.id);
+
+  return result.map(Number);
 };
