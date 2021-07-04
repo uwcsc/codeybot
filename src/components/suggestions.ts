@@ -39,6 +39,11 @@ export const initSuggestionsTable = async (db: Database): Promise<void> => {
   );
 };
 
+// Get id and suggestion from a list of Suggestions
+export const getSuggestionPrintout = async (suggestions: Suggestion[]): Promise<string> => {
+  return suggestions.map((suggestion) => '**' + suggestion['id'] + '** | ' + suggestion['suggestion'] + '\n').join('');
+};
+
 export const addSuggestion = async (
   authorId: string,
   authorUsername: string,
@@ -88,21 +93,4 @@ export const getSuggestions = async (state: string | null): Promise<Suggestion[]
   }
 
   return res;
-};
-
-export const getSuggestionIdsByState = async (state = 'created'): Promise<number[]> => {
-  const db = await openDB();
-  let res: Suggestion[];
-
-  if (!(state in suggestionStates)) {
-    // state not a valid key in suggestionStates
-    throw 'Invalid state.';
-  } else {
-    // query suggestions by state
-    res = await db.all('SELECT id FROM suggestions WHERE state = ?', suggestionStates[state]);
-  }
-
-  let result = res.map((a) => a.id);
-
-  return result.map(Number);
 };
