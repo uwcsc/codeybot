@@ -11,7 +11,7 @@ export const suggestionStatesReadable: { [key: string]: string } = {
   accepted: 'Accepted'
 };
 
-export const enum suggestionStates {
+export enum suggestionStates {
   Created = 'created',
   Pending = 'pending',
   Rejected = 'rejected',
