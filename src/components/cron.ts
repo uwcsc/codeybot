@@ -14,7 +14,8 @@ export const createSuggestionCron = (client: CommandoClient): CronJob =>
     const createdSuggestionIds = createdSuggestions.map((a) => Number(a.id));
     if (!_.isEmpty(createdSuggestionIds)) {
       const messageChannel = client.channels.cache.get(MOD_CHANNEL_ID);
-      if (messageChannel === undefined) {
+
+      if (!messageChannel) {
         throw 'Bad channel ID';
       } else if (messageChannel.type === 'text') {
         // construct embed for display
