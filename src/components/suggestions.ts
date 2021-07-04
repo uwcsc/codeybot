@@ -11,7 +11,7 @@ export const suggestionStatesReadable: { [key: string]: string } = {
   accepted: 'Accepted'
 };
 
-export enum suggestionStates {
+export enum SuggestionStates {
   Created = 'created',
   Pending = 'pending',
   Rejected = 'rejected',
@@ -56,7 +56,7 @@ export const addSuggestion = async (
   authorId: string,
   authorUsername: string,
   suggestion: string,
-  state: string = suggestionStatesReadable[suggestionStates.Created]
+  state: string = suggestionStatesReadable[SuggestionStates.Created]
 ): Promise<void> => {
   const db = await openDB();
 
@@ -70,7 +70,7 @@ export const addSuggestion = async (
   );
 };
 
-export const updateSuggestionState = async (ids: number[], state = suggestionStates.Pending): Promise<void> => {
+export const updateSuggestionState = async (ids: number[], state = SuggestionStates.Pending): Promise<void> => {
   const db = await openDB();
   // Update created suggestions to pending suggestions in DB via ids
   ids.map(async function (id) {

@@ -1,4 +1,4 @@
-import { getSuggestions, getSuggestionPrintout, updateSuggestionState } from './suggestions';
+import { SuggestionStates, getSuggestions, getSuggestionPrintout, updateSuggestionState } from './suggestions';
 import { TextChannel, MessageEmbed } from 'discord.js';
 import { CommandoClient } from 'discord.js-commando';
 import { CronJob } from 'cron';
@@ -10,11 +10,11 @@ const MOD_CHANNEL_ID: string = process.env.MOD_CHANNEL_ID || '.';
 // Checks for new suggestions every min
 export const createSuggestionCron = (client: CommandoClient): CronJob =>
   new CronJob('0 */1 * * * *', async function () {
-    const createdSuggestions = await getSuggestions('created');
+    const createdSuggestions = await getSuggestions(SuggestionStates.Created);
     const createdSuggestionIds = createdSuggestions.map((a) => Number(a.id));
     if (!_.isEmpty(createdSuggestionIds)) {
       const messageChannel = client.channels.cache.get(MOD_CHANNEL_ID);
-      if (messageChannel == undefined) {
+      if (messageChannel === undefined) {
         throw 'Bad channel ID';
       } else if (messageChannel.type === 'text') {
         // construct embed for display
