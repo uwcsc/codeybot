@@ -56,7 +56,7 @@ export const addSuggestion = async (
   authorId: string,
   authorUsername: string,
   suggestion: string,
-  state: string = suggestionStatesReadable[SuggestionState.Created]
+  state: string = SuggestionState.Created
 ): Promise<void> => {
   const db = await openDB();
 
@@ -80,7 +80,7 @@ export const updateSuggestionState = async (ids: number[], state = SuggestionSta
       SET state = ?
       WHERE id = ?;
       `,
-      [suggestionStatesReadable[state], id]
+      [state, id]
     );
   });
 };
@@ -92,15 +92,11 @@ export const getSuggestions = async (state: string | null): Promise<Suggestion[]
   if (!state) {
     // no state specified, query for all suggestions
     res = await db.all('SELECT * FROM suggestions ORDER BY created_at DESC');
-  } else if (!(state in suggestionStatesReadable)) {
-    // state not a valid key in suggestionStatesReadable
+  } else if (!Object.values(SuggestionState).includes(state as SuggestionState)) {
     throw 'Invalid state.';
   } else {
     // query suggestions by state
-    res = await db.all(
-      'SELECT * FROM suggestions WHERE state = ? ORDER BY created_at DESC',
-      suggestionStatesReadable[state]
-    );
+    res = await db.all('SELECT * FROM suggestions WHERE state = ? ORDER BY created_at DESC', state);
   }
 
   return res;
