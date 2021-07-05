@@ -3,7 +3,7 @@ import { Database } from 'sqlite';
 import { openDB } from './db';
 
 // maps from key to readable string
-export const suggestionStates: { [key: string]: string } = {
+export const suggestionStatesReadable: { [key: string]: string } = {
   created: 'Created',
   pending: 'Pending',
   rejected: 'Rejected',
@@ -11,9 +11,17 @@ export const suggestionStates: { [key: string]: string } = {
   accepted: 'Accepted'
 };
 
+export enum SuggestionState {
+  Created = 'created',
+  Pending = 'pending',
+  Rejected = 'rejected',
+  Actionable = 'actionable',
+  Accepted = 'accepted'
+}
+
 export const getListsString = (List: string[]): string => _.join(List, ', ');
 
-export const getAvailableStatesString = (): string => getListsString(Object.values(suggestionStates));
+export const getAvailableStatesString = (): string => getListsString(Object.values(suggestionStatesReadable));
 
 export interface Suggestion {
   id: string;
@@ -39,11 +47,16 @@ export const initSuggestionsTable = async (db: Database): Promise<void> => {
   );
 };
 
+// Get id and suggestion from a list of Suggestions
+export const getSuggestionPrintout = async (suggestions: Suggestion[]): Promise<string> => {
+  return suggestions.map((suggestion) => '**' + suggestion['id'] + '** | ' + suggestion['suggestion']).join('\n');
+};
+
 export const addSuggestion = async (
   authorId: string,
   authorUsername: string,
   suggestion: string,
-  state: string = suggestionStates['created']
+  state: string = SuggestionState.Created
 ): Promise<void> => {
   const db = await openDB();
 
@@ -57,6 +70,21 @@ export const addSuggestion = async (
   );
 };
 
+export const updateSuggestionState = async (ids: number[], state = SuggestionState.Pending): Promise<void> => {
+  const db = await openDB();
+  // Update created suggestions to pending suggestions in DB via ids
+  ids.map(async function (id) {
+    await db.run(
+      `
+      UPDATE suggestions
+      SET state = ?
+      WHERE id = ?;
+      `,
+      [state, id]
+    );
+  });
+};
+
 export const getSuggestions = async (state: string | null): Promise<Suggestion[]> => {
   const db = await openDB();
   let res: Suggestion[];
@@ -64,12 +92,11 @@ export const getSuggestions = async (state: string | null): Promise<Suggestion[]
   if (!state) {
     // no state specified, query for all suggestions
     res = await db.all('SELECT * FROM suggestions ORDER BY created_at DESC');
-  } else if (!(state in suggestionStates)) {
-    // state not a valid key in suggestionStates
+  } else if (!Object.values(SuggestionState).includes(state as SuggestionState)) {
     throw 'Invalid state.';
   } else {
     // query suggestions by state
-    res = await db.all('SELECT * FROM suggestions WHERE state = ? ORDER BY created_at DESC', suggestionStates[state]);
+    res = await db.all('SELECT * FROM suggestions WHERE state = ? ORDER BY created_at DESC', state);
   }
 
   return res;

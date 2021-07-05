@@ -2,7 +2,12 @@ import { Message, MessageEmbed } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 
 import { AdminCommand } from '../../utils/commands';
-import { suggestionStates, getAvailableStatesString, getSuggestions, Suggestion } from '../../components/suggestions';
+import {
+  suggestionStatesReadable,
+  getAvailableStatesString,
+  getSuggestions,
+  Suggestion
+} from '../../components/suggestions';
 import { EMBED_COLOUR } from '../../utils/embeds';
 import { parseStateArg, validateState } from './utils';
 
@@ -31,7 +36,15 @@ class SuggestionsListCommand extends AdminCommand {
   }
 
   private async getSuggestionDisplayInfo(suggestion: Suggestion) {
-    return '**' + suggestion['id'] + '** | ' + suggestion['state'] + ' | ' + suggestion['suggestion'] + '\n\n';
+    return (
+      '**' +
+      suggestion['id'] +
+      '** | ' +
+      suggestionStatesReadable[suggestion['state']] +
+      ' | ' +
+      suggestion['suggestion'] +
+      '\n\n'
+    );
   }
 
   async onRun(message: CommandoMessage, args: { state: string }): Promise<Message> {
@@ -47,7 +60,7 @@ class SuggestionsListCommand extends AdminCommand {
     );
 
     // construct embed for display
-    const title = state ? `${suggestionStates[state.toLowerCase()]} Suggestions` : 'Suggestions';
+    const title = state ? `${suggestionStatesReadable[state]} Suggestions` : 'Suggestions';
     const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(suggestionsInfo.join(''));
     return message.channel.send(outEmbed);
