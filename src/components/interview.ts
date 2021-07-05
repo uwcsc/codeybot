@@ -8,7 +8,9 @@ export const availableDomains: { [key: string]: string } = {
   frontend: 'Frontend',
   backend: 'Backend',
   design: 'Design',
-  pm: 'PM'
+  pm: 'PM',
+  datasci: 'Datasci',
+  infra: 'Infra'
 };
 
 export interface Interviewer {
