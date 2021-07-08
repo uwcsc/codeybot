@@ -1,5 +1,6 @@
 import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
+import { alertMatch, loadUsers } from '../../components/coffeechat';
 import { BaseCommand } from '../../utils/commands';
 
 class coffeeSignupCommand extends BaseCommand {
@@ -14,8 +15,7 @@ class coffeeSignupCommand extends BaseCommand {
   }
 
   async onRun(message: CommandoMessage): Promise<Message> {
-    const { author } = message;
-
+    await loadUsers(this.client);
     return message.channel.send('Ree');
   }
 }
