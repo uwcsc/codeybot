@@ -33,7 +33,7 @@ export const getInterviewer = async (id: string): Promise<Interviewer | undefine
   return await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
 };
 
-export const getDomainsString = (domains: string[]): string => '`' + _.join(domains, '`, `') + '`';
+export const getDomainsString = (domains: string[]): string => `\`${_.join(domains, '`, `')}\``;
 
 export const getAvailableDomainsString = (): string => getDomainsString(Object.keys(availableDomains));
 
