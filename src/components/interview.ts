@@ -9,8 +9,12 @@ export const availableDomains: { [key: string]: string } = {
   backend: 'Backend',
   design: 'Design',
   pm: 'PM',
-  datasci: 'Datasci',
-  infra: 'Infra'
+  datasci: 'DataSci',
+  infra: 'Infra',
+  mobile: 'Mobile',
+  research: 'Research',
+  hardware: 'Hardware',
+  gamedev: 'GameDev'
 };
 
 export interface Interviewer {
@@ -29,9 +33,9 @@ export const getInterviewer = async (id: string): Promise<Interviewer | undefine
   return await db.get('SELECT * FROM interviewers WHERE user_id = ?', id);
 };
 
-export const getDomainsString = (domains: string[]): string => _.join(domains, ', ');
+export const getDomainsString = (domains: string[]): string => `\`${_.join(domains, '`, `')}\``;
 
-export const getAvailableDomainsString = (): string => getDomainsString(Object.values(availableDomains));
+export const getAvailableDomainsString = (): string => getDomainsString(Object.keys(availableDomains));
 
 export const parseLink = (link: string): string | null => {
   //checks if link is (roughly) one from calendly or x.ai
