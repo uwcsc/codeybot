@@ -2,6 +2,8 @@ services:
   codey-bot:
     image: codey:latest
     container_name: codey-bot
+    env_file:
+      - .env
     environment:
       - CHOKIDAR_USEPOLLING=true
     volumes:

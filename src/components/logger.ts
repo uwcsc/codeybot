@@ -1,6 +1,10 @@
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 
+const consoleTransport = new winston.transports.Console({
+  format: process.env.NODE_ENV === 'dev' ? winston.format.prettyPrint() : undefined
+});
+
 const dailyRotateTransport = new winston.transports.DailyRotateFile({
   filename: '%DATE%.log',
   dirname: 'logs',
@@ -19,16 +23,8 @@ const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.printf(({ level, message, timestamp }) => `[${timestamp}] ${level}: ${JSON.stringify(message)}`)
   ),
-  transports: [dailyRotateTransport, dailyRotateErrorTransport]
+  transports: [consoleTransport, dailyRotateTransport, dailyRotateErrorTransport]
 });
-
-if (process.env.NODE_ENV === 'dev') {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.prettyPrint()
-    })
-  );
-}
 
 export const logError = (err: Error, event = 'client', data: { [key: string]: string } = {}): void => {
   logger.error({

@@ -4,6 +4,7 @@
 
 - `BOT_TOKEN`: the token found in the bot user account.
 - `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
+- `MOD_CHANNEL_ID` : the ID of the discord mod channel
 
 ## Prerequisites
 
