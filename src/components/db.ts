@@ -3,11 +3,8 @@ import { open, Database } from 'sqlite';
 
 import { initSuggestionsTable } from './suggestions';
 import { initInterviewTables } from './interview';
-<<<<<<< HEAD
 import { initCoffeechatTables } from './coffeechat';
-=======
 import logger from './logger';
->>>>>>> master
 
 let db: Database | null = null;
 
