@@ -10,7 +10,7 @@ import path from 'path';
 import { openCommandoDB } from './components/db';
 import logger, { logError } from './components/logger';
 import { initEmojis } from './components/emojis';
-import { loadUsers } from './components/coffeechat';
+import { genMatches, loadNotMatched } from './components/coffeechat';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
@@ -41,11 +41,10 @@ export const startBot = async (): Promise<void> => {
     });
     const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
     initEmojis(client);
+    console.log(await genMatches(client));
     notif.send('Codey is up!');
   });
 
   client.on('error', logError);
-  console.log(process.env);
-  loadUsers(client);
   client.login(BOT_TOKEN);
 };
