@@ -5,16 +5,16 @@ import { openDB } from './db';
 
 //maps from key to readable string
 export const availableDomains: { [key: string]: string } = {
-  frontend: 'Frontend',
   backend: 'Backend',
-  design: 'Design',
-  pm: 'PM',
   datasci: 'DataSci',
+  design: 'Design',
+  frontend: 'Frontend',
+  gamedev: 'GameDev',
+  hardware: 'Hardware',
   infra: 'Infra',
   mobile: 'Mobile',
-  research: 'Research',
-  hardware: 'Hardware',
-  gamedev: 'GameDev'
+  pm: 'PM',
+  research: 'Research'
 };
 
 export interface Interviewer {
@@ -35,7 +35,7 @@ export const getInterviewer = async (id: string): Promise<Interviewer | undefine
 
 export const getDomainsString = (domains: string[]): string => `\`${_.join(domains, '`, `')}\``;
 
-export const getAvailableDomainsString = (): string => getDomainsString(Object.keys(availableDomains));
+export const getAvailableDomainsString = (): string => getDomainsString(Object.keys(availableDomains).sort());
 
 export const parseLink = (link: string): string | null => {
   //checks if link is (roughly) one from calendly or x.ai
