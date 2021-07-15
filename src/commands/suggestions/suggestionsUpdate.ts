@@ -11,8 +11,6 @@ import {
 import { EMBED_COLOUR } from '../../utils/embeds';
 import { parseStateArg, validateUpdate } from './utils';
 
-const RESULTS_PER_PAGE = 6;
-
 class SuggestionsUpdateCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
