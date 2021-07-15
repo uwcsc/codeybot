@@ -5,7 +5,8 @@ import { AdminCommand } from '../../utils/commands';
 import {
   suggestionStatesReadable,
   getAvailableStatesString,
-  updateSuggestionState
+  updateSuggestionState,
+  SuggestionState
 } from '../../components/suggestions';
 import { EMBED_COLOUR } from '../../utils/embeds';
 import { parseStateArg, validateUpdate } from './utils';
@@ -40,12 +41,12 @@ class SuggestionsUpdateCommand extends AdminCommand {
   async onRun(message: CommandoMessage, args: { value: string }): Promise<Message> {
     const { value } = args;
     const values = value.split('\\s+');
-    const state = values[0];
+    const state = values[0] as SuggestionState;
     const ids = values.slice(1);
     const suggestionIds = ids.map((a) => Number(a));
 
     // Update states
-    await updateSuggestionState(suggestionIds);
+    await updateSuggestionState(suggestionIds, state);
 
     // construct embed for display
     const title = `Suggestions Updated To ${suggestionStatesReadable[state]} State`;
