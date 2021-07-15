@@ -10,7 +10,7 @@ export const validateUpdate = (value: string): boolean | string => {
   }
 
   // validate each id after first word
-  for (var i = 1; i < values.length; i++) {
+  for (let i = 1; i < values.length; i++) {
     if (isNaN(Number(values[i]))) {
       return `you entered an invalid id: ${values[i]}. Please enter numbers only.`;
     }
