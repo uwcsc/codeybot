@@ -22,7 +22,7 @@ class SuggestionsUpdateCommand extends AdminCommand {
       memberName: 'update',
       args: [
         {
-          key: 'state',
+          key: 'value',
           prompt: `enter one of ${getAvailableStatesString()} before your IDs.`,
           type: 'string',
           default: '',
@@ -40,7 +40,7 @@ class SuggestionsUpdateCommand extends AdminCommand {
 
   async onRun(message: CommandoMessage, args: { value: string }): Promise<Message> {
     const { value } = args;
-    const values = value.split('\\s+');
+    const values = value.split(' ');
     const state = values[0] as SuggestionState;
     const ids = values.slice(1);
     const suggestionIds = ids.map((a) => Number(a));

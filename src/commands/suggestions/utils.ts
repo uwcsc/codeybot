@@ -2,9 +2,8 @@ import { suggestionStatesReadable, getAvailableStatesString } from '../../compon
 
 export const validateUpdate = (value: string): boolean | string => {
   // Split by white space
-  const values = value.split('\\s+');
+  const values = value.split(' ');
   const state = values[0];
-
   // validate if first word is one of the available states
   if (!(state.toLowerCase() in suggestionStatesReadable)) {
     return `you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`;
@@ -13,7 +12,7 @@ export const validateUpdate = (value: string): boolean | string => {
   // validate each id after first word
   for (var i = 1; i < values.length; i++) {
     if (isNaN(Number(values[i]))) {
-      return `you entered an invalid id: ${values[i]}. Please enter one of ${getAvailableStatesString()}.`;
+      return `you entered an invalid id: ${values[i]}. Please enter numbers only.`;
     }
   }
   return true;
