@@ -1,5 +1,7 @@
 # Codey Bot
 
+![Build](https://github.com/uwcsc/codeybot/actions/workflows/build.yml/badge.svg)
+
 ## Required environment variables
 
 - `BOT_TOKEN`: the token found in the bot user account.
