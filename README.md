@@ -1,6 +1,6 @@
 # Codey Bot
 
-![Build](https://github.com/uwcsc/codeybot/actions/workflows/build.yml/badge.svg)
+[![Build](https://github.com/uwcsc/codeybot/actions/workflows/build.yml/badge.svg)](https://github.com/uwcsc/codeybot/actions/workflows/build.yml)
 
 ## Required environment variables
 
