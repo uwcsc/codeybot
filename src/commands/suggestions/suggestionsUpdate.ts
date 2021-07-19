@@ -9,7 +9,7 @@ import {
   SuggestionState
 } from '../../components/suggestions';
 import { EMBED_COLOUR } from '../../utils/embeds';
-import { parseStateArg, validateUpdate } from './utils';
+import { parseStateArg, validateState, validateIDs } from './utils';
 
 class SuggestionsUpdateCommand extends AdminCommand {
   constructor(client: CommandoClient) {
@@ -20,12 +20,19 @@ class SuggestionsUpdateCommand extends AdminCommand {
       memberName: 'update',
       args: [
         {
-          key: 'value',
-          prompt: `enter one of ${getAvailableStatesString()} before your IDs.`,
+          key: 'state',
+          prompt: `enter one of ${getAvailableStatesString()}.`,
           type: 'string',
           default: '',
-          validate: validateUpdate,
+          validate: validateState,
           parse: parseStateArg
+        },
+        {
+          key: 'ids',
+          prompt: `enter suggestion IDs seperated by spaces.`,
+          type: 'string',
+          default: '',
+          validate: validateIDs
         }
       ],
       description: 'Updates a list of suggestion states.',
@@ -36,20 +43,19 @@ class SuggestionsUpdateCommand extends AdminCommand {
     });
   }
 
-  async onRun(message: CommandoMessage, args: { value: string }): Promise<Message> {
-    const { value } = args;
-    const values = value.split(' ');
-    const state = values[0] as SuggestionState;
-    const ids = values.slice(1);
-    const suggestionIds = ids.map((a) => Number(a));
+  async onRun(message: CommandoMessage, args: { state: string; ids: string }): Promise<Message> {
+    const { state, ids } = args;
+    const values = ids.split(' ');
+    const suggestionState = state as SuggestionState;
+    const suggestionIds = values.map((a) => Number(a));
 
     // Update states
-    await updateSuggestionState(suggestionIds, state);
+    await updateSuggestionState(suggestionIds, suggestionState);
 
     // construct embed for display
     const title = `Suggestions Updated To ${suggestionStatesReadable[state]} State`;
     const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
-    outEmbed.setDescription(ids.join(' '));
+    outEmbed.setDescription(suggestionIds.join(' '));
     return message.channel.send(outEmbed);
   }
 }

@@ -1,16 +1,11 @@
 import { suggestionStatesReadable, getAvailableStatesString } from '../../components/suggestions';
 
-export const validateUpdate = (value: string): boolean | string => {
+export const validateIDs = (value: string): boolean | string => {
   // Split by white space
   const values = value.split(' ');
-  const state = values[0];
-  // validate if first word is one of the available states
-  if (!(state.toLowerCase() in suggestionStatesReadable)) {
-    return `you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`;
-  }
 
   // validate each id after first word
-  for (let i = 1; i < values.length; i++) {
+  for (let i = 0; i < values.length; i++) {
     if (isNaN(Number(values[i]))) {
       return `you entered an invalid id: ${values[i]}. Please enter numbers only.`;
     }
