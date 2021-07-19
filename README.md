@@ -1,6 +1,6 @@
 # Codey Bot
 
-[![Build](https://github.com/uwcsc/codeybot/actions/workflows/build.yml/badge.svg)](https://github.com/uwcsc/codeybot/actions/workflows/build.yml)
+[![Build](https://github.com/uwcsc/codeybot/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/uwcsc/codeybot/actions/workflows/build.yml?query=branch%3Amaster)
 
 ## Required environment variables
 
