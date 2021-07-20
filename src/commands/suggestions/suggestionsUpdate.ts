@@ -15,7 +15,7 @@ class SuggestionsUpdateCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'suggestions-update',
-      aliases: ['suggestions-update', 'suggestion-update'],
+      aliases: ['suggestion-update'],
       group: 'suggestions',
       memberName: 'update',
       args: [
@@ -23,7 +23,6 @@ class SuggestionsUpdateCommand extends AdminCommand {
           key: 'state',
           prompt: `enter one of ${getAvailableStatesString()}.`,
           type: 'string',
-          default: '',
           validate: validateState,
           parse: parseStateArg
         },
@@ -31,7 +30,6 @@ class SuggestionsUpdateCommand extends AdminCommand {
           key: 'ids',
           prompt: `enter suggestion IDs seperated by spaces.`,
           type: 'string',
-          default: '',
           validate: validateIDs
         }
       ],
@@ -45,9 +43,8 @@ class SuggestionsUpdateCommand extends AdminCommand {
 
   async onRun(message: CommandoMessage, args: { state: string; ids: string }): Promise<Message> {
     const { state, ids } = args;
-    const values = ids.split(' ');
+    const suggestionIds = ids.split(' ').map((a) => Number(a));
     const suggestionState = state as SuggestionState;
-    const suggestionIds = values.map((a) => Number(a));
 
     // Update states
     await updateSuggestionState(suggestionIds, suggestionState);
@@ -55,7 +52,7 @@ class SuggestionsUpdateCommand extends AdminCommand {
     // construct embed for display
     const title = `Suggestions Updated To ${suggestionStatesReadable[state]} State`;
     const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
-    outEmbed.setDescription(suggestionIds.join(' '));
+    outEmbed.setDescription(suggestionIds.join(', '));
     return message.channel.send(outEmbed);
   }
 }

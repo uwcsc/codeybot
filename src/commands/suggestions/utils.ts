@@ -1,14 +1,13 @@
+import _ from 'lodash';
 import { suggestionStatesReadable, getAvailableStatesString } from '../../components/suggestions';
 
 export const validateIDs = (value: string): boolean | string => {
   // Split by white space
-  const values = value.split(' ');
+  const values = value.split(' ').map((a) => Number(a));
 
   // validate each id after first word
-  for (let i = 0; i < values.length; i++) {
-    if (isNaN(Number(values[i]))) {
-      return `you entered an invalid id: ${values[i]}. Please enter numbers only.`;
-    }
+  if (_.some(values, isNaN)) {
+    return `you entered an invalid id. Please enter numbers only.`;
   }
   return true;
 };
