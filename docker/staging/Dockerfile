@@ -6,7 +6,7 @@ RUN npm install
 COPY . .
 RUN npm run ts:build
 
-# Stage 2: Run in production env
+# Stage 2: Run in staging env
 FROM node:16-alpine
 WORKDIR /usr/app
 ENV NODE_ENV="staging"
