@@ -1,6 +1,6 @@
 services:
   codey-bot:
-    image: gzcharleszhang/codey-bot:${TAG}
+    image: uwcsclub/codey-bot:${TAG}
     container_name: codey-production
     env_file:
       - .env
