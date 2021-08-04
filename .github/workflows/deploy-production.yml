@@ -11,6 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Get the release tag
+        run: echo "RELEASE_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -28,7 +31,7 @@ jobs:
           cache-from: uwcsclub/codey-bot:cache
           file: docker/production/Dockerfile
           push: true
-          tags: uwcsclub/codey-bot:${GITHUB_REF##*/},uwcsclub/codey-bot:${{ github.sha }}
+          tags: uwcsclub/codey-bot:${{ env.RELEASE_TAG }},uwcsclub/codey-bot:${{ github.sha }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -51,7 +54,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd codey/production
-            docker pull uwcsclub/codey-bot:${GITHUB_REF##*/}
-            echo "TAG=${GITHUB_REF##*/}" > docker.env
+            docker pull uwcsclub/codey-bot:${{ env.RELEASE_TAG }}
+            echo "TAG=${{ env.RELEASE_TAG }}" > docker.env
             docker-compose down
             docker-compose --env-file docker.env up -d
