@@ -28,7 +28,7 @@ jobs:
           cache-from: uwcsclub/codey-bot:cache
           file: docker/production/Dockerfile
           push: true
-          tags: uwcsclub/codey-bot:${{ github.ref }},uwcsclub/codey-bot:${{ github.sha }}
+          tags: uwcsclub/codey-bot:${GITHUB_REF##*/},uwcsclub/codey-bot:${{ github.sha }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -51,7 +51,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd codey/production
-            docker pull uwcsclub/codey-bot:${{ github.ref }}
-            echo "TAG=${{ github.ref }}" > docker.env
+            docker pull uwcsclub/codey-bot:${GITHUB_REF##*/}
+            echo "TAG=${GITHUB_REF##*/}" > docker.env
             docker-compose down
             docker-compose --env-file docker.env up -d
