@@ -3,6 +3,8 @@ name: Deploy Codey to Staging
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   deploy:
