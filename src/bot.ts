@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import Discord from 'discord.js';
+import Discord, { TextChannel } from 'discord.js';
 import yaml from 'js-yaml';
 import fs from 'fs';
 import Commando from 'discord.js-commando';
@@ -11,6 +11,7 @@ import { openCommandoDB } from './components/db';
 import logger, { logError } from './components/logger';
 import { initEmojis } from './components/emojis';
 import { createSuggestionCron } from './components/cron';
+import { CategoryChannel } from 'discord.js';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
@@ -26,7 +27,8 @@ client.registry
   .registerDefaultCommands({ unknownCommand: false })
   .registerGroups([
     ['suggestions', 'Suggestions'],
-    ['interviews', 'Mock Interviews']
+    ['interviews', 'Mock Interviews'],
+    ['mentor', 'Add Mentor'],
   ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
@@ -41,10 +43,49 @@ export const startBot = async (): Promise<void> => {
     const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
     initEmojis(client);
     createSuggestionCron(client).start();
-    notif.send('Codey is up!');
+    const activities = [
+      'watching vsauce',
+      'questioning existence',
+      'doing backflips',
+      'skydiving without a parachute',
+      'gambling it all',
+      'dancing on the moon',
+      'figure skating',
+      'eating salad',
+      'sad and needs a hug',
+      'skipping leg day',
+      'making tiktoks',
+      'mining diamonds',
+      'bingeing anime with kuma',
+    ]
+    notif.send('Codey is ' + activities[Math.floor(Math.random() * activities.length)] + '!');
+    // notif.send('Codey is ' + 'doing backflips' + '!');
   });
 
   client.on('error', logError);
 
   client.login(BOT_TOKEN);
+
+  client.on('voiceStateUpdate', (oldMember, newMember) => {
+    let guild = oldMember.guild
+    let newUserChannel = newMember.channel
+    let oldUserChannel = oldMember.channel
+
+    if (newUserChannel !== null) {
+      const queueChannel = <TextChannel>guild.channels.cache.filter(channel => channel.name === newUserChannel?.name.replace(/ +/g, '-').toLocaleLowerCase() + "-queue").first();
+      queueChannel?.send(newMember.id)
+    }
+
+    if (oldUserChannel !== null) {
+      const queueChannel = <TextChannel>guild.channels.cache.filter(channel => channel.name === oldUserChannel?.name.replace(/ +/g, '-').toLocaleLowerCase() + "-queue").first();
+
+      const clear = async(): Promise<void> => {
+        let fetched = await queueChannel.messages.fetch({limit: 100});
+        let filtered = fetched.filter((msg) => msg.content === newMember.id);
+        queueChannel.bulkDelete(filtered);
+      }
+      if (queueChannel) clear()
+    }
+
+  })
 };

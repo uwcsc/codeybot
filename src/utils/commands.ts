@@ -47,6 +47,15 @@ export abstract class AdminCommand extends BaseCommand {
   }
 }
 
+export abstract class MentorCommand extends BaseCommand {
+  constructor(client: CommandoClient, info: CommandInfo) {
+    super(client, {
+      ...info,
+      userPermissions: [...(info.userPermissions || []), 'MOVE_MEMBERS']
+    });
+  }
+}
+
 const getMessageLogData = (message: CommandoMessage): { [key: string]: string } => {
   return {
     authorId: message.author.id,
