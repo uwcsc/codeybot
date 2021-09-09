@@ -28,7 +28,7 @@ class MentorNewTrackCommand extends AdminCommand {
     let guild = message.guild;
 
     const trackCategory = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category && channel.type === "category");
-    const waitingRooms = <CategoryChannel>guild.channels.cache.find(channel => channel.name === "Waiting Rooms" && channel.type === "category");
+    const waitingRooms = <CategoryChannel>guild.channels.cache.find(channel => channel.name.startsWith("Waiting Room") && channel.type === "category");
     
     if (!waitingRooms) {
       return message.say("This server does not have a waiting room.");
