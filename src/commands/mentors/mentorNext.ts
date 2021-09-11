@@ -18,7 +18,6 @@ class MentorNextCommand extends MentorCommand {
     let mentor = message.member?.voice;
     let callChannel = mentor?.channel;
     let guild = message.guild;
-
     let track = callChannel?.parent?.name
 
     let front;
