@@ -1,7 +1,7 @@
 import { Message, CategoryChannel, Permissions } from 'discord.js';
 import { CommandoClient, CommandoGuild, CommandoMessage } from 'discord.js-commando';
 import { AdminCommand } from '../../utils/commands';
-
+import { toTitleCase } from './utils';
 
 class MentorNewTrackCommand extends AdminCommand {
   constructor(client: CommandoClient) {
@@ -27,12 +27,17 @@ class MentorNewTrackCommand extends AdminCommand {
     category = toTitleCase(category)
     let guild = message.guild;
 
-    const trackCategory = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category && channel.type === "category");
+    
     const waitingRooms = <CategoryChannel>guild.channels.cache.find(channel => channel.name.startsWith("Waiting Room") && channel.type === "category");
     
     if (!waitingRooms) {
+      guild.channels.create("Waiting Room", {
+        type: "category",
+      })
       return message.say("This server does not have a waiting room.");
     }
+
+    const trackCategory = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category && channel.type === "category");
     
     if (trackCategory) {
       return message.say("This channel category already exists.");
@@ -58,11 +63,6 @@ class MentorNewTrackCommand extends AdminCommand {
         })
         .catch(console.error);
 
-        guild.channels.create("muted-vc", {
-          parent: newCategory,
-        })
-        .catch(console.error);
-
         guild.channels.create("Call 0", {
           type: "voice",
           userLimit: 2,
@@ -75,21 +75,16 @@ class MentorNewTrackCommand extends AdminCommand {
           ],
         })
         .catch(console.error);
+        guild.channels.create("call-0-vc", {
+          parent: newCategory,
+        })
+        .catch(console.error);
       })
       .catch(console.error);
       
       return message.say("New category created!");
     }
   }
-}
-
-function toTitleCase(str: string) {
-  return str.replace(/-/g, ' ').replace(
-    /\w\S*/g,
-    function(txt: string) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    }
-  );
 }
 
 export default MentorNewTrackCommand;
