@@ -27,7 +27,6 @@ class MentorRemoveTrackCommand extends AdminCommand {
 
     category = toTitleCase(category)
     let guild = message.guild;
-    console.log(category)
     const trackCategory = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category && channel.type === "category");
     const trackWait = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category && channel.type === "voice");
     const waitingRooms = <CategoryChannel>guild.channels.cache.find(channel => channel.name.startsWith("Waiting Room") && channel.type === "category");
