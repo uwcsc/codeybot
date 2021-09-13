@@ -36,11 +36,10 @@ class MentorTrackCommand extends MentorCommand {
     const trackCategory = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category?.replace(/ +/g, '-').toLocaleLowerCase() + "-queue")?.parent;
     const callChannels = trackCategory?.children?.filter(channel => channel.type === "voice").map(channel => <VoiceChannel>channel);
     if (trackCategory) {
-      const foundCall = callChannels.find(channel => channel.members.filter(member => member.roles.cache.map(role => role.id).includes(mentorRole) ).size === 0)
+      const foundCall = callChannels.find(channel => channel.members.filter(member => member.roles.cache.map(role => role.id).includes(mentorRole)).size === 0);
       if (foundCall) {
         mentor?.setChannel(foundCall)
       } else {
-        console.log(callChannels.map(c => Number(c.name.split(" ")[1])));
         const callNum = lowestInt(callChannels.map(c => Number(c.name.split(" ")[1])));
 
         const mentorMember = <GuildMember>mentor.member;

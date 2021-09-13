@@ -10,7 +10,7 @@ import path from 'path';
 import { openCommandoDB } from './components/db';
 import logger, { logError } from './components/logger';
 import { initEmojis } from './components/emojis';
-import { createSuggestionCron } from './components/cron';
+import { createSuggestionCron, waitingRoomsInfo, mentorCallTimer } from './components/cron';
 import { CategoryChannel } from 'discord.js';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
@@ -18,14 +18,17 @@ const EVENT_CHANNEL_ID: string = process.env.EVENT_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
 const BOT_PREFIX = '.';
 
+
+
 // BootCamp Event
-export let eventMentors: string[] = [];
+// export let eventMentors: string[] = [];
 export let mentorRole: string;
 
 // initialize Commando client
 const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as string[];
 const client = new Commando.Client({ owner: botOwners, commandPrefix: BOT_PREFIX });
 // register command groups
+
 client.registry
   .registerDefaultTypes()
   .registerDefaultGroups()
@@ -50,24 +53,25 @@ export const startBot = async (): Promise<void> => {
     const events = (await client.channels.fetch(EVENT_CHANNEL_ID)) as Discord.TextChannel;
     initEmojis(client);
     createSuggestionCron(client).start();
+    waitingRoomsInfo(client).start();
+    mentorCallTimer(client).start();
 
+    // const mentorIdsHandles = <TextChannel>events.guild.channels.cache.find(channel => channel.name === "mentor-ids")
 
-    const mentorIdsHandles = <TextChannel>events.guild.channels.cache.find(channel => channel.name === "mentor-ids")
-
-    mentorIdsHandles?.messages.fetch({ limit: 100 }).then(messages => {
-      messages.every((mesg): boolean => {
-        eventMentors.push(mesg.content);
-        return true
-      })
-    }).then(
-      () => {
-        let parsedEventMentors: string[] = []
-        eventMentors.forEach(chunk => {
-          parsedEventMentors = parsedEventMentors.concat(chunk.split("\n").map(str => str.trim()))
-        })
-        eventMentors = parsedEventMentors;
-      }
-    )
+    // mentorIdsHandles?.messages.fetch({ limit: 100 }).then(messages => {
+    //   messages.every((mesg): boolean => {
+    //     eventMentors.push(mesg.content);
+    //     return true
+    //   })
+    // }).then(
+    //   () => {
+    //     let parsedEventMentors: string[] = []
+    //     eventMentors.forEach(chunk => {
+    //       parsedEventMentors = parsedEventMentors.concat(chunk.split("\n").map(str => str.trim()))
+    //     })
+    //     eventMentors = parsedEventMentors;
+    //   }
+    // )
 
     const mentorGetRole = <Role>events.guild.roles.cache.find(role => role.name === "Mentor");
     mentorRole = mentorGetRole.id;
@@ -79,12 +83,36 @@ export const startBot = async (): Promise<void> => {
 
   client.login(BOT_TOKEN);
 
-  client.on('guildMemberAdd', member => {
-    if (eventMentors.includes(member.id) || eventMentors.includes(member.user.tag)) {
-      member.edit({
+  client.on("message", message => {
+    if (message.channel.id === EVENT_CHANNEL_ID) {
+      message?.guild?.members.cache.find(user => user.user.tag == message.content || user.id == message.content)?.edit({
         roles: [mentorRole]
       })
     }
+  })
+
+  client.on('guildMemberAdd', member => {
+    const mentorIdsHandles = <TextChannel>member.guild.channels.cache.find(channel => channel.name === "mentor-ids");
+    let eventMentors: string[] = [];
+    mentorIdsHandles?.messages.fetch({ limit: 100 }).then(messages => {
+      messages.every((mesg): boolean => {
+        eventMentors.push(mesg.content);
+        return true
+      })
+    }).then(
+      () => {
+        let parsedEventMentors: string[] = []
+        eventMentors.forEach(chunk => {
+          parsedEventMentors = parsedEventMentors.concat(chunk.split("\n").map(str => str.trim()))
+        })
+        if (parsedEventMentors.includes(member.id) || parsedEventMentors.includes(member.user.tag)) {
+          member.edit({
+            roles: [mentorRole]
+          })
+        }
+      }
+    )
+    
   });
 
   client.on('voiceStateUpdate', (oldMember, newMember) => {

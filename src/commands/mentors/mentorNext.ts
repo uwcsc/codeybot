@@ -35,8 +35,8 @@ class MentorNextCommand extends MentorCommand {
       }
 
       queueChannel.messages.fetch({ limit: queueVoice.members.size * 2 + 5 }).then(messages => {
-        messages.sorted((mesgA, mesgB) => mesgA.createdTimestamp - mesgB.createdTimestamp).every((mesg): boolean => {
-          front = queueMembers.get(mesg.content)
+        messages.sorted((mesgA, mesgB) => mesgA.createdTimestamp - mesgB.createdTimestamp).every((msg): boolean => {
+          front = queueMembers.get(msg.content)
           if (front) {
             let mentorCall = <VoiceChannel>mentor?.channel
             front.voice.setChannel(mentorCall)
@@ -44,6 +44,8 @@ class MentorNextCommand extends MentorCommand {
             const chatChannel = <TextChannel>mentorCall?.parent?.children.find(channel => channel.name === mentorCall?.name.replace(/ +/g, '-').toLocaleLowerCase() + "-vc");
             chatChannel.updateOverwrite(front, {
               VIEW_CHANNEL: true,
+            }).then(() => {
+              chatChannel.send("You have **15** minutes remaining.")
             })
             return false
           }

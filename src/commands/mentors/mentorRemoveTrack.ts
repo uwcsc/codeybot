@@ -30,7 +30,7 @@ class MentorRemoveTrackCommand extends AdminCommand {
     const trackCategory = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category && channel.type === "category");
     const trackWait = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category && channel.type === "voice");
     const waitingRooms = <CategoryChannel>guild.channels.cache.find(channel => channel.name.startsWith("Waiting Room") && channel.type === "category");
-    
+
     if (!waitingRooms) {
       return message.say("This server does not have a waiting room.");
     }

@@ -3,7 +3,6 @@ import { CommandoClient, CommandoGuild, CommandoMessage } from 'discord.js-comma
 import { MentorCommand } from '../../utils/commands';
 import logger, { logError } from '../../components/logger';
 import { isGetAccessor } from 'typescript';
-import { eventMentors } from '../../bot'
 
 class MentorKickCommand extends MentorCommand {
   constructor(client: CommandoClient) {
@@ -25,7 +24,7 @@ class MentorKickCommand extends MentorCommand {
     const queueVoice = <VoiceChannel>guild.channels.cache.find(channel => channel.name === track && channel.type === "voice");
     const queueChannel = <TextChannel>callChannel?.parent?.children.find(channel => channel.name === track?.replace(/ +/g, '-').toLocaleLowerCase() + "-queue");
     let callMembers = callChannel?.members;
-    console.log(callMembers?.size)
+
     if (queueVoice && queueChannel && callMembers) {
       if (callMembers?.size < 2) {
         return message.say("You are already alone in this call.");
