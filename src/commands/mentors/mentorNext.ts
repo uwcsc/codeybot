@@ -41,6 +41,10 @@ class MentorNextCommand extends MentorCommand {
             let mentorCall = <VoiceChannel>mentor?.channel
             front.voice.setChannel(mentorCall)
             message.reply("please welcome " + front.displayName + "!");
+            const chatChannel = <TextChannel>mentorCall?.parent?.children.find(channel => channel.name === mentorCall?.name.replace(/ +/g, '-').toLocaleLowerCase() + "-vc");
+            chatChannel.updateOverwrite(front, {
+              VIEW_CHANNEL: true,
+            })
             return false
           }
           return true

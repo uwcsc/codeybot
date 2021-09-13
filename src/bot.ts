@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import Discord, { TextChannel, Role } from 'discord.js';
+import Discord, { TextChannel, Role, Guild, GuildMember } from 'discord.js';
 import yaml from 'js-yaml';
 import fs from 'fs';
 import Commando from 'discord.js-commando';
@@ -14,11 +14,13 @@ import { createSuggestionCron } from './components/cron';
 import { CategoryChannel } from 'discord.js';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
+const EVENT_CHANNEL_ID: string = process.env.EVENT_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
 const BOT_PREFIX = '.';
 
 // BootCamp Event
-const eventMentors: string[] = [];
+export let eventMentors: string[] = [];
+export let mentorRole: string;
 
 // initialize Commando client
 const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as string[];
@@ -43,19 +45,34 @@ export const startBot = async (): Promise<void> => {
     logger.info({
       event: 'init'
     });
+
     const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
+    const events = (await client.channels.fetch(EVENT_CHANNEL_ID)) as Discord.TextChannel;
     initEmojis(client);
     createSuggestionCron(client).start();
-    const mentorIdsHandles = <TextChannel>notif.guild.channels.cache.find(channel => channel.name === "mentor-list")
 
-    mentorIdsHandles.messages.fetch({ limit: 100 }).then(messages => {
+
+    const mentorIdsHandles = <TextChannel>events.guild.channels.cache.find(channel => channel.name === "mentor-ids")
+
+    mentorIdsHandles?.messages.fetch({ limit: 100 }).then(messages => {
       messages.every((mesg): boolean => {
-        eventMentors.push(mesg.content)
+        eventMentors.push(mesg.content);
         return true
       })
-    })
+    }).then(
+      () => {
+        let parsedEventMentors: string[] = []
+        eventMentors.forEach(chunk => {
+          parsedEventMentors = parsedEventMentors.concat(chunk.split("\n").map(str => str.trim()))
+        })
+        eventMentors = parsedEventMentors;
+      }
+    )
 
-    notif.send('Codey is ' + 'doing backflips' + '!');
+    const mentorGetRole = <Role>events.guild.roles.cache.find(role => role.name === "Mentor");
+    mentorRole = mentorGetRole.id;
+
+    notif.send('Codey is up!');
   });
 
   client.on('error', logError);
@@ -64,7 +81,6 @@ export const startBot = async (): Promise<void> => {
 
   client.on('guildMemberAdd', member => {
     if (eventMentors.includes(member.id) || eventMentors.includes(member.user.tag)) {
-      let mentorRole = <Role>member.guild.roles.cache.find(role => role.name === "Mentor");
       member.edit({
         roles: [mentorRole]
       })
@@ -79,13 +95,32 @@ export const startBot = async (): Promise<void> => {
     if (newUserChannel !== null) {
       const queueChannel = <TextChannel>guild.channels.cache.filter(channel => channel.name === newUserChannel?.name.replace(/ +/g, '-').toLocaleLowerCase() + "-queue").first();
       queueChannel?.send(newMember.id)
+
+      // console.log(newUserChannel.id, EVENT_CHANNEL_ID)
+      // if (newUserChannel.id === EVENT_CHANNEL_ID) newMember.setMute(true);
     }
 
     if (oldUserChannel !== null) {
-      // oldUserChannel.delete()
+      const chatChannel = <TextChannel>oldUserChannel?.parent?.children.find(channel => channel.name === oldUserChannel?.name.replace(/ +/g, '-').toLocaleLowerCase() + "-vc");
+      const leaver = <GuildMember>oldMember.member;
+
+      if (chatChannel) {
+        if (leaver.roles.cache.map(role => role.id).includes(mentorRole) && oldUserChannel.members.filter(member => member.roles.cache.map(role => role.id).includes(mentorRole) ).size === 0) {
+          chatChannel.delete();
+          oldUserChannel.delete();
+        } else {
+          chatChannel?.updateOverwrite(leaver, {
+            VIEW_CHANNEL: false,
+          });
+          (async(): Promise<void> => {
+            let fetched = await chatChannel.messages.fetch({limit: 100});
+            // let filtered = fetched.filter((msg) => msg.content === newMember.id);
+            chatChannel.bulkDelete(fetched);
+          })()
+        }
+      }
 
       const queueChannel = <TextChannel>guild.channels.cache.filter(channel => channel.name === oldUserChannel?.name.replace(/ +/g, '-').toLocaleLowerCase() + "-queue").first();
-
       const clear = async(): Promise<void> => {
         let fetched = await queueChannel.messages.fetch({limit: 100});
         let filtered = fetched.filter((msg) => msg.content === newMember.id);
@@ -95,5 +130,3 @@ export const startBot = async (): Promise<void> => {
     }
   })
 };
-
-export default eventMentors;

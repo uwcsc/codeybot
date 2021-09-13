@@ -1,4 +1,4 @@
-import { Message, CategoryChannel, Permissions } from 'discord.js';
+import { Message, CategoryChannel, Permissions, NewsChannel } from 'discord.js';
 import { CommandoClient, CommandoGuild, CommandoMessage } from 'discord.js-commando';
 import { AdminCommand } from '../../utils/commands';
 import { toTitleCase } from './utils';
@@ -7,6 +7,7 @@ class MentorNewTrackCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'new-track',
+      aliases: ['add-track'],
       group: 'mentor',
       memberName: 'new-track',
       args: [
@@ -63,22 +64,24 @@ class MentorNewTrackCommand extends AdminCommand {
         })
         .catch(console.error);
 
-        guild.channels.create("Call 0", {
-          type: "voice",
-          userLimit: 2,
-          parent: newCategory,
-          permissionOverwrites: [
-            {
-              id: guild.roles.everyone,
-              deny: [Permissions.FLAGS.CONNECT],
-            },
-          ],
-        })
-        .catch(console.error);
-        guild.channels.create("call-0-vc", {
-          parent: newCategory,
-        })
-        .catch(console.error);
+        // guild.channels.create("Call 0", {
+        //   type: "voice",
+        //   userLimit: 2,
+        //   parent: newCategory,
+        //   permissionOverwrites: [
+        //     {
+        //       id: guild.roles.everyone,
+        //       deny: [Permissions.FLAGS.VIEW_CHANNEL],
+        //     },
+        //   ],
+        // })
+        // .then(newChannel => {
+        //   guild.channels.create("call-0-vc", {
+        //     parent: newCategory,
+        //   })
+        //   .catch(console.error);
+        // })
+        
       })
       .catch(console.error);
       
