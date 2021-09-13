@@ -17,7 +17,7 @@ class MentorNewTrackCommand extends AdminCommand {
           type: 'string'
         }
       ],
-      description: 'Adds an  to the server for Mentors.',
+      description: 'Adds a new track category.',
       examples: [`${client.commandPrefix}mentor I want a new Discord channel named #hobbies!`]
     });
   }

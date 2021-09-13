@@ -16,7 +16,7 @@ class MentorAddMentorCommand extends AdminCommand {
           type: 'string'
         }
       ],
-      description: 'Adds an  to the server for Mentors.',
+      description: 'Adds a Mentor to the server.',
       examples: [`${client.commandPrefix}mentor I want a new Discord channel named #hobbies!`]
     });
   }

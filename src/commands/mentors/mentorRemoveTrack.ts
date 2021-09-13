@@ -17,7 +17,7 @@ class MentorRemoveTrackCommand extends AdminCommand {
           type: 'string'
         }
       ],
-      description: 'Adds an  to the server for Mentors.',
+      description: 'Removes a track category in the server.',
       examples: [`${client.commandPrefix}mentor I want a new Discord channel named #hobbies!`]
     });
   }

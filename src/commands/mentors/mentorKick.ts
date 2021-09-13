@@ -12,7 +12,7 @@ class MentorKickCommand extends MentorCommand {
       aliases: ['remove'],
       group: 'mentor',
       memberName: 'kick',
-      description: 'Deletes multiple mentor from the server via reactions.'
+      description: 'Kick mentees out of your 1 on 1 call.'
     });
   }
 

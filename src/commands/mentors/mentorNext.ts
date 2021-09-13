@@ -10,7 +10,7 @@ class MentorNextCommand extends MentorCommand {
       name: 'next',
       group: 'mentor',
       memberName: 'next',
-      description: 'Deletes multiple mentor from the server via reactions.'
+      description: 'Moves the next mentee in line to your call.'
     });
   }
 
