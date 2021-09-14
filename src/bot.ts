@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import Discord, { TextChannel, Role, Guild, GuildMember } from 'discord.js';
+import Discord, { TextChannel, Role, GuildMember } from 'discord.js';
 import yaml from 'js-yaml';
 import fs from 'fs';
 import Commando from 'discord.js-commando';
@@ -11,7 +11,6 @@ import { openCommandoDB } from './components/db';
 import logger, { logError } from './components/logger';
 import { initEmojis } from './components/emojis';
 import { createSuggestionCron, waitingRoomsInfo, mentorCallTimer } from './components/cron';
-import { CategoryChannel } from 'discord.js';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
 const EVENT_CHANNEL_ID: string = process.env.EVENT_CHANNEL_ID || '.';
@@ -172,6 +171,6 @@ export const startBot = async (): Promise<void> => {
         queueChannel.bulkDelete(filtered);
       };
       if (queueChannel) clear();
-    }    
-  })
+    }
+  });
 };

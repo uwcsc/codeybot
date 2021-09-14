@@ -1,8 +1,6 @@
 import { Message, VoiceChannel, TextChannel } from 'discord.js';
-import { CommandoClient, CommandoGuild, CommandoMessage } from 'discord.js-commando';
+import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { MentorCommand } from '../../utils/commands';
-import logger, { logError } from '../../components/logger';
-import { isGetAccessor } from 'typescript';
 
 class BootcampNextCommand extends MentorCommand {
   constructor(client: CommandoClient) {

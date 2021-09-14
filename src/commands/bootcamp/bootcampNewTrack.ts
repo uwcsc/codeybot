@@ -1,5 +1,5 @@
-import { Message, CategoryChannel, Permissions, NewsChannel } from 'discord.js';
-import { CommandoClient, CommandoGuild, CommandoMessage } from 'discord.js-commando';
+import { Message, CategoryChannel, Permissions } from 'discord.js';
+import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { AdminCommand } from '../../utils/commands';
 import { toTitleCase } from './utils';
 

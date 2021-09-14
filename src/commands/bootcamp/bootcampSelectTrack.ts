@@ -1,7 +1,6 @@
-import { Message, VoiceChannel, TextChannel, CategoryChannel, Permissions, GuildMember } from 'discord.js';
-import { CommandoClient, CommandoGuild, CommandoMessage } from 'discord.js-commando';
-import { AdminCommand, MentorCommand } from '../../utils/commands';
-import logger, { logError } from '../../components/logger';
+import { Message, VoiceChannel, CategoryChannel, Permissions, GuildMember } from 'discord.js';
+import { CommandoClient, CommandoMessage } from 'discord.js-commando';
+import { MentorCommand } from '../../utils/commands';
 import { mentorRole } from '../../bot';
 import { lowestInt } from './utils';
 
