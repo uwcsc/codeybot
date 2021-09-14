@@ -49,7 +49,7 @@ class BootcampNextCommand extends MentorCommand {
             if (front) {
               const mentorCall = <VoiceChannel>mentor?.channel;
               front.voice.setChannel(mentorCall);
-              message.reply('please welcome ' + front.displayName + '!');
+              message.say('please welcome ' + front.displayName + '!');
               const chatChannel = <TextChannel>(
                 mentorCall?.parent?.children.find(
                   (channel) => channel.name === mentorCall?.name.replace(/ +/g, '-').toLocaleLowerCase() + '-vc'
@@ -60,7 +60,7 @@ class BootcampNextCommand extends MentorCommand {
                   VIEW_CHANNEL: true
                 })
                 .then(async () => {
-                  const critiqueTime = await BootcampSettings?.get('critique_time') || 30;
+                  const critiqueTime = (await BootcampSettings?.get('critique_time')) || 30;
                   chatChannel.send('You have **' + critiqueTime + '** minutes remaining.');
                 });
               return false;
@@ -68,7 +68,7 @@ class BootcampNextCommand extends MentorCommand {
             return true;
           });
       });
-      const critiqueTime = await BootcampSettings?.get('critique_time') || 30;
+      const critiqueTime = (await BootcampSettings?.get('critique_time')) || 30;
       return message.say('Your **' + critiqueTime + '** minute call has started!');
     } else {
       return message.say('You must be in a Mentor/Mentee call room.');

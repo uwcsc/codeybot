@@ -1,5 +1,6 @@
 import { GuildMember, Role, TextChannel, Message, GuildChannel, VoiceState } from 'discord.js';
 import { CommandoClient } from 'discord.js-commando';
+// import Keyv from 'keyv';
 const Keyv = require('keyv');
 
 const BOOTCAMP_GUILD_ID: string = process.env.BOOTCAMP_GUILD_ID || '.';
@@ -15,10 +16,10 @@ export const initBootcamp = async (client: CommandoClient): Promise<void> => {
 export const addToMentorList = async (message: Message): Promise<void> => {
   const mentorRole = await BootcampSettings.get('mentor_role');
   message?.guild?.members.cache
-  .find((member: GuildMember) => member.user.tag == message.content || member.id == message.content)
-  ?.edit({
-    roles: [mentorRole]
-  });
+    .find((member: GuildMember) => member.user.tag == message.content || member.id == message.content)
+    ?.edit({
+      roles: [mentorRole]
+    });
 };
 
 export const checkIfMentor = (member: GuildMember): void => {
@@ -43,7 +44,8 @@ export const checkIfMentor = (member: GuildMember): void => {
           roles: [mentorRole]
         });
       }
-    }).catch(console.log);
+    })
+    .catch(console.log);
 };
 
 export const controlMentorMenteeCalls = (oldMember: VoiceState, newMember: VoiceState): void => {
@@ -75,8 +77,9 @@ export const controlMentorMenteeCalls = (oldMember: VoiceState, newMember: Voice
       getMentorRole?.then((mentorRole: string) => {
         if (
           leaver.roles.cache.map((role) => role.id).includes(mentorRole) &&
-          oldUserChannel.members.filter((member: GuildMember) => member.roles.cache.map((role) => role.id).includes(mentorRole))
-            .size === 0
+          oldUserChannel.members.filter((member: GuildMember) =>
+            member.roles.cache.map((role) => role.id).includes(mentorRole)
+          ).size === 0
         ) {
           chatChannel.delete();
           oldUserChannel.delete();
@@ -89,12 +92,15 @@ export const controlMentorMenteeCalls = (oldMember: VoiceState, newMember: Voice
             if (fetched) chatChannel.bulkDelete(fetched);
           })();
         }
-      })
+      });
     }
 
     const queueChannel = <TextChannel>(
       guild.channels.cache
-        .filter((channel: GuildChannel) => channel.name === oldUserChannel?.name.replace(/ +/g, '-').toLocaleLowerCase() + '-queue')
+        .filter(
+          (channel: GuildChannel) =>
+            channel.name === oldUserChannel?.name.replace(/ +/g, '-').toLocaleLowerCase() + '-queue'
+        )
         .first()
     );
     const clear = async (): Promise<void> => {
@@ -107,4 +113,3 @@ export const controlMentorMenteeCalls = (oldMember: VoiceState, newMember: Voice
     if (queueChannel) clear();
   }
 };
-

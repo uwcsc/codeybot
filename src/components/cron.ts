@@ -55,7 +55,7 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         let waitCheck: string[] = [];
         queueMembers.forEach((mentee) => waitCheck.push(mentee.id));
         const fetched = await queueChannel.messages.fetch({ limit: 100 }).catch(console.log).catch(console.log);
-        if (fetched) { 
+        if (fetched) {
           const filtered = fetched.filter((msg) => {
             if (waitCheck.includes(msg.content)) {
               waitCheck = waitCheck.filter((mentee) => mentee !== msg.content);
@@ -114,7 +114,9 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
         (async (): Promise<void> => {
           const fetched = await chatChannel.messages.fetch({ limit: 100 }).catch(console.log);
 
-          const timer = fetched?.find((msg) => msg.author.id === client.user?.id && msg.content.endsWith(' remaining.'));
+          const timer = fetched?.find(
+            (msg) => msg.author.id === client.user?.id && msg.content.endsWith(' remaining.')
+          );
           if (timer) {
             let minLeft = 1;
             let newTimer = timer.content.replace(/(\d+)+/g, (match, num): string => {

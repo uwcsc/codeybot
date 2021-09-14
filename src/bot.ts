@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import Discord, { TextChannel, GuildMember } from 'discord.js';
+import { TextChannel } from 'discord.js';
 import yaml from 'js-yaml';
 import fs from 'fs';
 import Commando, { CommandoGuild } from 'discord.js-commando';
@@ -13,7 +13,7 @@ import onMessage from './events/message';
 import onGuildMemberAdd from './events/guildMemberAdd';
 import onVoiceStateUpdate from './events/voiceStateUpdate';
 import { initEmojis } from './components/emojis';
-import { initBootcamp, BootcampSettings } from './components/bootcamp';
+import { initBootcamp } from './components/bootcamp';
 import { createSuggestionCron, waitingRoomsInfo, mentorCallTimer } from './components/cron';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
@@ -46,7 +46,7 @@ export const startBot = async (): Promise<void> => {
       event: 'init'
     });
 
-    const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
+    const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as TextChannel;
 
     initEmojis(client);
     createSuggestionCron(client).start();
@@ -56,12 +56,12 @@ export const startBot = async (): Promise<void> => {
     nonBootcampServers.forEach((guild) => {
       const commandoGuild = <CommandoGuild>guild;
       commandoGuild.setGroupEnabled('bootcamp', false);
-    })
+    });
     let bootcamp;
     try {
       bootcamp = await client.guilds.fetch(BOOTCAMP_GUILD_ID);
     } catch (error) {
-      console.log("No bootcamp server.");
+      console.log('No bootcamp server.');
     }
     if (bootcamp) {
       initBootcamp(client);

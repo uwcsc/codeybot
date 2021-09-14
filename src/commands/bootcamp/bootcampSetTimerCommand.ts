@@ -18,13 +18,13 @@ class BootcampSetTimerCommand extends AdminCommand {
         }
       ],
       guildOnly: true,
-      description: 'Changes the length of the 1 on 1 critique call timer.',
+      description: 'Changes the length of the 1 on 1 critique call timer.'
     });
   }
 
   async onRun(message: CommandoMessage, args: { time: string }): Promise<Message> {
     const { time } = args;
-    let newTime = parseInt(time);
+    const newTime = parseInt(time);
     console.log(time, newTime);
     if (newTime && 5 <= newTime && newTime <= 100) {
       BootcampSettings.set('critique_time', newTime);

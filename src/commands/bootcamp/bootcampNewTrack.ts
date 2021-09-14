@@ -18,7 +18,7 @@ class BootcampNewTrackCommand extends AdminCommand {
         }
       ],
       guildOnly: true,
-      description: 'Adds a new track category.',
+      description: 'Adds a new track category.'
     });
   }
 
