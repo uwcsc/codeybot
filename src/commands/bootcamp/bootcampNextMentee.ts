@@ -1,7 +1,7 @@
 import { Message, VoiceChannel, TextChannel } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { MentorCommand } from '../../utils/commands';
-import { BootcampSettings } from '../../bot';
+import { BootcampSettings } from '../../components/bootcamp';
 
 class BootcampNextCommand extends MentorCommand {
   constructor(client: CommandoClient) {
@@ -10,6 +10,7 @@ class BootcampNextCommand extends MentorCommand {
       aliases: ['mentee'],
       group: 'bootcamp',
       memberName: 'next',
+      guildOnly: true,
       description: 'Moves the next mentee in line to your call.'
     });
   }
@@ -59,7 +60,7 @@ class BootcampNextCommand extends MentorCommand {
                   VIEW_CHANNEL: true
                 })
                 .then(async () => {
-                  const critiqueTime = await BootcampSettings?.get('critique_time') || 15;
+                  const critiqueTime = await BootcampSettings?.get('critique_time') || 30;
                   chatChannel.send('You have **' + critiqueTime + '** minutes remaining.');
                 });
               return false;
@@ -67,7 +68,7 @@ class BootcampNextCommand extends MentorCommand {
             return true;
           });
       });
-      const critiqueTime = await BootcampSettings?.get('critique_time')  || 15;
+      const critiqueTime = await BootcampSettings?.get('critique_time') || 30;
       return message.say('Your **' + critiqueTime + '** minute call has started!');
     } else {
       return message.say('You must be in a Mentor/Mentee call room.');

@@ -1,7 +1,7 @@
 import { Message, VoiceChannel, CategoryChannel, Permissions, GuildMember } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { MentorCommand } from '../../utils/commands';
-import { mentorRole } from '../../bot';
+import { BootcampSettings } from '../../components/bootcamp';
 import { lowestInt } from './utils';
 
 class BootcampSelectTrackCommand extends MentorCommand {
@@ -18,6 +18,7 @@ class BootcampSelectTrackCommand extends MentorCommand {
           type: 'string'
         }
       ],
+      guildOnly: true,
       description: 'Create a new 1 on 1 call with a category',
       examples: [`${client.commandPrefix}track devops`]
     });
@@ -32,6 +33,8 @@ class BootcampSelectTrackCommand extends MentorCommand {
     }
 
     const guild = message.guild;
+
+    const mentorRole = await BootcampSettings.get('mentor_role');
 
     const trackCategory = <CategoryChannel>(
       guild.channels.cache.find(

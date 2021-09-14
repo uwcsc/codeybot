@@ -17,6 +17,7 @@ class BootcampRemoveTrackCommand extends AdminCommand {
           type: 'string'
         }
       ],
+      guildOnly: true,
       description: 'Removes a track category in the server.',
     });
   }

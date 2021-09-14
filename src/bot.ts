@@ -1,27 +1,25 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import Discord, { TextChannel, Role, GuildMember } from 'discord.js';
+import Discord, { TextChannel, GuildMember } from 'discord.js';
 import yaml from 'js-yaml';
 import fs from 'fs';
-import Commando from 'discord.js-commando';
-const Keyv = require('keyv');
+import Commando, { CommandoGuild } from 'discord.js-commando';
 import path from 'path';
 
 import { openCommandoDB } from './components/db';
 import logger, { logError } from './components/logger';
+import onMessage from './events/message';
+import onGuildMemberAdd from './events/guildMemberAdd';
+import onVoiceStateUpdate from './events/voiceStateUpdate';
 import { initEmojis } from './components/emojis';
+import { initBootcamp, BootcampSettings } from './components/bootcamp';
 import { createSuggestionCron, waitingRoomsInfo, mentorCallTimer } from './components/cron';
 
 const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
-const EVENT_CHANNEL_ID: string = process.env.EVENT_CHANNEL_ID || '.';
+const BOOTCAMP_GUILD_ID: string = process.env.BOOTCAMP_GUILD_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
 const BOT_PREFIX = '.';
-
-// Bootcamp Event
-// export let eventMentors: string[] = [];
-export let mentorRole: string;
-export const BootcampSettings = new Keyv();
 
 // initialize Commando client
 const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as string[];
@@ -49,16 +47,27 @@ export const startBot = async (): Promise<void> => {
     });
 
     const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
-    const events = (await client.channels.fetch(EVENT_CHANNEL_ID)) as Discord.TextChannel;
 
     initEmojis(client);
     createSuggestionCron(client).start();
-    waitingRoomsInfo(client).start();
-    mentorCallTimer(client).start();
 
-    const mentorGetRole = <Role>events.guild.roles.cache.find((role) => role.name === 'Mentor');
-    mentorRole = mentorGetRole.id;
-    BootcampSettings.set('critique_time', 25);
+    // Intialize Bootcamp features if the event server exists
+    const nonBootcampServers = client.guilds.cache.filter((guild) => guild.id !== BOOTCAMP_GUILD_ID);
+    nonBootcampServers.forEach((guild) => {
+      const commandoGuild = <CommandoGuild>guild;
+      commandoGuild.setGroupEnabled('bootcamp', false);
+    })
+    let bootcamp;
+    try {
+      bootcamp = await client.guilds.fetch(BOOTCAMP_GUILD_ID);
+    } catch (error) {
+      console.log("No bootcamp server.");
+    }
+    if (bootcamp) {
+      initBootcamp(client);
+      waitingRoomsInfo(client).start();
+      mentorCallTimer(client).start();
+    }
 
     notif.send('Codey is up!');
   });
@@ -67,100 +76,9 @@ export const startBot = async (): Promise<void> => {
 
   client.login(BOT_TOKEN);
 
-  client.on('message', (message) => {
-    if (message.channel.id === EVENT_CHANNEL_ID) {
-      message?.guild?.members.cache
-        .find((user) => user.user.tag == message.content || user.id == message.content)
-        ?.edit({
-          roles: [mentorRole]
-        });
-    }
-  });
+  client.on('message', onMessage);
 
-  client.on('guildMemberAdd', (member) => {
-    const mentorIdsHandles = <TextChannel>member.guild.channels.cache.find((channel) => channel.name === 'mentor-ids');
-    const eventMentors: string[] = [];
-    mentorIdsHandles?.messages
-      .fetch({ limit: 100 })
-      .then((messages) => {
-        messages.every((mesg): boolean => {
-          eventMentors.push(mesg.content);
-          return true;
-        });
-      })
-      .then(() => {
-        let parsedEventMentors: string[] = [];
-        eventMentors.forEach((chunk) => {
-          parsedEventMentors = parsedEventMentors.concat(chunk.split('\n').map((str) => str.trim()));
-        });
-        if (parsedEventMentors.includes(member.id) || parsedEventMentors.includes(member.user.tag)) {
-          member.edit({
-            roles: [mentorRole]
-          });
-        }
-      }).catch(console.log);
-  });
+  client.on('guildMemberAdd', onGuildMemberAdd);
 
-  client.on('voiceStateUpdate', (oldMember, newMember) => {
-    const guild = oldMember.guild;
-    const newUserChannel = newMember.channel;
-    const oldUserChannel = oldMember.channel;
-
-    if (newUserChannel === oldUserChannel) return;
-
-    if (newUserChannel !== null) {
-      const queueChannel = <TextChannel>(
-        guild.channels.cache
-          .filter((channel) => channel.name === newUserChannel?.name.replace(/ +/g, '-').toLocaleLowerCase() + '-queue')
-          .first()
-      );
-      queueChannel?.send(newMember.id);
-
-      // console.log(newUserChannel.id, EVENT_CHANNEL_ID)
-      // if (newUserChannel.id === EVENT_CHANNEL_ID) newMember.setMute(true);
-    }
-
-    if (oldUserChannel !== null) {
-      const chatChannel = <TextChannel>(
-        oldUserChannel?.parent?.children.find(
-          (channel) => channel.name === oldUserChannel?.name.replace(/ +/g, '-').toLocaleLowerCase() + '-vc'
-        )
-      );
-      const leaver = <GuildMember>oldMember.member;
-
-      if (chatChannel) {
-        if (
-          leaver.roles.cache.map((role) => role.id).includes(mentorRole) &&
-          oldUserChannel.members.filter((member) => member.roles.cache.map((role) => role.id).includes(mentorRole))
-            .size === 0
-        ) {
-          chatChannel.delete();
-          oldUserChannel.delete();
-        } else {
-          chatChannel?.updateOverwrite(leaver, {
-            VIEW_CHANNEL: false
-          });
-          (async (): Promise<void> => {
-            const fetched = await chatChannel.messages.fetch({ limit: 100 }).catch(console.log);
-            // let filtered = fetched.filter((msg) => msg.content === newMember.id);
-            if (fetched) chatChannel.bulkDelete(fetched);
-          })();
-        }
-      }
-
-      const queueChannel = <TextChannel>(
-        guild.channels.cache
-          .filter((channel) => channel.name === oldUserChannel?.name.replace(/ +/g, '-').toLocaleLowerCase() + '-queue')
-          .first()
-      );
-      const clear = async (): Promise<void> => {
-        const fetched = await queueChannel.messages.fetch({ limit: 100 }).catch(console.log);
-        if (fetched) {
-          const filtered = fetched.filter((msg) => msg.content === newMember.id);
-          queueChannel.bulkDelete(filtered);
-        }
-      };
-      if (queueChannel) clear();
-    }
-  });
+  client.on('voiceStateUpdate', onVoiceStateUpdate);
 };

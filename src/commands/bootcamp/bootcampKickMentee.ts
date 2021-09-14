@@ -9,6 +9,7 @@ class BootcampKickMenteeCommand extends MentorCommand {
       aliases: ['remove', 'boot'],
       group: 'bootcamp',
       memberName: 'kick',
+      guildOnly: true,
       description: 'Kick mentees out of your 1 on 1 call.'
     });
   }

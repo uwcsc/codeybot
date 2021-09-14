@@ -17,6 +17,7 @@ class BootcampNewTrackCommand extends AdminCommand {
           type: 'string'
         }
       ],
+      guildOnly: true,
       description: 'Adds a new track category.',
     });
   }
@@ -68,24 +69,6 @@ class BootcampNewTrackCommand extends AdminCommand {
               ]
             })
             .catch(console.error);
-
-          // guild.channels.create("Call 0", {
-          //   type: "voice",
-          //   userLimit: 2,
-          //   parent: newCategory,
-          //   permissionOverwrites: [
-          //     {
-          //       id: guild.roles.everyone,
-          //       deny: [Permissions.FLAGS.VIEW_CHANNEL],
-          //     },
-          //   ],
-          // })
-          // .then(newChannel => {
-          //   guild.channels.create("call-0-vc", {
-          //     parent: newCategory,
-          //   })
-          //   .catch(console.error);
-          // })
         })
         .catch(console.error);
 

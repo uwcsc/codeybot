@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { AdminCommand } from '../../utils/commands';
-import { BootcampSettings } from '../../bot';
+import { BootcampSettings } from '../../components/bootcamp';
 
 class BootcampSetTimerCommand extends AdminCommand {
   constructor(client: CommandoClient) {
@@ -17,6 +17,7 @@ class BootcampSetTimerCommand extends AdminCommand {
           type: 'string'
         }
       ],
+      guildOnly: true,
       description: 'Changes the length of the 1 on 1 critique call timer.',
     });
   }

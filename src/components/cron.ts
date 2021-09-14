@@ -4,11 +4,11 @@ import { CommandoClient } from 'discord.js-commando';
 import { CronJob } from 'cron';
 import { EMBED_COLOUR } from '../utils/embeds';
 import { toTitleCase } from '../commands/bootcamp/utils';
-import { mentorRole } from '../bot';
+import { BootcampSettings } from '../components/bootcamp';
 import _ from 'lodash';
 
 const MOD_CHANNEL_ID: string = process.env.MOD_CHANNEL_ID || '.';
-const EVENT_CHANNEL_ID: string = process.env.EVENT_CHANNEL_ID || '.';
+const BOOTCAMP_GUILD_ID: string = process.env.BOOTCAMP_GUILD_ID || '.';
 
 // Checks for new suggestions every min
 export const createSuggestionCron = (client: CommandoClient): CronJob =>
@@ -34,15 +34,14 @@ export const createSuggestionCron = (client: CommandoClient): CronJob =>
     }
   });
 
-// Display information for the waiting room every min
+// BOOTCAMP: Display information for the waiting room every min
 export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
   new CronJob('0 */1 * * * *', async function () {
-    const events = (await client.channels.fetch(EVENT_CHANNEL_ID)) as TextChannel;
-    const guild = events?.guild;
-    if (guild) {
-      const infoChannel = <TextChannel>guild.channels.cache.find((channel) => channel.name === 'waiting-room-info');
+    const bootcamp = await client.guilds.fetch(BOOTCAMP_GUILD_ID);
+    if (bootcamp) {
+      const infoChannel = <TextChannel>bootcamp.channels.cache.find((channel) => channel.name === 'waiting-room-info');
 
-      const waitingRooms = guild.channels.cache
+      const waitingRooms = bootcamp.channels.cache
         .filter((channel) => channel.name.endsWith('-queue') && channel.type === 'text')
         .map((channel) => <TextChannel>channel);
 
@@ -50,7 +49,7 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         const track = queueChannel?.parent?.name;
 
         const queueVoice = <VoiceChannel>(
-          guild.channels.cache.find((channel) => channel.name === track && channel.type === 'voice')
+          bootcamp.channels.cache.find((channel) => channel.name === track && channel.type === 'voice')
         );
         const queueMembers = queueVoice?.members;
         let waitCheck: string[] = [];
@@ -87,7 +86,7 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         let i = 0;
         fetched?.forEach((mentee) => {
           if (i == 0) infoMessage.push('\tNext in Line <:sunglasses:886875117894926386>');
-          const inLine = guild.members.cache.get(mentee.content);
+          const inLine = bootcamp.members.cache.get(mentee.content);
           if (inLine) infoMessage.push(`${++i}. **${inLine.displayName}**`);
         });
         if (i == 0) infoMessage.push('\tNobody in Line... <:smiling_face_with_tear:886882992692297769>');
@@ -101,13 +100,13 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
     }
   });
 
-// Controls mentor/mentee call timer every min
+// BOOTCAMP: Controls mentor/mentee call timer every min
 export const mentorCallTimer = (client: CommandoClient): CronJob =>
   new CronJob('0 */1 * * * *', async function () {
-    const events = (await client.channels.fetch(EVENT_CHANNEL_ID)) as TextChannel;
-    const guild = events?.guild;
-    if (guild) {
-      const vcTexts = guild.channels.cache
+    const bootcamp = await client.guilds.fetch(BOOTCAMP_GUILD_ID);
+    const mentorRole = await BootcampSettings.get('mentor_role');
+    if (bootcamp) {
+      const vcTexts = bootcamp.channels.cache
         .filter((channel) => channel.name.startsWith('call-') && channel.name.endsWith('-vc'))
         .map((channel) => <TextChannel>channel);
 
