@@ -1,5 +1,5 @@
 import { SuggestionState, getSuggestions, getSuggestionPrintout, updateSuggestionState } from './suggestions';
-import { TextChannel, MessageEmbed, VoiceChannel } from 'discord.js';
+import { TextChannel, MessageEmbed, VoiceChannel, Message } from 'discord.js';
 import { CommandoClient } from 'discord.js-commando';
 import { CronJob } from 'cron';
 import { EMBED_COLOUR } from '../utils/embeds';
@@ -84,11 +84,13 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         }
         const fetched = await trackRoom.messages.fetch({ limit: 100 }).catch(console.log);
         let i = 0;
-        fetched?.forEach((mentee) => {
-          if (i == 0) infoMessage.push('\tNext in Line <:sunglasses:886875117894926386>');
-          const inLine = bootcamp.members.cache.get(mentee.content);
-          if (inLine) infoMessage.push(`${++i}. **${inLine.displayName}**`);
-        });
+        if (fetched) {
+          fetched.forEach((mentee: Message) => {
+            if (i == 0) infoMessage.push('\tNext in Line <:sunglasses:886875117894926386>');
+            const inLine = bootcamp.members.cache.get(mentee.content);
+            if (inLine) infoMessage.push(`${++i}. **${inLine.displayName}**`);
+          });
+        }
         if (i == 0) infoMessage.push('\tNobody in Line... <:smiling_face_with_tear:886882992692297769>');
       }
       (async (): Promise<void> => {
@@ -114,12 +116,15 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
         (async (): Promise<void> => {
           const fetched = await chatChannel.messages.fetch({ limit: 100 }).catch(console.log);
 
-          const timer = fetched?.find(
-            (msg) => msg.author.id === client.user?.id && msg.content.endsWith(' remaining.')
-          );
+          let timer;
+          if (fetched) {
+            timer = fetched.find(
+              (msg: Message) => msg.author.id === client.user?.id && msg.content.endsWith(' remaining.')
+            );
+          }
           if (timer) {
             let minLeft = 1;
-            let newTimer = timer.content.replace(/(\d+)+/g, (match, num): string => {
+            let newTimer = timer.content.replace(/(\d+)+/g, (_match, num: string): string => {
               minLeft = parseInt(num) - 1;
               return minLeft.toString();
             });
