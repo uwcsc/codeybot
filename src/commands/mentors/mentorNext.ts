@@ -59,7 +59,7 @@ class MentorNextCommand extends MentorCommand {
                   VIEW_CHANNEL: true
                 })
                 .then(() => {
-                  chatChannel.send('You have **15** minutes remaining.');
+                  chatChannel.send('You have **25** minutes remaining.');
                 });
               return false;
             }

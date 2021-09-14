@@ -119,6 +119,8 @@ export const startBot = async (): Promise<void> => {
     const newUserChannel = newMember.channel;
     const oldUserChannel = oldMember.channel;
 
+    if (newUserChannel === oldUserChannel) return;
+
     if (newUserChannel !== null) {
       const queueChannel = <TextChannel>(
         guild.channels.cache
