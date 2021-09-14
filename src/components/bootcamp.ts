@@ -13,13 +13,13 @@ export const initBootcamp = async (client: CommandoClient): Promise<void> => {
 };
 
 export const addToMentorList = async (message: Message): Promise<void> => {
-  if ((<TextChannel>message.channel).name === "mentor-ids") {
+  if ((<TextChannel>message.channel).name === 'mentor-ids') {
     const mentorRole = await BootcampSettings.get('mentor_role');
     message?.guild?.members.cache
       .find((member: GuildMember) => member.user.tag == message.content || member.id == message.content)
       ?.edit({
         roles: [mentorRole]
-      })
+      });
   }
 };
 
@@ -77,16 +77,16 @@ export const controlMentorMenteeCalls = async (oldMember: VoiceState, newMember:
 
     if (chatChannel) {
       const mentorRole = await BootcampSettings.get('mentor_role');
-      if (
-        leaver.roles.cache.map((role) => role.id).includes(mentorRole)
-      ) {
-        if (oldUserChannel.members.filter((member: GuildMember) =>
-          member.roles.cache.map((role) => role.id).includes(mentorRole)
-        ).size === 0) {
+      if (leaver.roles.cache.map((role) => role.id).includes(mentorRole)) {
+        if (
+          oldUserChannel.members.filter((member: GuildMember) =>
+            member.roles.cache.map((role) => role.id).includes(mentorRole)
+          ).size === 0
+        ) {
           try {
             chatChannel.delete();
             oldUserChannel.delete();
-          } catch(error) {
+          } catch (error) {
             console.log('Channel already deleted');
           }
         }
