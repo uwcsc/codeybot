@@ -25,67 +25,72 @@ class MentorNewTrackCommand extends AdminCommand {
   async onRun(message: CommandoMessage, args: { category: string }): Promise<Message> {
     let { category } = args;
 
-    category = toTitleCase(category)
-    let guild = message.guild;
+    category = toTitleCase(category);
+    const guild = message.guild;
 
-    
-    const waitingRooms = <CategoryChannel>guild.channels.cache.find(channel => channel.name.startsWith("Waiting Room") && channel.type === "category");
-    
+    const waitingRooms = <CategoryChannel>(
+      guild.channels.cache.find((channel) => channel.name.startsWith('Waiting Room') && channel.type === 'category')
+    );
+
     if (!waitingRooms) {
-      guild.channels.create("Waiting Room", {
-        type: "category",
-      })
-      return message.say("This server does not have a waiting room.");
+      guild.channels.create('Waiting Room', {
+        type: 'category'
+      });
+      return message.say('This server does not have a waiting room.');
     }
 
-    const trackCategory = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category && channel.type === "category");
-    
-    if (trackCategory) {
-      return message.say("This channel category already exists.");
-    } else {
-      guild.channels.create(category, {
-        type: "voice",
-        parent: waitingRooms,
-      })
-      .catch(console.error);
+    const trackCategory = <CategoryChannel>(
+      guild.channels.cache.find((channel) => channel.name === category && channel.type === 'category')
+    );
 
-      guild.channels.create(category, {
-        type: "category",
-      })
-      .then(newCategory => {
-        guild.channels.create(category?.replace(/ +/g, '-').toLocaleLowerCase() + "-queue", {
-          parent: newCategory,
-          permissionOverwrites: [
-            {
-              id: guild.roles.everyone,
-              deny: [Permissions.FLAGS.VIEW_CHANNEL],
-            },
-          ],
+    if (trackCategory) {
+      return message.say('This channel category already exists.');
+    } else {
+      guild.channels
+        .create(category, {
+          type: 'voice',
+          parent: waitingRooms
         })
         .catch(console.error);
 
-        // guild.channels.create("Call 0", {
-        //   type: "voice",
-        //   userLimit: 2,
-        //   parent: newCategory,
-        //   permissionOverwrites: [
-        //     {
-        //       id: guild.roles.everyone,
-        //       deny: [Permissions.FLAGS.VIEW_CHANNEL],
-        //     },
-        //   ],
-        // })
-        // .then(newChannel => {
-        //   guild.channels.create("call-0-vc", {
-        //     parent: newCategory,
-        //   })
-        //   .catch(console.error);
-        // })
-        
-      })
-      .catch(console.error);
-      
-      return message.say("New category created!");
+      guild.channels
+        .create(category, {
+          type: 'category'
+        })
+        .then((newCategory) => {
+          guild.channels
+            .create(category?.replace(/ +/g, '-').toLocaleLowerCase() + '-queue', {
+              parent: newCategory,
+              permissionOverwrites: [
+                {
+                  id: guild.roles.everyone,
+                  deny: [Permissions.FLAGS.VIEW_CHANNEL]
+                }
+              ]
+            })
+            .catch(console.error);
+
+          // guild.channels.create("Call 0", {
+          //   type: "voice",
+          //   userLimit: 2,
+          //   parent: newCategory,
+          //   permissionOverwrites: [
+          //     {
+          //       id: guild.roles.everyone,
+          //       deny: [Permissions.FLAGS.VIEW_CHANNEL],
+          //     },
+          //   ],
+          // })
+          // .then(newChannel => {
+          //   guild.channels.create("call-0-vc", {
+          //     parent: newCategory,
+          //   })
+          //   .catch(console.error);
+          // })
+        })
+        .catch(console.error);
+
+      return message.say('New category created!');
     }
   }
 }

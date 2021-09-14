@@ -15,47 +15,61 @@ class MentorNextCommand extends MentorCommand {
   }
 
   async onRun(message: CommandoMessage): Promise<Message> {
-    let mentor = message.member?.voice;
-    let callChannel = mentor?.channel;
-    let guild = message.guild;
-    let track = callChannel?.parent?.name
+    const mentor = message.member?.voice;
+    const callChannel = mentor?.channel;
+    const guild = message.guild;
+    const track = callChannel?.parent?.name;
 
     let front;
 
-    const queueVoice = <VoiceChannel>guild.channels.cache.find(channel => channel.name === track && channel.type === "voice");
-    const queueChannel = <TextChannel>callChannel?.parent?.children.find(channel => channel.name === track?.replace(/ +/g, '-').toLocaleLowerCase() + "-queue");
-    let queueMembers = queueVoice?.members;
-    
+    const queueVoice = <VoiceChannel>(
+      guild.channels.cache.find((channel) => channel.name === track && channel.type === 'voice')
+    );
+    const queueChannel = <TextChannel>(
+      callChannel?.parent?.children.find(
+        (channel) => channel.name === track?.replace(/ +/g, '-').toLocaleLowerCase() + '-queue'
+      )
+    );
+    const queueMembers = queueVoice?.members;
+
     if (queueVoice && queueChannel) {
       if (callChannel?.full) {
-        return message.say("You should only have one Mentee at a time.");
+        return message.say('You should only have one Mentee at a time.');
       }
       if (queueMembers.size < 1) {
-        return message.say("The are no Mentees waiting for this track.");
+        return message.say('The are no Mentees waiting for this track.');
       }
 
-      queueChannel.messages.fetch({ limit: queueVoice.members.size * 2 + 5 }).then(messages => {
-        messages.sorted((mesgA, mesgB) => mesgA.createdTimestamp - mesgB.createdTimestamp).every((msg): boolean => {
-          front = queueMembers.get(msg.content)
-          if (front) {
-            let mentorCall = <VoiceChannel>mentor?.channel
-            front.voice.setChannel(mentorCall)
-            message.reply("please welcome " + front.displayName + "!");
-            const chatChannel = <TextChannel>mentorCall?.parent?.children.find(channel => channel.name === mentorCall?.name.replace(/ +/g, '-').toLocaleLowerCase() + "-vc");
-            chatChannel.updateOverwrite(front, {
-              VIEW_CHANNEL: true,
-            }).then(() => {
-              chatChannel.send("You have **15** minutes remaining.")
-            })
-            return false
-          }
-          return true
-        })
-      })
+      queueChannel.messages.fetch({ limit: queueVoice.members.size * 2 + 5 }).then((messages) => {
+        messages
+          .sorted((mesgA, mesgB) => mesgA.createdTimestamp - mesgB.createdTimestamp)
+          .every((msg): boolean => {
+            front = queueMembers.get(msg.content);
+            if (front) {
+              const mentorCall = <VoiceChannel>mentor?.channel;
+              front.voice.setChannel(mentorCall);
+              message.reply('please welcome ' + front.displayName + '!');
+              const chatChannel = <TextChannel>(
+                mentorCall?.parent?.children.find(
+                  (channel) => channel.name === mentorCall?.name.replace(/ +/g, '-').toLocaleLowerCase() + '-vc'
+                )
+              );
+              chatChannel
+                .updateOverwrite(front, {
+                  VIEW_CHANNEL: true
+                })
+                .then(() => {
+                  chatChannel.send('You have **15** minutes remaining.');
+                });
+              return false;
+            }
+            return true;
+          });
+      });
 
-      return message.say("Your 15 minute call has started!");
+      return message.say('Your 15 minute call has started!');
     } else {
-      return message.say("You must be in a Mentor/Mentee call room.");
+      return message.say('You must be in a Mentor/Mentee call room.');
     }
   }
 }

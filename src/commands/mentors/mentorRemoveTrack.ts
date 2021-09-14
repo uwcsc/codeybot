@@ -25,37 +25,43 @@ class MentorRemoveTrackCommand extends AdminCommand {
   async onRun(message: CommandoMessage, args: { category: string }): Promise<Message> {
     let { category } = args;
 
-    category = toTitleCase(category)
-    let guild = message.guild;
-    const trackCategory = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category && channel.type === "category");
-    const trackWait = <CategoryChannel>guild.channels.cache.find(channel => channel.name === category && channel.type === "voice");
-    const waitingRooms = <CategoryChannel>guild.channels.cache.find(channel => channel.name.startsWith("Waiting Room") && channel.type === "category");
+    category = toTitleCase(category);
+    const guild = message.guild;
+    const trackCategory = <CategoryChannel>(
+      guild.channels.cache.find((channel) => channel.name === category && channel.type === 'category')
+    );
+    const trackWait = <CategoryChannel>(
+      guild.channels.cache.find((channel) => channel.name === category && channel.type === 'voice')
+    );
+    const waitingRooms = <CategoryChannel>(
+      guild.channels.cache.find((channel) => channel.name.startsWith('Waiting Room') && channel.type === 'category')
+    );
 
     if (!waitingRooms) {
-      return message.say("This server does not have a waiting room.");
+      return message.say('This server does not have a waiting room.');
     }
 
-    if (category === "All") {
-      waitingRooms.children.forEach( trackRoom => {
+    if (category === 'All') {
+      waitingRooms.children.forEach((trackRoom) => {
         const cat = trackRoom.name;
-        let trackCat = <CategoryChannel>guild.channels.cache.find(channel => channel.name === cat && channel.type === "category");
+        const trackCat = <CategoryChannel>(
+          guild.channels.cache.find((channel) => channel.name === cat && channel.type === 'category')
+        );
         if (trackCat) {
-          Promise.all(trackCat.children.map( trackRoom => trackRoom.delete() ))
-          .then((results) => {
+          Promise.all(trackCat.children.map((trackRoom) => trackRoom.delete())).then((results) => {
             trackCat.delete();
             trackRoom.delete();
-          })
+          });
           message.say("Deleted '" + cat + "' track.");
         }
-      })
+      });
 
-      return message.say("Deleted all tracks.");
+      return message.say('Deleted all tracks.');
     } else if (trackCategory && trackWait) {
-      Promise.all(trackCategory.children.map( trackRoom => trackRoom.delete() ))
-      .then((results) => {
+      Promise.all(trackCategory.children.map((trackRoom) => trackRoom.delete())).then((results) => {
         trackCategory.delete();
         trackWait.delete();
-      })
+      });
 
       return message.say("Deleted '" + category + "' track.");
     } else {
