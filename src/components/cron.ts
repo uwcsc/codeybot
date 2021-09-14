@@ -3,11 +3,9 @@ import { TextChannel, MessageEmbed, VoiceChannel } from 'discord.js';
 import { CommandoClient } from 'discord.js-commando';
 import { CronJob } from 'cron';
 import { EMBED_COLOUR } from '../utils/embeds';
-import { getEmojiByName } from '../components/emojis';
 import { toTitleCase } from '../commands/bootcamp/utils';
 import { mentorRole } from '../bot';
-
-import _, { endsWith } from 'lodash';
+import _ from 'lodash';
 
 const MOD_CHANNEL_ID: string = process.env.MOD_CHANNEL_ID || '.';
 const EVENT_CHANNEL_ID: string = process.env.EVENT_CHANNEL_ID || '.';
@@ -49,16 +47,16 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         .map((channel) => <TextChannel>channel);
 
       for (const queueChannel of waitingRooms) {
-        let track = queueChannel?.parent?.name;
+        const track = queueChannel?.parent?.name;
 
         const queueVoice = <VoiceChannel>(
           guild.channels.cache.find((channel) => channel.name === track && channel.type === 'voice')
         );
-        let queueMembers = queueVoice?.members;
+        const queueMembers = queueVoice?.members;
         let waitCheck: string[] = [];
         queueMembers.forEach((mentee) => waitCheck.push(mentee.id));
-        let fetched = await queueChannel.messages.fetch({ limit: 100 });
-        let filtered = fetched.filter((msg) => {
+        const fetched = await queueChannel.messages.fetch({ limit: 100 });
+        const filtered = fetched.filter((msg) => {
           if (waitCheck.includes(msg.content)) {
             waitCheck = waitCheck.filter((mentee) => mentee !== msg.content);
             return false;
@@ -68,7 +66,7 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         await queueChannel.bulkDelete(filtered);
       }
 
-      let infoMessage: string[] = [];
+      const infoMessage: string[] = [];
 
       infoMessage.push('\n<:clock2:886876718076399666> Waiting Room Lines:');
       for (const trackRoom of waitingRooms) {
@@ -83,7 +81,7 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         } else {
           infoMessage.push('There are currently **' + callCount + '** ongoing calls.');
         }
-        let fetched = await trackRoom.messages.fetch({ limit: 100 });
+        const fetched = await trackRoom.messages.fetch({ limit: 100 });
         let i = 0;
         fetched.forEach((mentee) => {
           if (i == 0) infoMessage.push('\tNext in Line <:sunglasses:886875117894926386>');
@@ -93,7 +91,7 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         if (i == 0) infoMessage.push('\tNobody in Line... <:smiling_face_with_tear:886882992692297769>');
       }
       (async (): Promise<void> => {
-        let fetched = await infoChannel.messages.fetch({ limit: 100 });
+        const fetched = await infoChannel.messages.fetch({ limit: 100 });
         infoChannel.bulkDelete(fetched);
       })().then(async () => {
         infoChannel.send(infoMessage.join('\n'));
@@ -113,11 +111,11 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
 
       vcTexts.forEach((chatChannel) => {
         (async (): Promise<void> => {
-          let fetched = await chatChannel.messages.fetch({ limit: 100 });
+          const fetched = await chatChannel.messages.fetch({ limit: 100 });
 
-          let timer = fetched.find((msg) => msg.author.id === client.user?.id && msg.content.endsWith(' remaining.'));
+          const timer = fetched.find((msg) => msg.author.id === client.user?.id && msg.content.endsWith(' remaining.'));
           if (timer) {
-            let minLeft: number = 1;
+            let minLeft = 1;
             let newTimer = timer.content.replace(/(\d+)+/g, (match, num): string => {
               minLeft = parseInt(num) - 1;
               return minLeft.toString();
@@ -130,7 +128,7 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
                     (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
                   )
                 );
-                let callMembers = queueVoice?.members;
+                const callMembers = queueVoice?.members;
                 let memberMentions = '';
                 callMembers?.forEach((member) => {
                   memberMentions = `${member.user}` + memberMentions;
@@ -142,7 +140,7 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
                     (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
                   )
                 );
-                let callMembers = queueVoice?.members;
+                const callMembers = queueVoice?.members;
                 let memberMentions = '';
                 callMembers?.forEach((member) => {
                   memberMentions = `${member.user}` + memberMentions;
@@ -154,7 +152,7 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
                     (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
                   )
                 );
-                let callMembers = queueVoice?.members;
+                const callMembers = queueVoice?.members;
                 callMembers
                   ?.filter((member) => !member.roles.cache.map((role) => role.id).includes(mentorRole))
                   .forEach((member) => {

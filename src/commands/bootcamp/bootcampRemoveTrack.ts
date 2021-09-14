@@ -48,7 +48,7 @@ class BootcampRemoveTrackCommand extends AdminCommand {
           guild.channels.cache.find((channel) => channel.name === cat && channel.type === 'category')
         );
         if (trackCat) {
-          Promise.all(trackCat.children.map((trackRoom) => trackRoom.delete())).then((results) => {
+          Promise.all(trackCat.children.map((trackRoom) => trackRoom.delete())).then(() => {
             trackCat.delete();
             trackRoom.delete();
           });
@@ -58,7 +58,7 @@ class BootcampRemoveTrackCommand extends AdminCommand {
 
       return message.say('Deleted all tracks.');
     } else if (trackCategory && trackWait) {
-      Promise.all(trackCategory.children.map((trackRoom) => trackRoom.delete())).then((results) => {
+      Promise.all(trackCategory.children.map((trackRoom) => trackRoom.delete())).then(() => {
         trackCategory.delete();
         trackWait.delete();
       });
