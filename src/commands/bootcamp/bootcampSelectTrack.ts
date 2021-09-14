@@ -5,11 +5,12 @@ import logger, { logError } from '../../components/logger';
 import { mentorRole } from '../../bot';
 import { lowestInt } from './utils';
 
-class MentorTrackCommand extends MentorCommand {
+class BootcampSelectTrackCommand extends MentorCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'track',
-      group: 'mentor',
+      aliases: ['select'],
+      group: 'bootcamp',
       memberName: 'track',
       args: [
         {
@@ -94,4 +95,4 @@ class MentorTrackCommand extends MentorCommand {
   }
 }
 
-export default MentorTrackCommand;
+export default BootcampSelectTrackCommand;

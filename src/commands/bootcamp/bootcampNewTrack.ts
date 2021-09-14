@@ -3,12 +3,12 @@ import { CommandoClient, CommandoGuild, CommandoMessage } from 'discord.js-comma
 import { AdminCommand } from '../../utils/commands';
 import { toTitleCase } from './utils';
 
-class MentorNewTrackCommand extends AdminCommand {
+class BootcampNewTrackCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'new-track',
       aliases: ['add-track'],
-      group: 'mentor',
+      group: 'bootcamp',
       memberName: 'new-track',
       args: [
         {
@@ -95,4 +95,4 @@ class MentorNewTrackCommand extends AdminCommand {
   }
 }
 
-export default MentorNewTrackCommand;
+export default BootcampNewTrackCommand;

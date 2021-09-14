@@ -4,11 +4,12 @@ import { MentorCommand } from '../../utils/commands';
 import logger, { logError } from '../../components/logger';
 import { isGetAccessor } from 'typescript';
 
-class MentorNextCommand extends MentorCommand {
+class BootcampNextCommand extends MentorCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'next',
-      group: 'mentor',
+      aliases: ['mentee'],
+      group: 'bootcamp',
       memberName: 'next',
       description: 'Moves the next mentee in line to your call.'
     });
@@ -74,4 +75,4 @@ class MentorNextCommand extends MentorCommand {
   }
 }
 
-export default MentorNextCommand;
+export default BootcampNextCommand;

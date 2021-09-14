@@ -4,12 +4,12 @@ import { MentorCommand } from '../../utils/commands';
 import logger, { logError } from '../../components/logger';
 import { isGetAccessor } from 'typescript';
 
-class MentorKickCommand extends MentorCommand {
+class BootcampKickMenteeCommand extends MentorCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'kick',
-      aliases: ['remove'],
-      group: 'mentor',
+      aliases: ['remove', 'boot'],
+      group: 'bootcamp',
       memberName: 'kick',
       description: 'Kick mentees out of your 1 on 1 call.'
     });
@@ -46,4 +46,4 @@ class MentorKickCommand extends MentorCommand {
   }
 }
 
-export default MentorKickCommand;
+export default BootcampKickMenteeCommand;

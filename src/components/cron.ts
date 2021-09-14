@@ -4,7 +4,7 @@ import { CommandoClient } from 'discord.js-commando';
 import { CronJob } from 'cron';
 import { EMBED_COLOUR } from '../utils/embeds';
 import { getEmojiByName } from '../components/emojis';
-import { toTitleCase } from '../commands/mentors/utils';
+import { toTitleCase } from '../commands/bootcamp/utils';
 import { mentorRole } from '../bot';
 
 import _, { endsWith } from 'lodash';

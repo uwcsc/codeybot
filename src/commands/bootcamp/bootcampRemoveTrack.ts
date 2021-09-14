@@ -3,17 +3,17 @@ import { CommandoClient, CommandoGuild, CommandoMessage } from 'discord.js-comma
 import { AdminCommand } from '../../utils/commands';
 import { toTitleCase } from './utils';
 
-class MentorRemoveTrackCommand extends AdminCommand {
+class BootcampRemoveTrackCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'remove-track',
       aliases: ['delete-track'],
-      group: 'mentor',
+      group: 'bootcamp',
       memberName: 'remove-track',
       args: [
         {
           key: 'category',
-          prompt: 'What will you name the new category?',
+          prompt: 'What will you name the new category? (all for remove ALL)',
           type: 'string'
         }
       ],
@@ -70,4 +70,4 @@ class MentorRemoveTrackCommand extends AdminCommand {
   }
 }
 
-export default MentorRemoveTrackCommand;
+export default BootcampRemoveTrackCommand;
