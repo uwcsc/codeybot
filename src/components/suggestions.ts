@@ -72,7 +72,6 @@ export const addSuggestion = async (
 
 export const updateSuggestionState = async (ids: number[], state = SuggestionState.Pending): Promise<void> => {
   const db = await openDB();
-  // Update created suggestions to pending suggestions in DB via ids
   ids.map(async function (id) {
     await db.run(
       `
