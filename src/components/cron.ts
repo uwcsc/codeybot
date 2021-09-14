@@ -55,15 +55,17 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         const queueMembers = queueVoice?.members;
         let waitCheck: string[] = [];
         queueMembers.forEach((mentee) => waitCheck.push(mentee.id));
-        const fetched = await queueChannel.messages.fetch({ limit: 100 });
-        const filtered = fetched.filter((msg) => {
-          if (waitCheck.includes(msg.content)) {
-            waitCheck = waitCheck.filter((mentee) => mentee !== msg.content);
-            return false;
-          }
-          return true;
-        });
-        await queueChannel.bulkDelete(filtered);
+        const fetched = await queueChannel.messages.fetch({ limit: 100 }).catch(console.log).catch(console.log);
+        if (fetched) { 
+          const filtered = fetched.filter((msg) => {
+            if (waitCheck.includes(msg.content)) {
+              waitCheck = waitCheck.filter((mentee) => mentee !== msg.content);
+              return false;
+            }
+            return true;
+          });
+          await queueChannel.bulkDelete(filtered);
+        }
       }
 
       const infoMessage: string[] = [];
@@ -81,9 +83,9 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         } else {
           infoMessage.push('There are currently **' + callCount + '** ongoing calls.');
         }
-        const fetched = await trackRoom.messages.fetch({ limit: 100 });
+        const fetched = await trackRoom.messages.fetch({ limit: 100 }).catch(console.log);
         let i = 0;
-        fetched.forEach((mentee) => {
+        fetched?.forEach((mentee) => {
           if (i == 0) infoMessage.push('\tNext in Line <:sunglasses:886875117894926386>');
           const inLine = guild.members.cache.get(mentee.content);
           if (inLine) infoMessage.push(`${++i}. **${inLine.displayName}**`);
@@ -91,8 +93,8 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         if (i == 0) infoMessage.push('\tNobody in Line... <:smiling_face_with_tear:886882992692297769>');
       }
       (async (): Promise<void> => {
-        const fetched = await infoChannel.messages.fetch({ limit: 100 });
-        infoChannel.bulkDelete(fetched);
+        const fetched = await infoChannel.messages.fetch({ limit: 100 }).catch(console.log);
+        if (fetched) infoChannel.bulkDelete(fetched);
       })().then(async () => {
         infoChannel.send(infoMessage.join('\n'));
       });
@@ -111,9 +113,9 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
 
       vcTexts.forEach((chatChannel) => {
         (async (): Promise<void> => {
-          const fetched = await chatChannel.messages.fetch({ limit: 100 });
+          const fetched = await chatChannel.messages.fetch({ limit: 100 }).catch(console.log);
 
-          const timer = fetched.find((msg) => msg.author.id === client.user?.id && msg.content.endsWith(' remaining.'));
+          const timer = fetched?.find((msg) => msg.author.id === client.user?.id && msg.content.endsWith(' remaining.'));
           if (timer) {
             let minLeft = 1;
             let newTimer = timer.content.replace(/(\d+)+/g, (match, num): string => {

@@ -18,7 +18,6 @@ class BootcampRemoveTrackCommand extends AdminCommand {
         }
       ],
       description: 'Removes a track category in the server.',
-      examples: [`${client.commandPrefix}mentor I want a new Discord channel named #hobbies!`]
     });
   }
 

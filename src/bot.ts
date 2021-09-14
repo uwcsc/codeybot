@@ -5,6 +5,7 @@ import Discord, { TextChannel, Role, GuildMember } from 'discord.js';
 import yaml from 'js-yaml';
 import fs from 'fs';
 import Commando from 'discord.js-commando';
+const Keyv = require('keyv');
 import path from 'path';
 
 import { openCommandoDB } from './components/db';
@@ -16,9 +17,11 @@ const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
 const EVENT_CHANNEL_ID: string = process.env.EVENT_CHANNEL_ID || '.';
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
 const BOT_PREFIX = '.';
-// BootCamp Event
+
+// Bootcamp Event
 // export let eventMentors: string[] = [];
 export let mentorRole: string;
+export const BootcampSettings = new Keyv();
 
 // initialize Commando client
 const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as string[];
@@ -47,30 +50,15 @@ export const startBot = async (): Promise<void> => {
 
     const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
     const events = (await client.channels.fetch(EVENT_CHANNEL_ID)) as Discord.TextChannel;
+
     initEmojis(client);
     createSuggestionCron(client).start();
     waitingRoomsInfo(client).start();
     mentorCallTimer(client).start();
 
-    // const mentorIdsHandles = <TextChannel>events.guild.channels.cache.find(channel => channel.name === "mentor-ids")
-
-    // mentorIdsHandles?.messages.fetch({ limit: 100 }).then(messages => {
-    //   messages.every((mesg): boolean => {
-    //     eventMentors.push(mesg.content);
-    //     return true
-    //   })
-    // }).then(
-    //   () => {
-    //     let parsedEventMentors: string[] = []
-    //     eventMentors.forEach(chunk => {
-    //       parsedEventMentors = parsedEventMentors.concat(chunk.split("\n").map(str => str.trim()))
-    //     })
-    //     eventMentors = parsedEventMentors;
-    //   }
-    // )
-
     const mentorGetRole = <Role>events.guild.roles.cache.find((role) => role.name === 'Mentor');
     mentorRole = mentorGetRole.id;
+    BootcampSettings.set('critique_time', 25);
 
     notif.send('Codey is up!');
   });
@@ -110,7 +98,7 @@ export const startBot = async (): Promise<void> => {
             roles: [mentorRole]
           });
         }
-      });
+      }).catch(console.log);
   });
 
   client.on('voiceStateUpdate', (oldMember, newMember) => {
@@ -153,9 +141,9 @@ export const startBot = async (): Promise<void> => {
             VIEW_CHANNEL: false
           });
           (async (): Promise<void> => {
-            const fetched = await chatChannel.messages.fetch({ limit: 100 });
+            const fetched = await chatChannel.messages.fetch({ limit: 100 }).catch(console.log);
             // let filtered = fetched.filter((msg) => msg.content === newMember.id);
-            chatChannel.bulkDelete(fetched);
+            if (fetched) chatChannel.bulkDelete(fetched);
           })();
         }
       }
@@ -166,9 +154,11 @@ export const startBot = async (): Promise<void> => {
           .first()
       );
       const clear = async (): Promise<void> => {
-        const fetched = await queueChannel.messages.fetch({ limit: 100 });
-        const filtered = fetched.filter((msg) => msg.content === newMember.id);
-        queueChannel.bulkDelete(filtered);
+        const fetched = await queueChannel.messages.fetch({ limit: 100 }).catch(console.log);
+        if (fetched) {
+          const filtered = fetched.filter((msg) => msg.content === newMember.id);
+          queueChannel.bulkDelete(filtered);
+        }
       };
       if (queueChannel) clear();
     }

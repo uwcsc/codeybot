@@ -1,6 +1,7 @@
 import { Message, VoiceChannel, TextChannel } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { MentorCommand } from '../../utils/commands';
+import { BootcampSettings } from '../../bot';
 
 class BootcampNextCommand extends MentorCommand {
   constructor(client: CommandoClient) {
@@ -57,16 +58,17 @@ class BootcampNextCommand extends MentorCommand {
                 .updateOverwrite(front, {
                   VIEW_CHANNEL: true
                 })
-                .then(() => {
-                  chatChannel.send('You have **25** minutes remaining.');
+                .then(async () => {
+                  const critiqueTime = await BootcampSettings?.get('critique_time') || 15;
+                  chatChannel.send('You have **' + critiqueTime + '** minutes remaining.');
                 });
               return false;
             }
             return true;
           });
       });
-
-      return message.say('Your 15 minute call has started!');
+      const critiqueTime = await BootcampSettings?.get('critique_time')  || 15;
+      return message.say('Your **' + critiqueTime + '** minute call has started!');
     } else {
       return message.say('You must be in a Mentor/Mentee call room.');
     }

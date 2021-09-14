@@ -18,7 +18,6 @@ class BootcampNewTrackCommand extends AdminCommand {
         }
       ],
       description: 'Adds a new track category.',
-      examples: [`${client.commandPrefix}mentor I want a new Discord channel named #hobbies!`]
     });
   }
 

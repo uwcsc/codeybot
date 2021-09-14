@@ -1,0 +1,37 @@
+import { Message } from 'discord.js';
+import { CommandoClient, CommandoMessage } from 'discord.js-commando';
+import { AdminCommand } from '../../utils/commands';
+import { BootcampSettings } from '../../bot';
+
+class BootcampSetTimerCommand extends AdminCommand {
+  constructor(client: CommandoClient) {
+    super(client, {
+      name: 'set-timer',
+      aliases: ['new-timer'],
+      group: 'bootcamp',
+      memberName: 'set-timer',
+      args: [
+        {
+          key: 'time',
+          prompt: 'How long should the 1 on 1 calls be?',
+          type: 'string'
+        }
+      ],
+      description: 'Changes the length of the 1 on 1 critique call timer.',
+    });
+  }
+
+  async onRun(message: CommandoMessage, args: { time: string }): Promise<Message> {
+    const { time } = args;
+    let newTime = parseInt(time);
+    console.log(time, newTime);
+    if (newTime && 5 <= newTime && newTime <= 100) {
+      BootcampSettings.set('critique_time', newTime);
+      return message.reply('ALL calls are now set to **' + newTime + '** minutes.');
+    } else {
+      return message.say('Please set a reasonable time.');
+    }
+  }
+}
+
+export default BootcampSetTimerCommand;
