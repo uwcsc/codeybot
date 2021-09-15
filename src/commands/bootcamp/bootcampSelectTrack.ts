@@ -19,7 +19,7 @@ class BootcampSelectTrackCommand extends MentorCommand {
         }
       ],
       guildOnly: true,
-      description: 'Create a new 1 on 1 call with a category',
+      description: 'Create a new 1 on 1 call with a category.',
       examples: [`${client.commandPrefix}track devops`]
     });
   }
