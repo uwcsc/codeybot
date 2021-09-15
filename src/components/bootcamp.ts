@@ -23,32 +23,21 @@ export const addToMentorList = async (message: Message): Promise<void> => {
   }
 };
 
-export const checkIfMentor = (member: GuildMember): void => {
+export const checkIfMentor = async (member: GuildMember): Promise<void> => {
   const mentorIdsHandles = <TextChannel>member.guild.channels.cache.find((channel) => channel.name === 'mentor-ids');
-  const eventMentors: string[] = [];
-  mentorIdsHandles?.messages
-    .fetch({ limit: 100 })
-    .then((messages) => {
-      messages.every((mesg): boolean => {
-        eventMentors.push(mesg.content);
-        return true;
-      });
-    })
-    .then(async () => {
-      const mentorRole = await BootcampSettings.get('mentor_role');
-      let parsedEventMentors: string[] = [];
-      eventMentors.forEach((chunk) => {
-        parsedEventMentors = parsedEventMentors.concat(chunk.split('\n').map((str) => str.trim()));
-      });
-      if (parsedEventMentors.includes(member.id) || parsedEventMentors.includes(member.user.tag)) {
+  const mentorRole = await BootcampSettings.get('mentor_role');
+  mentorIdsHandles?.messages.fetch({ limit: 100 }).then((messages) => {
+    messages.forEach((mesg): void => {
+      const checkList = mesg.content.split('\n').map((str) => str.trim());
+      if (checkList.includes(member.id) || checkList.includes(member.user.tag)) {
         member
           .edit({
             roles: [mentorRole]
           })
           .catch(console.log);
       }
-    })
-    .catch(console.log);
+    });
+  });
 };
 
 export const controlMentorMenteeCalls = async (oldMember: VoiceState, newMember: VoiceState): Promise<void> => {
