@@ -95,14 +95,15 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         }
         if (i == 0) infoMessage.push('\tNobody in Line... <:smiling_face_with_tear:886882992692297769>');
       }
-      let hasDiff = false;
       const Q = infoMessage.join('\n');
       (async (): Promise<void> => {
         const fetched = await infoChannel.messages.fetch({ limit: 100 }).catch(console.log);
         if (fetched?.first) {
-          fetched?.forEach(mesg => mesg.edit(Q).then(() => {
-            if (mesg.editedTimestamp) mesg.createdTimestamp = mesg.editedTimestamp;
-          }));
+          fetched?.forEach((mesg) =>
+            mesg.edit(Q).then(() => {
+              if (mesg.editedTimestamp) mesg.createdTimestamp = mesg.editedTimestamp;
+            })
+          );
         } else {
           infoChannel.send(Q);
         }

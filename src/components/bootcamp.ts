@@ -67,11 +67,11 @@ export const controlMentorMenteeCalls = async (oldMember: VoiceState, newMember:
 
     if (chatChannel) {
       const mentorRole = await BootcampSettings.get('mentor_role');
-      if ((leaver.roles.cache.map((role) => role.id).includes(mentorRole)) && (
-          oldUserChannel.members.filter((member: GuildMember) =>
-            member.roles.cache.map((role) => role.id).includes(mentorRole)
-          ).size === 0
-        )
+      if (
+        leaver.roles.cache.map((role) => role.id).includes(mentorRole) &&
+        oldUserChannel.members.filter((member: GuildMember) =>
+          member.roles.cache.map((role) => role.id).includes(mentorRole)
+        ).size === 0
       ) {
         try {
           chatChannel.delete();
@@ -84,7 +84,15 @@ export const controlMentorMenteeCalls = async (oldMember: VoiceState, newMember:
           const fetched = await chatChannel.messages.fetch({ limit: 100 }).catch(console.log);
           if (fetched) chatChannel.bulkDelete(fetched);
           if (!leaver.roles.cache.map((role) => role.id).includes(mentorRole)) {
-            leaver.send(`Thanks for taking part in Bootcamp: Resume Reviews! ${getEmojiByName('codeyLove')?.toString()}  I hope this event provided value for your future career prospects. ${getEmojiByName('codeyCoding2')?.toString()}  In order to improve future events, I'd love it if you filled out this feedback form: https://bit.ly/bootcamp-mentee-feedback ! Thanks so much ${getEmojiByName('codeyLove')?.toString()}`);
+            leaver.send(
+              `Thanks for taking part in Bootcamp: Resume Reviews! ${getEmojiByName(
+                'codeyLove'
+              )?.toString()}  I hope this event provided value for your future career prospects. ${getEmojiByName(
+                'codeyCoding2'
+              )?.toString()}  In order to improve future events, I'd love it if you filled out this feedback form: https://bit.ly/bootcamp-mentee-feedback ! Thanks so much ${getEmojiByName(
+                'codeyLove'
+              )?.toString()}`
+            );
           }
         })();
       }
