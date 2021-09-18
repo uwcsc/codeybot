@@ -64,6 +64,7 @@ export const startBot = async (): Promise<void> => {
       console.log('No bootcamp server.');
     }
     if (bootcamp) {
+      client?.user?.setActivity('Bootcamp!', { type: 'WATCHING' });
       initBootcamp(client);
       waitingRoomsInfo(client).start();
       mentorCallTimer(client).start();
