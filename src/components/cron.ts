@@ -98,7 +98,7 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
       const Q = infoMessage.join('\n');
       (async (): Promise<void> => {
         const fetched = await infoChannel.messages.fetch({ limit: 100 }).catch(console.log);
-        if (fetched?.first) {
+        if (fetched) {
           fetched?.forEach((mesg) =>
             mesg.edit(Q).then(() => {
               if (mesg.editedTimestamp) mesg.createdTimestamp = mesg.editedTimestamp;
