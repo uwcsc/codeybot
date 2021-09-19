@@ -67,6 +67,7 @@ export const controlMentorMenteeCalls = async (oldMember: VoiceState, newMember:
 
     if (chatChannel) {
       const mentorRole = await BootcampSettings.get('mentor_role');
+      const feedback = await BootcampSettings.get('feedback_dm');
       if (
         leaver.roles.cache.map((role) => role.id).includes(mentorRole) &&
         oldUserChannel.members.filter((member: GuildMember) =>
@@ -83,15 +84,16 @@ export const controlMentorMenteeCalls = async (oldMember: VoiceState, newMember:
         (async (): Promise<void> => {
           const fetched = await chatChannel.messages.fetch({ limit: 100 }).catch(console.log);
           if (fetched) chatChannel.bulkDelete(fetched);
-          if (!leaver.roles.cache.map((role) => role.id).includes(mentorRole)) {
+          if (!leaver.roles.cache.map((role) => role.id).includes(mentorRole) && feedback != '--none') {
             leaver.send(
-              `Thanks for taking part in Bootcamp: Resume Reviews! ${getEmojiByName(
-                'codeyLove'
-              )?.toString()}  I hope this event provided value for your future career prospects. ${getEmojiByName(
-                'codeyCoding2'
-              )?.toString()}  In order to improve future events, I'd love it if you filled out this feedback form: https://bit.ly/bootcamp-mentee-feedback ! Thanks so much ${getEmojiByName(
-                'codeyLove'
-              )?.toString()}`
+              feedback ||
+                `Thanks for taking part in Bootcamp: Resume Reviews! ${getEmojiByName(
+                  'codeyLove'
+                )?.toString()}  I hope this event provided value for your future career prospects. ${getEmojiByName(
+                  'codeyCoding2'
+                )?.toString()}  In order to improve future events, I'd love it if you filled out this feedback form: https://bit.ly/bootcamp-mentee-feedback ! Thanks so much ${getEmojiByName(
+                  'codeyLove'
+                )?.toString()}`
             );
           }
         })();

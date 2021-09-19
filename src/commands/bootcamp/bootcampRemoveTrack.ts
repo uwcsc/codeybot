@@ -18,7 +18,7 @@ class BootcampRemoveTrackCommand extends AdminCommand {
         }
       ],
       guildOnly: true,
-      description: 'Removes a track category in the server.'
+      description: 'Removes a track category in the server. (--all for delete all)'
     });
   }
 
@@ -41,7 +41,7 @@ class BootcampRemoveTrackCommand extends AdminCommand {
       return message.say('This server does not have a waiting room.');
     }
 
-    if (category === 'All') {
+    if (category === '  All') {
       waitingRooms.children.forEach((trackRoom) => {
         const cat = trackRoom.name;
         const trackCat = <CategoryChannel>(

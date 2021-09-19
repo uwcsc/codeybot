@@ -25,7 +25,6 @@ class BootcampSetTimerCommand extends AdminCommand {
   async onRun(message: CommandoMessage, args: { time: string }): Promise<Message> {
     const { time } = args;
     const newTime = parseInt(time);
-    console.log(time, newTime);
     if (newTime && 5 <= newTime && newTime <= 100) {
       BootcampSettings.set('critique_time', newTime);
       return message.reply('ALL calls are now set to **' + newTime + '** minutes.');

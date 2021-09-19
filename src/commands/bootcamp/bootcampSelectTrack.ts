@@ -29,7 +29,7 @@ class BootcampSelectTrackCommand extends MentorCommand {
     const mentor = message.member?.voice;
 
     if (!mentor?.channel) {
-      return message.say("Join a voice call such as 'Start Here' to choose a track");
+      return message.say('Join a voice call such as  https://discord.gg/JmUC4WC9Jk to choose a track');
     }
 
     const guild = message.guild;

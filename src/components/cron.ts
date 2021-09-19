@@ -87,11 +87,13 @@ export const waitingRoomsInfo = (client: CommandoClient): CronJob =>
         const fetched = await trackRoom.messages.fetch({ limit: 100 }).catch(console.log);
         let i = 0;
         if (fetched) {
-          fetched.forEach((mentee: Message) => {
-            if (i == 0) infoMessage.push('\tNext in Line <:sunglasses:886875117894926386>');
-            const inLine = bootcamp.members.cache.get(mentee.content);
-            if (inLine) infoMessage.push(`${++i}. **${inLine.displayName}**`);
-          });
+          fetched
+            .sorted((mesgA, mesgB) => mesgA.createdTimestamp - mesgB.createdTimestamp)
+            .forEach((mentee: Message) => {
+              if (i == 0) infoMessage.push('\tNext in Line <:sunglasses:886875117894926386>');
+              const inLine = bootcamp.members.cache.get(mentee.content);
+              if (inLine) infoMessage.push(`${++i}. **${inLine.displayName}**`);
+            });
         }
         if (i == 0) infoMessage.push('\tNobody in Line... <:smiling_face_with_tear:886882992692297769>');
       }
