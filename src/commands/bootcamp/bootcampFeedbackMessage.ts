@@ -23,7 +23,7 @@ class BootcampFeedbackMessageCommand extends AdminCommand {
   }
 
   async onRun(message: CommandoMessage, args: { feedback: string }): Promise<Message> {
-    let { feedback } = args;
+    const { feedback } = args;
     if (feedback) {
       BootcampSettings.set('feedback_dm', feedback);
       if (feedback == '--none') return message.reply('The feedback dm messages are disabled.');
