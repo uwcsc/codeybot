@@ -40,7 +40,7 @@ class BootcampExtendTimerCommand extends BaseCommand {
         }
         if (timer) {
           let minLeft = 1;
-          let newTimer = timer.content.replace(/(\d+)+/g, (_match, num: string): string => {
+          const newTimer = timer.content.replace(/(\d+)+/g, (_match, num: string): string => {
             minLeft = parseInt(num) + addTime;
             return minLeft.toString();
           });
