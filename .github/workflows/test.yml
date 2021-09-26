@@ -11,15 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # - name: Copy docker-compose.yml to deploy host
-      #   uses: appleboy/scp-action@master
-      #   with:
-      #     host: ${{ secrets.DEPLOY_HOST }}
-      #     username: ${{ secrets.DEPLOY_USER }}
-      #     key: ${{ secrets.DEPLOY_SSH_KEY }}
-      #     source: 'docker/staging/docker-compose.yml'
-      #     target: './codey/staging'
-      #     strip_components: 2
+      - name: Copy docker-compose.yml to deploy host
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: 'docker/staging/docker-compose.yml'
+          target: '.'
+          strip_components: 2
 
       - name: Pull image and start container in deploy host
         uses: appleboy/ssh-action@master
@@ -29,4 +29,3 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd /codey/staging
-            ls
