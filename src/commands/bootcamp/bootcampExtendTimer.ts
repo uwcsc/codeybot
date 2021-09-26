@@ -1,29 +1,21 @@
 import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import { MentorCommand } from '../../utils/commands';
+import { BaseCommand } from '../../utils/commands';
 
-class BootcampExtendTimerCommand extends MentorCommand {
+class BootcampExtendTimerCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'extend',
       aliases: ['add-time'],
       group: 'bootcamp',
       memberName: 'extend',
-      args: [
-        {
-          key: 'time',
-          prompt: 'How much time to add?',
-          type: 'string'
-        }
-      ],
       guildOnly: true,
       description: 'Adds time to the length of the 1 on 1 critique call.'
     });
   }
 
-  async onRun(message: CommandoMessage, args: { time: string }): Promise<Message> {
-    const { time } = args;
-    const addTime = parseInt(time) || 5;
+  async onRun(message: CommandoMessage): Promise<Message> {
+    const addTime = 7;
     if (addTime && 1 <= addTime && addTime <= 30) {
       const chatChannel = message.channel;
       (async (): Promise<void> => {
@@ -32,6 +24,19 @@ class BootcampExtendTimerCommand extends MentorCommand {
         let timer;
         if (fetched) {
           timer = fetched.find((msg: Message) => msg.content.endsWith(' remaining.'));
+          const extendsUsed = fetched.filter((msg: Message) => msg.content.endsWith('Time added!'));
+
+          if (
+            !extendsUsed.every((mesg) => {
+              if (mesg.mentions.users.get(message.author.id)) {
+                return false;
+              }
+              return true;
+            })
+          ) {
+            message.reply('You already extended the time.');
+            return;
+          }
         }
         if (timer) {
           let minLeft = 1;
@@ -39,13 +44,13 @@ class BootcampExtendTimerCommand extends MentorCommand {
             minLeft = parseInt(num) + addTime;
             return minLeft.toString();
           });
-          if (minLeft == 1) newTimer = 'You have **1** minute remaining.';
           timer.edit(newTimer);
+          message.reply('Time added!');
         } else {
           message.reply('You must use this command in the text channel corresponding to your 1 on 1 call.');
         }
       })();
-      return message.say('Adding ' + addTime);
+      return message.say('Adding 7 minutes...');
     } else {
       return message.say('Please set a reasonable time.');
     }
