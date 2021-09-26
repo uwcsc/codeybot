@@ -18,7 +18,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: 'docker/staging/docker-compose.yml'
-          target: '.'
+          target: '/home/exec_csclub_uwaterloo_ca'
           strip_components: 2
 
       - name: Pull image and start container in deploy host
