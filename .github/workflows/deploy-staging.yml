@@ -40,7 +40,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: 'docker/staging/docker-compose.yml'
-          target: '/codey/staging'
+          target: './codey/staging'
           strip_components: 2
 
       - name: Pull image and start container in deploy host
