@@ -2,7 +2,7 @@ name: Deploy Codey to Staging
 
 on:
   push:
-    branches: [cd-pipeline-directory]
+    branches: [master]
 
 jobs:
   deploy:
