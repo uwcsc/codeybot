@@ -33,16 +33,6 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
-      - name: Copy docker-compose.yml to deploy host
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: 'docker/staging/docker-compose.yml'
-          target: './codey/staging'
-          strip_components: 2
-
       - name: Pull image and start container in deploy host
         uses: appleboy/ssh-action@master
         with:
@@ -51,6 +41,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd /codey/staging
+            curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codeybot/master/docker/staging/docker-compose.yml
             docker pull uwcsclub/codey-bot:${{ github.sha }}
             echo "TAG=${{ github.sha }}" > docker.env
             docker-compose down
