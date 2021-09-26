@@ -26,7 +26,7 @@ jobs:
         with:
           cache-to: uwcsclub/codey-bot:cache
           cache-from: uwcsclub/codey-bot:cache
-          file: docker/staging/Dockerfile
+          file: docker/production/Dockerfile
           push: true
           tags: uwcsclub/codey-bot:bootcamp
 
