@@ -40,7 +40,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: 'docker/staging/docker-compose.yml'
-          target: '/home/codeybot/staging'
+          target: '/codey/staging'
           strip_components: 2
 
       - name: Pull image and start container in deploy host
@@ -50,7 +50,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            cd /home/codeybot/staging
+            cd /codey/staging
             docker pull uwcsclub/codey-bot:${{ github.sha }}
             echo "TAG=${{ github.sha }}" > docker.env
             docker-compose down

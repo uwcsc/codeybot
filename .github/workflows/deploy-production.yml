@@ -43,7 +43,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: 'docker/production/docker-compose.yml'
-          target: '/home/codeybot/production'
+          target: '/codey/production'
           strip_components: 2
 
       - name: Pull image and start container in deploy host
@@ -53,7 +53,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            cd /home/codeybot/production
+            cd /codey/production
             docker pull uwcsclub/codey-bot:${{ env.RELEASE_TAG }}
             echo "TAG=${{ env.RELEASE_TAG }}" > docker.env
             docker-compose down
