@@ -85,6 +85,8 @@ export const controlMentorMenteeCalls = async (oldMember: VoiceState, newMember:
           const fetched = await chatChannel.messages.fetch({ limit: 100 }).catch(console.log);
           if (fetched) chatChannel.bulkDelete(fetched);
           if (!leaver.roles.cache.map((role) => role.id).includes(mentorRole) && feedback != '--none') {
+            // TEMP # OF CALLS TRACKER
+            console.log(leaver.displayName);
             leaver.send(
               feedback ||
                 `Thanks for taking part in Bootcamp: Resume Reviews! ${getEmojiByName(

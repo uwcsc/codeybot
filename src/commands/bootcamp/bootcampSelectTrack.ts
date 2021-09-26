@@ -60,13 +60,7 @@ class BootcampSelectTrackCommand extends MentorCommand {
             type: 'voice',
             userLimit: 2,
             position: callNum * 2 + 10,
-            parent: trackCategory,
-            permissionOverwrites: [
-              {
-                id: guild.roles.everyone,
-                deny: [Permissions.FLAGS.VIEW_CHANNEL]
-              }
-            ]
+            parent: trackCategory
           })
           .then((newCall) => {
             mentor?.setChannel(newCall);
