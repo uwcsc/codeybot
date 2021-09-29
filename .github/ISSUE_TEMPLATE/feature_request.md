@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: Suggest a new feature for the bot
-title: "[Feature]"
+title: "[FEATURE]"
 labels: request
 assignees: kallentu
 
