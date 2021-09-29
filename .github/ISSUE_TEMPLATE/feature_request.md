@@ -1,9 +1,9 @@
 ---
 name: Feature Request
-about: Suggest an idea for this project
-title: ''
+about: Suggest a new feature for the bot
+title: "[Feature]"
 labels: request
-assignees: ''
+assignees: kallentu
 
 ---
 
