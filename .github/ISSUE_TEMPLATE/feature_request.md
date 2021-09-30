@@ -8,7 +8,7 @@ assignees: kallentu
 ---
 
 **Describe the problem and the impact.**
-_Is there an issue you want to solve? Who does this feature impact? What will happen if we *don't* implement this feature? Please clearly and concisely describe the problem you are facing._
+_Is there an issue you want to solve? Who does this feature impact? How many people will this feature impact? Will this feature be used often? What will happen if we *don't* implement this feature? Please clearly and concisely describe the problem you are facing._
 
 **Describe your proposed solution(s).**
 _Please provide us with as much detail as possible and feel free to suggest more than one solution if there are alternative solutions. We may follow back up to clarify details we aren't sure of._
