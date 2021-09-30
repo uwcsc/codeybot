@@ -1,5 +1,5 @@
 ---
-name: Feature Request
+name: "\U0001F4DD Feature Request"
 about: Suggest a new feature for the bot
 title: "[FEATURE]"
 labels: request
@@ -7,11 +7,14 @@ assignees: kallentu
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**Describe the problem and the impact.**
+_Is there an issue you want to solve? Who does this feature impact? What will happen if we *don't* implement this feature? Please clearly and concisely describe the problem you are facing._
 
-**Describe the solution you'd like**
-If you'd like a new command, describe what would the command do and how would the user use the command.
+**Describe your proposed solution(s).**
+_Please provide us with as much detail as possible and feel free to suggest more than one solution if there are alternative solutions. We may follow back up to clarify details we aren't sure of._
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+**Deadlines**
+_Do you want it done by a certain date? Describe how urgently you need the feature complete. Please be specific and provide additional context if needed. This will help us with prioritization._
+
+**Additional Information**
+_Feel free to add screenshots or any other contextual information we should know for building this feature._
