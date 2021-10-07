@@ -1,0 +1,11 @@
+services:
+  codey-bot:
+    image: uwcsclub/codey-bot:${TAG}
+    container_name: codey-production
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./logs:/usr/app/logs
+      - ./db:/usr/app/db
