@@ -19,7 +19,7 @@ class CoinBalanceCommand extends BaseCommand {
     // Get coin balance
     const balance = await getCoinBalanceByUserId(message.author.id);
     // Show coin balance
-    return message.reply(`you have ${balance} Codey Coins 🪙.`);
+    return message.reply(`you have ${balance} Codey coins 🪙.`);
   }
 }
 
