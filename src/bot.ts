@@ -26,7 +26,8 @@ client.registry
   .registerDefaultCommands({ unknownCommand: false })
   .registerGroups([
     ['suggestions', 'Suggestions'],
-    ['interviews', 'Mock Interviews']
+    ['interviews', 'Mock Interviews'],
+    ['coin', 'Codey Coin']
   ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
