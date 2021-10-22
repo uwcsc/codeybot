@@ -7,11 +7,11 @@ class CoinBalanceCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'coin',
-      aliases: ['balance', 'coins'],
+      aliases: ['bal', 'balance', 'coins'],
       group: 'coin',
       memberName: 'coin-balance',
-      description: 'Shows your Codey Coin balance.',
-      examples: [`${client.commandPrefix}coin`, `${client.commandPrefix}coins`, `${client.commandPrefix}balance`]
+      description: 'Shows your Codey coin balance.',
+      examples: [`${client.commandPrefix}coin`, `${client.commandPrefix}bal`, `${client.commandPrefix}balance`]
     });
   }
 
