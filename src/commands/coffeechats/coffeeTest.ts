@@ -39,15 +39,43 @@ class coffeeSignupCommand extends BaseCommand {
     Array.from(Array(size).keys()).forEach((value: number) => {
       userList.set(`${value}`, value);
     });
+    let maxTally = 0;
     let tally = 0;
-    while (true) {
-      tally += 1;
-      const matched = await loadMatched(userList);
-      const matches = await stableMatch(userList, matched);
-      await writeNewMatches(matches);
-      if (await hasDupe(matches, userList)) break;
+    let i = 0;
+    const threshold = 1000;
+    const history = new Map();
+    const preMatch = 3;
+    message.channel.send(`simulated ${preMatch} rounds of coffeechats before matching starts`);
+    while (maxTally < size) {
+      await wipeHistory();
+      for (let j = 0; j < preMatch; j++) {
+        const oldUsers = new Map(userList);
+        oldUsers.delete(`${size - 1}`);
+        const matched = await loadMatched(oldUsers);
+        const matches = await stableMatch(oldUsers, matched);
+        await writeNewMatches(matches);
+      }
+      if (history.has(i + 1 - threshold) && history.get(i + 1 - threshold) === maxTally) {
+        // nothing improved for the past threshold iterations
+        break;
+      }
+      if ((i + 1) % 100 == 0) {
+        message.channel.send(`${i + 1}: ${maxTally}`);
+        history.set(i + 1, maxTally);
+      }
+      tally = 0;
+      while (true) {
+        tally += 1;
+        const matched = await loadMatched(userList);
+        const matches = await stableMatch(userList, matched);
+        await writeNewMatches(matches);
+        if (await hasDupe(matches, userList)) break;
+      }
+      maxTally = Math.max(tally, maxTally);
+      i += 1;
     }
-    message.channel.send(`STABLE Matched users ${tally} times before encountering dupe`);
+    message.channel.send(`${i} iterations in total`);
+    message.channel.send(`STABLE Matched users ${maxTally} times before encountering dupe`);
     await wipeHistory();
     tally = 0;
     while (true) {

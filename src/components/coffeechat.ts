@@ -136,7 +136,6 @@ export const stableMatch = async (userList: Map<string, number>, matched: number
       output.push([person.name, person.fiance.name]);
     }
     if (!finalOutput || getMaxDupe(finalOutput, userList) > getMaxDupe(output, userList)) {
-      console.log('optimized stable');
       finalOutput = output;
     }
   }
