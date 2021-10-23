@@ -32,7 +32,7 @@ class CoinBalanceCommand extends AdminCommand {
     // Update coin balance
     await updateCoinBalanceByUserId(user.id, amount);
     // Get new balance
-    const newBalance = await getCoinBalanceByUserId(message.author.id);
+    const newBalance = await getCoinBalanceByUserId(user.id);
     return message.reply(`${user.username} now has ${newBalance} Codey coins 🪙.`);
   }
 }
