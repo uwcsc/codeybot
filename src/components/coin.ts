@@ -60,7 +60,7 @@ export const updateCoinBalanceByUserId = async (userId: string, newBalance: numb
   Otherwise, adjust the user's balance by the specified amount.
   The user's balance will be set to 0 if the adjustment brings it below 0.
 */
-export const adjustrCoinBalanceByUserId = async (userId: string, amount: number): Promise<void> => {
+export const adjustCoinBalanceByUserId = async (userId: string, amount: number): Promise<void> => {
   const db = await openDB();
   await db.run(
     `
