@@ -35,3 +35,40 @@ export const getCoinBalanceByUserId = async (userId: string): Promise<number> =>
   // If user doesn't have a balance, default to 0.
   return _.get(res, 'balance', 0);
 };
+
+/*
+  If user doesn't exist, create row with newBalance as the balance.
+  Otherwise, update balance to newBalance.
+  The user's balance will be set to 0 if newBalance is negative.
+*/
+export const updateCoinBalanceByUserId = async (userId: string, newBalance: number): Promise<void> => {
+  const db = await openDB();
+  const updateAmount = Math.max(newBalance, 0);
+  await db.run(
+    `
+    INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
+    ON CONFLICT(user_id)
+    DO UPDATE SET balance = ?`,
+    userId,
+    updateAmount,
+    updateAmount
+  );
+};
+
+/*
+  If user doesn't exist, create a row with the specified amount as the balance.
+  Otherwise, adjust the user's balance by the specified amount.
+  The user's balance will be set to 0 if the adjustment brings it below 0.
+*/
+export const adjustrCoinBalanceByUserId = async (userId: string, amount: number): Promise<void> => {
+  const db = await openDB();
+  await db.run(
+    `
+    INSERT INTO user_coin (user_id, balance) VALUES (?, MAX(?, 0))
+    ON CONFLICT(user_id)
+    DO UPDATE SET balance = MAX(balance + ?, 0)`,
+    userId,
+    amount,
+    amount
+  );
+};
