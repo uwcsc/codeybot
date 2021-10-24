@@ -33,7 +33,8 @@ client.registry
   .registerGroups([
     ['suggestions', 'Suggestions'],
     ['interviews', 'Mock Interviews'],
-    ['bootcamp', 'Drop-in Mentorship Event']
+    ['bootcamp', 'Drop-in Mentorship Event'],
+    ['coin', 'Codey Coin']
   ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
