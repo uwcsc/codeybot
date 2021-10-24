@@ -3,6 +3,21 @@ import _ from 'lodash';
 
 import { openDB } from './db';
 
+export const dailyBonusAmount = 50;
+export const minuteBonusAmount = 2;
+
+export enum BonusType {
+  Daily = 'daily',
+  Minute = 'minute'
+}
+
+export interface UserCoinBonus {
+  id: string;
+  user_id: string;
+  bonus_type: string;
+  last_granted: string;
+}
+
 export const initUserCoinTable = async (db: Database): Promise<void> => {
   await db.run(
     `
@@ -72,3 +87,37 @@ export const adjustCoinBalanceByUserId = async (userId: string, amount: number):
     amount
   );
 };
+
+/*
+  Get the time of the latest bonus applied to a user based on type
+*/
+export const latestBonusByUserId = async (userId: string, bonusType: BonusType): Promise<UserCoinBonus[]> => {
+  const db = await openDB();
+  let res: UserCoinBonus[];
+  res = await db.all(`SELECT max(last_granted) FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`, userId, bonusType);
+  return res;
+};
+
+
+/*
+  Determine if a daily bonus is applicable, or a minute bonus.
+  Apply bonus.
+*/
+export const applyBonusByUserId = async (userId: string): Promise<void> => {
+  const lastDailyBonus = await latestBonusByUserId(userId,BonusType.Daily);
+  const lastMinuteBonus = await latestBonusByUserId(userId,BonusType.Minute);
+  const lastDailyBonusTime = new Date(lastDailyBonus[0]['last_granted']).getTime();
+  const lastMinuteBonusTime = new Date(lastMinuteBonus[0]['last_granted']).getTime();
+  const nowTime = new Date().getTime();
+  const dayAgo = nowTime - 86400000; // take one day off
+  const minAgo = nowTime - 60000; // take one minute off
+
+  // add smol buffer for the milliseconds this takes to compute?
+
+  if (lastDailyBonusTime < dayAgo) {
+    await adjustCoinBalanceByUserId(userId, dailyBonusAmount);
+  } else if (lastMinuteBonusTime < minAgo) {
+    await adjustCoinBalanceByUserId(userId, minuteBonusAmount);
+  }
+};
+
