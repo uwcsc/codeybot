@@ -97,8 +97,7 @@ export const adjustCoinBalanceByUserId = async (userId: string, amount: number):
 */
 export const latestBonusByUserId = async (userId: string, bonusType: BonusType): Promise<UserCoinBonus[]> => {
   const db = await openDB();
-  let res: UserCoinBonus[];
-  res = await db.all(
+  const res: UserCoinBonus[] = await db.all(
     `SELECT last_granted FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`,
     userId,
     bonusType
@@ -128,7 +127,7 @@ export const timeBonusByUserId = async (userId: string, bonus: string): Promise<
 */
 export const applyBonusByUserId = async (userId: string): Promise<void> => {
   for (const bonus of Object.keys(coinBonusMap)) {
-    let isBonusApplied = await timeBonusByUserId(userId, bonus);
+    const isBonusApplied = await timeBonusByUserId(userId, bonus);
     if (isBonusApplied) {
       break;
     }
