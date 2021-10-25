@@ -8,11 +8,11 @@ export enum BonusType {
   Activity
 }
 
-export type Bonus = { bonusType: BonusType, bonusAmount: number, bonusCooldown: number };
+export type Bonus = { bonusType: BonusType; bonusAmount: number; bonusCooldown: number };
 
 export const coinBonusMap: { [key: string]: Bonus } = {
-  daily : { bonusType: BonusType.Daily, bonusAmount: 50, bonusCooldown: 86400000 },
-  activity : { bonusType: BonusType.Activity, bonusAmount: 2, bonusCooldown: 60000 }
+  daily: { bonusType: BonusType.Daily, bonusAmount: 50, bonusCooldown: 86400000 },
+  activity: { bonusType: BonusType.Activity, bonusAmount: 2, bonusCooldown: 60000 }
 };
 
 export interface UserCoinBonus {
@@ -98,7 +98,11 @@ export const adjustCoinBalanceByUserId = async (userId: string, amount: number):
 export const latestBonusByUserId = async (userId: string, bonusType: BonusType): Promise<UserCoinBonus[]> => {
   const db = await openDB();
   let res: UserCoinBonus[];
-  res = await db.all(`SELECT last_granted FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`, userId, bonusType);
+  res = await db.all(
+    `SELECT last_granted FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`,
+    userId,
+    bonusType
+  );
   return res;
 };
 
@@ -118,7 +122,6 @@ export const timeBonusByUserId = async (userId: string, bonus: string): Promise<
   return false;
 };
 
-
 /*
   Determine if any timely bonuses are available.
   Apply a bonus.
@@ -131,4 +134,3 @@ export const applyBonusByUserId = async (userId: string): Promise<void> => {
     }
   }
 };
-
