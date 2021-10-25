@@ -124,8 +124,8 @@ export const timeBonusByUserId = async (userId: string, bonus: string): Promise<
   Apply a bonus.
 */
 export const applyBonusByUserId = async (userId: string): Promise<void> => {
-  for (const [key] of Object.entries(coinBonusMap)) {
-    let isBonusApplied = await timeBonusByUserId(userId, key);
+  for (const bonus of Object.keys(coinBonusMap)) {
+    let isBonusApplied = await timeBonusByUserId(userId, bonus);
     if (isBonusApplied) {
       break;
     }
