@@ -3,19 +3,23 @@ import _ from 'lodash';
 
 import { openDB } from './db';
 
-export const dailyBonusAmount = 50;
-export const minuteBonusAmount = 2;
-
 export enum BonusType {
-  Daily = 'daily',
-  Minute = 'minute'
+  Daily = 1,
+  Activity
 }
+
+export type Bonus = { bonusType: BonusType, bonusAmount: number, bonusCooldown: number };
+
+export const coinBonusMap: { [key: string]: Bonus } = {
+  daily : { bonusType: BonusType.Daily, bonusAmount: 50, bonusCooldown: 86400000 },
+  activity : { bonusType: BonusType.Activity, bonusAmount: 2, bonusCooldown: 60000 }
+};
 
 export interface UserCoinBonus {
   id: string;
   user_id: string;
-  bonus_type: string;
-  last_granted: string;
+  bonus_type: number;
+  last_granted: Date;
 }
 
 export const initUserCoinTable = async (db: Database): Promise<void> => {
@@ -94,30 +98,37 @@ export const adjustCoinBalanceByUserId = async (userId: string, amount: number):
 export const latestBonusByUserId = async (userId: string, bonusType: BonusType): Promise<UserCoinBonus[]> => {
   const db = await openDB();
   let res: UserCoinBonus[];
-  res = await db.all(`SELECT max(last_granted) FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`, userId, bonusType);
+  res = await db.all(`SELECT last_granted FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`, userId, bonusType);
   return res;
+};
+
+/*
+  Time bonus
+*/
+export const timeBonusByUserId = async (userId: string, bonus: string): Promise<boolean> => {
+  const lastBonusOccurence = await latestBonusByUserId(userId, coinBonusMap[bonus].bonusType);
+  const lastBonusOccurenceTime = lastBonusOccurence[0]['last_granted'].getTime();
+  const nowTime = new Date().getTime();
+  const cooldown = nowTime - coinBonusMap[bonus].bonusCooldown;
+
+  if (lastBonusOccurenceTime < cooldown) {
+    await adjustCoinBalanceByUserId(userId, coinBonusMap[bonus].bonusAmount);
+    return true;
+  }
+  return false;
 };
 
 
 /*
-  Determine if a daily bonus is applicable, or a minute bonus.
-  Apply bonus.
+  Determine if any timely bonuses are available.
+  Apply a bonus.
 */
 export const applyBonusByUserId = async (userId: string): Promise<void> => {
-  const lastDailyBonus = await latestBonusByUserId(userId,BonusType.Daily);
-  const lastMinuteBonus = await latestBonusByUserId(userId,BonusType.Minute);
-  const lastDailyBonusTime = new Date(lastDailyBonus[0]['last_granted']).getTime();
-  const lastMinuteBonusTime = new Date(lastMinuteBonus[0]['last_granted']).getTime();
-  const nowTime = new Date().getTime();
-  const dayAgo = nowTime - 86400000; // take one day off
-  const minAgo = nowTime - 60000; // take one minute off
-
-  // add smol buffer for the milliseconds this takes to compute?
-
-  if (lastDailyBonusTime < dayAgo) {
-    await adjustCoinBalanceByUserId(userId, dailyBonusAmount);
-  } else if (lastMinuteBonusTime < minAgo) {
-    await adjustCoinBalanceByUserId(userId, minuteBonusAmount);
+  for (const [key] of Object.entries(coinBonusMap)) {
+    let isBonusApplied = await timeBonusByUserId(userId, key);
+    if (isBonusApplied) {
+      break;
+    }
   }
 };
 

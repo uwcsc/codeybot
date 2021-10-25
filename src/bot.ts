@@ -9,7 +9,7 @@ import path from 'path';
 
 import { openCommandoDB } from './components/db';
 import logger, { logError } from './components/logger';
-import { listener } from './components/listener';
+import { messageListener } from './components/messageListener';
 import { initEmojis } from './components/emojis';
 import { createSuggestionCron } from './components/cron';
 
@@ -46,7 +46,7 @@ export const startBot = async (): Promise<void> => {
     notif.send('Codey is up!');
   });
 
-  client.on('message', listener); // error that I don't particularly understand
+  client.on('message', messageListener);
 
   client.on('error', logError);
 
