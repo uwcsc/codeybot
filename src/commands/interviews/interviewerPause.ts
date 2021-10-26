@@ -1,16 +1,16 @@
 import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { BaseCommand } from '../../utils/commands';
-import { clearProfile, getInterviewer } from '../../components/interview';
+import { pauseProfile, getInterviewer } from '../../components/interview';
 
-class InterviewerClearCommand extends BaseCommand {
+class InterviewerPauseCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
-      name: 'interviewer-clear',
+      name: 'interviewer-pause',
       group: 'interviews',
-      memberName: 'clear',
-      description: 'Clears your interviewer profile.',
-      examples: [`${client.commandPrefix}interviewer-clear`]
+      memberName: 'pause',
+      description: 'Pauses your interviewer profile.',
+      examples: [`${client.commandPrefix}interviewer-pause`]
     });
   }
 
@@ -24,10 +24,10 @@ class InterviewerClearCommand extends BaseCommand {
       );
     }
 
-    // clear interviewer data
-    await clearProfile(id);
-    return await message.reply('your interviewer profile has been cleared!');
+    // pause interviewer data
+    await pauseProfile(id);
+    return await message.reply('your interviewer profile has been paused!');
   }
 }
 
-export default InterviewerClearCommand;
+export default InterviewerPauseCommand;

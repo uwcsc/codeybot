@@ -28,10 +28,10 @@ class InterviewerDomainCommand extends BaseCommand {
     const { domain } = args;
     const { id } = message.author;
 
-    //check user signed up to be an interviewer
+    // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
-      return message.reply(
-        "you don't seem to have signed up yet, please sign up using `.interviewer-signup <calendarUrl>`!"
+      return await message.reply(
+        `you don't seem to have signed up yet, please sign up using \`${this.client.commandPrefix}interviewer-signup <calendarUrl>\`!`
       );
     }
 
