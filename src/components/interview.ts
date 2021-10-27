@@ -30,7 +30,7 @@ export enum Status {
 
 export const initInterviewTables = async (db: Database): Promise<void> => {
   await db.run(`CREATE TABLE IF NOT EXISTS interviewers
-               (user_id TEXT PRIMARY KEY, link TEXT NOT NULL, status INTEGER NOT NULL)`);
+               (user_id TEXT PRIMARY KEY, link TEXT NOT NULL, status INTEGER NOT NULL DEFAULT 0)`);
   await db.run('CREATE TABLE IF NOT EXISTS domains (user_id TEXT NOT NULL, domain TEXT NOT NULL)');
   await db.run('CREATE INDEX IF NOT EXISTS ix_domains_domain ON domains (domain)');
 };
@@ -75,14 +75,18 @@ export const upsertInterviewer = async (id: string, calendarUrl: string): Promis
 /*
   Returns a list of interviewers by domain, if a domain is specified.
   Throws an error if domain is not a valid key in availableDomains.
+  By default, only active interviewers will be returned.
 */
-export const getInterviewers = async (domain: string | null): Promise<Interviewer[]> => {
+export const getInterviewers = async (
+  domain: string | null,
+  status: number = Status.Active
+): Promise<Interviewer[]> => {
   const db = await openDB();
   let res: Interviewer[];
 
   if (!domain) {
     // no domain specified, query for all interviewers
-    res = await db.all('SELECT * FROM interviewers WHERE status = ?', Status.Active);
+    res = await db.all('SELECT * FROM interviewers WHERE status = ?', status);
   } else if (!(domain in availableDomains)) {
     // domain not a valid key in availableDomains
     throw 'Invalid domain.';
@@ -92,7 +96,7 @@ export const getInterviewers = async (domain: string | null): Promise<Interviewe
       `SELECT * FROM interviewers WHERE user_id IN (SELECT user_id FROM domains WHERE domain = ?)
       AND status = ?`,
       domain,
-      Status.Active
+      status
     );
   }
 

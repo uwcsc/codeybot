@@ -19,14 +19,14 @@ class InterviewerClearCommand extends BaseCommand {
 
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
-      return await message.reply(
+      return message.reply(
         `you don't seem to have signed up yet, please sign up using \`${this.client.commandPrefix}interviewer-signup <calendarUrl>\`!`
       );
     }
 
     // clear interviewer data
     await clearProfile(id);
-    return await message.reply('your interviewer profile has been cleared!');
+    return message.reply('your interviewer profile has been cleared!');
   }
 }
 

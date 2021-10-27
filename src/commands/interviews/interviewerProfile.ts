@@ -23,7 +23,7 @@ class InterviewerProfileCommand extends BaseCommand {
     // check if user signed up to be interviewer
     const interviewer = await getInterviewer(id);
     if (!interviewer) {
-      return await message.reply(
+      return message.reply(
         `you don't seem to have signed up yet, please sign up using \`${this.client.commandPrefix}interviewer-signup <calendarUrl>\`!`
       );
     }

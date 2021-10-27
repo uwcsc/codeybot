@@ -9,7 +9,7 @@ class InterviewerPauseCommand extends BaseCommand {
       name: 'interviewer-pause',
       group: 'interviews',
       memberName: 'pause',
-      description: 'Pauses your interviewer profile.',
+      description: `Pauses your interviewer profile. You will not appear in interviewer queries anymore, until you run \`${client.commandPrefix}interviewer-resume\`.`,
       examples: [`${client.commandPrefix}interviewer-pause`]
     });
   }
@@ -19,14 +19,16 @@ class InterviewerPauseCommand extends BaseCommand {
 
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
-      return await message.reply(
+      return message.reply(
         `you don't seem to have signed up yet, please sign up using \`${this.client.commandPrefix}interviewer-signup <calendarUrl>\`!`
       );
     }
 
     // pause interviewer data
     await pauseProfile(id);
-    return await message.reply('your interviewer profile has been paused!');
+    return message.reply(
+      `your interviewer profile has been paused! You will not appear in interviewer queries anymore, until you run \`${this.client.commandPrefix}interviewer-resume\`.`
+    );
   }
 }
 

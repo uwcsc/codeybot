@@ -9,7 +9,7 @@ class InterviewerResumeCommand extends BaseCommand {
       name: 'interviewer-resume',
       group: 'interviews',
       memberName: 'resume',
-      description: 'Resumes your interviewer profile.',
+      description: 'Resumes your interviewer profile. You will appear in interviewer queries again.',
       examples: [`${client.commandPrefix}interviewer-resume`]
     });
   }
@@ -19,14 +19,14 @@ class InterviewerResumeCommand extends BaseCommand {
 
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
-      return await message.reply(
+      return message.reply(
         `you don't seem to have signed up yet, please sign up using \`${this.client.commandPrefix}interviewer-signup <calendarUrl>\`!`
       );
     }
 
     // resume interviewer data
     await resumeProfile(id);
-    return await message.reply('your interviewer profile has been resumed!');
+    return message.reply('your interviewer profile has been resumed!');
   }
 }
 
