@@ -12,7 +12,7 @@ export type Bonus = { type: BonusType; amount: number; cooldown: number };
 
 export const coinBonusMap = new Map<BonusType, Bonus>([
   [BonusType.Daily, { type: BonusType.Daily, amount: 50, cooldown: 86400000 }], // one day in milliseconds
-  [BonusType.Activity, { type: BonusType.Daily, amount: 50, cooldown: 86400000 }] // one minute in milliseconds
+  [BonusType.Activity, { type: BonusType.Activity, amount: 1, cooldown: 60000 }] // one minute in milliseconds
 ]);
 
 export interface UserCoinBonus {
@@ -94,16 +94,16 @@ export const adjustCoinBalanceByUserId = async (userId: string, amount: number):
 
 /*
   If (user, bonusType) doesn't exist, create row with current time as this bonusType log.
-  Otherwise, update last_granted to NOW().
+  Otherwise, update last_granted to CURRENT_TIMESTAMP.
 */
 export const updateUserBonusTableByUserId = async (userId: string, bonusType: BonusType): Promise<void> => {
   const db = await openDB();
   const bonusTypeInTable = bonusType as number;
   await db.run(
     `
-    INSERT INTO user_coin_bonus (user_id, bonus_type, last_granted) VALUES (?, ?, NOW())
+    INSERT INTO user_coin_bonus (user_id, bonus_type, last_granted) VALUES (?, ?, CURRENT_TIMESTAMP)
     ON CONFLICT(user_id, bonus_type)
-    DO UPDATE SET last_granted = NOW()`,
+    DO UPDATE SET last_granted = CURRENT_TIMESTAMP`,
     userId,
     bonusTypeInTable
   );
@@ -119,6 +119,7 @@ export const latestBonusByUserId = async (userId: string, type: BonusType): Prom
     userId,
     type
   );
+  console.log(res);
   return res;
 };
 
@@ -128,13 +129,15 @@ export const latestBonusByUserId = async (userId: string, type: BonusType): Prom
 export const timeBonusByUserId = async (userId: string, bonusType: BonusType): Promise<boolean> => {
   const bonusOfInterest = coinBonusMap.get(bonusType);
 
-  if (bonusOfInterest == undefined) {
-    return false;
+  if (bonusOfInterest === undefined) {
+    return true;
   }
+  console.log(135);
 
   const lastBonusOccurence = await latestBonusByUserId(userId, bonusOfInterest.type);
-
-  if (lastBonusOccurence == undefined) {
+  console.log(lastBonusOccurence);
+  if (lastBonusOccurence === undefined) {
+    console.log('140');
     await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount);
     await updateUserBonusTableByUserId(userId, bonusType);
     return true;
@@ -149,6 +152,7 @@ export const timeBonusByUserId = async (userId: string, bonusType: BonusType): P
     await updateUserBonusTableByUserId(userId, bonusType);
     return true;
   }
+
   return false;
 };
 
@@ -157,13 +161,12 @@ export const timeBonusByUserId = async (userId: string, bonusType: BonusType): P
   Only apply the largest bonus.
 */
 export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
-  const bonuses = Object.keys(coinBonusMap);
-  console.log(bonuses);
-  bonuses.every(async function (bonus) {
-    const isBonusApplied = await timeBonusByUserId(userId, BonusType.Activity); // change 2nd back to 'bonus' later
+  for (const bonus of coinBonusMap.keys()) {
+    const isBonusApplied = await timeBonusByUserId(userId, bonus);
+    console.log(bonus);
     if (isBonusApplied) {
       return false; // break statement bc cannot break forEach loop
     }
-  });
+  }
   return false;
 };
