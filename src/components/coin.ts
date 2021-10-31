@@ -160,7 +160,7 @@ export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
   const bonuses = Object.keys(coinBonusMap);
   console.log(bonuses);
   bonuses.every(async function (bonus) {
-    const isBonusApplied = await timeBonusByUserId(userId, BonusType.Activity);
+    const isBonusApplied = await timeBonusByUserId(userId, BonusType.Activity); // change 2nd back to 'bonus' later
     if (isBonusApplied) {
       return false; // break statement bc cannot break forEach loop
     }
