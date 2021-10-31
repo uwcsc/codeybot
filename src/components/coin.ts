@@ -93,6 +93,23 @@ export const adjustCoinBalanceByUserId = async (userId: string, amount: number):
 };
 
 /*
+  If (user, bonusType) doesn't exist, create row with current time as this bonusType log.
+  Otherwise, update last_granted to NOW().
+*/
+export const updateUserBonusTableByUserId = async (userId: string, bonusType: BonusType): Promise<void> => {
+  const db = await openDB();
+  const bonusTypeInTable = bonusType as number;
+  await db.run(
+    `
+    INSERT INTO user_coin_bonus (user_id, bonus_type, last_granted) VALUES (?, ?, NOW())
+    ON CONFLICT(user_id, bonus_type)
+    DO UPDATE SET last_granted = NOW()`,
+    userId,
+    bonusTypeInTable
+  );
+};
+
+/*
   Get the time of the latest bonus applied to a user based on type
 */
 export const latestBonusByUserId = async (userId: string, type: BonusType): Promise<UserCoinBonus[] | undefined> => {
@@ -119,6 +136,7 @@ export const timeBonusByUserId = async (userId: string, bonusType: BonusType): P
 
   if (lastBonusOccurence == undefined) {
     await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount);
+    await updateUserBonusTableByUserId(userId, bonusType);
     return true;
   }
 
@@ -128,6 +146,7 @@ export const timeBonusByUserId = async (userId: string, bonusType: BonusType): P
 
   if (lastBonusOccurenceTime < cooldown) {
     await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount);
+    await updateUserBonusTableByUserId(userId, bonusType);
     return true;
   }
   return false;
