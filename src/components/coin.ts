@@ -157,9 +157,10 @@ export const timeBonusByUserId = async (userId: string, bonusType: BonusType): P
   Only apply the largest bonus.
 */
 export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
-  const bonuses = (Object.keys(coinBonusMap) as unknown) as Array<BonusType>;
+  const bonuses = Object.keys(coinBonusMap);
+  console.log(bonuses);
   bonuses.every(async function (bonus) {
-    const isBonusApplied = await timeBonusByUserId(userId, bonus);
+    const isBonusApplied = await timeBonusByUserId(userId, BonusType.Activity);
     if (isBonusApplied) {
       return false; // break statement bc cannot break forEach loop
     }
