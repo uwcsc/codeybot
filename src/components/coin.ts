@@ -4,16 +4,16 @@ import _ from 'lodash';
 import { openDB } from './db';
 
 export enum BonusType {
-  Daily = 1,
+  Daily = 0,
   Activity
 }
 
-export type Bonus = { bonusType: BonusType; bonusAmount: number; bonusCooldown: number };
+export type Bonus = { type: BonusType; amount: number; cooldown: number };
 
-export const coinBonusMap: { [key: string]: Bonus } = {
-  daily: { bonusType: BonusType.Daily, bonusAmount: 50, bonusCooldown: 86400000 },
-  activity: { bonusType: BonusType.Activity, bonusAmount: 2, bonusCooldown: 60000 }
-};
+export const coinBonusMap = new Map<BonusType, Bonus>([
+  [BonusType.Daily, { type: BonusType.Daily, amount: 50, cooldown: 86400000 }], // one day in milliseconds
+  [BonusType.Activity, { type: BonusType.Daily, amount: 50, cooldown: 86400000 }] // one minute in milliseconds
+]);
 
 export interface UserCoinBonus {
   id: string;
@@ -95,12 +95,12 @@ export const adjustCoinBalanceByUserId = async (userId: string, amount: number):
 /*
   Get the time of the latest bonus applied to a user based on type
 */
-export const latestBonusByUserId = async (userId: string, bonusType: BonusType): Promise<UserCoinBonus[]> => {
+export const latestBonusByUserId = async (userId: string, type: BonusType): Promise<UserCoinBonus[] | undefined> => {
   const db = await openDB();
-  const res: UserCoinBonus[] = await db.all(
+  const res: UserCoinBonus[] | undefined = await db.get(
     `SELECT last_granted FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`,
     userId,
-    bonusType
+    type
   );
   return res;
 };
@@ -108,14 +108,26 @@ export const latestBonusByUserId = async (userId: string, bonusType: BonusType):
 /*
   Time bonus
 */
-export const timeBonusByUserId = async (userId: string, bonus: string): Promise<boolean> => {
-  const lastBonusOccurence = await latestBonusByUserId(userId, coinBonusMap[bonus].bonusType);
+export const timeBonusByUserId = async (userId: string, bonusType: BonusType): Promise<boolean> => {
+  const bonusOfInterest = coinBonusMap.get(bonusType);
+
+  if (bonusOfInterest == undefined) {
+    return false;
+  }
+
+  const lastBonusOccurence = await latestBonusByUserId(userId, bonusOfInterest.type);
+
+  if (lastBonusOccurence == undefined) {
+    await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount);
+    return true;
+  }
+
   const lastBonusOccurenceTime = lastBonusOccurence[0]['last_granted'].getTime();
   const nowTime = new Date().getTime();
-  const cooldown = nowTime - coinBonusMap[bonus].bonusCooldown;
+  const cooldown = nowTime - bonusOfInterest.cooldown;
 
   if (lastBonusOccurenceTime < cooldown) {
-    await adjustCoinBalanceByUserId(userId, coinBonusMap[bonus].bonusAmount);
+    await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount);
     return true;
   }
   return false;
@@ -123,13 +135,15 @@ export const timeBonusByUserId = async (userId: string, bonus: string): Promise<
 
 /*
   Determine if any timely bonuses are available.
-  Apply a bonus.
+  Only apply the largest bonus.
 */
-export const applyBonusByUserId = async (userId: string): Promise<void> => {
-  for (const bonus of Object.keys(coinBonusMap)) {
+export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
+  const bonuses = (Object.keys(coinBonusMap) as unknown) as Array<BonusType>;
+  bonuses.every(async function (bonus) {
     const isBonusApplied = await timeBonusByUserId(userId, bonus);
     if (isBonusApplied) {
-      break;
+      return false; // break statement bc cannot break forEach loop
     }
-  }
+  });
+  return false;
 };
