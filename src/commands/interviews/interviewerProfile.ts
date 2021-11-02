@@ -10,6 +10,7 @@ class InterviewerProfileCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewer-profile',
+      aliases: ['int-profile', 'intprofile', 'interviewerprofile'],
       group: 'interviews',
       memberName: 'profile',
       description: 'Shows your interviewer profile.',

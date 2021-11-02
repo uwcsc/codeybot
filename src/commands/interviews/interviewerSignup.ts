@@ -8,6 +8,7 @@ class InterviewerSignupCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewer-signup',
+      aliases: ['int-signup', 'intsignup', 'interviewersignup'],
       group: 'interviews',
       memberName: 'signup',
       args: [
