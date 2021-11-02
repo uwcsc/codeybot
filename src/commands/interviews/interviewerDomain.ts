@@ -8,6 +8,7 @@ class InterviewerDomainCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewer-domain',
+      aliases: ['int-domain', 'intdomain', 'interviewerdomain'],
       group: 'interviews',
       memberName: 'domain',
       args: [

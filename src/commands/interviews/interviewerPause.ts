@@ -7,6 +7,7 @@ class InterviewerPauseCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewer-pause',
+      aliases: ['int-pause', 'intpause', 'interviewerpause'],
       group: 'interviews',
       memberName: 'pause',
       description: `Pauses your interviewer profile. You will not appear in interviewer queries anymore, until you run \`${client.commandPrefix}interviewer-resume\`.`,

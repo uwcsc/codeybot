@@ -7,6 +7,7 @@ class InterviewerClearCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewer-clear',
+      aliases: ['int-clear', 'intclear', 'interviewerclear'],
       group: 'interviews',
       memberName: 'clear',
       description: 'Clears your interviewer profile.',

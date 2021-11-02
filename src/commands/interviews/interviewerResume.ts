@@ -7,6 +7,7 @@ class InterviewerResumeCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewer-resume',
+      aliases: ['int-resume', 'intresume', 'interviewerresume'],
       group: 'interviews',
       memberName: 'resume',
       description: 'Resumes your interviewer profile. You will appear in interviewer queries again.',

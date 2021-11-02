@@ -13,7 +13,15 @@ class InterviewersCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewers',
-      aliases: ['interviewer', 'interviewer-list', 'interviewers-list'],
+      aliases: [
+        'ints',
+        'int',
+        'interviewer',
+        'interviewers-list',
+        'interviewerslist',
+        'interviewer-list',
+        'interviewerlist'
+      ],
       group: 'interviews',
       memberName: 'interviewers',
       args: [
