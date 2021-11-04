@@ -28,7 +28,8 @@ client.registry
     ['suggestions', 'Suggestions'],
     ['interviews', 'Mock Interviews'],
     ['coin', 'Codey Coin'],
-    ['fun', 'Fun']
+    ['fun', 'Fun'],
+    ['games', 'Games']
   ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
