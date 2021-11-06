@@ -40,8 +40,7 @@ class InterviewersCommand extends BaseCommand {
   }
 
   private async getInterviewerDisplayInfo(interviewer: Interviewer) {
-    const userTag = (await this.client.users.fetch(interviewer['user_id'])).tag;
-    return '**' + userTag + '** | [Calendar](' + interviewer['link'] + ')\n\n';
+    return `${await this.client.users.fetch(interviewer['user_id'])} | [Calendar](${interviewer['link']})\n\n`;
   }
 
   async onRun(message: CommandoMessage, args: { domain: string }): Promise<Message> {
