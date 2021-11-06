@@ -6,7 +6,7 @@ class FlipCoinCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'flip-coin',
-      aliases: ['fc', 'flipcoin'],
+      aliases: ['fc', 'flip', 'flipcoin', 'coin-flip', 'coinflip'],
       group: 'fun',
       memberName: 'flip-coin',
       description: 'Flip a coin! In making decisions, if it is not great, at least it is fair!',
