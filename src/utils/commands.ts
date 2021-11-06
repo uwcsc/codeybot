@@ -4,6 +4,10 @@ import logger, { logError } from '../components/logger';
 
 export abstract class BaseCommand extends Commando.Command {
   constructor(client: CommandoClient, info: CommandInfo) {
+    info.autoAliases = false;
+    if (info.examples) {
+      info.examples = info.examples.map((ex) => `\`${ex}\``);
+    }
     super(client, info);
   }
 
