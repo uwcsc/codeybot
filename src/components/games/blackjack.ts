@@ -1,7 +1,7 @@
-import { actions, Game, Card, Action, STAGE_PLAYER_TURN_RIGHT, STAGE_DONE } from 'engine-blackjack-ts';
+import { actions, Game, Card, Action } from 'engine-blackjack-ts';
 import _ from 'lodash';
 
-type BlackjackGame = { channelId: string; game: Game };
+type BlackjackGame = { channelId: string; game: Game; startedAt: Date };
 
 export type BlackjackHand = Card[];
 
@@ -13,6 +13,7 @@ export type GameState = {
   dealerValue: number[];
   bet: number;
   amountWon: number;
+  surrendered: boolean;
 };
 
 export enum BlackjackAction {
@@ -57,7 +58,8 @@ const getGameState = (game: Game): GameState => {
     dealerCards,
     dealerValue: _.uniq(Object.values(dealerValue)),
     bet: initialBet,
-    amountWon: wonOnRight
+    amountWon: wonOnRight,
+    surrendered: handInfo.right.playerHasSurrendered
   } as GameState;
 
   return state;
@@ -66,9 +68,16 @@ const getGameState = (game: Game): GameState => {
 export const blackjackGamesByUser = new Map<string, BlackjackGame>();
 
 export const startGame = (amount: number, playerId: string, channelId: string): GameState | null => {
-  if (gamesByPlayerId.has(playerId)) return null;
+  // If a game was started in the last minute, don't start a new one.
+  if (gamesByPlayerId.has(playerId)) {
+    const startedAt = gamesByPlayerId.get(playerId)?.startedAt.getTime();
+    const now = new Date().getTime();
+    if (startedAt && now - startedAt < 60000) {
+      return null;
+    }
+  }
   const game = new Game();
-  gamesByPlayerId.set(playerId, { channelId, game });
+  gamesByPlayerId.set(playerId, { channelId, game, startedAt: new Date() });
   game.dispatch(actions.deal({ bet: amount }));
   return getGameState(game);
 };
