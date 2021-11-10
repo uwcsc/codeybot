@@ -16,11 +16,11 @@ import { adjustCoinBalanceByUserId, getCoinBalanceByUserId } from '../../compone
 
 const DEFAULT_BET = 10;
 const MIN_BET = 10;
-const MAX_BET = 100000;
+const MAX_BET = 1000000;
 
 const validateBetAmount = (amount: number): string | boolean => {
-  if (amount < MIN_BET) return 'minimum bet is 10 Codey coins.';
-  if (amount > MAX_BET) return 'maximum bet is 100,000 Codey coins.';
+  if (amount < MIN_BET) return `minimum bet is ${MIN_BET} Codey coins.`;
+  if (amount > MAX_BET) return `maximum bet is ${MAX_BET} Codey coins.`;
   return true;
 };
 
