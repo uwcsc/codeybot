@@ -46,7 +46,8 @@ export abstract class AdminCommand extends BaseCommand {
   constructor(client: CommandoClient, info: CommandInfo) {
     super(client, {
       ...info,
-      userPermissions: [...(info.userPermissions || []), 'ADMINISTRATOR']
+      userPermissions: [...(info.userPermissions || []), 'ADMINISTRATOR'],
+      guildOnly: true // if this was set to false, users can issue Admin comands through DMs with Codey
     });
   }
 }
