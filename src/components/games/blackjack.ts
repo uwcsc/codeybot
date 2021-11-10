@@ -1,4 +1,4 @@
-import { actions, Game, Card, Action } from 'engine-blackjack-ts';
+import { actions, Game, Card, Action, presets } from 'engine-blackjack-ts';
 import _ from 'lodash';
 import logger from '../logger';
 
@@ -54,6 +54,13 @@ const gameStageMap = new Map<string, BlackjackStage>([
   ['done', BlackjackStage.DONE] // STAGE_DONE
 ]);
 
+// modify the given blackjack rules to our own custom rules
+const defaultGameRules = presets.getRules({
+  double: 'none',
+  split: false,
+  insurance: false
+});
+
 /*
   Extract game state from engine-blackjack-ts's game state
 */
@@ -106,7 +113,7 @@ export const startGame = (amount: number, playerId: string, channelId: string): 
   }
 
   // start the game
-  const game = new Game();
+  const game = new Game(undefined, defaultGameRules);
   gamesByPlayerId.set(playerId, { channelId, game, startedAt: new Date() });
   game.dispatch(actions.deal({ bet: amount }));
   return getGameState(game);
@@ -133,6 +140,8 @@ export const performGameAction = (playerId: string, actionName: BlackjackAction)
   // get game and action
   const game = gamesByPlayerId.get(playerId)?.game;
   const gameAction = gameActionsMap.get(actionName);
+
+  console.log(game?.getState().handInfo.right.availableActions);
 
   if (!game || !gameAction) {
     // no game state if game does not exist or if action is in valid
