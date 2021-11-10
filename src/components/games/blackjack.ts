@@ -1,5 +1,6 @@
 import { actions, Game, Card, Action } from 'engine-blackjack-ts';
 import _ from 'lodash';
+import logger from '../logger';
 
 type BlackjackGame = { channelId: string; game: Game; startedAt: Date };
 
@@ -47,6 +48,9 @@ const gameStageMap = new Map<string, BlackjackStage>([
   ['done', BlackjackStage.DONE] // STAGE_DONE
 ]);
 
+/*
+  Extract game state from engine-blackjack-ts's game state
+*/
 const getGameState = (game: Game): GameState => {
   const { dealerCards, initialBet, dealerValue, handInfo, stage, wonOnRight } = game.getState();
   const { cards: playerCards, playerValue } = handInfo.right;
@@ -54,42 +58,88 @@ const getGameState = (game: Game): GameState => {
   const state = {
     stage: gameStageMap.get(stage) || BlackjackStage.UNKNOWN,
     playerCards,
-    playerValue: _.uniq(Object.values(playerValue)),
+    playerValue: _.uniq(Object.values(playerValue)), // e.g. {hi: 10, low: 10} => [10]
     dealerCards,
     dealerValue: _.uniq(Object.values(dealerValue)),
     bet: initialBet,
-    amountWon: wonOnRight,
+    amountWon: Math.floor(wonOnRight), // e.g. do not allow decimals
     surrendered: handInfo.right.playerHasSurrendered
   } as GameState;
 
   return state;
 };
 
-export const blackjackGamesByUser = new Map<string, BlackjackGame>();
-
+/*
+  Starts a blackjack game for a given player and returns the new game's state
+*/
 export const startGame = (amount: number, playerId: string, channelId: string): GameState | null => {
-  // If a game was started in the last minute, don't start a new one.
+  logger.info({
+    event: 'blackjack_start',
+    amount,
+    channelId,
+    playerId
+  });
+
+  // if player started a game more than a minute ago, allow them to start another one in case the game got stuck
   if (gamesByPlayerId.has(playerId)) {
+    // player already has a game in progress, get the start time of the existing game
     const startedAt = gamesByPlayerId.get(playerId)?.startedAt.getTime();
     const now = new Date().getTime();
     if (startedAt && now - startedAt < 60000) {
+      // game was started in the past minute, don't start a new one
+      logger.info({
+        event: 'blackjack_start_exists',
+        startedAt,
+        now,
+        amount,
+        channelId,
+        playerId
+      });
       return null;
     }
   }
+
+  // start the game
   const game = new Game();
   gamesByPlayerId.set(playerId, { channelId, game, startedAt: new Date() });
   game.dispatch(actions.deal({ bet: amount }));
   return getGameState(game);
 };
 
+/*
+  End blackjack game for a given player
+*/
 export const endGame = (playerId: string): void => {
+  logger.info({ event: 'blackjack_end', playerId });
   gamesByPlayerId.delete(playerId);
 };
 
+/*
+  Perform a player action and returns the game state after that action
+*/
 export const performGameAction = (playerId: string, actionName: BlackjackAction): GameState | null => {
+  logger.info({
+    event: 'blackjack_action',
+    actionName,
+    playerId
+  });
+
+  // get game and action
   const game = gamesByPlayerId.get(playerId)?.game;
   const gameAction = gameActionsMap.get(actionName);
-  if (!game || !gameAction) return null;
+
+  if (!game || !gameAction) {
+    // no game state if game does not exist or if action is in valid
+    logger.info({
+      event: 'blackjack_action_error',
+      error: !game ? 'game does not exist for player' : 'invalid action',
+      actionName,
+      playerId
+    });
+    return null;
+  }
+
+  // perform action
   game.dispatch(gameAction());
   return getGameState(game);
 };
