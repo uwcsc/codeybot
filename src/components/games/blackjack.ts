@@ -141,8 +141,6 @@ export const performGameAction = (playerId: string, actionName: BlackjackAction)
   const game = gamesByPlayerId.get(playerId)?.game;
   const gameAction = gameActionsMap.get(actionName);
 
-  console.log(game?.getState().handInfo.right.availableActions);
-
   if (!game || !gameAction) {
     // no game state if game does not exist or if action is in valid
     logger.info({

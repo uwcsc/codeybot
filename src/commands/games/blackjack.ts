@@ -38,8 +38,7 @@ class BlackjackCommand extends BaseCommand {
           key: 'bet',
           prompt: `enter the amount you want to bet.`,
           type: 'integer',
-          default: DEFAULT_BET,
-          validate: validateBetAmount
+          default: DEFAULT_BET
         }
       ]
     });
@@ -194,6 +193,12 @@ class BlackjackCommand extends BaseCommand {
   async onRun(message: CommandoMessage, args: { bet: number }): Promise<Message> {
     const { bet } = args;
     const { author, channel } = message;
+
+    const validateRes = validateBetAmount(bet);
+    if (validateRes !== true) {
+      // send error message if validation function doesn't return true
+      return message.reply(validateRes);
+    }
 
     // check player balance and see if it can cover the bet amount
     const playerBalance = await getCoinBalanceByUserId(author.id);
