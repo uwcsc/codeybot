@@ -120,14 +120,18 @@ class BlackjackCommand extends BaseCommand {
   */
   private getEmbedColourFromGame(game: GameState): string {
     if (game.stage === BlackjackStage.DONE) {
-      if (game.amountWon < game.bet) {
+      if (this.getBalanceChange(game) < 0) {
+        // player lost coins
         return 'RED';
       }
-      if (game.amountWon > game.bet) {
+      if (this.getBalanceChange(game) > 0) {
+        // player won coins
         return 'GREEN';
       }
+      // player didn't lose any coins
       return 'ORANGE';
     }
+    // game in progress
     return 'YELLOW';
   }
 
