@@ -163,7 +163,7 @@ class BlackjackCommand extends BaseCommand {
       return `Tied! You didn't win or lose any Codey coin(s), try again!`;
     }
     // game instruction
-    return 'Press 🇸 to stand, 🇭 to hit, or 🇶 to quit.';
+    return 'Press 🇭 to hit, 🇸 to stand, or 🇶 to quit.';
   }
 
   /*
