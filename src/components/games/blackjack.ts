@@ -2,6 +2,8 @@ import { actions, Game, Card, Action } from 'engine-blackjack-ts';
 import _ from 'lodash';
 import logger from '../logger';
 
+const PLAYER_DEFAULT_POSITION = 'right';
+
 type BlackjackGame = { channelId: string; game: Game; startedAt: Date };
 
 export type BlackjackHand = Card[];
@@ -36,13 +38,17 @@ export enum CardSuit {
   DIAMONDS = 'diamonds'
 }
 
-const defaultPosition = 'right';
+// keeps track of games by player's Discord IDs
 const gamesByPlayerId = new Map<string, BlackjackGame>();
+
+// maps action Enum to game action
 const gameActionsMap = new Map<BlackjackAction, () => Action>([
-  [BlackjackAction.HIT, () => actions.hit({ position: defaultPosition })],
-  [BlackjackAction.STAND, () => actions.stand({ position: defaultPosition })],
+  [BlackjackAction.HIT, () => actions.hit({ position: PLAYER_DEFAULT_POSITION })],
+  [BlackjackAction.STAND, () => actions.stand({ position: PLAYER_DEFAULT_POSITION })],
   [BlackjackAction.QUIT, actions.surrender]
 ]);
+
+// maps game stage string to stage Enum
 const gameStageMap = new Map<string, BlackjackStage>([
   ['player-turn-right', BlackjackStage.PLAYER_TURN], // STAGE_PLAYER_TURN_RIGHT
   ['done', BlackjackStage.DONE] // STAGE_DONE
