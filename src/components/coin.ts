@@ -98,28 +98,26 @@ export const adjustCoinBalanceByUserId = async (userId: string, amount: number):
 */
 export const updateUserBonusTableByUserId = async (userId: string, bonusType: BonusType): Promise<void> => {
   const db = await openDB();
-  const bonusTypeInTable = bonusType as number;
   await db.run(
     `
     INSERT INTO user_coin_bonus (user_id, bonus_type, last_granted) VALUES (?, ?, CURRENT_TIMESTAMP)
     ON CONFLICT(user_id, bonus_type)
     DO UPDATE SET last_granted = CURRENT_TIMESTAMP`,
     userId,
-    bonusTypeInTable
+    bonusType
   );
 };
 
 /*
   Get the time of the latest bonus applied to a user based on type
 */
-export const latestBonusByUserId = async (userId: string, type: BonusType): Promise<UserCoinBonus[] | undefined> => {
+export const latestBonusByUserId = async (userId: string, type: BonusType): Promise<UserCoinBonus | undefined> => {
   const db = await openDB();
-  const res: UserCoinBonus[] | undefined = await db.get(
+  const res: UserCoinBonus | undefined = await db.get(
     `SELECT last_granted FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`,
     userId,
     type
   );
-  console.log(res);
   return res;
 };
 
@@ -132,18 +130,15 @@ export const timeBonusByUserId = async (userId: string, bonusType: BonusType): P
   if (bonusOfInterest === undefined) {
     return true;
   }
-  console.log(135);
 
   const lastBonusOccurence = await latestBonusByUserId(userId, bonusOfInterest.type);
-  console.log(lastBonusOccurence);
   if (lastBonusOccurence === undefined) {
-    console.log('140');
     await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount);
     await updateUserBonusTableByUserId(userId, bonusType);
     return true;
   }
 
-  const lastBonusOccurenceTime = lastBonusOccurence[0]['last_granted'].getTime();
+  const lastBonusOccurenceTime = new Date(lastBonusOccurence['last_granted']).getTime();
   const nowTime = new Date().getTime();
   const cooldown = nowTime - bonusOfInterest.cooldown;
 
@@ -163,7 +158,6 @@ export const timeBonusByUserId = async (userId: string, bonusType: BonusType): P
 export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
   for (const bonus of coinBonusMap.keys()) {
     const isBonusApplied = await timeBonusByUserId(userId, bonus);
-    console.log(bonus);
     if (isBonusApplied) {
       return false; // break statement bc cannot break forEach loop
     }
