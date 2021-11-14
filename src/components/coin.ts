@@ -122,7 +122,10 @@ export const latestBonusByUserId = async (userId: string, type: BonusType): Prom
 };
 
 /*
-  Time bonus
+  Adjusts balance by bonus amount if appropriate cooldown has passed.
+  Returns bool. 
+  True initiates the break in applyBonusByUserId, preventing multiple bonuses for a single msg.
+  False means this bonusType is not applicable yet.
 */
 export const timeBonusByUserId = async (userId: string, bonusType: BonusType): Promise<boolean> => {
   const bonusOfInterest = coinBonusMap.get(bonusType);
@@ -132,17 +135,13 @@ export const timeBonusByUserId = async (userId: string, bonusType: BonusType): P
   }
 
   const lastBonusOccurence = await latestBonusByUserId(userId, bonusOfInterest.type);
-  if (lastBonusOccurence === undefined) {
-    await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount);
-    await updateUserBonusTableByUserId(userId, bonusType);
-    return true;
-  }
-
-  const lastBonusOccurenceTime = new Date(lastBonusOccurence['last_granted']).getTime();
   const nowTime = new Date().getTime();
   const cooldown = nowTime - bonusOfInterest.cooldown;
+  // lastBonusOccurenceTime either does not exist yet (set as -1), or is pulled from db
+  const lastBonusOccurenceTime = !lastBonusOccurence ? -1 : new Date(lastBonusOccurence['last_granted']).getTime();
 
-  if (lastBonusOccurenceTime < cooldown) {
+  // TODO wrap operations in transaction
+  if (!lastBonusOccurence || lastBonusOccurenceTime < cooldown) {
     await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount);
     await updateUserBonusTableByUserId(userId, bonusType);
     return true;
