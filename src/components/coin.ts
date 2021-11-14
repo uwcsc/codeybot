@@ -123,15 +123,13 @@ export const latestBonusByUserId = async (userId: string, type: BonusType): Prom
 
 /*
   Adjusts balance by bonus amount if appropriate cooldown has passed.
-  Returns bool. 
-  True initiates the break in applyBonusByUserId, preventing multiple bonuses for a single msg.
-  False means this bonusType is not applicable yet.
+  Returns true if the a bonusType is applied to a user, and false otherwise.
 */
-export const timeBonusByUserId = async (userId: string, bonusType: BonusType): Promise<boolean> => {
+export const applyTimeBonus = async (userId: string, bonusType: BonusType): Promise<boolean> => {
   const bonusOfInterest = coinBonusMap.get(bonusType);
 
-  if (bonusOfInterest === undefined) {
-    return true;
+  if (!bonusOfInterest) {
+    return false; // type does not exist
   }
 
   const lastBonusOccurence = await latestBonusByUserId(userId, bonusOfInterest.type);
@@ -144,10 +142,10 @@ export const timeBonusByUserId = async (userId: string, bonusType: BonusType): P
   if (!lastBonusOccurence || lastBonusOccurenceTime < cooldown) {
     await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount);
     await updateUserBonusTableByUserId(userId, bonusType);
-    return true;
+    return true; // bonus type is applied
   }
 
-  return false;
+  return false; // bonus type is not applied
 };
 
 /*
@@ -156,7 +154,7 @@ export const timeBonusByUserId = async (userId: string, bonusType: BonusType): P
 */
 export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
   for (const bonus of coinBonusMap.keys()) {
-    const isBonusApplied = await timeBonusByUserId(userId, bonus);
+    const isBonusApplied = await applyTimeBonus(userId, bonus);
     if (isBonusApplied) {
       return false; // break statement bc cannot break forEach loop
     }
