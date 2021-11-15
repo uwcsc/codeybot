@@ -12,12 +12,7 @@ import {
   startGame
 } from '../../components/games/blackjack';
 import { getEmojiByName } from '../../components/emojis';
-import {
-  adjustCoinBalanceByUserId,
-  getCoinBalanceByUserId,
-  updateUserCoinLedger,
-  UserCoinEvent
-} from '../../components/coin';
+import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
 
 const DEFAULT_BET = 10;
 const MIN_BET = 10;
@@ -192,8 +187,7 @@ class BlackjackCommand extends BaseCommand {
   private endGame(gameMessage: Message, playerId: string, balanceChange = 0) {
     gameMessage.reactions.removeAll();
     endGame(playerId);
-    adjustCoinBalanceByUserId(playerId, balanceChange);
-    updateUserCoinLedger(playerId, balanceChange, UserCoinEvent.Blackjack);
+    adjustCoinBalanceByUserId(playerId, balanceChange, UserCoinEvent.Blackjack);
   }
 
   async onRun(message: CommandoMessage, args: { bet: number }): Promise<Message> {

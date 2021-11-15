@@ -1,12 +1,7 @@
 import { Message, User } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { AdminCommand } from '../../utils/commands';
-import {
-  getCoinBalanceByUserId,
-  updateCoinBalanceByUserId,
-  updateUserCoinLedger,
-  UserCoinEvent
-} from '../../components/coin';
+import { getCoinBalanceByUserId, updateCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
 
 class CoinBalanceCommand extends AdminCommand {
   constructor(client: CommandoClient) {
@@ -43,19 +38,16 @@ class CoinBalanceCommand extends AdminCommand {
 
   async onRun(message: CommandoMessage, args: { user: User; amount: number; reason: string }): Promise<Message> {
     const { user, amount, reason } = args;
-    // Get old balance
-    const oldBalance = await getCoinBalanceByUserId(user.id);
     // Update coin balance
-    await updateCoinBalanceByUserId(user.id, amount);
-    // Get new balance
-    const newBalance = await getCoinBalanceByUserId(user.id);
-    await updateUserCoinLedger(
+    await updateCoinBalanceByUserId(
       user.id,
-      newBalance - oldBalance,
-      UserCoinEvent.CoinUpdate,
+      amount,
+      UserCoinEvent.AdminCoinUpdate,
       reason ? reason : null,
       message.author.id
     );
+    // Get new balance
+    const newBalance = await getCoinBalanceByUserId(user.id);
     return message.reply(`${user.username} now has ${newBalance} Codey coins 🪙.`);
   }
 }

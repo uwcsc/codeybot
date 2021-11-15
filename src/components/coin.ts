@@ -4,8 +4,8 @@ import _ from 'lodash';
 import { openDB } from './db';
 
 export enum UserCoinEvent {
-  CoinAdjust,
-  CoinUpdate,
+  AdminCoinAdjust,
+  AdminCoinUpdate,
   BonusDaily,
   BonusActivity,
   Blackjack
@@ -65,8 +65,15 @@ export const getCoinBalanceByUserId = async (userId: string): Promise<number> =>
   Otherwise, update balance to newBalance.
   The user's balance will be set to 0 if newBalance is negative.
 */
-export const updateCoinBalanceByUserId = async (userId: string, newBalance: number): Promise<void> => {
+export const updateCoinBalanceByUserId = async (
+  userId: string,
+  newBalance: number,
+  event: number,
+  reason: string | null = null,
+  adminId: string | null = null
+): Promise<void> => {
   const db = await openDB();
+  const oldBalance = await getCoinBalanceByUserId(userId);
   const updateAmount = Math.max(newBalance, 0);
   await db.run(
     `
@@ -77,6 +84,7 @@ export const updateCoinBalanceByUserId = async (userId: string, newBalance: numb
     updateAmount,
     updateAmount
   );
+  await createCoinLedgerEntry(userId, updateAmount - oldBalance, event, reason, adminId);
 };
 
 /*
@@ -84,8 +92,15 @@ export const updateCoinBalanceByUserId = async (userId: string, newBalance: numb
   Otherwise, adjust the user's balance by the specified amount.
   The user's balance will be set to 0 if the adjustment brings it below 0.
 */
-export const adjustCoinBalanceByUserId = async (userId: string, amount: number): Promise<void> => {
+export const adjustCoinBalanceByUserId = async (
+  userId: string,
+  amount: number,
+  event: number,
+  reason: string | null = null,
+  adminId: string | null = null
+): Promise<void> => {
   const db = await openDB();
+  const oldBalance = await getCoinBalanceByUserId(userId);
   await db.run(
     `
     INSERT INTO user_coin (user_id, balance) VALUES (?, MAX(?, 0))
@@ -95,18 +110,21 @@ export const adjustCoinBalanceByUserId = async (userId: string, amount: number):
     amount,
     amount
   );
+  const newBalance = await getCoinBalanceByUserId(userId);
+  await createCoinLedgerEntry(userId, newBalance - oldBalance, event, reason, adminId);
 };
 
 /*
+  Adds an entry to the Codey coin ledger due to a change in a user's coin balance.
   reason is only applicable for admin commands and is optional.
   adminId is only applicable for admin commands and is mandatory.
 */
-export const updateUserCoinLedger = async (
+export const createCoinLedgerEntry = async (
   userId: string,
   amount: number,
   event: number,
-  reason: string | null = null,
-  adminId: string | null = null
+  reason: string | null,
+  adminId: string | null
 ): Promise<void> => {
   const db = await openDB();
   await db.run(
