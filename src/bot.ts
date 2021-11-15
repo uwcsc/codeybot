@@ -9,6 +9,7 @@ import path from 'path';
 
 import { openCommandoDB } from './components/db';
 import logger, { logError } from './components/logger';
+import { messageListener } from './components/messageListener';
 import { initEmojis } from './components/emojis';
 import { createSuggestionCron } from './components/cron';
 
@@ -18,11 +19,12 @@ const BOT_PREFIX = '.';
 
 // initialize Commando client
 const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as string[];
-const client = new Commando.Client({
+export const client = new Commando.Client({
   owner: botOwners,
   commandPrefix: BOT_PREFIX,
   restTimeOffset: 0
 });
+
 // register command groups
 client.registry
   .registerDefaultTypes()
@@ -50,6 +52,8 @@ export const startBot = async (): Promise<void> => {
     createSuggestionCron(client).start();
     notif.send('Codey is up!');
   });
+
+  client.on('message', messageListener);
 
   client.on('error', logError);
 

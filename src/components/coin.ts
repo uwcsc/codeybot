@@ -11,6 +11,25 @@ export enum UserCoinEvent {
   Blackjack
 }
 
+export enum BonusType {
+  Daily = 0,
+  Activity
+}
+
+export type Bonus = { type: BonusType; amount: number; cooldown: number; event: number };
+
+export const coinBonusMap = new Map<BonusType, Bonus>([
+  [BonusType.Daily, { type: BonusType.Daily, amount: 50, cooldown: 86400000, event: UserCoinEvent.BonusDaily }], // one day in milliseconds
+  [BonusType.Activity, { type: BonusType.Activity, amount: 1, cooldown: 60000, event: UserCoinEvent.BonusActivity }] // one minute in milliseconds
+]);
+
+export interface UserCoinBonus {
+  id: string;
+  user_id: string;
+  bonus_type: number;
+  last_granted: Date;
+}
+
 export const initUserCoinTable = async (db: Database): Promise<void> => {
   await db.run(
     `
@@ -135,4 +154,74 @@ export const createCoinLedgerEntry = async (
     reason,
     adminId
   );
+};
+
+/*
+  If (user, bonusType) doesn't exist, create row with current time as this bonusType log.
+  Otherwise, update last_granted to CURRENT_TIMESTAMP.
+*/
+export const updateUserBonusTableByUserId = async (userId: string, bonusType: BonusType): Promise<void> => {
+  const db = await openDB();
+  await db.run(
+    `
+    INSERT INTO user_coin_bonus (user_id, bonus_type, last_granted) VALUES (?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(user_id, bonus_type)
+    DO UPDATE SET last_granted = CURRENT_TIMESTAMP`,
+    userId,
+    bonusType
+  );
+};
+
+/*
+  Get the time of the latest bonus applied to a user based on type
+*/
+export const latestBonusByUserId = async (userId: string, type: BonusType): Promise<UserCoinBonus | undefined> => {
+  const db = await openDB();
+  const res: UserCoinBonus | undefined = await db.get(
+    `SELECT last_granted FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`,
+    userId,
+    type
+  );
+  return res;
+};
+
+/*
+  Adjusts balance by bonus amount if appropriate cooldown has passed.
+  Returns true if the a bonusType is applied to a user, and false otherwise.
+*/
+export const applyTimeBonus = async (userId: string, bonusType: BonusType): Promise<boolean> => {
+  const bonusOfInterest = coinBonusMap.get(bonusType);
+
+  if (!bonusOfInterest) {
+    return false; // type does not exist
+  }
+
+  const lastBonusOccurence = await latestBonusByUserId(userId, bonusOfInterest.type);
+  const nowTime = new Date().getTime();
+  const cooldown = nowTime - bonusOfInterest.cooldown;
+  // lastBonusOccurenceTime either does not exist yet (set as -1), or is pulled from db
+  const lastBonusOccurenceTime = !lastBonusOccurence ? -1 : new Date(lastBonusOccurence['last_granted']).getTime();
+
+  // TODO wrap operations in transaction
+  if (!lastBonusOccurence || lastBonusOccurenceTime < cooldown) {
+    await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount, bonusOfInterest.event);
+    await updateUserBonusTableByUserId(userId, bonusType);
+    return true; // bonus type is applied
+  }
+
+  return false; // bonus type is not applied
+};
+
+/*
+  Determine if any timely bonuses are available.
+  Only apply the largest bonus.
+*/
+export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
+  for (const bonus of coinBonusMap.keys()) {
+    const isBonusApplied = await applyTimeBonus(userId, bonus);
+    if (isBonusApplied) {
+      return false; // break statement bc cannot break forEach loop
+    }
+  }
+  return false;
 };
