@@ -17,8 +17,8 @@ class CoinBalanceCommand extends AdminCommand {
       memberName: 'coin-adjust',
       description: "Adjusts a user's Codey coin balance by an amount.",
       examples: [
-        `${client.commandPrefix}coin-update @Codey 100`,
-        `${client.commandPrefix}coin-update @Codey -100 Codey broke.`
+        `${client.commandPrefix}coin-adjust @Codey 100`,
+        `${client.commandPrefix}coin-adjust @Codey -100 Codey broke.`
       ],
       args: [
         {
