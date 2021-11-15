@@ -13,7 +13,15 @@ class InterviewersCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewers',
-      aliases: ['interviewer', 'interviewer-list', 'interviewers-list'],
+      aliases: [
+        'ints',
+        'int',
+        'interviewer',
+        'interviewers-list',
+        'interviewerslist',
+        'interviewer-list',
+        'interviewerlist'
+      ],
       group: 'interviews',
       memberName: 'interviewers',
       args: [
@@ -32,8 +40,8 @@ class InterviewersCommand extends BaseCommand {
   }
 
   private async getInterviewerDisplayInfo(interviewer: Interviewer) {
-    const userTag = (await this.client.users.fetch(interviewer['user_id'])).tag;
-    return '**' + userTag + '** | [Calendar](' + interviewer['link'] + ')\n\n';
+    const user = await this.client.users.fetch(interviewer['user_id']);
+    return `${user} | [Calendar](${interviewer['link']})\n\n`;
   }
 
   async onRun(message: CommandoMessage, args: { domain: string }): Promise<Message> {

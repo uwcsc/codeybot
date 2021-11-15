@@ -24,6 +24,7 @@
     "discord.js": "^12.5.3",
     "discord.js-commando": "^0.12.3",
     "dotenv": "^8.2.0",
+    "engine-blackjack-ts": "^0.9.11",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
