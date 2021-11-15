@@ -19,7 +19,12 @@ const BOT_PREFIX = '.';
 
 // initialize Commando client
 const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as string[];
-export const client = new Commando.Client({ owner: botOwners, commandPrefix: BOT_PREFIX });
+export const client = new Commando.Client({
+  owner: botOwners,
+  commandPrefix: BOT_PREFIX,
+  restTimeOffset: 0
+});
+
 // register command groups
 client.registry
   .registerDefaultTypes()
@@ -28,7 +33,9 @@ client.registry
   .registerGroups([
     ['suggestions', 'Suggestions'],
     ['interviews', 'Mock Interviews'],
-    ['coin', 'Codey Coin']
+    ['coin', 'Codey Coin'],
+    ['fun', 'Fun'],
+    ['games', 'Games']
   ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
