@@ -19,7 +19,7 @@ const BOT_PREFIX = '.';
 
 // initialize Commando client
 const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as string[];
-const client = new Commando.Client({ owner: botOwners, commandPrefix: BOT_PREFIX });
+export const client = new Commando.Client({ owner: botOwners, commandPrefix: BOT_PREFIX });
 // register command groups
 client.registry
   .registerDefaultTypes()
