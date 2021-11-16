@@ -61,6 +61,7 @@ export const initUserCoinLedgerTable = async (db: Database): Promise<void> => {
       id INTEGER PRIMARY KEY NOT NULL,
       user_id VARCHAR(255) NOT NULL,
       amount INTEGER NOT NULL,
+      new_balance INTEGER NOT NULL,
       event INTEGER NOT NULL,
       reason VARCHAR(255),
       admin_id VARCHAR(255),
@@ -135,7 +136,7 @@ export const changeDbCoinBalanceByUserId = async (
     updateAmount,
     updateAmount
   );
-  await createCoinLedgerEntry(userId, updateAmount - oldBalance, event, reason, adminId);
+  await createCoinLedgerEntry(userId, oldBalance, updateAmount, event, reason, adminId);
 };
 
 /*
@@ -145,16 +146,18 @@ export const changeDbCoinBalanceByUserId = async (
 */
 export const createCoinLedgerEntry = async (
   userId: string,
-  amount: number,
+  oldBalance: number,
+  updateAmount: number,
   event: number,
   reason: string | null,
   adminId: string | null
 ): Promise<void> => {
   const db = await openDB();
   await db.run(
-    'INSERT INTO user_coin_ledger (user_id, amount, event, reason, admin_id) VALUES (?, ?, ?, ?, ?)',
+    'INSERT INTO user_coin_ledger (user_id, amount, new_balance, event, reason, admin_id) VALUES (?, ?, ?, ?, ?, ?)',
     userId,
-    amount,
+    updateAmount - oldBalance,
+    updateAmount,
     event,
     reason,
     adminId
