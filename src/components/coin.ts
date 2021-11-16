@@ -91,19 +91,9 @@ export const updateCoinBalanceByUserId = async (
   reason: string | null = null,
   adminId: string | null = null
 ): Promise<void> => {
-  const db = await openDB();
   const oldBalance = await getCoinBalanceByUserId(userId);
   const updateAmount = Math.max(newBalance, 0);
-  await db.run(
-    `
-    INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
-    ON CONFLICT(user_id)
-    DO UPDATE SET balance = ?`,
-    userId,
-    updateAmount,
-    updateAmount
-  );
-  await createCoinLedgerEntry(userId, updateAmount - oldBalance, event, reason, adminId);
+  await changeDbCoinBalanceByUserId(userId, oldBalance, updateAmount, event, reason, adminId);
 };
 
 /*
@@ -118,19 +108,34 @@ export const adjustCoinBalanceByUserId = async (
   reason: string | null = null,
   adminId: string | null = null
 ): Promise<void> => {
-  const db = await openDB();
   const oldBalance = await getCoinBalanceByUserId(userId);
+  const updateAmount = Math.max(oldBalance + amount, 0);
+  await changeDbCoinBalanceByUserId(userId, oldBalance, updateAmount, event, reason, adminId);
+};
+
+/*
+  Changes data in the database, with oldBalance and updateAmount being pre-computed and passed in as parameters.
+  TODO: Wrap in transaction.
+*/
+export const changeDbCoinBalanceByUserId = async (
+  userId: string,
+  oldBalance: number,
+  updateAmount: number,
+  event: number,
+  reason: string | null,
+  adminId: string | null
+): Promise<void> => {
+  const db = await openDB();
   await db.run(
     `
-    INSERT INTO user_coin (user_id, balance) VALUES (?, MAX(?, 0))
+    INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
     ON CONFLICT(user_id)
-    DO UPDATE SET balance = MAX(balance + ?, 0)`,
+    DO UPDATE SET balance = ?`,
     userId,
-    amount,
-    amount
+    updateAmount,
+    updateAmount
   );
-  const newBalance = await getCoinBalanceByUserId(userId);
-  await createCoinLedgerEntry(userId, newBalance - oldBalance, event, reason, adminId);
+  await createCoinLedgerEntry(userId, updateAmount - oldBalance, event, reason, adminId);
 };
 
 /*
