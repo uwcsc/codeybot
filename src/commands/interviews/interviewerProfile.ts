@@ -10,6 +10,7 @@ class InterviewerProfileCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewer-profile',
+      aliases: ['int-profile', 'intprofile', 'interviewerprofile'],
       group: 'interviews',
       memberName: 'profile',
       description: 'Shows your interviewer profile.',
@@ -24,7 +25,7 @@ class InterviewerProfileCommand extends BaseCommand {
     const interviewer = await getInterviewer(id);
     if (!interviewer) {
       return message.reply(
-        "you don't seem to have signed up yet, please sign up using `.interviewer-signup <calendarUrl>`!"
+        `you don't seem to have signed up yet, please sign up using \`${this.client.commandPrefix}interviewer-signup <calendarUrl>\`!`
       );
     }
 
