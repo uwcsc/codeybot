@@ -9,6 +9,7 @@ import path from 'path';
 
 import { openCommandoDB } from './components/db';
 import logger, { logError } from './components/logger';
+import { messageListener } from './components/messageListener';
 import { initEmojis } from './components/emojis';
 import { createSuggestionCron } from './components/cron';
 
@@ -18,7 +19,12 @@ const BOT_PREFIX = '.';
 
 // initialize Commando client
 const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as string[];
-const client = new Commando.Client({ owner: botOwners, commandPrefix: BOT_PREFIX });
+export const client = new Commando.Client({
+  owner: botOwners,
+  commandPrefix: BOT_PREFIX,
+  restTimeOffset: 0
+});
+
 // register command groups
 client.registry
   .registerDefaultTypes()
@@ -27,7 +33,9 @@ client.registry
   .registerGroups([
     ['suggestions', 'Suggestions'],
     ['interviews', 'Mock Interviews'],
-    ['coffeechats', 'Coffee Chats']
+    ['coffeechats', 'Coffee Chats'][('coin', 'Codey Coin')],
+    ['fun', 'Fun'],
+    ['games', 'Games']
   ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
@@ -44,6 +52,8 @@ export const startBot = async (): Promise<void> => {
     createSuggestionCron(client).start();
     notif.send('Codey is up!');
   });
+
+  client.on('message', messageListener);
 
   client.on('error', logError);
   client.login(BOT_TOKEN);

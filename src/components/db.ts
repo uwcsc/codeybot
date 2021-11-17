@@ -4,6 +4,7 @@ import { open, Database } from 'sqlite';
 import { initSuggestionsTable } from './suggestions';
 import { initInterviewTables } from './interview';
 import { initCoffeeChatTables } from './coffeechat';
+import { initUserCoinBonusTable, initUserCoinTable } from './coin';
 import logger from './logger';
 
 let db: Database | null = null;
@@ -16,6 +17,8 @@ const initTables = async (db: Database): Promise<void> => {
   await initSuggestionsTable(db);
   await initInterviewTables(db);
   await initCoffeeChatTables(db);
+  await initUserCoinTable(db);
+  await initUserCoinBonusTable(db);
 };
 
 export const openDB = async (): Promise<Database> => {
