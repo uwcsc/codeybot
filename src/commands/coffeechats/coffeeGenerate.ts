@@ -1,16 +1,16 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import { testPerformance } from '../../components/coffeechat';
+import { generateFutureMatches } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
-import { EMBED_COLOUR } from '../../utils/embeds';
 import { parseNumArg, validateNumArg } from './utils';
 
 class coffeeSignupCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
-      name: 'coffee-test',
+      name: 'coffee-generate',
       group: 'coffeechats',
-      memberName: 'test',
+      memberName: 'generate',
+      description: 'Generates coffeechat matchings for the next N weeks',
       args: [
         {
           key: 'size',
@@ -20,19 +20,14 @@ class coffeeSignupCommand extends AdminCommand {
           parse: parseNumArg
         }
       ],
-      description: 'Tests coffeematch',
-      examples: [`${client.commandPrefix}coffeetest 10`]
+      examples: [`${client.commandPrefix}coffeegenerate 10`]
     });
   }
 
   async onRun(message: CommandoMessage, args: { size: number }): Promise<Message> {
     const { size } = args;
-    const results = await testPerformance(size);
-    const output = new MessageEmbed().setColor(EMBED_COLOUR).setTitle('Matches Until Dupe');
-    results.forEach((value, key) => {
-      output.addField(key, value);
-    });
-    return message.channel.send(output);
+    await generateFutureMatches(this.client, size);
+    return message.reply(`Generated ${size} matches.`);
   }
 }
 
