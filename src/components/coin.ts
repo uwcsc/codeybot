@@ -93,8 +93,8 @@ export const updateCoinBalanceByUserId = async (
   adminId: string | null = null
 ): Promise<void> => {
   const oldBalance = await getCoinBalanceByUserId(userId);
-  const updateAmount = Math.max(newBalance, 0);
-  await changeDbCoinBalanceByUserId(userId, oldBalance, updateAmount, event, reason, adminId);
+  const actualNewBalance = Math.max(newBalance, 0);
+  await changeDbCoinBalanceByUserId(userId, oldBalance, actualNewBalance, event, reason, adminId);
 };
 
 /*
@@ -110,18 +110,18 @@ export const adjustCoinBalanceByUserId = async (
   adminId: string | null = null
 ): Promise<void> => {
   const oldBalance = await getCoinBalanceByUserId(userId);
-  const updateAmount = Math.max(oldBalance + amount, 0);
-  await changeDbCoinBalanceByUserId(userId, oldBalance, updateAmount, event, reason, adminId);
+  const newBalance = Math.max(oldBalance + amount, 0);
+  await changeDbCoinBalanceByUserId(userId, oldBalance, newBalance, event, reason, adminId);
 };
 
 /*
-  Changes data in the database, with oldBalance and updateAmount being pre-computed and passed in as parameters.
+  Changes data in the database, with oldBalance and newBalance being pre-computed and passed in as parameters.
   TODO: Wrap in transaction.
 */
 export const changeDbCoinBalanceByUserId = async (
   userId: string,
   oldBalance: number,
-  updateAmount: number,
+  newBalance: number,
   event: number,
   reason: string | null,
   adminId: string | null
@@ -133,10 +133,10 @@ export const changeDbCoinBalanceByUserId = async (
     ON CONFLICT(user_id)
     DO UPDATE SET balance = ?`,
     userId,
-    updateAmount,
-    updateAmount
+    newBalance,
+    newBalance
   );
-  await createCoinLedgerEntry(userId, oldBalance, updateAmount, event, reason, adminId);
+  await createCoinLedgerEntry(userId, oldBalance, newBalance, event, reason, adminId);
 };
 
 /*
@@ -147,7 +147,7 @@ export const changeDbCoinBalanceByUserId = async (
 export const createCoinLedgerEntry = async (
   userId: string,
   oldBalance: number,
-  updateAmount: number,
+  newBalance: number,
   event: number,
   reason: string | null,
   adminId: string | null
@@ -156,8 +156,8 @@ export const createCoinLedgerEntry = async (
   await db.run(
     'INSERT INTO user_coin_ledger (user_id, amount, new_balance, event, reason, admin_id) VALUES (?, ?, ?, ?, ?, ?)',
     userId,
-    updateAmount - oldBalance,
-    updateAmount,
+    newBalance - oldBalance,
+    newBalance,
     event,
     reason,
     adminId
