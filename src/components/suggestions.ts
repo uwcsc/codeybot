@@ -39,7 +39,7 @@ export const initSuggestionsTable = async (db: Database): Promise<void> => {
       id INTEGER PRIMARY KEY NOT NULL,
       author_id VARCHAR(255) NOT NULL,
       author_username TEXT NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       suggestion TEXT NOT NULL,
       state VARCHAR(255) NOT NULL
     );

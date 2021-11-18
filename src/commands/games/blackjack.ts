@@ -12,7 +12,7 @@ import {
   startGame
 } from '../../components/games/blackjack';
 import { getEmojiByName } from '../../components/emojis';
-import { adjustCoinBalanceByUserId, getCoinBalanceByUserId } from '../../components/coin';
+import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
 
 const DEFAULT_BET = 10;
 const MIN_BET = 10;
@@ -160,7 +160,7 @@ class BlackjackCommand extends BaseCommand {
         return `You won **${amountDiff}** Codey coin(s) ${getEmojiByName('codeyLove')}, keep your win streak going!`;
       }
       // player tied with dealer
-      return `Tied! You didn't win or lose any Codey coin(s), try again!`;
+      return `Tied! You didn't win nor lose any Codey coin(s), try again!`;
     }
     // game instruction
     return 'Press 🇭 to hit, 🇸 to stand, or 🇶 to quit.';
@@ -187,7 +187,7 @@ class BlackjackCommand extends BaseCommand {
   private endGame(gameMessage: Message, playerId: string, balanceChange = 0) {
     gameMessage.reactions.removeAll();
     endGame(playerId);
-    adjustCoinBalanceByUserId(playerId, balanceChange);
+    adjustCoinBalanceByUserId(playerId, balanceChange, UserCoinEvent.Blackjack);
   }
 
   async onRun(message: CommandoMessage, args: { bet: number }): Promise<Message> {
