@@ -4,7 +4,7 @@ import { openDB } from './db';
 import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
 
-const COFFEE_EMOJI_ID: string = process.env.COFFEE_EMOJI_ID || '.';
+const COFFEE_ROLE_ID: string = process.env.COFFEE_ROLE_ID || '.';
 const TARGET_GUILD_ID: string = process.env.TARGET_GUILD_ID || '.';
 const RANDOM_ITERATIONS = 1000;
 
@@ -135,7 +135,7 @@ export const getNextFutureMatch = async (client: Client): Promise<{ matches: str
 
 const loadNotMatched = async (client: Client): Promise<Map<string, number>> => {
   const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
-    ?.filter((member) => member.roles.cache.has(COFFEE_EMOJI_ID))
+    ?.filter((member) => member.roles.cache.has(COFFEE_ROLE_ID))
     .map((member) => member.user.id);
   const notMatched: Map<string, number> = new Map();
   userList.forEach((val: string, index: number) => {
