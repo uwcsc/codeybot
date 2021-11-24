@@ -193,12 +193,9 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
   let finalOutput: string[][] | undefined = undefined;
   for (let i = 0; i < RANDOM_ITERATIONS; i++) {
     const notMatched = _.shuffle(Array.from(userList).map((name) => name[0]));
-    if (notMatched.length % 2 !== 0) {
-      const single = notMatched.shift();
-    }
     const A = notMatched.slice(0, Math.floor(notMatched.length / 2)).map((name) => new Person(name));
     const B = notMatched.slice(Math.floor(notMatched.length / 2)).map((name) => new Person(name));
-    A.forEach((value: any) =>
+    A.forEach((value) =>
       value.generatePreferences(
         [...B].sort(
           (a, b) =>
@@ -207,7 +204,7 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
         )
       )
     );
-    B.forEach((value: any) =>
+    B.forEach((value) =>
       value.generatePreferences(
         [...A].sort(
           (a, b) =>
@@ -233,10 +230,6 @@ const randomMatch = (userList: Map<string, number>, matched: number[][]): string
   let finalOutput: string[][] | undefined = undefined;
   for (let i = 0; i < 5; i++) {
     const notMatched = _.shuffle(Array.from(userList).map((name) => name[0]));
-    if (notMatched.length % 2 !== 0) {
-      const single = notMatched.shift();
-      // console.log(`${single} is single and ready to mingle.`);
-    }
     const output: string[][] = [];
     for (let i = 0; i < notMatched.length; i += 2) {
       output.push([notMatched[i], notMatched[i + 1]]);
