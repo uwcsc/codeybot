@@ -2,7 +2,6 @@ import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { generateFutureMatches } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
-import { parseNumArg, validateNumArg } from './utils';
 
 class coffeeSignupCommand extends AdminCommand {
   constructor(client: CommandoClient) {
@@ -16,12 +15,10 @@ class coffeeSignupCommand extends AdminCommand {
         {
           key: 'size',
           prompt: `enter an integer.`,
-          type: 'integer',
-          validate: validateNumArg,
-          parse: parseNumArg
+          type: 'integer'
         }
       ],
-      examples: [`${client.commandPrefix}coffeegenerate 10`]
+      examples: [`${client.commandPrefix}coffeegenerate`]
     });
   }
 

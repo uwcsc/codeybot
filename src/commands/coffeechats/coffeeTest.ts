@@ -3,7 +3,6 @@ import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { testPerformance } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
 import { EMBED_COLOUR } from '../../utils/embeds';
-import { parseNumArg, validateNumArg } from './utils';
 
 class coffeeSignupCommand extends AdminCommand {
   constructor(client: CommandoClient) {
@@ -16,9 +15,7 @@ class coffeeSignupCommand extends AdminCommand {
         {
           key: 'size',
           prompt: `enter an integer.`,
-          type: 'integer',
-          validate: validateNumArg,
-          parse: parseNumArg
+          type: 'integer'
         }
       ],
       description: 'Tests coffeematch',
