@@ -57,5 +57,6 @@ export const startBot = async (): Promise<void> => {
   client.on('message', messageListener);
 
   client.on('error', logError);
+
   client.login(BOT_TOKEN);
 };

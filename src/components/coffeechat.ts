@@ -11,7 +11,7 @@ const RANDOM_ITERATIONS = 1000;
 interface historic_match {
   first_user_id: string;
   second_user_id: string;
-  date: string;
+  TIMESTAMP: string;
 }
 
 interface future_match {
@@ -38,7 +38,7 @@ export const initCoffeeChatTables = async (db: Database): Promise<void> => {
         CREATE TABLE IF NOT EXISTS coffee_historic_matches (
             first_user_id TEXT NOT NULL,
             second_user_id TEXT NOT NULL,
-            date TEXT NOT NULL
+            TIMESTAMP TEXT NOT NULL
         )
         `
   );
@@ -102,7 +102,6 @@ export const validateFutureMatches = async (client: Client): Promise<boolean> =>
 
   //test if there exists week_id that is not finished
   const test_id = await db.get(`SELECT * FROM coffee_week_status WHERE finished = 0`);
-  console.log(test_id);
   if (!test_id) return false;
 
   return true;
@@ -111,9 +110,9 @@ export const validateFutureMatches = async (client: Client): Promise<boolean> =>
 //returns the single person in single, if they exist
 export const getNextFutureMatch = async (client: Client): Promise<{ matches: string[][]; single: string | null }> => {
   const db = await openDB();
-  const { week_id } = (await db.get(
-    `SELECT week_id FROM coffee_week_status WHERE finished = 0 ORDER BY week_id ASC LIMIT 1;`
-  )) as { week_id: number };
+  const { week_id } = (await db.get(`SELECT min(week_id) AS week_id FROM coffee_week_status WHERE finished = 0;`)) as {
+    week_id: number;
+  };
 
   const matches = ((await db.all(
     `SELECT * FROM coffee_future_matches WHERE week_id = ${week_id};`
