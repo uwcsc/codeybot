@@ -108,16 +108,29 @@ export const validateFutureMatches = async (client: Client): Promise<boolean> =>
   return true;
 };
 
-//if return empty, the pregenerated matches has been depleted; must call generate again
-export const getNextFutureMatch = async (): Promise<string[][]> => {
+//returns the single person in single, if they exist
+export const getNextFutureMatch = async (client: Client): Promise<{ matches: string[][]; single: string | null }> => {
   const db = await openDB();
   const { week_id } = (await db.get(
     `SELECT week_id FROM coffee_week_status WHERE finished = 0 ORDER BY week_id ASC LIMIT 1;`
   )) as { week_id: number };
 
-  const matches = (await db.all(`SELECT * FROM coffee_future_matches WHERE week_id = ${week_id};`)) as future_match[];
+  const matches = ((await db.all(
+    `SELECT * FROM coffee_future_matches WHERE week_id = ${week_id};`
+  )) as future_match[]).map((entry) => [entry.first_user_id, entry.second_user_id]);
   await db.run(`UPDATE coffee_week_status SET finished = 1 WHERE week_id = ${week_id};`);
-  return matches.map((entry) => [entry.first_user_id, entry.second_user_id]);
+  const activeMatchIDs = [...(await loadNotMatched(client)).keys()];
+  let single: string | null = null;
+  if (activeMatchIDs.length % 2 == 1) {
+    const usedIDs = _.flatten(matches);
+    for (const key of activeMatchIDs) {
+      if (!usedIDs.includes(key)) {
+        single = key;
+        break;
+      }
+    }
+  }
+  return { matches: matches, single: single };
 };
 
 const loadNotMatched = async (client: Client): Promise<Map<string, number>> => {

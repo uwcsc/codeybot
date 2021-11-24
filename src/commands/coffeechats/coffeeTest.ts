@@ -9,6 +9,7 @@ class coffeeSignupCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'coffee-test',
+      aliases: ['coffeetest'],
       group: 'coffeechats',
       memberName: 'test',
       args: [

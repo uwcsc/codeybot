@@ -33,7 +33,8 @@ client.registry
   .registerGroups([
     ['suggestions', 'Suggestions'],
     ['interviews', 'Mock Interviews'],
-    ['coffeechats', 'Coffee Chats'][('coin', 'Codey Coin')],
+    ['coffeechats', 'Coffee Chats'],
+    ['coin', 'Codey Coin'],
     ['fun', 'Fun'],
     ['games', 'Games']
   ])

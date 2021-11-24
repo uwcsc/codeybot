@@ -8,6 +8,7 @@ class coffeeSignupCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'coffee-generate',
+      aliases: ['coffeegenerate'],
       group: 'coffeechats',
       memberName: 'generate',
       description: 'Generates coffeechat matchings for the next N weeks',
