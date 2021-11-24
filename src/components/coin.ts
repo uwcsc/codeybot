@@ -3,16 +3,24 @@ import _ from 'lodash';
 
 import { openDB } from './db';
 
+export enum UserCoinEvent {
+  AdminCoinAdjust,
+  AdminCoinUpdate,
+  BonusDaily,
+  BonusActivity,
+  Blackjack
+}
+
 export enum BonusType {
   Daily = 0,
   Activity
 }
 
-export type Bonus = { type: BonusType; amount: number; cooldown: number };
+export type Bonus = { type: BonusType; amount: number; cooldown: number; event: number };
 
 export const coinBonusMap = new Map<BonusType, Bonus>([
-  [BonusType.Daily, { type: BonusType.Daily, amount: 50, cooldown: 86400000 }], // one day in milliseconds
-  [BonusType.Activity, { type: BonusType.Activity, amount: 1, cooldown: 60000 }] // one minute in milliseconds
+  [BonusType.Daily, { type: BonusType.Daily, amount: 50, cooldown: 86400000, event: UserCoinEvent.BonusDaily }], // one day in milliseconds
+  [BonusType.Activity, { type: BonusType.Activity, amount: 1, cooldown: 60000, event: UserCoinEvent.BonusActivity }] // one minute in milliseconds
 ]);
 
 export interface UserCoinBonus {
@@ -27,8 +35,7 @@ export const initUserCoinTable = async (db: Database): Promise<void> => {
     `
     CREATE TABLE IF NOT EXISTS user_coin (
       user_id VARCHAR(255) PRIMARY KEY NOT NULL,
-      balance INTEGER NOT NULL CHECK(balance>=0),
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      balance INTEGER NOT NULL CHECK(balance>=0)
     );
     `
   );
@@ -40,11 +47,29 @@ export const initUserCoinBonusTable = async (db: Database): Promise<void> => {
     CREATE TABLE IF NOT EXISTS user_coin_bonus (
       user_id VARCHAR(255) NOT NULL,
       bonus_type INTEGER NOT NULL,
-      last_granted TIMESTAMP,
+      last_granted TIMESTAMP NOT NULL,
       PRIMARY KEY (user_id, bonus_type)
     );
     `
   );
+};
+
+export const initUserCoinLedgerTable = async (db: Database): Promise<void> => {
+  await db.run(
+    `
+    CREATE TABLE IF NOT EXISTS user_coin_ledger (
+      id INTEGER PRIMARY KEY NOT NULL,
+      user_id VARCHAR(255) NOT NULL,
+      amount INTEGER NOT NULL,
+      new_balance INTEGER NOT NULL,
+      event INTEGER NOT NULL,
+      reason VARCHAR(255),
+      admin_id VARCHAR(255),
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    `
+  );
+  await db.run('CREATE INDEX IF NOT EXISTS ix_user_coin_ledger_user_id ON user_coin_ledger (user_id)');
 };
 
 export const getCoinBalanceByUserId = async (userId: string): Promise<number> => {
@@ -60,18 +85,16 @@ export const getCoinBalanceByUserId = async (userId: string): Promise<number> =>
   Otherwise, update balance to newBalance.
   The user's balance will be set to 0 if newBalance is negative.
 */
-export const updateCoinBalanceByUserId = async (userId: string, newBalance: number): Promise<void> => {
-  const db = await openDB();
-  const updateAmount = Math.max(newBalance, 0);
-  await db.run(
-    `
-    INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
-    ON CONFLICT(user_id)
-    DO UPDATE SET balance = ?`,
-    userId,
-    updateAmount,
-    updateAmount
-  );
+export const updateCoinBalanceByUserId = async (
+  userId: string,
+  newBalance: number,
+  event: number,
+  reason: string | null = null,
+  adminId: string | null = null
+): Promise<void> => {
+  const oldBalance = await getCoinBalanceByUserId(userId);
+  const actualNewBalance = Math.max(newBalance, 0);
+  await changeDbCoinBalanceByUserId(userId, oldBalance, actualNewBalance, event, reason, adminId);
 };
 
 /*
@@ -79,16 +102,65 @@ export const updateCoinBalanceByUserId = async (userId: string, newBalance: numb
   Otherwise, adjust the user's balance by the specified amount.
   The user's balance will be set to 0 if the adjustment brings it below 0.
 */
-export const adjustCoinBalanceByUserId = async (userId: string, amount: number): Promise<void> => {
+export const adjustCoinBalanceByUserId = async (
+  userId: string,
+  amount: number,
+  event: number,
+  reason: string | null = null,
+  adminId: string | null = null
+): Promise<void> => {
+  const oldBalance = await getCoinBalanceByUserId(userId);
+  const newBalance = Math.max(oldBalance + amount, 0);
+  await changeDbCoinBalanceByUserId(userId, oldBalance, newBalance, event, reason, adminId);
+};
+
+/*
+  Changes data in the database, with oldBalance and newBalance being pre-computed and passed in as parameters.
+  TODO: Wrap in transaction.
+*/
+export const changeDbCoinBalanceByUserId = async (
+  userId: string,
+  oldBalance: number,
+  newBalance: number,
+  event: number,
+  reason: string | null,
+  adminId: string | null
+): Promise<void> => {
   const db = await openDB();
   await db.run(
     `
-    INSERT INTO user_coin (user_id, balance) VALUES (?, MAX(?, 0))
+    INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
     ON CONFLICT(user_id)
-    DO UPDATE SET balance = MAX(balance + ?, 0)`,
+    DO UPDATE SET balance = ?`,
     userId,
-    amount,
-    amount
+    newBalance,
+    newBalance
+  );
+  await createCoinLedgerEntry(userId, oldBalance, newBalance, event, reason, adminId);
+};
+
+/*
+  Adds an entry to the Codey coin ledger due to a change in a user's coin balance.
+  reason is only applicable for admin commands and is optional.
+  adminId is only applicable for admin commands and is mandatory.
+*/
+export const createCoinLedgerEntry = async (
+  userId: string,
+  oldBalance: number,
+  newBalance: number,
+  event: number,
+  reason: string | null,
+  adminId: string | null
+): Promise<void> => {
+  const db = await openDB();
+  await db.run(
+    'INSERT INTO user_coin_ledger (user_id, amount, new_balance, event, reason, admin_id) VALUES (?, ?, ?, ?, ?, ?)',
+    userId,
+    newBalance - oldBalance,
+    newBalance,
+    event,
+    reason,
+    adminId
   );
 };
 
@@ -140,7 +212,7 @@ export const applyTimeBonus = async (userId: string, bonusType: BonusType): Prom
 
   // TODO wrap operations in transaction
   if (!lastBonusOccurence || lastBonusOccurenceTime < cooldown) {
-    await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount);
+    await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount, bonusOfInterest.event);
     await updateUserBonusTableByUserId(userId, bonusType);
     return true; // bonus type is applied
   }

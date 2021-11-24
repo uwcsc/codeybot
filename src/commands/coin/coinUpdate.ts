@@ -1,7 +1,7 @@
 import { Message, User } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { AdminCommand } from '../../utils/commands';
-import { getCoinBalanceByUserId, updateCoinBalanceByUserId } from '../../components/coin';
+import { getCoinBalanceByUserId, updateCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
 
 class CoinBalanceCommand extends AdminCommand {
   constructor(client: CommandoClient) {
@@ -11,7 +11,10 @@ class CoinBalanceCommand extends AdminCommand {
       group: 'coin',
       memberName: 'coin-update',
       description: "Updates a user's Codey coin balance.",
-      examples: [`${client.commandPrefix}coin-update @Codey 100`],
+      examples: [
+        `${client.commandPrefix}coin-update @Codey 100`,
+        `${client.commandPrefix}coin-update @Codey 0 Reset Codey's balance.`
+      ],
       args: [
         {
           key: 'user',
@@ -22,15 +25,27 @@ class CoinBalanceCommand extends AdminCommand {
           key: 'amount',
           prompt: 'enter the new balance.',
           type: 'integer'
+        },
+        {
+          key: 'reason',
+          prompt: '',
+          type: 'string',
+          default: ''
         }
       ]
     });
   }
 
-  async onRun(message: CommandoMessage, args: { user: User; amount: number }): Promise<Message> {
-    const { user, amount } = args;
+  async onRun(message: CommandoMessage, args: { user: User; amount: number; reason: string }): Promise<Message> {
+    const { user, amount, reason } = args;
     // Update coin balance
-    await updateCoinBalanceByUserId(user.id, amount);
+    await updateCoinBalanceByUserId(
+      user.id,
+      amount,
+      UserCoinEvent.AdminCoinUpdate,
+      reason ? reason : null,
+      message.author.id
+    );
     // Get new balance
     const newBalance = await getCoinBalanceByUserId(user.id);
     return message.reply(`${user.username} now has ${newBalance} Codey coins 🪙.`);
