@@ -4,7 +4,7 @@ import { testPerformance } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
-class coffeeSignupCommand extends AdminCommand {
+class coffeeTestCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'coffee-test',
@@ -34,4 +34,4 @@ class coffeeSignupCommand extends AdminCommand {
   }
 }
 
-export default coffeeSignupCommand;
+export default coffeeTestCommand;

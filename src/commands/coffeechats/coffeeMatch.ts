@@ -8,7 +8,7 @@ import {
 } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
 
-class coffeeSignupCommand extends AdminCommand {
+class coffeeMatchCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'coffee-match',
@@ -47,4 +47,4 @@ class coffeeSignupCommand extends AdminCommand {
   };
 }
 
-export default coffeeSignupCommand;
+export default coffeeMatchCommand;

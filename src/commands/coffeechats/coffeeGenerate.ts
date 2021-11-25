@@ -3,7 +3,7 @@ import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { generateFutureMatches } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
 
-class coffeeSignupCommand extends AdminCommand {
+class coffeeGenerateCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'coffee-generate',
@@ -21,4 +21,4 @@ class coffeeSignupCommand extends AdminCommand {
   }
 }
 
-export default coffeeSignupCommand;
+export default coffeeGenerateCommand;
