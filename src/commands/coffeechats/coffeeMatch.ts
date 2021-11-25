@@ -4,7 +4,7 @@ import {
   generateFutureMatches,
   getNextFutureMatch,
   validateFutureMatches,
-  writeNewMatches
+  writeHistoricMatches
 } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
 
@@ -26,7 +26,7 @@ class coffeeSignupCommand extends AdminCommand {
       for (const pair of matches) {
         await this.alertMatch(pair[0], pair[1]);
       }
-      await writeNewMatches(matches);
+      await writeHistoricMatches(matches);
       if (single) {
         const singleUser = await this.client.users.fetch(single);
         await message.reply(`${singleUser} is single and ready to mingle.`);
