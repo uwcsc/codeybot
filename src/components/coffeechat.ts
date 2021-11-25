@@ -20,6 +20,10 @@ interface future_match {
   week_id: number;
 }
 
+/*
+ *Adds new matches into the future match database with the corresponding week_id
+ *Then adds the fresh week of matches into the week_status database
+ */
 const writeFutureMatches = async (results: string[][], week: number): Promise<void> => {
   const db = await openDB();
   await db.run(
@@ -33,12 +37,23 @@ const writeFutureMatches = async (results: string[][], week: number): Promise<vo
 };
 
 export const initCoffeeChatTables = async (db: Database): Promise<void> => {
+  /*
+   * Database to store past matches, with TIMESTAMP saved as standard ISOString
+   */
   await db.run(
     `
         CREATE TABLE IF NOT EXISTS coffee_historic_matches (
             first_user_id TEXT NOT NULL,
             second_user_id TEXT NOT NULL,
-            TIMESTAMP TEXT NOT NULL
+            date TIMESTAMP NOT NULL
+        )
+        `
+  );
+  await db.run(
+    `
+        CREATE TABLE IF NOT EXISTS coffee_week_status (
+            week_id INTEGER PRIMARY KEY,
+            finished BOOL NOT NULL
         )
         `
   );
@@ -51,31 +66,28 @@ export const initCoffeeChatTables = async (db: Database): Promise<void> => {
         )
         `
   );
-  await db.run(
-    `
-        CREATE TABLE IF NOT EXISTS coffee_week_status (
-            week_id INTEGER PRIMARY KEY,
-            finished BOOL NOT NULL
-        )
-        `
-  );
 };
 
-export const generateFutureMatches = async (client: Client, size = 10): Promise<number> => {
+export const generateFutureMatches = async (client: Client): Promise<number> => {
   //reset tables
-  wipeHistory('coffee_future_matches');
-  wipeHistory('coffee_week_status');
+  await wipeHistory('coffee_future_matches');
+  await wipeHistory('coffee_week_status');
   const userList = await loadNotMatched(client);
   const matched = await loadMatched(userList);
-  for (let i = 0; i < size; i++) {
+  const newMatches: number[][] = Array.from(Array(userList.size), () => new Array(4).fill(0));
+  for (let i = 0; true; i++) {
     const nextResults = stableMatch(userList, matched);
-    writeFutureMatches(nextResults, i);
     for (const pair of nextResults) {
       matched[userList.get(pair[0])!][userList.get(pair[1])!]++;
       matched[userList.get(pair[1])!][userList.get(pair[0])!]++;
+      newMatches[userList.get(pair[0])!][userList.get(pair[1])!]++;
+      newMatches[userList.get(pair[1])!][userList.get(pair[0])!]++;
     }
+    if (hasDupe(newMatches, nextResults, userList)) {
+      return i;
+    }
+    await writeFutureMatches(nextResults, i);
   }
-  return size;
 };
 
 const getFutureMatchIDs = async (): Promise<string[]> => {
@@ -160,7 +172,7 @@ const getMaxDupe = (matched: number[][], matches: string[][], userList: Map<stri
 
 const loadMatched = async (notMatched: Map<string, number>): Promise<number[][]> => {
   const db = await openDB();
-  const matched: number[][] = new Array(notMatched.size).fill(0).map(() => new Array(notMatched.size).fill(0));
+  const matched: number[][] = Array.from(Array(notMatched.size), () => new Array(4).fill(0));
   const matches = (await db.all(`SELECT * FROM coffee_historic_matches`)) as historic_match[];
   for (const { first_user_id, second_user_id } of matches) {
     if (notMatched.has(first_user_id) && notMatched.has(second_user_id)) {
@@ -171,13 +183,13 @@ const loadMatched = async (notMatched: Map<string, number>): Promise<number[][]>
   return matched;
 };
 
-export const writeNewMatches = async (newMatches: string[][], date: Date): Promise<void> => {
+export const writeNewMatches = async (newMatches: string[][]): Promise<void> => {
   const db = await openDB();
 
   //leverages datetime() in sqlite to convert to some standard of sqlite time
   await db.run(
     `INSERT INTO coffee_historic_matches (first_user_id, second_user_id, date) VALUES ${_.join(
-      newMatches.map((entry) => `('${entry[0]}', '${entry[1]}', datetime('${date.toISOString()}'))`),
+      newMatches.map((entry) => `('${entry[0]}', '${entry[1]}', CURRENT_TIMESTAMP)`),
       ','
     )};`
   );

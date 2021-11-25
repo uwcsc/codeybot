@@ -22,12 +22,11 @@ class coffeeSignupCommand extends AdminCommand {
 
   async onRun(message: CommandoMessage): Promise<Message> {
     if (await validateFutureMatches(this.client)) {
-      const curTime = new Date();
       const { matches, single } = await getNextFutureMatch(this.client);
       for (const pair of matches) {
         await this.alertMatch(pair[0], pair[1]);
       }
-      await writeNewMatches(matches, curTime);
+      await writeNewMatches(matches);
       if (single) {
         const singleUser = await this.client.users.fetch(single);
         await message.reply(`${singleUser} is single and ready to mingle.`);
@@ -35,8 +34,8 @@ class coffeeSignupCommand extends AdminCommand {
       return message.reply(`Sent ${matches.length} match(es).`);
     } else {
       await message.reply('Generated matches depleted/invalid. Regenerating');
-      await generateFutureMatches(this.client);
-      return message.reply('Generating finished, run this command again to send matches.');
+      const size = await generateFutureMatches(this.client);
+      return message.reply(`Generated ${size} new matches, run this command again to send matches.`);
     }
   }
 

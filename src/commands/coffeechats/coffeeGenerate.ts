@@ -10,21 +10,13 @@ class coffeeSignupCommand extends AdminCommand {
       aliases: ['coffeegenerate'],
       group: 'coffeechats',
       memberName: 'generate',
-      description: 'Generates coffeechat matchings for the next N weeks',
-      args: [
-        {
-          key: 'size',
-          prompt: `enter an integer.`,
-          type: 'integer'
-        }
-      ],
+      description: 'Generates coffeechat matchings until a dupe is encountered',
       examples: [`${client.commandPrefix}coffeegenerate`]
     });
   }
 
-  async onRun(message: CommandoMessage, args: { size: number }): Promise<Message> {
-    const { size } = args;
-    await generateFutureMatches(this.client, size);
+  async onRun(message: CommandoMessage): Promise<Message> {
+    const size = await generateFutureMatches(this.client);
     return message.reply(`Generated ${size} matches.`);
   }
 }
