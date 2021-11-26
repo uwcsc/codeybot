@@ -36,7 +36,7 @@ export const initCoffeeChatTables = async (db: Database): Promise<void> => {
     `
         CREATE TABLE IF NOT EXISTS coffee_week_status (
             week_id INTEGER PRIMARY KEY,
-            finished BOOL DEFAULT FALSE
+            finished BOOL NOT NULL DEFAULT FALSE
         )
         `
   );
