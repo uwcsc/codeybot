@@ -21,6 +21,7 @@ class coffeeMatchCommand extends AdminCommand {
   }
 
   async onRun(message: CommandoMessage): Promise<Message> {
+    //makes sure future matches are valid (made for the current group / still has matches left)
     if (await validateFutureMatches(this.client)) {
       const { matches, single } = await getNextFutureMatch(this.client);
       for (const pair of matches) {

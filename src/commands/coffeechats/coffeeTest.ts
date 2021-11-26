@@ -14,7 +14,7 @@ class coffeeTestCommand extends AdminCommand {
       args: [
         {
           key: 'size',
-          prompt: `enter an integer.`,
+          prompt: `enter the number of test users`,
           type: 'integer'
         }
       ],
