@@ -17,7 +17,7 @@ class coffeeGenerateCommand extends AdminCommand {
 
   async onRun(message: CommandoMessage): Promise<Message> {
     const size = await generateFutureMatches(this.client);
-    return message.reply(`Generated ${size} matches.`);
+    return message.reply(`Generated ${size} weeks.`);
   }
 }
 

@@ -6,7 +6,7 @@ import { Person, stableMarriage } from 'stable-marriage';
 
 const COFFEE_ROLE_ID: string = process.env.COFFEE_ROLE_ID || '.';
 const TARGET_GUILD_ID: string = process.env.TARGET_GUILD_ID || '.';
-const RANDOM_ITERATIONS = 1000;
+const RANDOM_ITERATIONS = 100;
 
 interface historic_match {
   first_user_id: string;
@@ -57,19 +57,20 @@ export const initCoffeeChatTables = async (db: Database): Promise<void> => {
  *Adds new matches into the future match database with the corresponding week_id
  *Then adds the fresh week of matches into the week_status database
  */
-const writeFutureMatches = async (results: string[][], week: number): Promise<void> => {
+const writeFutureMatches = async (results: string[][][]): Promise<void> => {
   const db = await openDB();
-  console.log('go');
-  //insert (?,?,?) into command based on number of rows, then populate params into second arg
-  await db.run(
-    `INSERT INTO coffee_future_matches (first_user_id, second_user_id, week_id) VALUES${_.join(
-      results.map(() => `(?,?,?)`),
-      ','
-    )};
-  )`,
-    _.flatten(results.map((entry) => [entry[0], entry[1], week]))
-  );
-  await db.run(`INSERT INTO coffee_week_status (week_id) VALUES (?);`, week);
+  for (let i = 0; i < results.length; i++) {
+    //insert (?,?,?) into command based on number of rows, then populate params into second arg
+    await db.run(
+      `INSERT INTO coffee_future_matches (first_user_id, second_user_id, week_id) VALUES${_.join(
+        results[i].map(() => `(?,?,?)`),
+        ','
+      )};
+    )`,
+      _.flatten(results[i].map((entry) => [entry[0], entry[1], i]))
+    );
+    await db.run(`INSERT INTO coffee_week_status (week_id) VALUES (?);`, i);
+  }
 };
 
 /*
@@ -84,27 +85,39 @@ export const generateFutureMatches = async (client: Client): Promise<number> => 
 
   //get list of users and their historic chat history
   const userList = await loadNotMatched(client);
-  const matched = await loadMatched(userList);
+  let bestTally = 0;
+  let finalOutput: string[][][] = [];
+  const newMatches: number[][] = Array.from(Array(userList.size), () => new Array(userList.size).fill(0));
+  for (let j = 0; j < RANDOM_ITERATIONS; j++) {
+    let i = 0;
+    const testMatches: string[][][] = [];
+    const matched = await loadMatched(userList);
+    for (; true; i++) {
+      //generate one week of matches, and updates match freq tables accordingly
+      const nextResults = stableMatch(userList, matched);
+      for (const pair of nextResults) {
+        matched[userList.get(pair[0])!][userList.get(pair[1])!]++;
+        matched[userList.get(pair[1])!][userList.get(pair[0])!]++;
+        newMatches[userList.get(pair[0])!][userList.get(pair[1])!]++;
+        newMatches[userList.get(pair[1])!][userList.get(pair[0])!]++;
+      }
 
-  const newMatches: number[][] = Array.from(Array(userList.size), () => new Array(4).fill(0));
-  for (let i = 0; true; i++) {
-    //generate one week of matches, and updates match freq tables accordingly
-    const nextResults = stableMatch(userList, matched);
-    for (const pair of nextResults) {
-      matched[userList.get(pair[0])!][userList.get(pair[1])!]++;
-      matched[userList.get(pair[1])!][userList.get(pair[0])!]++;
-      newMatches[userList.get(pair[0])!][userList.get(pair[1])!]++;
-      newMatches[userList.get(pair[1])!][userList.get(pair[0])!]++;
+      //stops and returns if most recent match caused a duplicate matching to appear
+      if (hasDupe(newMatches, nextResults, userList)) {
+        break;
+      }
+
+      //if no dupe, push this new match to results and continue generating
+      testMatches.push(nextResults);
     }
-
-    //stops and returns if most recent match caused a duplicate matching to appear
-    if (hasDupe(newMatches, nextResults, userList)) {
-      return i;
+    if (i > bestTally) {
+      bestTally = i;
+      finalOutput = testMatches;
+      j = 0;
     }
-
-    //if no dupe, write this new match to results and continue generating
-    await writeFutureMatches(nextResults, i);
   }
+  writeFutureMatches(finalOutput);
+  return bestTally;
 };
 
 /*
