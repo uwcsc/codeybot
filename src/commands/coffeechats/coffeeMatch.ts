@@ -1,11 +1,6 @@
 import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import {
-  generateFutureMatches,
-  getNextFutureMatch,
-  validateFutureMatches,
-  writeHistoricMatches
-} from '../../components/coffeechat';
+import { writeHistoricMatches, getMatch } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
 
 class coffeeMatchCommand extends AdminCommand {
@@ -22,22 +17,16 @@ class coffeeMatchCommand extends AdminCommand {
 
   async onRun(message: CommandoMessage): Promise<Message> {
     //makes sure future matches are valid (made for the current group / still has matches left)
-    if (await validateFutureMatches(this.client)) {
-      const { matches, single } = await getNextFutureMatch(this.client);
-      for (const pair of matches) {
-        await this.alertMatch(pair[0], pair[1]);
-      }
-      await writeHistoricMatches(matches);
-      if (single) {
-        const singleUser = await this.client.users.fetch(single);
-        await message.reply(`${singleUser} is single and ready to mingle.`);
-      }
-      return message.reply(`Sent ${matches.length} match(es).`);
-    } else {
-      await message.reply('Generated matches depleted/invalid. Regenerating');
-      const size = await generateFutureMatches(this.client);
-      return message.reply(`Generated ${size} new matches, run this command again to send matches.`);
+    const { matches, single } = await getMatch(this.client);
+    for (const pair of matches) {
+      await this.alertMatch(pair[0], pair[1]);
     }
+    await writeHistoricMatches(matches);
+    if (single) {
+      const singleUser = await this.client.users.fetch(single);
+      await message.reply(`${singleUser} is single and ready to mingle.`);
+    }
+    return message.reply(`Sent ${matches.length} match(es).`);
   }
 
   alertMatch = async (personA: string, personB: string): Promise<void> => {

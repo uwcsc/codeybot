@@ -6,18 +6,12 @@ import { Person, stableMarriage } from 'stable-marriage';
 
 const COFFEE_ROLE_ID: string = process.env.COFFEE_ROLE_ID || '.';
 const TARGET_GUILD_ID: string = process.env.TARGET_GUILD_ID || '.';
-const RANDOM_ITERATIONS = 100;
+const RANDOM_ITERATIONS = 1000;
 
 interface historic_match {
   first_user_id: string;
   second_user_id: string;
   match_date: string;
-}
-
-interface future_match {
-  first_user_id: string;
-  second_user_id: string;
-  week_id: number;
 }
 
 export const initCoffeeChatTables = async (db: Database): Promise<void> => {
@@ -31,153 +25,23 @@ export const initCoffeeChatTables = async (db: Database): Promise<void> => {
         )
         `
   );
-  //Database to store finished status of future weeks
-  await db.run(
-    `
-        CREATE TABLE IF NOT EXISTS coffee_week_status (
-            week_id INTEGER PRIMARY KEY,
-            finished BOOL NOT NULL DEFAULT FALSE
-        )
-        `
-  );
-  //Stores potential future matches, grouped by the week_id that they are generated for
-  //Effectiveness of these matches are only guaranteed if all matches of the same week are used at once.
-  await db.run(
-    `
-        CREATE TABLE IF NOT EXISTS coffee_future_matches (
-            first_user_id TEXT NOT NULL,
-            second_user_id TEXT NOT NULL,
-            week_id INTEGER NOT NULL
-        )
-        `
-  );
 };
 
 /*
- *Adds new matches into the future match database with the corresponding week_id
- *Then adds the fresh week of matches into the week_status database
+ * Generates a single match round based on historical match records
+ * Does NOT save this match to history; must call writeHistoricMatches to "confirm" this matching happened
+ * Returns a potential single chatter in the single field, null otherwise
  */
-const writeFutureMatches = async (results: string[][][]): Promise<void> => {
-  const db = await openDB();
-  for (let i = 0; i < results.length; i++) {
-    //insert (?,?,?) into command based on number of rows, then populate params into second arg
-    await db.run(
-      `INSERT INTO coffee_future_matches (first_user_id, second_user_id, week_id) VALUES${_.join(
-        results[i].map(() => `(?,?,?)`),
-        ','
-      )};
-    )`,
-      _.flatten(results[i].map((entry) => [entry[0], entry[1], i]))
-    );
-    await db.run(`INSERT INTO coffee_week_status (week_id) VALUES (?);`, i);
-  }
-};
-
-/*
- * Generates future matches for users currently "enrolled" into coffee chats until a duplicate match is encountered
- * OVERWRITES Coffee_future_matches and coffee_week_status with new matches
- * Returns number of new weeks of matchings generated
- */
-export const generateFutureMatches = async (client: Client): Promise<number> => {
-  //reset tables
-  await wipeHistory('coffee_future_matches');
-  await wipeHistory('coffee_week_status');
-
+export const getMatch = async (client: Client): Promise<{ matches: string[][]; single: string | null }> => {
   //get list of users and their historic chat history
   const userList = await loadNotMatched(client);
-  let bestTally = 0;
-  let finalOutput: string[][][] = [];
-  const newMatches: number[][] = Array.from(Array(userList.size), () => new Array(userList.size).fill(0));
-  for (let j = 0; j < RANDOM_ITERATIONS; j++) {
-    let i = 0;
-    const testMatches: string[][][] = [];
-    const matched = await loadMatched(userList);
-    for (; true; i++) {
-      //generate one week of matches, and updates match freq tables accordingly
-      const nextResults = stableMatch(userList, matched);
-      for (const pair of nextResults) {
-        matched[userList.get(pair[0])!][userList.get(pair[1])!]++;
-        matched[userList.get(pair[1])!][userList.get(pair[0])!]++;
-        newMatches[userList.get(pair[0])!][userList.get(pair[1])!]++;
-        newMatches[userList.get(pair[1])!][userList.get(pair[0])!]++;
-      }
-
-      //stops and returns if most recent match caused a duplicate matching to appear
-      if (hasDupe(newMatches, nextResults, userList)) {
-        break;
-      }
-
-      //if no dupe, push this new match to results and continue generating
-      testMatches.push(nextResults);
-    }
-    if (i > bestTally) {
-      bestTally = i;
-      finalOutput = testMatches;
-      j = 0;
-    }
-  }
-  writeFutureMatches(finalOutput);
-  return bestTally;
-};
-
-/*
- * Get the ID's of users for which future matches was generated for
- * Returns the above as a array of strings
- */
-const getFutureMatchIDs = async (): Promise<string[]> => {
-  const db = await openDB();
-  return (
-    await db.all(
-      `SELECT first_user_id FROM coffee_future_matches UNION SELECT second_user_id FROM coffee_future_matches`
-    )
-  ).map((val) => val['first_user_id']);
-};
-
-//tests if generated matches still work for people wanting a match
-//and if unused generated matches still remain
-export const validateFutureMatches = async (client: Client): Promise<boolean> => {
-  const db = await openDB();
-
-  //check if the ID's of users CURRENTLY wanting coffee chats are the same as the
-  //users we have generated matches for
-  const activeMatchIDs = [...(await loadNotMatched(client)).keys()];
-  const generatedMatchIDs = await getFutureMatchIDs();
-
-  //checks if same amount of ID's on both sides, then checks that they are equal
-  if (activeMatchIDs.length != generatedMatchIDs.length) return false;
-  for (const key of activeMatchIDs) {
-    if (!generatedMatchIDs.includes(key)) return false;
-  }
-
-  //test if there exists week_id that is not finished
-  const test_id = await db.get(`SELECT * FROM coffee_week_status WHERE finished = 0`);
-  if (!test_id) return false;
-
-  return true;
-};
-
-/*
- * Pulls the next round of pre-generated matches
- * ONLY run this is you know there still exists at least one more round of valid matches
- * Verify this by running validdateFutureMatches prior to this
- * Return an array of matches (themselves an array of size 2); potential "single" person's ID will be returned in single, null otherwise
- */
-export const getNextFutureMatch = async (client: Client): Promise<{ matches: string[][]; single: string | null }> => {
-  const db = await openDB();
-
-  //get matches for the smallest week_id that hasn't been used, then set the week_id to be used
-  const { week_id } = (await db.get(`SELECT min(week_id) AS week_id FROM coffee_week_status WHERE finished = 0;`)) as {
-    week_id: number;
-  };
-  const matches = ((await db.all(
-    `SELECT * FROM coffee_future_matches WHERE week_id = ?;`,
-    week_id
-  )) as future_match[]).map((entry) => [entry.first_user_id, entry.second_user_id]);
-  await db.run(`UPDATE coffee_week_status SET finished = 1 WHERE week_id = ?;`, week_id);
+  const matched = await loadMatched(userList);
+  //generate one week of matches, and updates match freq tables accordingly
+  const matches = stableMatch(userList, matched);
 
   //attempts to find a single by seeing if there's an ID that wants to be matched
   //but isn't present in the match
-  const activeMatchIDs = [...(await loadNotMatched(client)).keys()];
+  const activeMatchIDs = [...userList.keys()];
   let single: string | null = null;
   if (activeMatchIDs.length % 2 == 1) {
     const usedIDs = _.flatten(matches);
@@ -201,7 +65,6 @@ const loadNotMatched = async (client: Client): Promise<Map<string, number>> => {
   const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
     ?.filter((member) => member.roles.cache.has(COFFEE_ROLE_ID))
     .map((member) => member.user.id);
-
   //assigns each user ID a unique index
   const notMatched: Map<string, number> = new Map();
   userList.forEach((val: string, index: number) => {
@@ -250,7 +113,6 @@ const loadMatched = async (notMatched: Map<string, number>): Promise<number[][]>
 
 /*
  * Writes a new round of matches into HISTORY
- * Use writeFutureMatches to save potential matches into future
  */
 export const writeHistoricMatches = async (newMatches: string[][]): Promise<void> => {
   const db = await openDB();
