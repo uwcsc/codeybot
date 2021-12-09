@@ -131,10 +131,10 @@ export const writeHistoricMatches = async (newMatches: string[][]): Promise<void
 /*
  * Wipes a database
  */
-const wipeHistory = async (dbName: string): Promise<void> => {
-  const db = await openDB();
-  await db.run(`DELETE FROM ${dbName}`);
-};
+// const wipeHistory = async (dbName: string): Promise<void> => {
+//   const db = await openDB();
+//   await db.run(`DELETE FROM ${dbName}`);
+// };
 
 /*
  * matching algorithm leveraging stable marriage
