@@ -38,7 +38,7 @@ class CoinBalanceCommand extends AdminCommand {
 
   async onRun(message: CommandoMessage, args: { user: User; amount: number; reason: string }): Promise<Message> {
     const { user, amount, reason } = args;
-    // Update coin balance
+    // Adjust coin balance
     await adjustCoinBalanceByUserId(
       user.id,
       amount,

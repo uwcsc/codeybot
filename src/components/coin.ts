@@ -8,19 +8,30 @@ export enum UserCoinEvent {
   AdminCoinUpdate,
   BonusDaily,
   BonusActivity,
+  BonusInterviewerList,
   Blackjack
 }
 
 export enum BonusType {
   Daily = 0,
-  Activity
+  Activity,
+  InterviewerList
 }
 
-export type Bonus = { type: BonusType; amount: number; cooldown: number; event: number };
+export type Bonus = { type: BonusType; amount: number; cooldown: number | null; event: number };
 
 export const coinBonusMap = new Map<BonusType, Bonus>([
   [BonusType.Daily, { type: BonusType.Daily, amount: 50, cooldown: 86400000, event: UserCoinEvent.BonusDaily }], // one day in milliseconds
-  [BonusType.Activity, { type: BonusType.Activity, amount: 1, cooldown: 60000, event: UserCoinEvent.BonusActivity }] // one minute in milliseconds
+  [BonusType.Activity, { type: BonusType.Activity, amount: 1, cooldown: 60000, event: UserCoinEvent.BonusActivity }], // one minute in milliseconds
+  [
+    BonusType.InterviewerList,
+    {
+      type: BonusType.InterviewerList,
+      amount: 10,
+      cooldown: null,
+      event: UserCoinEvent.BonusInterviewerList
+    }
+  ]
 ]);
 
 export interface UserCoinBonus {
@@ -206,7 +217,7 @@ export const applyTimeBonus = async (userId: string, bonusType: BonusType): Prom
 
   const lastBonusOccurence = await latestBonusByUserId(userId, bonusOfInterest.type);
   const nowTime = new Date().getTime();
-  const cooldown = nowTime - bonusOfInterest.cooldown;
+  const cooldown = nowTime - bonusOfInterest.cooldown!;
   // lastBonusOccurenceTime either does not exist yet (set as -1), or is pulled from db
   const lastBonusOccurenceTime = !lastBonusOccurence ? -1 : new Date(lastBonusOccurence['last_granted']).getTime();
 
