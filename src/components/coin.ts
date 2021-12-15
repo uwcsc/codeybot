@@ -217,7 +217,10 @@ export const applyTimeBonus = async (userId: string, bonusType: BonusType): Prom
 
   const lastBonusOccurence = await latestBonusByUserId(userId, bonusOfInterest.type);
   const nowTime = new Date().getTime();
-  const cooldown = nowTime - bonusOfInterest.cooldown!;
+  if (bonusOfInterest.cooldown === null) {
+    throw 'Bonus does not have cooldown';
+  }
+  const cooldown = nowTime - bonusOfInterest.cooldown;
   // lastBonusOccurenceTime either does not exist yet (set as -1), or is pulled from db
   const lastBonusOccurenceTime = !lastBonusOccurence ? -1 : new Date(lastBonusOccurence['last_granted']).getTime();
 

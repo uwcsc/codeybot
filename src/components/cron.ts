@@ -39,6 +39,9 @@ export const createBonusInterviewerListCron = (): CronJob =>
     const activeInterviewers = await getInterviewers(null);
     activeInterviewers.forEach(async (interviewer) => {
       const bonus = coinBonusMap.get(BonusType.InterviewerList);
-      await adjustCoinBalanceByUserId(interviewer.user_id, bonus!.amount, bonus!.event);
+      if (!bonus) {
+        throw 'BonusType.InterviewerList does not exist in coinBonusMap';
+      }
+      await adjustCoinBalanceByUserId(interviewer.user_id, bonus.amount, bonus.event);
     });
   });
