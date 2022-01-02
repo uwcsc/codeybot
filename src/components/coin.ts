@@ -7,14 +7,14 @@ export enum UserCoinEvent {
   AdminCoinAdjust,
   AdminCoinUpdate,
   BonusDaily,
-  BonusMinute,
+  BonusActivity,
   BonusInterviewerList,
   Blackjack
 }
 
 export enum BonusType {
   Daily = 0,
-  Minute,
+  Activity,
   InterviewerList
 }
 
@@ -23,12 +23,12 @@ export type Bonus = {
   event: number;
   amount: number;
   cooldown: number | null;
-  isActivity: boolean;
+  isMessageBonus: boolean; // true iff bonus is given when a user sends a message
 };
 
 /*
   Bonuses must be listed such that amount is in descending order, so "Only apply the largest bonus." holds in applyBonusByUserId.
-  If isActivity is true, then cooldown must not be null.
+  If isMessageBonus is true, then cooldown must not be null.
 */
 export const coinBonusMap = new Map<BonusType, Bonus>([
   [
@@ -38,17 +38,17 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
       event: UserCoinEvent.BonusDaily,
       amount: 50,
       cooldown: 86400000, // one day in milliseconds
-      isActivity: true
+      isMessageBonus: true
     }
   ],
   [
-    BonusType.Minute,
+    BonusType.Activity,
     {
-      type: BonusType.Minute,
-      event: UserCoinEvent.BonusMinute,
+      type: BonusType.Activity,
+      event: UserCoinEvent.BonusActivity,
       amount: 1,
       cooldown: 60000, // one minute in milliseconds
-      isActivity: true
+      isMessageBonus: true
     }
   ],
   [
@@ -58,7 +58,7 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
       event: UserCoinEvent.BonusInterviewerList,
       amount: 10,
       cooldown: null,
-      isActivity: false
+      isMessageBonus: false
     }
   ]
 ]);
@@ -269,7 +269,7 @@ export const applyTimeBonus = async (userId: string, bonusType: BonusType): Prom
 */
 export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
   for (const bonus of coinBonusMap.values()) {
-    if (bonus.isActivity) {
+    if (bonus.isMessageBonus) {
       const isBonusApplied = await applyTimeBonus(userId, bonus.type);
       if (isBonusApplied) {
         return false; // return statement bc cannot break forEach loop
