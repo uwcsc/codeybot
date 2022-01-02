@@ -3,6 +3,12 @@ import _ from 'lodash';
 
 import { openDB } from './db';
 
+export enum BonusType {
+  Daily = 0,
+  Activity,
+  InterviewerList
+}
+
 export enum UserCoinEvent {
   AdminCoinAdjust,
   AdminCoinUpdate,
@@ -12,15 +18,9 @@ export enum UserCoinEvent {
   Blackjack
 }
 
-export enum BonusType {
-  Daily = 0,
-  Activity,
-  InterviewerList
-}
-
 export type Bonus = {
   type: BonusType;
-  event: number;
+  event: UserCoinEvent;
   amount: number;
   cooldown: number | null;
   isMessageBonus: boolean; // true iff bonus is given when a user sends a message
@@ -128,7 +128,7 @@ export const getCoinBalanceByUserId = async (userId: string): Promise<number> =>
 export const updateCoinBalanceByUserId = async (
   userId: string,
   newBalance: number,
-  event: number,
+  event: UserCoinEvent,
   reason: string | null = null,
   adminId: string | null = null
 ): Promise<void> => {
@@ -145,7 +145,7 @@ export const updateCoinBalanceByUserId = async (
 export const adjustCoinBalanceByUserId = async (
   userId: string,
   amount: number,
-  event: number,
+  event: UserCoinEvent,
   reason: string | null = null,
   adminId: string | null = null
 ): Promise<void> => {
@@ -162,7 +162,7 @@ export const changeDbCoinBalanceByUserId = async (
   userId: string,
   oldBalance: number,
   newBalance: number,
-  event: number,
+  event: UserCoinEvent,
   reason: string | null,
   adminId: string | null
 ): Promise<void> => {
@@ -188,7 +188,7 @@ export const createCoinLedgerEntry = async (
   userId: string,
   oldBalance: number,
   newBalance: number,
-  event: number,
+  event: UserCoinEvent,
   reason: string | null,
   adminId: string | null
 ): Promise<void> => {
