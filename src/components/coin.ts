@@ -3,6 +3,12 @@ import _ from 'lodash';
 
 import { openDB } from './db';
 
+export enum BonusType {
+  Daily = 0,
+  Activity,
+  InterviewerList
+}
+
 export enum UserCoinEvent {
   AdminCoinAdjust,
   AdminCoinUpdate,
@@ -12,24 +18,47 @@ export enum UserCoinEvent {
   Blackjack
 }
 
-export enum BonusType {
-  Daily = 0,
-  Activity,
-  InterviewerList
-}
+export type Bonus = {
+  type: BonusType;
+  event: UserCoinEvent;
+  amount: number;
+  cooldown: number | null;
+  isMessageBonus: boolean; // true iff bonus is given when a user sends a message
+};
 
-export type Bonus = { type: BonusType; amount: number; cooldown: number | null; event: number };
-
+/*
+  Bonuses must be listed such that amount is in descending order, so "Only apply the largest bonus." holds in applyBonusByUserId.
+  If isMessageBonus is true, then cooldown must not be null.
+*/
 export const coinBonusMap = new Map<BonusType, Bonus>([
-  [BonusType.Daily, { type: BonusType.Daily, amount: 50, cooldown: 86400000, event: UserCoinEvent.BonusDaily }], // one day in milliseconds
-  [BonusType.Activity, { type: BonusType.Activity, amount: 1, cooldown: 60000, event: UserCoinEvent.BonusActivity }], // one minute in milliseconds
+  [
+    BonusType.Daily,
+    {
+      type: BonusType.Daily,
+      event: UserCoinEvent.BonusDaily,
+      amount: 50,
+      cooldown: 86400000, // one day in milliseconds
+      isMessageBonus: true
+    }
+  ],
+  [
+    BonusType.Activity,
+    {
+      type: BonusType.Activity,
+      event: UserCoinEvent.BonusActivity,
+      amount: 1,
+      cooldown: 60000, // one minute in milliseconds
+      isMessageBonus: true
+    }
+  ],
   [
     BonusType.InterviewerList,
     {
       type: BonusType.InterviewerList,
+      event: UserCoinEvent.BonusInterviewerList,
       amount: 10,
       cooldown: null,
-      event: UserCoinEvent.BonusInterviewerList
+      isMessageBonus: false
     }
   ]
 ]);
@@ -99,7 +128,7 @@ export const getCoinBalanceByUserId = async (userId: string): Promise<number> =>
 export const updateCoinBalanceByUserId = async (
   userId: string,
   newBalance: number,
-  event: number,
+  event: UserCoinEvent,
   reason: string | null = null,
   adminId: string | null = null
 ): Promise<void> => {
@@ -116,7 +145,7 @@ export const updateCoinBalanceByUserId = async (
 export const adjustCoinBalanceByUserId = async (
   userId: string,
   amount: number,
-  event: number,
+  event: UserCoinEvent,
   reason: string | null = null,
   adminId: string | null = null
 ): Promise<void> => {
@@ -133,7 +162,7 @@ export const changeDbCoinBalanceByUserId = async (
   userId: string,
   oldBalance: number,
   newBalance: number,
-  event: number,
+  event: UserCoinEvent,
   reason: string | null,
   adminId: string | null
 ): Promise<void> => {
@@ -159,7 +188,7 @@ export const createCoinLedgerEntry = async (
   userId: string,
   oldBalance: number,
   newBalance: number,
-  event: number,
+  event: UserCoinEvent,
   reason: string | null,
   adminId: string | null
 ): Promise<void> => {
@@ -239,10 +268,12 @@ export const applyTimeBonus = async (userId: string, bonusType: BonusType): Prom
   Only apply the largest bonus.
 */
 export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
-  for (const bonus of coinBonusMap.keys()) {
-    const isBonusApplied = await applyTimeBonus(userId, bonus);
-    if (isBonusApplied) {
-      return false; // break statement bc cannot break forEach loop
+  for (const bonus of coinBonusMap.values()) {
+    if (bonus.isMessageBonus) {
+      const isBonusApplied = await applyTimeBonus(userId, bonus.type);
+      if (isBonusApplied) {
+        return false; // return statement bc cannot break forEach loop
+      }
     }
   }
   return false;
