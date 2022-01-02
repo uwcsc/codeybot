@@ -37,11 +37,11 @@ export const createSuggestionCron = (client: CommandoClient): CronJob =>
 export const createBonusInterviewerListCron = (): CronJob =>
   new CronJob('0 0 1 * * *', async function () {
     const activeInterviewers = await getInterviewers(null);
+    const bonus = coinBonusMap.get(BonusType.InterviewerList);
+    if (!bonus) {
+      throw 'BonusType.InterviewerList does not exist in coinBonusMap';
+    }
     activeInterviewers.forEach(async (interviewer) => {
-      const bonus = coinBonusMap.get(BonusType.InterviewerList);
-      if (!bonus) {
-        throw 'BonusType.InterviewerList does not exist in coinBonusMap';
-      }
       await adjustCoinBalanceByUserId(interviewer.user_id, bonus.amount, bonus.event);
     });
   });
