@@ -1,11 +1,12 @@
 import { Client } from 'discord.js-commando';
 import { Database } from 'sqlite';
 import { openDB } from './db';
+import vars from '../../config/production/vars.json';
 import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
 
-const COFFEE_ROLE_ID: string = process.env.COFFEE_ROLE_ID || '.';
-const TARGET_GUILD_ID: string = process.env.TARGET_GUILD_ID || '.';
+const COFFEE_ROLE_ID: string = vars.COFFEE_ROLE_ID;
+const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 const RANDOM_ITERATIONS = 1000;
 
 interface historic_match {
@@ -34,7 +35,7 @@ export const initCoffeeChatTables = async (db: Database): Promise<void> => {
  */
 export const getMatch = async (client: Client): Promise<{ matches: string[][]; single: string | null }> => {
   //get list of users and their historic chat history
-  const userList = await loadNotMatched(client);
+  const userList = await loadCoffeeChatUsers(client);
   const matched = await loadMatched(userList);
   //generate one week of matches, and updates match freq tables accordingly
   const matches = stableMatch(userList, matched);
@@ -60,7 +61,7 @@ export const getMatch = async (client: Client): Promise<{ matches: string[][]; s
  * Returns a mapping of string -> int, where string is their ID, while int is an index assigned to the ID
  * The index is used in place of the ID for match tallying
  */
-const loadNotMatched = async (client: Client): Promise<Map<string, number>> => {
+const loadCoffeeChatUsers = async (client: Client): Promise<Map<string, number>> => {
   //gets list of users with the coffee chat role
   const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
     ?.filter((member) => member.roles.cache.has(COFFEE_ROLE_ID))
@@ -137,6 +138,9 @@ export const writeHistoricMatches = async (newMatches: string[][]): Promise<void
 // };
 
 /*
+ */
+
+/*
  * matching algorithm leveraging stable marriage
  * takes in the users and their historical match data
  * Returns a round of match results based on this algorithm:
@@ -156,25 +160,23 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
     const A = notMatched.slice(0, Math.floor(notMatched.length / 2)).map((name) => new Person(name));
     const B = notMatched.slice(Math.floor(notMatched.length / 2)).map((name) => new Person(name));
 
-    //attach preference list for each user by creating comparator which prioritizes user with less chats than the subject
-    A.forEach((value) =>
-      value.generatePreferences(
-        [...B].sort(
-          (a, b) =>
-            matched[userList.get(value.name)!][userList.get(a.name)!] -
-            matched[userList.get(value.name)!][userList.get(b.name)!]
+    //generates comparator attacher for both "genders" which prioritizes user with less chats than the subject
+    //stable marriage function is written in JS, no type declarations :/
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const generateComparators = (left: any[], right: any[]) => {
+      left.forEach((value) =>
+        value.generatePreferences(
+          [...right].sort(
+            (a, b) =>
+              matched[userList.get(value.name)!][userList.get(a.name)!] -
+              matched[userList.get(value.name)!][userList.get(b.name)!]
+          )
         )
-      )
-    );
-    B.forEach((value) =>
-      value.generatePreferences(
-        [...A].sort(
-          (a, b) =>
-            matched[userList.get(value.name)!][userList.get(a.name)!] -
-            matched[userList.get(value.name)!][userList.get(b.name)!]
-        )
-      )
-    );
+      );
+    };
+    //attach preference list for each user with comparator
+    generateComparators(A, B);
+    generateComparators(B, A);
 
     //run stable marriage library and add to contender output
     stableMarriage(A);
