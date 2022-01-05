@@ -108,10 +108,7 @@ export const getInterviewerDomainsString = async (id: string): Promise<string> =
   if (userDomains.length === 0) {
     return ``;
   } else {
-    for (let i = 1; i < userDomains.length; i++) {
-      userDomains[i] = ' ' + userDomains[i];
-    }
-    return `${userDomains}`;
+    return getDomainsString(userDomains);
   }
 };
 
