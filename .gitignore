@@ -5,3 +5,4 @@
 /dist
 /db/*
 !/db/.gitkeep
+**/.DS_Store
