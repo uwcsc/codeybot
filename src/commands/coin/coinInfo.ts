@@ -7,33 +7,31 @@ class CoinInfo extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'coin-info',
-      aliases: ['ci', 'coininfo', 'codeycoin info'],
+      aliases: ['ci', 'coininfo'],
       group: 'coin',
       memberName: 'coin-info',
-      description: 'Info about Codey Coin, including ways to get and how to spend Codey Coins.',
+      description: 'Info about Codey coin, including ways to get and how to spend Codey coins.',
       examples: [`${client.commandPrefix}coin-info`, `${client.commandPrefix}ci`, `${client.commandPrefix}coininfo`]
     });
   }
   infoEmbed = new MessageEmbed()
     .setColor(EMBED_COLOUR)
-    .setTitle('🪙 About Codey Coin 🪙')
-    .setThumbnail('') // Thumbnail, if needed?
-    .setDescription('Codey Coin is a virtual currency... (what it is, maybe some rules around it) \n')
+    .setTitle('🪙   About Codey Coin   🪙')
+    .setThumbnail('https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/282/coin_1fa99.png') // Thumbnail, if needed?
+    .setDescription(`Codey Coin is a virtual currency... (what it is, maybe some rules around it)`)
     .addFields(
       {
-        name: 'How Can I Obtain Codey Coins?',
-        value:
-          'You can obtain Codey Coins by participating in Discord activities, such as:\n' +
-          ' • Attending CSC Events\n' +
-          ' • Daily bonus: your first message of the day will grant some Codey Coins\n' +
-          ' • Activity bonus: your first message of every minute will grant some Codey Coins.'
+        name: '🪙   How Can I Obtain Codey Coins?',
+        value: `Obtain Codey coins by participating in Discord activities, such as:
+          • Attending CSC Events
+          • Daily bonus - your first message of the day will grant some Codey coins
+          • Activity bonus - your first message of every minute will grant some Codey coins`
       },
       {
-        name: 'What Can I Do With Codey Coins?',
-        value:
-          'You can use Codey coins to:\n' +
-          ' • Play Casino games such as Blackjack:\n' +
-          ' • Buy CSC Swag (more info to come!)'
+        name: '🪙   What Can I Do With Codey Coins?',
+        value: `Use Codey coins to:
+          • Play Casino games such as Blackjack
+          • Buy CSC Swag (more info to come!)`
       }
     );
 
