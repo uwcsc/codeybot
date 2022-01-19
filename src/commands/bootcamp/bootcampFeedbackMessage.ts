@@ -18,7 +18,7 @@ class BootcampFeedbackMessageCommand extends AdminCommand {
         }
       ],
       guildOnly: true,
-      description: 'Changes the length of the 1 on 1 critique call feedback message.'
+      description: 'Changes the feedback message for mentees.'
     });
   }
 

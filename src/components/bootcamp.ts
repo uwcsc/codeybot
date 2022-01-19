@@ -11,6 +11,7 @@ export const initBootcamp = async (client: CommandoClient): Promise<void> => {
   const mentorGetRole = <Role>bootcamp.roles.cache.find((role) => role.name === 'Mentor');
   BootcampSettings.set('mentor_role', mentorGetRole.id);
   BootcampSettings.set('critique_time', 30);
+  BootcampSettings.set('update_waiting_times', false);
 };
 
 export const addToMentorList = async (message: Message): Promise<void> => {
