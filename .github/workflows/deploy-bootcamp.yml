@@ -40,7 +40,8 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            cd codey/bootcamp
+            cd /codey/bootcamp
+            curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codeybot/master/docker/production/docker-compose.yml
             docker pull uwcsclub/codey-bot:bootcamp
             docker-compose down
             docker-compose up -d
