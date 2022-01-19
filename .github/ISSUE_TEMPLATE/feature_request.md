@@ -1,10 +1,9 @@
 ---
 name: "\U0001F4DD Feature Request"
 about: Suggest a new feature for the bot
-title: "[FEATURE]"
+title: '[FEATURE]'
 labels: request
-assignees: kallentu
-
+assignees: asdera
 ---
 
 **Describe the problem and the impact.**
