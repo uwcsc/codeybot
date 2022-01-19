@@ -81,8 +81,6 @@ export const startBot = async (): Promise<void> => {
     notif.send('Codey is up!');
   });
 
-  client.on('message', messageListener);
-
   client.on('error', logError);
 
   client.login(BOT_TOKEN);
