@@ -3,8 +3,10 @@ import { TextChannel, MessageEmbed, VoiceChannel, Message } from 'discord.js';
 import { CommandoClient } from 'discord.js-commando';
 import { CronJob } from 'cron';
 import { EMBED_COLOUR } from '../utils/embeds';
+
 import { toTitleCase } from '../commands/bootcamp/utils';
 import { BootcampSettings } from '../components/bootcamp';
+
 import _ from 'lodash';
 
 const MOD_CHANNEL_ID: string = process.env.MOD_CHANNEL_ID || '.';
@@ -181,4 +183,5 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
         })();
       });
     }
+
   });

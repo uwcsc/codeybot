@@ -8,6 +8,7 @@ class InterviewerDomainCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewer-domain',
+      aliases: ['int-domain', 'intdomain', 'interviewerdomain'],
       group: 'interviews',
       memberName: 'domain',
       args: [
@@ -28,10 +29,10 @@ class InterviewerDomainCommand extends BaseCommand {
     const { domain } = args;
     const { id } = message.author;
 
-    //check user signed up to be an interviewer
+    // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
       return message.reply(
-        "you don't seem to have signed up yet, please sign up using `.interviewer-signup <calendarUrl>`!"
+        `you don't seem to have signed up yet, please sign up using \`${this.client.commandPrefix}interviewer-signup <calendarUrl>\`!`
       );
     }
 

@@ -23,7 +23,12 @@ const BOT_PREFIX = '.';
 
 // initialize Commando client
 const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as string[];
-const client = new Commando.Client({ owner: botOwners, commandPrefix: BOT_PREFIX });
+export const client = new Commando.Client({
+  owner: botOwners,
+  commandPrefix: BOT_PREFIX,
+  restTimeOffset: 0
+});
+
 // register command groups
 
 client.registry
@@ -35,8 +40,8 @@ client.registry
     ['interviews', 'Mock Interviews'],
     ['bootcamp', 'Drop-in Mentorship Event'],
     ['coin', 'Codey Coin'],
-    ['fun', 'F'],
-    ['games', 'G'],
+    ['fun', 'Fun'],
+    ['games', 'Games']
   ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
@@ -75,6 +80,8 @@ export const startBot = async (): Promise<void> => {
 
     notif.send('Codey is up!');
   });
+
+  client.on('message', messageListener);
 
   client.on('error', logError);
 

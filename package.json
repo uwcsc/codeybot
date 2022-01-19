@@ -13,7 +13,7 @@
     "restart": "docker-compose restart",
     "logs": "docker logs -f codey-bot",
     "lint": "eslint . --fix --max-warnings 0",
-    "format": "yarn prettier --write 'src/**/*.(ts|js)'",
+    "format": "prettier --write src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -25,6 +25,7 @@
     "discord.js": "^12.5.3",
     "discord.js-commando": "^0.12.3",
     "dotenv": "^8.2.0",
+    "engine-blackjack-ts": "^0.9.11",
     "js-yaml": "^4.1.0",
     "keyv": "^4.0.3",
     "lodash": "^4.17.21",

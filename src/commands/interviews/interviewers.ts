@@ -3,7 +3,13 @@ import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import _ from 'lodash';
 
 import { BaseCommand } from '../../utils/commands';
-import { availableDomains, getAvailableDomainsString, getInterviewers, Interviewer } from '../../components/interview';
+import {
+  availableDomains,
+  getAvailableDomainsString,
+  getInterviewers,
+  Interviewer,
+  getInterviewerDomainsString
+} from '../../components/interview';
 import { EMBED_COLOUR } from '../../utils/embeds';
 import { parseDomainArg, validateDomainArg } from './utils';
 
@@ -13,7 +19,15 @@ class InterviewersCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'interviewers',
-      aliases: ['interviewer', 'interviewer-list', 'interviewers-list'],
+      aliases: [
+        'ints',
+        'int',
+        'interviewer',
+        'interviewers-list',
+        'interviewerslist',
+        'interviewer-list',
+        'interviewerlist'
+      ],
       group: 'interviews',
       memberName: 'interviewers',
       args: [
@@ -32,8 +46,13 @@ class InterviewersCommand extends BaseCommand {
   }
 
   private async getInterviewerDisplayInfo(interviewer: Interviewer) {
-    const userTag = (await this.client.users.fetch(interviewer['user_id'])).tag;
-    return '**' + userTag + '** | [Calendar](' + interviewer['link'] + ')\n\n';
+    const user = await this.client.users.fetch(interviewer['user_id']);
+    const userDomainsAddIn = await getInterviewerDomainsString(interviewer['user_id']);
+    if (userDomainsAddIn === '') {
+      return `${user} | [Calendar](${interviewer['link']})\n\n`;
+    } else {
+      return `${user} | [Calendar](${interviewer['link']}) | ${userDomainsAddIn}\n\n`;
+    }
   }
 
   async onRun(message: CommandoMessage, args: { domain: string }): Promise<Message> {

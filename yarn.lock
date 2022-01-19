@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"52-deck@^1.0.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/52-deck/-/52-deck-1.1.0.tgz#be5c0f88bf70450502f298ce9d057e3939669ab2"
+  integrity sha1-vlwPiL9wRQUC8pjOnQV+OTlmmrI=
+
 "@babel/code-frame@7.12.11":
   version "7.12.11"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.12.11.tgz#f4ad435aa263db935b8f10f2c552d23fb716a63f"
@@ -867,6 +872,13 @@ end-of-stream@^1.1.0:
   integrity sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==
   dependencies:
     once "^1.4.0"
+
+engine-blackjack-ts@^0.9.11:
+  version "0.9.11"
+  resolved "https://registry.yarnpkg.com/engine-blackjack-ts/-/engine-blackjack-ts-0.9.11.tgz#69986678e85ec8483846ef295baee1c2e9175d95"
+  integrity sha512-k/CHjbTiZrUdawA4DMdqXypvfLKa+d5NmTi83gjKdwOGMNektZfObFCkVZS6Y8A4IChdEI1OktWNSo3+eRHF3Q==
+  dependencies:
+    "52-deck" "^1.0.0"
 
 enquirer@^2.3.5:
   version "2.3.6"
