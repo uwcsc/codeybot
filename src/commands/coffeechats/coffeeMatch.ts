@@ -2,6 +2,7 @@ import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { writeHistoricMatches, getMatch } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
+import _ from 'lodash';
 
 class coffeeMatchCommand extends AdminCommand {
   constructor(client: CommandoClient) {
@@ -17,23 +18,32 @@ class coffeeMatchCommand extends AdminCommand {
 
   async onRun(message: CommandoMessage): Promise<Message> {
     //makes sure future matches are valid (made for the current group / still has matches left)
-    const { matches, single } = await getMatch(this.client);
-    for (const pair of matches) {
-      await this.alertMatch(pair[0], pair[1]);
-    }
+    const matches = await getMatch(this.client);
+    await this.alertMatches(matches);
     await writeHistoricMatches(matches);
-    if (single) {
-      const singleUser = await this.client.users.fetch(single);
-      await message.reply(`${singleUser} is single and ready to mingle.`);
-    }
     return message.reply(`Sent ${matches.length} match(es).`);
   }
 
-  alertMatch = async (personA: string, personB: string): Promise<void> => {
-    const userA = await this.client.users.fetch(personA);
-    const userB = await this.client.users.fetch(personB);
-    await userA.send(`Your match is ${userB}`);
-    await userB.send(`Your match is ${userA}`);
+  alertMatches = async (matches: string[][]): Promise<void> => {
+    const outputMap: Map<string, string[]> = new Map();
+    //map them to find what to send a specific person
+    matches.forEach((pair) => {
+      if (!outputMap.get(pair[0])) outputMap.set(pair[0], []);
+      if (!outputMap.get(pair[1])) outputMap.set(pair[1], []);
+      outputMap.get(pair[0])!.push(pair[1]);
+      outputMap.get(pair[1])!.push(pair[0]);
+    });
+    //send out messages
+    outputMap.forEach(async (targets, user) => {
+      const discordUser = await this.client.users.fetch(user);
+      //we use raw discord id ping format to minimize fetch numbers on our end
+      targets = targets.map((value) => `<@${value}>`);
+      if (targets.length > 1) {
+        await discordUser.send(`Your coffee chat matches for this week are ${_.join(targets, ' and ')}`);
+      } else {
+        await discordUser.send(`Your coffee chat match for this week is ${targets[0]}`);
+      }
+    });
   };
 }
 

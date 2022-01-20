@@ -33,7 +33,7 @@ export const initCoffeeChatTables = async (db: Database): Promise<void> => {
  * Does NOT save this match to history; must call writeHistoricMatches to "confirm" this matching happened
  * Returns a potential single chatter in the single field, null otherwise
  */
-export const getMatch = async (client: Client): Promise<{ matches: string[][]; single: string | null }> => {
+export const getMatch = async (client: Client): Promise<string[][]> => {
   //get list of users and their historic chat history
   const userList = await loadCoffeeChatUsers(client);
   const matched = await loadMatched(userList);
@@ -53,7 +53,7 @@ export const getMatch = async (client: Client): Promise<{ matches: string[][]; s
       }
     }
   }
-  return { matches: matches, single: single };
+  return matches;
 };
 
 /*
@@ -159,7 +159,11 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
     const notMatched = _.shuffle(Array.from(userList).map((name) => name[0]));
     const A = notMatched.slice(0, Math.floor(notMatched.length / 2)).map((name) => new Person(name));
     const B = notMatched.slice(Math.floor(notMatched.length / 2)).map((name) => new Person(name));
-
+    //if there is an imbalance between the "genders", we have an odd amount of people. Duplicate someone on the short end to give somebody 2 matches
+    //by math, A should always be the one that's short in odd numbers
+    if (A.length < B.length) {
+      A.push(new Person(notMatched[Math.floor(Math.random() * Math.floor(notMatched.length / 2))]));
+    }
     //generates comparator attacher for both "genders" which prioritizes user with less chats than the subject
     //stable marriage function is written in JS, no type declarations :/
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
