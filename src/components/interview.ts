@@ -103,6 +103,15 @@ export const getInterviewers = async (
   return res;
 };
 
+export const getInterviewerDomainsString = async (id: string): Promise<string> => {
+  const userDomains = await getDomains(id);
+  if (userDomains.length === 0) {
+    return ``;
+  } else {
+    return getDomainsString(userDomains);
+  }
+};
+
 export const clearProfile = async (id: string): Promise<void> => {
   const db = await openDB();
 

@@ -1,10 +1,9 @@
 ---
 name: "\U0001F41E Bug Report"
 about: Help us improve and fix existing issues
-title: "[BUG]"
+title: '[BUG]'
 labels: bug
-assignees: ''
-
+assignees: asdera
 ---
 
 **Describe the bug**
@@ -12,6 +11,7 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
+
 1. Go to channel '...'
 2. Type command '....'
 3. See error

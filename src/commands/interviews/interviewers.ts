@@ -3,7 +3,13 @@ import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import _ from 'lodash';
 
 import { BaseCommand } from '../../utils/commands';
-import { availableDomains, getAvailableDomainsString, getInterviewers, Interviewer } from '../../components/interview';
+import {
+  availableDomains,
+  getAvailableDomainsString,
+  getInterviewers,
+  Interviewer,
+  getInterviewerDomainsString
+} from '../../components/interview';
 import { EMBED_COLOUR } from '../../utils/embeds';
 import { parseDomainArg, validateDomainArg } from './utils';
 
@@ -41,7 +47,12 @@ class InterviewersCommand extends BaseCommand {
 
   private async getInterviewerDisplayInfo(interviewer: Interviewer) {
     const user = await this.client.users.fetch(interviewer['user_id']);
-    return `${user} | [Calendar](${interviewer['link']})\n\n`;
+    const userDomainsAddIn = await getInterviewerDomainsString(interviewer['user_id']);
+    if (userDomainsAddIn === '') {
+      return `${user} | [Calendar](${interviewer['link']})\n\n`;
+    } else {
+      return `${user} | [Calendar](${interviewer['link']}) | ${userDomainsAddIn}\n\n`;
+    }
   }
 
   async onRun(message: CommandoMessage, args: { domain: string }): Promise<Message> {

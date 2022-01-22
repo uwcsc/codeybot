@@ -3,6 +3,8 @@ import { TextChannel, MessageEmbed } from 'discord.js';
 import { CommandoClient } from 'discord.js-commando';
 import { CronJob } from 'cron';
 import { EMBED_COLOUR } from '../utils/embeds';
+import { getInterviewers } from './interview';
+import { coinBonusMap, BonusType, adjustCoinBalanceByUserId } from './coin';
 import _ from 'lodash';
 
 const MOD_CHANNEL_ID: string = process.env.MOD_CHANNEL_ID || '.';
@@ -29,4 +31,17 @@ export const createSuggestionCron = (client: CommandoClient): CronJob =>
         throw 'Bad channel type';
       }
     }
+  });
+
+// Gives Codey coin bonus to those on the interviewer list at 1:00 am UTC
+export const createBonusInterviewerListCron = (): CronJob =>
+  new CronJob('0 0 1 * * *', async function () {
+    const activeInterviewers = await getInterviewers(null);
+    const bonus = coinBonusMap.get(BonusType.InterviewerList);
+    if (!bonus) {
+      throw 'BonusType.InterviewerList does not exist in coinBonusMap';
+    }
+    activeInterviewers.forEach(async (interviewer) => {
+      await adjustCoinBalanceByUserId(interviewer.user_id, bonus.amount, bonus.event);
+    });
   });
