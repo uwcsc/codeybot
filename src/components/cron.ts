@@ -184,4 +184,5 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
           }
         })();
       });
-    }});
+    }
+  });
