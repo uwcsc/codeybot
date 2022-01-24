@@ -39,20 +39,6 @@ export const getMatch = async (client: Client): Promise<string[][]> => {
   const matched = await loadMatched(userList);
   //generate one week of matches, and updates match freq tables accordingly
   const matches = stableMatch(userList, matched);
-
-  //attempts to find a single by seeing if there's an ID that wants to be matched
-  //but isn't present in the match
-  const activeMatchIDs = [...userList.keys()];
-  let single: string | null = null;
-  if (activeMatchIDs.length % 2 == 1) {
-    const usedIDs = _.flatten(matches);
-    for (const key of activeMatchIDs) {
-      if (!usedIDs.includes(key)) {
-        single = key;
-        break;
-      }
-    }
-  }
   return matches;
 };
 
