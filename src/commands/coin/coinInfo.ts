@@ -18,14 +18,15 @@ class CoinInfo extends BaseCommand {
     .setColor(EMBED_COLOUR)
     .setTitle('🪙   About Codey Coin   🪙')
     .setThumbnail('https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/282/coin_1fa99.png') // Thumbnail, if needed?
-    .setDescription(`Codey Coin is a virtual currency... (what it is, maybe some rules around it)`)
+    .setDescription(`Codey Coin are rewarded for being active in CSC's events and discord!`)
     .addFields(
       {
         name: '🪙   How Can I Obtain Codey Coins?',
-        value: `Obtain Codey coins by participating in Discord activities, such as:
-          • Attending CSC Events
-          • Daily bonus - your first message of the day will grant some Codey coins
-          • Activity bonus - your first message of every minute will grant some Codey coins`
+        value: `Earn Codey coins by:
+          • Participating in CSC events
+          • Being active on Discord
+            • Daily bonus - your first message of the day will grant some Codey coins
+            • Activity bonus - your first message of every minute will grant some Codey coins`
       },
       {
         name: '🪙   What Can I Do With Codey Coins?',
