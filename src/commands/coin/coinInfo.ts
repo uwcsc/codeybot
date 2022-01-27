@@ -25,8 +25,8 @@ class CoinInfo extends BaseCommand {
         value: `Earn Codey coins by:
           • Participating in CSC events
           • Being active on Discord
-            • Daily bonus - your first message of the day will grant some Codey coins
-            • Activity bonus - your first message of every minute will grant some Codey coins`
+          ---Daily bonus - your first message of the day on CSC's Discord will grant some Codey coins
+          ---Activity bonus - your first message of every minute on CSC's Discord will grant some Codey coins`
       },
       {
         name: '🪙   What Can I Do With Codey Coins?',
