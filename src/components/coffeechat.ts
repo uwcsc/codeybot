@@ -1,13 +1,17 @@
 import { Client } from 'discord.js-commando';
 import { Database } from 'sqlite';
 import { openDB } from './db';
-import vars from '../../config/production/vars.json';
 import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
+import { readFileSync } from 'fs';
 
+const ENVIRONMENT: string = process.env.ENVIRONMENT || '.';
+const vars = JSON.parse(readFileSync(`./config/${ENVIRONMENT}/vars.json`, 'utf-8'));
 const COFFEE_ROLE_ID: string = vars.COFFEE_ROLE_ID;
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
-const RANDOM_ITERATIONS = 1000;
+//since we might fully hit hundreds of people if we release this into the wider server, set iterations at around 100-200 to keep time at a reasonable number
+//averages around 90% for test sizes 10-20, 75% for test sizes 100-200 people
+const RANDOM_ITERATIONS = 100;
 
 interface historic_match {
   first_user_id: string;
@@ -114,17 +118,6 @@ export const writeHistoricMatches = async (newMatches: string[][]): Promise<void
     _.flatten(newMatches)
   );
 };
-
-/*
- * Wipes a database
- */
-// const wipeHistory = async (dbName: string): Promise<void> => {
-//   const db = await openDB();
-//   await db.run(`DELETE FROM ${dbName}`);
-// };
-
-/*
- */
 
 /*
  * matching algorithm leveraging stable marriage
