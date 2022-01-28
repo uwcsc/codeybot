@@ -37,7 +37,7 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
       type: BonusType.Daily,
       event: UserCoinEvent.BonusDaily,
       amount: 50,
-      cooldown: 86400000, // one day in milliseconds
+      cooldown: 24 * 60 * 60 * 1000, // one day in milliseconds
       isMessageBonus: true
     }
   ],
@@ -47,7 +47,7 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
       type: BonusType.Activity,
       event: UserCoinEvent.BonusActivity,
       amount: 1,
-      cooldown: 60000, // one minute in milliseconds
+      cooldown: 5 * 60 * 1000, // 5 minutes in milliseconds
       isMessageBonus: true
     }
   ],
