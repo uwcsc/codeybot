@@ -43,7 +43,7 @@ class coffeeMatchCommand extends AdminCommand {
       outputMap.get(pair[1])!.push(pair[0]);
     }
     //send out messages
-    for (const [user, targets] of outputMap) {
+    outputMap.forEach(async (targets, user) => {
       const discordUser = userMap.get(user)!;
       //we use raw discord id ping format to minimize fetch numbers on our end
       const userTargets = targets.map((value) => userMap.get(value)!);
@@ -56,7 +56,7 @@ class coffeeMatchCommand extends AdminCommand {
       } catch (err) {
         logError(err as Error);
       }
-    }
+    });
   };
 }
 
