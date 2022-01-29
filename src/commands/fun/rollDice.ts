@@ -10,6 +10,7 @@ class RollDiceCommand extends BaseCommand {
       group: 'fun',
       args: [
         {
+          default: 6,
           key: 'sides',
           prompt: 'enter the number of sides of the dice',
           type: 'integer'
