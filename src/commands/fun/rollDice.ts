@@ -22,7 +22,7 @@ class RollDiceCommand extends BaseCommand {
   }
 
   getRandomInt(max: number): number {
-    const roll = Math.floor(Math.random() * max);
+    const roll = Math.floor(Math.random() * (max + 1));
     if (roll == 0) {
       return 1;
     }
@@ -34,7 +34,7 @@ class RollDiceCommand extends BaseCommand {
     if (sides <= 0) {
       return message.reply(`I cannot compute ` + sides + ' sides!');
     }
-    else if (sides > 1000000) {
+    if (sides > 1000000) {
       return message.reply(`that's too many sides!`);
     }
     const diceFace = this.getRandomInt(sides);
