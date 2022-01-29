@@ -2,6 +2,7 @@ import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { writeHistoricMatches, getMatch } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
+import { User } from 'discord.js';
 import _ from 'lodash';
 
 class coffeeMatchCommand extends AdminCommand {
@@ -26,22 +27,29 @@ class coffeeMatchCommand extends AdminCommand {
 
   alertMatches = async (matches: string[][]): Promise<void> => {
     const outputMap: Map<string, string[]> = new Map();
+    const userMap: Map<string, User> = new Map();
     //map them to find what to send a specific person
-    matches.forEach((pair) => {
-      if (!outputMap.get(pair[0])) outputMap.set(pair[0], []);
-      if (!outputMap.get(pair[1])) outputMap.set(pair[1], []);
+    for (const pair of matches) {
+      if (!outputMap.get(pair[0])) {
+        outputMap.set(pair[0], []);
+        userMap.set(pair[0], await this.client.users.fetch(pair[0]));
+      }
+      if (!outputMap.get(pair[1])) {
+        outputMap.set(pair[1], []);
+        userMap.set(pair[1], await this.client.users.fetch(pair[1]));
+      }
       outputMap.get(pair[0])!.push(pair[1]);
       outputMap.get(pair[1])!.push(pair[0]);
-    });
+    }
     //send out messages
     outputMap.forEach(async (targets, user) => {
-      const discordUser = await this.client.users.fetch(user);
+      const discordUser = userMap.get(user)!;
       //we use raw discord id ping format to minimize fetch numbers on our end
-      targets = targets.map((value) => `<@${value}>`);
+      const userTargets = targets.map((value) => userMap.get(value)!);
       if (targets.length > 1) {
-        await discordUser.send(`Your coffee chat matches for this week are ${_.join(targets, ' and ')}`);
+        await discordUser.send(`Your coffee chat matches for this week are ${_.join(userTargets, ' and ')}`);
       } else {
-        await discordUser.send(`Your coffee chat match for this week is ${targets[0]}`);
+        await discordUser.send(`Your coffee chat match for this week is ${userTargets[0]}`);
       }
     });
   };

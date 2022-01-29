@@ -5,8 +5,8 @@ import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
 import { readFileSync } from 'fs';
 
-const ENVIRONMENT: string = process.env.ENVIRONMENT || '.';
-const vars = JSON.parse(readFileSync(`./config/${ENVIRONMENT}/vars.json`, 'utf-8'));
+const ENV: string = process.env.NODE_ENV || '.';
+const vars = JSON.parse(readFileSync(`./config/${ENV}/vars.json`, 'utf-8'));
 const COFFEE_ROLE_ID: string = vars.COFFEE_ROLE_ID;
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 //since we might fully hit hundreds of people if we release this into the wider server, set iterations at around 100-200 to keep time at a reasonable number
