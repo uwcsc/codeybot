@@ -4,6 +4,7 @@ import { writeHistoricMatches, getMatch } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
 import { User } from 'discord.js';
 import _ from 'lodash';
+import { logError } from '../../components/logger';
 
 class coffeeMatchCommand extends AdminCommand {
   constructor(client: CommandoClient) {
@@ -42,16 +43,20 @@ class coffeeMatchCommand extends AdminCommand {
       outputMap.get(pair[1])!.push(pair[0]);
     }
     //send out messages
-    outputMap.forEach(async (targets, user) => {
+    for (const [user, targets] of outputMap) {
       const discordUser = userMap.get(user)!;
       //we use raw discord id ping format to minimize fetch numbers on our end
       const userTargets = targets.map((value) => userMap.get(value)!);
-      if (targets.length > 1) {
-        await discordUser.send(`Your coffee chat matches for this week are ${_.join(userTargets, ' and ')}`);
-      } else {
-        await discordUser.send(`Your coffee chat match for this week is ${userTargets[0]}`);
+      try {
+        if (targets.length > 1) {
+          await discordUser.send(`Your coffee chat matches for this week are ${_.join(userTargets, ' and ')}`);
+        } else {
+          await discordUser.send(`Your coffee chat match for this week is ${userTargets[0]}`);
+        }
+      } catch (err) {
+        logError(err as Error);
       }
-    });
+    }
   };
 }
 
