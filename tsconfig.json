@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "dist",
     "preserveConstEnums": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   },
   "include": ["**/*.ts"]
 }

@@ -2,11 +2,20 @@
 
 [![Build](https://github.com/uwcsc/codeybot/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/uwcsc/codeybot/actions/workflows/build.yml?query=branch%3Amaster)
 
+## Required config variables
+
+Set these accordingly within the correct config folder. If you are testing locally, use the `/config/dev` folder for local configurations.
+
+- `TARGET_GUILD_ID`: the guild (server) in which coffee chats are being held.
+- `COFFEE_ROLE_ID`: the ID of the role the bot will use to decide who is enrolled into coffeechats.
+- `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
+- `MOD_CHANNEL_ID` : the ID of the discord mod channel.
+
 ## Required environment variables
 
-- `BOT_TOKEN`: the token found in the bot user account.
-- `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
-- `MOD_CHANNEL_ID` : the ID of the discord mod channel
+Set these into your `.env` file. Make sure to not push these changes to git.
+
+- `BOT_TOKEN`: the token found in the bot user account. IF THIS TOKEN IS REVEALED, ANYONE CAN CONTROL YOUR BOT.
 
 ## Prerequisites
 

@@ -12,8 +12,11 @@ import logger, { logError } from './components/logger';
 import { messageListener } from './components/messageListener';
 import { initEmojis } from './components/emojis';
 import { createSuggestionCron, createBonusInterviewerListCron } from './components/cron';
+import { readFileSync } from 'fs';
 
-const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
+const ENV: string = process.env.NODE_ENV || '.';
+const vars = JSON.parse(readFileSync(`./config/${ENV}/vars.json`, 'utf-8'));
+const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
 const BOT_PREFIX = '.';
 
@@ -33,6 +36,7 @@ client.registry
   .registerGroups([
     ['suggestions', 'Suggestions'],
     ['interviews', 'Mock Interviews'],
+    ['coffeechats', 'Coffee Chats'],
     ['coin', 'Codey Coin'],
     ['fun', 'Fun'],
     ['games', 'Games']
