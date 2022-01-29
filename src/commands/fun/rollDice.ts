@@ -22,13 +22,17 @@ class RollDiceCommand extends BaseCommand {
   }
 
   getRandomInt(max: number): number {
-    return Math.floor(Math.random() * max);
+    const roll = Math.floor(Math.random() * max);
+    if (roll == 0) {
+      return 1;
+    }
+    return roll;
   }
 
   async onRun(message: CommandoMessage, args: {sides: number;}): Promise<Message> {
     const {sides} = args;
     if (sides <= 0) {
-      return message.reply(`cannot compute ` + sides + ' sides!');
+      return message.reply(`I cannot compute ` + sides + ' sides!');
     }
     else if (sides > 1000000) {
       return message.reply(`that's too many sides!`);
