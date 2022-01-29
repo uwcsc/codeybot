@@ -23,11 +23,7 @@ class RollDiceCommand extends BaseCommand {
   }
 
   getRandomInt(max: number): number {
-    const roll = Math.floor(Math.random() * (max + 1));
-    if (roll == 0) {
-      return 1;
-    }
-    return roll;
+    return Math.floor(Math.random() * (max)) + 1;
   }
 
   async onRun(message: CommandoMessage, args: {sides: number;}): Promise<Message> {
