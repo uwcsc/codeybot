@@ -31,10 +31,10 @@ const detectSpammersAndTrollsNotByHoneypot = (message: Message): boolean => {
  */
 const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
   if (detectSpammersAndTrollsNotByHoneypot(message) || message.channel.id === HONEYPOT_CHANNEL_ID) {
-    // Soft ban member and delete messages from past 1 day
+    // Temp ban member for 1 day and 1 hour, and delete messages from past 1 day
     try {
       if (await message.member?.ban({ days: 1, reason: 'Spammer/troll/got hacked' })) {
-        await message.guild?.members.unban(message.author.id);
+        setTimeout(async () => await message.guild?.members.unban(message.author.id), 25 * 60 * 60 * 1000); // 1 day and 1 hour in milliseconds
       }
     } catch (err) {
       logError(err as Error);
