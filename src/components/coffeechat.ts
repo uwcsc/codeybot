@@ -2,7 +2,7 @@ import { Client } from 'discord.js-commando';
 import { openDB } from './db';
 import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
-import { vars } from '../../config/config';
+import { vars } from '../config';
 
 const COFFEE_ROLE_ID: string = vars.COFFEE_ROLE_ID;
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;

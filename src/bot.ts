@@ -12,7 +12,7 @@ import { messageListener } from './components/messageListener';
 import { initEmojis } from './components/emojis';
 import { createSuggestionCron, createBonusInterviewerListCron } from './components/cron';
 import { readFileSync } from 'fs';
-import { vars } from '../config/config';
+import { vars } from './config';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
