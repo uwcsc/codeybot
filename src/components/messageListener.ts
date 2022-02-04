@@ -3,7 +3,7 @@ import { applyBonusByUserId } from './coin';
 import { client } from '../bot';
 import { TextChannel } from 'discord.js';
 import { logError } from './logger';
-import { vars } from '../constants';
+import { vars } from '../../config/config';
 
 const PC_CATEGORY_ID: string = vars.PC_CATEGORY_ID;
 const HONEYPOT_CHANNEL_ID: string = vars.HONEYPOT_CHANNEL_ID;

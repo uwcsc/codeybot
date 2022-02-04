@@ -6,7 +6,7 @@ import { EMBED_COLOUR } from '../utils/embeds';
 import { getInterviewers } from './interview';
 import { coinBonusMap, BonusType, adjustCoinBalanceByUserId } from './coin';
 import _ from 'lodash';
-import { vars } from '../constants';
+import { vars } from '../../config/config';
 
 const MOD_CHANNEL_ID: string = vars.MOD_CHANNEL_ID;
 
