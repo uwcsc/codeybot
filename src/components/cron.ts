@@ -6,10 +6,8 @@ import { EMBED_COLOUR } from '../utils/embeds';
 import { getInterviewers } from './interview';
 import { coinBonusMap, BonusType, adjustCoinBalanceByUserId } from './coin';
 import _ from 'lodash';
-import { readFileSync } from 'fs';
+import { vars } from '../constants';
 
-const ENV: string = process.env.NODE_ENV || '.';
-const vars = JSON.parse(readFileSync(`./config/${ENV}/vars.json`, 'utf-8'));
 const MOD_CHANNEL_ID: string = vars.MOD_CHANNEL_ID;
 
 // Checks for new suggestions every min

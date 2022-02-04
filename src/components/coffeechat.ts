@@ -1,12 +1,9 @@
 import { Client } from 'discord.js-commando';
-import { Database } from 'sqlite';
 import { openDB } from './db';
 import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
-import { readFileSync } from 'fs';
+import { vars } from '../constants';
 
-const ENV: string = process.env.NODE_ENV || '.';
-const vars = JSON.parse(readFileSync(`./config/${ENV}/vars.json`, 'utf-8'));
 const COFFEE_ROLE_ID: string = vars.COFFEE_ROLE_ID;
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 //since we might fully hit hundreds of people if we release this into the wider server, set iterations at around 100-200 to keep time at a reasonable number
@@ -18,19 +15,6 @@ interface historic_match {
   second_user_id: string;
   match_date: string;
 }
-
-export const initCoffeeChatTables = async (db: Database): Promise<void> => {
-  //Database to store past matches, with TIMESTAMP being the time matches were written into DB
-  await db.run(
-    `
-        CREATE TABLE IF NOT EXISTS coffee_historic_matches (
-            first_user_id TEXT NOT NULL,
-            second_user_id TEXT NOT NULL,
-            match_date TIMESTAMP NOT NULL
-        )
-        `
-  );
-};
 
 /*
  * Generates a single match round based on historical match records
