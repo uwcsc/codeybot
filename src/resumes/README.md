@@ -34,3 +34,13 @@
 
 ### [Monocol Navbar CV](monocol.pdf)
 - https://www.overleaf.com/latex/templates/monocol-navbar-cv/xdhwjpkpmxyv
+
+### [Omkar's Resume](omkar.pdf)
+- https://www.overleaf.com/latex/templates/resume-template/gxymbfbhdjwk
+
+### [Shriram's Resume](shriram.pdf)
+- https://www.overleaf.com/latex/templates/personal-resume-of-shriram-jadhav-network-engineer/zzcxzhmqyddy
+
+### [Davi's CV](davi.pdf)
+- https://www.overleaf.com/latex/templates/davis-cv/byvztznykhdy
+
