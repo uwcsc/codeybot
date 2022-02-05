@@ -17,3 +17,4 @@ export const initUserProfileTable = async (db: Database): Promise<void> => {
         `
   );
 };
+
