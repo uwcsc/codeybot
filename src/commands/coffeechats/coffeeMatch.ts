@@ -1,8 +1,7 @@
-import { Message } from 'discord.js';
+import { Message, User } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { writeHistoricMatches, getMatch } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
-import { User } from 'discord.js';
 import _ from 'lodash';
 import { logError } from '../../components/logger';
 

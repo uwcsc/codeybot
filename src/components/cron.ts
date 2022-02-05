@@ -8,7 +8,7 @@ import { coinBonusMap, BonusType, adjustCoinBalanceByUserId } from './coin';
 import _ from 'lodash';
 import { vars } from '../config';
 
-const MOD_CHANNEL_ID: string = vars.MOD_CHANNEL_ID;
+const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 
 // Checks for new suggestions every min
 export const createSuggestionCron = (client: CommandoClient): CronJob =>
@@ -16,7 +16,7 @@ export const createSuggestionCron = (client: CommandoClient): CronJob =>
     const createdSuggestions = await getSuggestions(SuggestionState.Created);
     const createdSuggestionIds = createdSuggestions.map((a) => Number(a.id));
     if (!_.isEmpty(createdSuggestionIds)) {
-      const messageChannel = client.channels.cache.get(MOD_CHANNEL_ID);
+      const messageChannel = client.channels.cache.get(NOTIF_CHANNEL_ID);
 
       if (!messageChannel) {
         throw 'Bad channel ID';

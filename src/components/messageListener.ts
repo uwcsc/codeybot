@@ -1,8 +1,8 @@
-import { Message } from 'discord.js';
+import { Message, TextChannel } from 'discord.js';
 import { applyBonusByUserId } from './coin';
 import { client } from '../bot';
-import { TextChannel } from 'discord.js';
 import { logError } from './logger';
+import { sendKickEmbed } from '../utils/embeds';
 import { vars } from '../config';
 
 const PC_CATEGORY_ID: string = vars.PC_CATEGORY_ID;
@@ -32,10 +32,15 @@ const detectSpammersAndTrollsNotByHoneypot = (message: Message): boolean => {
  */
 const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
   if (detectSpammersAndTrollsNotByHoneypot(message) || message.channel.id === HONEYPOT_CHANNEL_ID) {
-    // Delete the message, and kick the member if they are still in the server
+    // Delete the message, and if the user is still in the server, then kick them and log it
     try {
       await message.delete();
-      await message.member?.kick('Spammer/troll/got hacked');
+      if (message.member) {
+        const user = message.member.user;
+        const reason = 'Spammer/troll/got hacked';
+        await message.member.kick(reason);
+        await sendKickEmbed(message, user, reason);
+      }
     } catch (err) {
       logError(err as Error);
     }
