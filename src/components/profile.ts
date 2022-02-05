@@ -1,7 +1,7 @@
-import {Database} from 'sqlite';
+import { Database } from 'sqlite';
 export const initUserProfileTable = async (db: Database): Promise<void> => {
-    await db.run(
-        `
+  await db.run(
+    `
         CREATE TABLE IF NOT EXISTS user_table (
             user_id VARCHAR(255) PRIMARY KEY NOT NULL,
             about_me TEXT, 
@@ -13,7 +13,7 @@ export const initUserProfileTable = async (db: Database): Promise<void> => {
             last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             major VARCHAR(16),
             program VARCHAR(32)
-        );
+        )
         `
-    )
-}
+  );
+};
