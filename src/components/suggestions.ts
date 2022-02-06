@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { Database } from 'sqlite';
 import { openDB } from './db';
 
 // maps from key to readable string
@@ -31,21 +30,6 @@ export interface Suggestion {
   suggestion: string;
   state: string;
 }
-
-export const initSuggestionsTable = async (db: Database): Promise<void> => {
-  await db.run(
-    `
-    CREATE TABLE IF NOT EXISTS suggestions (
-      id INTEGER PRIMARY KEY NOT NULL,
-      author_id VARCHAR(255) NOT NULL,
-      author_username TEXT NOT NULL,
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      suggestion TEXT NOT NULL,
-      state VARCHAR(255) NOT NULL
-    );
-    `
-  );
-};
 
 // Get id and suggestion from a list of Suggestions
 export const getSuggestionPrintout = async (suggestions: Suggestion[]): Promise<string> => {
