@@ -33,16 +33,18 @@ const detectSpammersAndTrollsNotByHoneypot = (message: Message): boolean => {
 const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
   if (detectSpammersAndTrollsNotByHoneypot(message) || message.channel.id === HONEYPOT_CHANNEL_ID) {
     // Delete the message, and if the user is still in the server, then kick them and log it
-    try {
-      await message.delete();
-      if (message.member) {
-        const user = message.member.user;
-        const reason = 'Spammer/troll/got hacked';
+    await message.delete();
+    if (message.member) {
+      const user = message.member.user;
+      const reason = 'Spammer/troll/got hacked';
+      let isSuccessful = true;
+      try {
         await message.member.kick(reason);
-        await sendKickEmbed(message, user, reason);
+      } catch (err) {
+        isSuccessful = false;
+        logError(err as Error);
       }
-    } catch (err) {
-      logError(err as Error);
+      await sendKickEmbed(message, user, reason, isSuccessful);
     }
     return true;
   }

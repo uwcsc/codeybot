@@ -9,12 +9,13 @@ export const EMBED_COLOUR = '#0099ff';
 /*
  * Send kick embed
  */
-export const sendKickEmbed = async (message: Message, user: User, reason = ''): Promise<void> => {
+export const sendKickEmbed = async (message: Message, user: User, reason = '', isSuccessful = true): Promise<void> => {
   const kickEmbed = new MessageEmbed()
     .setColor(EMBED_COLOUR)
-    .setTitle('Kick')
     .addField('User', `${user.tag} (${user.id})`)
     .setFooter(`Message ID: ${message.id} • ${new Date().toUTCString()}`);
+  if (isSuccessful) kickEmbed.setTitle('Kick');
+  else kickEmbed.setTitle('Kick Unsuccessful');
   if (reason) kickEmbed.addField('Reason', `${reason}`);
   kickEmbed.addField('Channel', `<#${message.channel.id}> (${(message.channel as TextChannel).name})`);
   if (message.content) kickEmbed.addField('Content', `${message.content}`);
