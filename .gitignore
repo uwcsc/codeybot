@@ -8,3 +8,5 @@
 yarn-error.log
 **/.DS_Store
 /config/dev
+/package.lock
+/yarn.lock

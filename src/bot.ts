@@ -39,7 +39,8 @@ client.registry
     ['coffeechats', 'Coffee Chats'],
     ['coin', 'Codey Coin'],
     ['fun', 'Fun'],
-    ['games', 'Games']
+    ['games', 'Games'],
+    ['resumes', 'Resumes']
   ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 // set DB provider for persisting bot config
