@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import { Database } from 'sqlite';
-
 import { openDB } from './db';
 
 //maps from key to readable string
@@ -27,13 +25,6 @@ export enum Status {
   Active,
   Paused
 }
-
-export const initInterviewTables = async (db: Database): Promise<void> => {
-  await db.run(`CREATE TABLE IF NOT EXISTS interviewers
-               (user_id TEXT PRIMARY KEY, link TEXT NOT NULL, status INTEGER NOT NULL DEFAULT 0)`);
-  await db.run('CREATE TABLE IF NOT EXISTS domains (user_id TEXT NOT NULL, domain TEXT NOT NULL)');
-  await db.run('CREATE INDEX IF NOT EXISTS ix_domains_domain ON domains (domain)');
-};
 
 export const getInterviewer = async (id: string): Promise<Interviewer | undefined> => {
   const db = await openDB();
