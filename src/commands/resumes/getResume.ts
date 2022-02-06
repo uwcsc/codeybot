@@ -11,9 +11,7 @@ class GetResumeCommand extends BaseCommand {
       group: 'resumes',
       memberName: 'get-resume',
       description: 'Get an example resume!',
-      examples: [
-        `${client.commandPrefix}resume web-dev 2`
-      ],
+      examples: [`${client.commandPrefix}resume web-dev 2`],
       args: [
         {
           key: 'field',
@@ -29,41 +27,33 @@ class GetResumeCommand extends BaseCommand {
     });
   }
 
-    getResumeEmbed = (field: string, term: string) => {
-      try {
-        // get link to resume (just first one in the "list" for now)
-        let resumeLink = require('./resumes.json')[field][term][0].url;
+  getResumeEmbed = (field: string, term: string): MessageEmbed => {
+    try {
+      // get link to resume (just first one in the "list" for now)
+      const resumeLink = require('./resumes.json')[field][term][0].url;
+      return new MessageEmbed()
+        .setColor(RESUME_EMBED_COLOUR)
+        .setTitle('Example Resume')
+        .setDescription(`Example resume for ${field} for work term ${term}`)
+        .addFields({
+          name: 'Resume Link',
+          value: resumeLink
+        });
+    } catch (e) {
+      return new MessageEmbed()
+        .setColor(RESUME_EMBED_COLOUR)
+        .setTitle('Example Resume')
+        .setDescription(`Example resume for ${field} for work term ${term}`)
+        .addFields({
+          name: 'Sorry!',
+          value: 'No resumes exist for this combination of category and term.'
+        });
+    }
+  };
 
-        return new MessageEmbed()
-          .setColor(RESUME_EMBED_COLOUR)
-          .setTitle('Example Resume')
-          .setDescription(`Example resume for ${field} for work term ${term}`)
-          .addFields(
-              {
-                  name: 'Resume Link',
-                  value: resumeLink,
-                  // value: 'http://example.com',
-              }
-          );
-      } catch (e) {
-        return new MessageEmbed()
-          .setColor(RESUME_EMBED_COLOUR)
-          .setTitle('Example Resume')
-          .setDescription(`Example resume for ${field} for work term ${term}`)
-          .addFields(
-              {
-                  name: 'Sorry!',
-                  value: 'No resumes exist for this combination of category and term.'
-              }
-          );
-      }
-    }
-    
-    async onRun(message: CommandoMessage, args: { field: string; term: string }): Promise<Message> {
-      return message.channel.send(
-        this.getResumeEmbed(args.field, args.term)
-      );
-    }
+  async onRun(message: CommandoMessage, args: { field: string; term: string }): Promise<Message> {
+    return message.channel.send(this.getResumeEmbed(args.field, args.term));
+  }
 }
 
 export default GetResumeCommand;
