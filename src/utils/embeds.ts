@@ -2,6 +2,8 @@ import { Message, MessageEmbed, User, TextChannel } from 'discord.js';
 import { client } from '../bot';
 import { vars } from '../config';
 
+import { availableDomains } from '../components/interview';
+
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 
 export const EMBED_COLOUR = '#0099ff';
@@ -31,17 +33,16 @@ export const sendKickEmbed = async (message: Message, user: User, reason = '', i
 /*
 * Send embed for getting an example resume
 */
-export const getResumeEmbed = (field: string, term: string, resumes: any): MessageEmbed => {
+export const getResumeEmbed = (domain: string, term: string, resumes: any): MessageEmbed => {
   try {
     // get link to resume (just first one in the "list" for now)
-    // const resumeLink = require('./resumes.json')[field][term][0].url;
-    const resumeLink = resumes["web-dev"]["2"][0].url;
-    // logger.info(JSON.stringify(resumeFile));
+    const resumeLink = resumes[domain][term][0].url;
+    const domainName = availableDomains[domain];
 
     return new MessageEmbed()
       .setColor(RESUME_EMBED_COLOUR)
-      .setTitle('Example Resume')
-      .setDescription(`Example resume for ${field} for work term ${term}`)
+      .setTitle(`Example Resume For ${availableDomains[domain]}`)
+      .setDescription(`An example resume for ${availableDomains[domain]} for work term ${term}`)
       .addFields({
         name: 'Resume Link',
         value: resumeLink
@@ -49,8 +50,8 @@ export const getResumeEmbed = (field: string, term: string, resumes: any): Messa
   } catch (e) {
     return new MessageEmbed()
       .setColor(RESUME_EMBED_COLOUR)
-      .setTitle('Example Resume')
-      .setDescription(`Example resume for ${field} for work term ${term}`)
+      .setTitle(`Example Resume For ${availableDomains[domain]}`)
+      .setDescription(`Example resume for ${domain} for work term ${term}`)
       .addFields({
         name: 'Sorry!',
         value: 'No resumes exist for this combination of category and term.'
