@@ -27,3 +27,33 @@ export const sendKickEmbed = async (message: Message, user: User, reason = '', i
   }
   await (client.channels.cache.get(NOTIF_CHANNEL_ID) as TextChannel).send(kickEmbed);
 };
+
+/*
+* Send embed for getting an example resume
+*/
+export const getResumeEmbed = (field: string, term: string, resumes: any): MessageEmbed => {
+  try {
+    // get link to resume (just first one in the "list" for now)
+    // const resumeLink = require('./resumes.json')[field][term][0].url;
+    const resumeLink = resumes["web-dev"]["2"][0].url;
+    // logger.info(JSON.stringify(resumeFile));
+
+    return new MessageEmbed()
+      .setColor(RESUME_EMBED_COLOUR)
+      .setTitle('Example Resume')
+      .setDescription(`Example resume for ${field} for work term ${term}`)
+      .addFields({
+        name: 'Resume Link',
+        value: resumeLink
+      });
+  } catch (e) {
+    return new MessageEmbed()
+      .setColor(RESUME_EMBED_COLOUR)
+      .setTitle('Example Resume')
+      .setDescription(`Example resume for ${field} for work term ${term}`)
+      .addFields({
+        name: 'Sorry!',
+        value: 'No resumes exist for this combination of category and term.'
+      });
+  }
+};
