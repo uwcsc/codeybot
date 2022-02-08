@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
-import logger from './logger';
+import { client } from '../bot';
 
 let db: Database | null = null;
 
@@ -136,7 +136,7 @@ export const openDB = async (): Promise<Database> => {
       driver: sqlite3.Database
     });
     await initTables(db);
-    logger.info('Initialized database and tables.');
+    client.logger.info('Initialized database and tables.');
   }
   return db;
 };
