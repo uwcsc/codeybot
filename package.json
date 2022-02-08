@@ -24,7 +24,6 @@
     "concurrently": "^6.1.0",
     "cron": "^1.8.2",
     "discord.js": "^13.6.0",
-    "discord.js-commando": "^0.12.3",
     "dotenv": "^8.2.0",
     "engine-blackjack-ts": "^0.9.11",
     "js-yaml": "^4.1.0",
@@ -33,9 +32,7 @@
     "sqlite": "^4.0.22",
     "sqlite3": "^5.0.2",
     "stable-marriage": "^1.0.2",
-    "typescript": "^4.2.4",
-    "winston": "^3.3.3",
-    "winston-daily-rotate-file": "^4.5.5"
+    "typescript": "^4.2.4"
   },
   "devDependencies": {
     "@tsconfig/node14": "^1.0.0",
@@ -44,7 +41,6 @@
     "@types/lodash": "^4.14.168",
     "@types/node": "^15.0.1",
     "@types/sqlite3": "^3.1.7",
-    "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.25.0",
@@ -52,7 +48,6 @@
     "eslint-plugin-prettier": "^3.4.0",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1",
-    "ts-node": "^9.1.1",
     "tsc-watch": "^4.4.0"
   }
 }
