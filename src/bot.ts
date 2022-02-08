@@ -4,12 +4,8 @@ dotenv.config();
 import '@sapphire/plugin-logger/register';
 import * as colorette from 'colorette';
 import { inspect } from 'util';
-import Discord from 'discord.js';
 
 import { LogLevel, SapphireClient } from '@sapphire/framework';
-import { vars } from './config';
-
-const NOTIF_CHANNEL_ID = vars.NOTIF_CHANNEL_ID;
 const BOT_PREFIX = '.';
 
 // Set default inspection depth
@@ -39,15 +35,6 @@ export const client = new SapphireClient({
 });
 
 export const startBot = async (): Promise<void> => {
-  client.once('ready', async () => {
-    // log bot init event and send system notification
-    client.logger.info({
-      event: 'init'
-    });
-    const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
-    notif.send('Codey is up!');
-  });
-
   client.on('error', client.logger.error);
 
   client.login();
