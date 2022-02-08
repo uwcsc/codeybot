@@ -101,7 +101,7 @@ const initUserCoinTable = async (db: Database): Promise<void> => {
 const initUserProfileTable = async (db: Database): Promise<void> => {
   await db.run(
     `
-        CREATE TABLE IF NOT EXISTS user_table (
+        CREATE TABLE IF NOT EXISTS user_profile_table (
             user_id VARCHAR(255) PRIMARY KEY NOT NULL,
             about_me TEXT, 
             birth_date TEXT,
