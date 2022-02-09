@@ -1,6 +1,4 @@
-import { Database } from 'sqlite';
 import _ from 'lodash';
-
 import { openDB } from './db';
 
 export enum BonusType {
@@ -69,48 +67,6 @@ export interface UserCoinBonus {
   bonus_type: number;
   last_granted: Date;
 }
-
-export const initUserCoinTable = async (db: Database): Promise<void> => {
-  await db.run(
-    `
-    CREATE TABLE IF NOT EXISTS user_coin (
-      user_id VARCHAR(255) PRIMARY KEY NOT NULL,
-      balance INTEGER NOT NULL CHECK(balance>=0)
-    );
-    `
-  );
-};
-
-export const initUserCoinBonusTable = async (db: Database): Promise<void> => {
-  await db.run(
-    `
-    CREATE TABLE IF NOT EXISTS user_coin_bonus (
-      user_id VARCHAR(255) NOT NULL,
-      bonus_type INTEGER NOT NULL,
-      last_granted TIMESTAMP NOT NULL,
-      PRIMARY KEY (user_id, bonus_type)
-    );
-    `
-  );
-};
-
-export const initUserCoinLedgerTable = async (db: Database): Promise<void> => {
-  await db.run(
-    `
-    CREATE TABLE IF NOT EXISTS user_coin_ledger (
-      id INTEGER PRIMARY KEY NOT NULL,
-      user_id VARCHAR(255) NOT NULL,
-      amount INTEGER NOT NULL,
-      new_balance INTEGER NOT NULL,
-      event INTEGER NOT NULL,
-      reason VARCHAR(255),
-      admin_id VARCHAR(255),
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-    `
-  );
-  await db.run('CREATE INDEX IF NOT EXISTS ix_user_coin_ledger_user_id ON user_coin_ledger (user_id)');
-};
 
 export const getCoinBalanceByUserId = async (userId: string): Promise<number> => {
   const db = await openDB();
