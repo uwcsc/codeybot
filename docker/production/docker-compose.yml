@@ -11,3 +11,4 @@ services:
       - ./db:/usr/app/db
     logging:
       driver: gcplogs
+      
