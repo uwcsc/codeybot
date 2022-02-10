@@ -10,7 +10,7 @@ Set these accordingly within the correct config folder. If you are testing local
 - `COFFEE_ROLE_ID`: the ID of the role the bot will use to decide who is enrolled into coffee chats.
 - `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
 - `HONEYPOT_CHANNEL_ID`: the ID of the honeypot channel, used to help detect spammers and trolls.
-- `PC_CATEGORY_ID`: the ID of the Program Committee category, containing the Program Committee channels.
+- `ANNOUNCEMENTS_CHANNEL_ID`: the ID of the announcements channel.
 
 ## Required environment variables
 

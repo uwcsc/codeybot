@@ -1,17 +1,17 @@
-import { Message, TextChannel } from 'discord.js';
+import { Message, TextChannel, DMChannel } from 'discord.js';
 import { applyBonusByUserId } from './coin';
 import { client } from '../bot';
 import { logError } from './logger';
 import { sendKickEmbed } from '../utils/embeds';
 import { vars } from '../config';
 
-const PC_CATEGORY_ID: string = vars.PC_CATEGORY_ID;
 const HONEYPOT_CHANNEL_ID: string = vars.HONEYPOT_CHANNEL_ID;
+const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 
 /*
  * Detect spammers/trolls/people who got hacked, not by the honeypot method, by
  * detecting that the message contains a ping and punishable word, and is sent
- * in the Discord server, not in the PC category
+ * in a public channel of the Discord server that is not the announcements channel
  */
 const detectSpammersAndTrollsNotByHoneypot = (message: Message): boolean => {
   // Pings that would mention many people in the Discord server
@@ -21,8 +21,9 @@ const detectSpammersAndTrollsNotByHoneypot = (message: Message): boolean => {
   return (
     pingWords.some((word) => message.content.includes(word)) &&
     punishableWords.some((word) => message.content.toLowerCase().includes(word)) &&
-    message.channel instanceof TextChannel &&
-    message.channel.parentID !== PC_CATEGORY_ID
+    !(message.channel instanceof DMChannel) &&
+    message.channel.permissionsFor(message.channel.guild.roles.everyone)!.has("VIEW_CHANNEL") &&
+    message.channel.id !== ANNOUNCEMENTS_CHANNEL_ID
   );
 };
 
