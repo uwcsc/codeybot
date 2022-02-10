@@ -22,7 +22,7 @@ const detectSpammersAndTrollsNotByHoneypot = (message: Message): boolean => {
     pingWords.some((word) => message.content.includes(word)) &&
     punishableWords.some((word) => message.content.toLowerCase().includes(word)) &&
     !(message.channel instanceof DMChannel) &&
-    message.channel.permissionsFor(message.channel.guild.roles.everyone)!.has("VIEW_CHANNEL") &&
+    message.channel.permissionsFor(message.channel.guild.roles.everyone)!.has('VIEW_CHANNEL') &&
     message.channel.id !== ANNOUNCEMENTS_CHANNEL_ID
   );
 };
