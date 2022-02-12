@@ -48,9 +48,11 @@ class CoffeeMatchCommand extends AdminCommand {
       const userTargets = targets.map((value) => userMap.get(value)!);
       try {
         if (targets.length > 1) {
-          await discordUser.send(`Your coffee chat matches for this week are ${_.join(userTargets, ' and ')}`);
+          await discordUser.send(
+            `Your coffee chat matches for this week are ${userTargets[0].tag} (${userTargets[0]}) and ${userTargets[1].tag} (${userTargets[1]}).`
+          );
         } else {
-          await discordUser.send(`Your coffee chat match for this week is ${userTargets[0]}`);
+          await discordUser.send(`Your coffee chat match for this week is ${userTargets[0].tag} (${userTargets[0]}).`);
         }
       } catch (err) {
         logError(err as Error);
