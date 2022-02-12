@@ -2,7 +2,6 @@ import { Message, User } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { writeHistoricMatches, getMatch } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
-import _ from 'lodash';
 import { logError } from '../../components/logger';
 
 class CoffeeMatchCommand extends AdminCommand {
