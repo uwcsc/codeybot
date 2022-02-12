@@ -5,7 +5,7 @@ import { AdminCommand } from '../../utils/commands';
 import _ from 'lodash';
 import { logError } from '../../components/logger';
 
-class coffeeMatchCommand extends AdminCommand {
+class CoffeeMatchCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'coffee-match',
@@ -59,4 +59,4 @@ class coffeeMatchCommand extends AdminCommand {
   };
 }
 
-export default coffeeMatchCommand;
+export default CoffeeMatchCommand;
