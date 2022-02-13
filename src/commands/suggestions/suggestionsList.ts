@@ -17,7 +17,7 @@ class SuggestionsListCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'suggestions-list',
-      aliases: ['suggestions', 'suggestion-list', 'suggestions-list', 'suggest-list'],
+      aliases: ['suggestions', 'suggestion-list', 'suggest-list'],
       group: 'suggestions',
       memberName: 'list',
       args: [
