@@ -1,4 +1,4 @@
-import { Message, TextChannel, DMChannel } from 'discord.js';
+import { Message, DMChannel } from 'discord.js';
 import { applyBonusByUserId } from './coin';
 import { client } from '../bot';
 import { logError } from './logger';
@@ -53,16 +53,21 @@ const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
 };
 
 export const messageListener = async (message: Message): Promise<void> => {
-  if (await punishSpammersAndTrolls(message)) {
-    return;
-  }
-
   if (!client.user) {
     return;
   }
 
-  // Ignore all messages created by the bot and dms from users
-  if (message.author.id != client.user.id && message.channel instanceof TextChannel) {
+  // Ignore all messages created by the bot itself
+  if (message.author.id === client.user.id) {
+    return;
+  }
+
+  if (await punishSpammersAndTrolls(message)) {
+    return;
+  }
+
+  // Ignore DMs; include channels of type TextChannel (regular text channel) and NewsChannel (announcements channel)
+  if (!(message.channel instanceof DMChannel)) {
     await applyBonusByUserId(message.author.id);
   }
 };
