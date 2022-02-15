@@ -6,7 +6,6 @@ import * as colorette from 'colorette';
 import { inspect } from 'util';
 import { LogLevel, SapphireClient } from '@sapphire/framework';
 
-const BOT_TOKEN = process.env.BOT_TOKEN;
 export const BOT_PREFIX = '.';
 
 // Set default inspection depth
@@ -38,5 +37,5 @@ export const client = new SapphireClient({
 export const startBot = async (): Promise<void> => {
   client.on('error', client.logger.error);
 
-  client.login(BOT_TOKEN);
+  client.login();
 };
