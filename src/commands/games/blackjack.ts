@@ -28,7 +28,7 @@ const validateBetAmount = (amount: number): string => {
 @ApplyOptions<CommandOptions>({
   aliases: ['blj', 'bj'],
   description: 'Start a Blackjack game to win some Codey coins!',
-  detailedDescription: `**Examples:** \`${BOT_PREFIX}blackjack 100\`, \`${BOT_PREFIX}blj 100\``
+  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}blackjack 100\`\n\`${BOT_PREFIX}blj 100\``
 })
 export class BlackjackCommand extends Command {
   /*
@@ -183,6 +183,8 @@ export class BlackjackCommand extends Command {
   }
 
   async messageRun(message: Message, args: Args): Promise<Message> {
+    // if there are no arguments, then resolve to the default bet amount; if there is only one argument and it is an
+    // integer, then this is the bet amount; otherwise, reply that a valid bet amount must be entered
     const bet = args.finished
       ? DEFAULT_BET
       : await args.rest('integer').catch(() => 'please enter a valid bet amount.');
