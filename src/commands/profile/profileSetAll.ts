@@ -1,21 +1,10 @@
-import { Message, User } from 'discord.js';
+import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import _ from 'lodash';
-import { editUserProfileById, UserProfile,  } from '../../components/profile';
+import { editUserProfileById, UserProfile, configMaps } from '../../components/profile';
 import { BaseCommand } from '../../utils/commands';
-import { getDomains, getDomainsString, getInterviewer } from '../../components/interview';
-import { EMBED_COLOUR } from '../../utils/embeds';
 
-enum configMaps {
-  aboutme = "about_me",
-  birthdate = "birth_date",
-  preferredname = "preferred_name",
-  preferredpronouns = "preferred_pronouns",
-  term = "term",
-  year = "year",
-  major = "major",
-  program = "program"
-}
+
 class UserProfileAboutCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
@@ -40,21 +29,13 @@ class UserProfileAboutCommand extends BaseCommand {
     });
   }
 
-  async onRun(message: CommandoMessage, args: {customization: configMaps, description: string}): Promise<null> {
+  async onRun(message: CommandoMessage, args: {customization: keyof typeof configMaps, description: string}): Promise<Message> {
     const { author } = message;
-    let {customization} = args;
+    let { customization } = args;
     const { description } = args;
-    // customization = configMaps[customization];
-    // I want customization to be able to be passed in as the key here
-    editUserProfileById(author.id, {"about_me": description})  
-    return null;
-    // const profileDetails: UserProfile | undefined = await getUserProfileById(user.id);
-    // if (!profileDetails){
-    //   return message.reply(`${user.username} has not set up their profile!`)
-    // } else {
-    //   return message.channel.send("here the profile");
-    // }
 
+    editUserProfileById(author.id, {[configMaps[customization]]: description} as UserProfile)  
+    return message.reply(`${customization} has been set!`);
   }
 }
 
