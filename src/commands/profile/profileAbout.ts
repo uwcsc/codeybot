@@ -1,10 +1,21 @@
-import { Message, User } from 'discord.js';
+import { Message, MessageEmbed, User } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import _ from 'lodash';
 import { UserProfile, getUserProfileById } from '../../components/profile';
 import { BaseCommand } from '../../utils/commands';
 import { getDomains, getDomainsString, getInterviewer } from '../../components/interview';
 import { EMBED_COLOUR } from '../../utils/embeds';
+
+enum prettyProfileDetails {
+  about_me = "About Me",
+  birth_date = "Birth Date",
+  preferred_name = "Preferred Name",
+  preferred_pronouns = "Preferred Pronouns",
+  term = "Term",
+  year = "Year",
+  major = "Major",
+  program = "Program"
+}
 
 class UserProfileAboutCommand extends BaseCommand {
   constructor(client: CommandoClient) {
@@ -31,7 +42,18 @@ class UserProfileAboutCommand extends BaseCommand {
     if (!profileDetails){
       return message.reply(`${user.username} has not set up their profile!`)
     } else {
-      return message.channel.send("here the profile");
+      const notDisplay = ["user_id", "last_updated"]
+      const profileDisplay = new MessageEmbed().setTitle(`${user.username}'s profile`)
+      profileDisplay.setColor('GREEN') // maybe user should be able to set their colour?
+      if (user.avatar){
+        profileDisplay.setImage(user.displayAvatarURL())
+      }
+      for (const [key, val] of Object.entries(profileDetails)){
+        if (val && !notDisplay.includes(key) ){
+          profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val)
+        }
+      }
+      return message.channel.send(profileDisplay);
     }
 
   }
