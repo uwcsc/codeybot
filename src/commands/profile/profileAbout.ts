@@ -3,8 +3,6 @@ import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import _ from 'lodash';
 import { UserProfile, getUserProfileById } from '../../components/profile';
 import { BaseCommand } from '../../utils/commands';
-import { getDomains, getDomainsString, getInterviewer } from '../../components/interview';
-import { EMBED_COLOUR } from '../../utils/embeds';
 
 enum prettyProfileDetails {
   about_me = "About Me",

@@ -12,6 +12,13 @@ export interface UserProfile
   program?: string;
 }
 
+const validPrograms = []; // do we want validate these
+const validTerms: string[] = ["1A", "1B", "2A", "2B", "3A", "3B", "4A", "4B", "MASc", "PHD"] ;
+const validYears: number[] = [];
+for (let i = 2021; i < 2030; i++){
+  validYears.push(i)
+}
+
 export enum configMaps {
   aboutme = "about_me",
   birthdate = "birth_date",
@@ -22,6 +29,37 @@ export enum configMaps {
   major = "major",
   program = "program"
 }
+
+const validBirthdates = ["January", "Febuary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const customizationLimits = {
+  aboutme: "Feel free to enter anything you want about yourself! Your hobbies, interests, etc. Must be less than 1000 characters.",
+  birthdate: "To protect your personal information, this must be just your month. Valid arguments are " + validBirthdates.join(" "),
+  term: "Must be one of " + validTerms.join(" "),
+  year: "The year you will graduate.",
+  major: "",
+  program: "",
+}
+
+export const validUserCustomization = (customization: keyof typeof configMaps, description: string): string => {
+  switch (customization) {
+    case "birthdate":
+      return "valid" // need to change this
+    case "term":
+      if (!validTerms.includes(description)){
+        return "Invalid term. Must be one of : " + validTerms.join(", ") + "."
+      }
+    case "major":
+      return "valid" // need to change this
+    case "program":
+      return "valid" // need to change this
+    case "year":
+      if (!validYears.includes(parseInt(description))){
+        return "Invalid year. Must be one of : " + validYears.join(", ") + "."
+      }
+  }
+  return "valid"
+}
+
 export const getUserProfileById = async (userId: string): Promise<UserProfile | undefined > =>
 {
   const db = await openDB();

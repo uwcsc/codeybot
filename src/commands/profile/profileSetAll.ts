@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import _ from 'lodash';
-import { editUserProfileById, UserProfile, configMaps } from '../../components/profile';
+import { editUserProfileById, UserProfile, validUserCustomization, configMaps } from '../../components/profile';
 import { BaseCommand } from '../../utils/commands';
 
 
@@ -31,11 +31,14 @@ class UserProfileAboutCommand extends BaseCommand {
 
   async onRun(message: CommandoMessage, args: {customization: keyof typeof configMaps, description: string}): Promise<Message> {
     const { author } = message;
-    let { customization } = args;
-    const { description } = args;
-
-    editUserProfileById(author.id, {[configMaps[customization]]: description} as UserProfile)  
-    return message.reply(`${customization} has been set!`);
+    const { customization, description } = args;
+    const reason = validUserCustomization(customization, description);
+    if (reason == "valid"){
+      editUserProfileById(author.id, {[configMaps[customization]]: description} as UserProfile)  
+      return message.reply(`${customization} has been set!`);
+    }
+    const messagePrefix = "Invalid description, please try again. Reason: "
+    return message.reply(messagePrefix + reason);
   }
 }
 
