@@ -32,13 +32,26 @@ const getResumeEmbed = (domain: string, term: string, quality: string, resumes: 
         value: resumeLink
       });
   } catch (e) {
+    // if error, we return a list of all the possible categories
+    let categoryString: string = "";
+    for (const [key, name] of Object.entries(availableDomains)) {
+      categoryString += `⚙  ${key} - **${name}**\n`
+    }
     return new MessageEmbed()
       .setColor(RESUME_EMBED_COLOUR)
       .setTitle(`No resume found!`)
-      .setDescription(`Sorry, we could not find a resume in the category you are looking for. Please try again.`)
+      .setDescription(`Sorry, we could not find a resume in the category you are looking for. Please check the available categories down below and try again.`)
       .addFields({
-        name: 'Sorry!',
-        value: 'No resumes exist for this combination of category and term.'
+        name: 'Fields',
+        value: categoryString,
+      },
+      {
+        name: 'Term',
+        value: '1, 2, 3, 4, 5 or 6',
+      },
+      {
+        name: 'Quality',
+        value: '✅ Good\n❌ Bad\n'
       });
   }
 };
