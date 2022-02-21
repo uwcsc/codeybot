@@ -24,6 +24,11 @@ class GetResumeCommand extends BaseCommand {
           key: 'term',
           prompt: 'The work-term the person with the resume will be in during their co-op (eg 3)',
           type: 'integer'
+        },
+        {
+          key: 'quality',
+          prompt: 'Whether a resume is good, bad, or other fields (yet to be decided)',
+          type: 'string'
         }
       ]
     });
