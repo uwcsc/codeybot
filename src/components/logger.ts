@@ -29,7 +29,7 @@ const logger = winston.createLogger({
 export const logError = (err: Error, event = 'client', data: { [key: string]: string } = {}): void => {
   logger.error({
     event: `${event}_error`,
-    error: err,
+    error: err.toString(),
     ...data
   });
 };
