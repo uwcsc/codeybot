@@ -2,7 +2,12 @@ import { Message, MessageEmbed } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { BaseCommand } from '../../utils/commands';
 
-import {default as resumes} from '../resumes/resumes.json';
+import yaml from 'js-yaml';
+import { readFileSync } from 'fs';
+
+import {default as resumes} from './resumes.json';
+
+import logger from '../../components/logger';
 
 import { availableDomains } from '../../components/interview';
 
@@ -11,16 +16,17 @@ const RESUME_EMBED_COLOUR = '#77bb00';
 /*
 * Send embed for getting an example resume
 */
-const getResumeEmbed = (domain: string, term: string, resumes: any): MessageEmbed => {
+const getResumeEmbed = (domain: string, term: string, quality: string, resumes: any): MessageEmbed => {
   try {
     // get link to resume (just first one in the "list" for now)
-    const resumeLink = resumes[domain][term][0].url;
+    logger.info(resumes);
+    const resumeLink = resumes[domain][term][quality][0].url;
     const domainName = availableDomains[domain];
 
     return new MessageEmbed()
       .setColor(RESUME_EMBED_COLOUR)
       .setTitle(`Example Resume For ${domainName}`)
-      .setDescription(`An example resume for ${domainName} for work term ${term}`)
+      .setDescription(`An example ${quality} resume for ${domainName} for work term ${term}`)
       .addFields({
         name: 'Resume Link',
         value: resumeLink
@@ -67,7 +73,9 @@ class GetResumeCommand extends BaseCommand {
   }
 
   async onRun(message: CommandoMessage, args: { field: string; term: string; quality: string }): Promise<Message> {
-    return message.channel.send(getResumeEmbed(args.field, args.term, resumes));
+    // load resumes from json file
+    // logger.info(resumes);
+    return message.channel.send(getResumeEmbed(args.field, args.term, args.quality, resumes));
   }
 }
 
