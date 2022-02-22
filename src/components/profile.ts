@@ -122,8 +122,6 @@ export const validUserCustomization = (
         return { reason: 'Invalid year. Must be between of : ' + validYears.join(', ') + '.' };
       }
       break;
-    default:
-      return { reason: 'Error! Cannot find customization. Please contact a CSC executive.' };
   }
   return { reason: 'valid', parsedDescription };
 };

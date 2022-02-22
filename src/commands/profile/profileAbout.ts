@@ -2,6 +2,7 @@ import { Message, MessageEmbed, User } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import _ from 'lodash';
 import { UserProfile, getUserProfileById } from '../../components/profile';
+import { getCoinBalanceByUserId } from '../../components/coin';
 import { BaseCommand } from '../../utils/commands';
 
 enum prettyProfileDetails {
@@ -12,7 +13,8 @@ enum prettyProfileDetails {
   term = 'Term',
   year = 'Year',
   faculty = 'Faculty',
-  program = 'Program'
+  program = 'Program',
+  last_updated = 'Last Updated'
 }
 
 class UserProfileAboutCommand extends BaseCommand {
@@ -40,7 +42,7 @@ class UserProfileAboutCommand extends BaseCommand {
     if (!profileDetails) {
       return message.reply(`${user.username} has not set up their profile!`);
     } else {
-      const notDisplay = ['user_id', 'last_updated'];
+      const notDisplay = ['user_id'];
       const profileDisplay = new MessageEmbed().setTitle(`${user.username}'s profile`);
       profileDisplay.setColor('GREEN'); // maybe user should be able to set their colour?
       if (user.avatar) {
@@ -51,6 +53,8 @@ class UserProfileAboutCommand extends BaseCommand {
           profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val);
         }
       }
+      const userCoins = await getCoinBalanceByUserId(user.id);
+      profileDisplay.addField("Codeycoins", userCoins);
       return message.channel.send(profileDisplay);
     }
   }
