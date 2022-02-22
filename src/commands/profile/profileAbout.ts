@@ -5,14 +5,14 @@ import { UserProfile, getUserProfileById } from '../../components/profile';
 import { BaseCommand } from '../../utils/commands';
 
 enum prettyProfileDetails {
-  about_me = "About Me",
-  birth_date = "Birth Date",
-  preferred_name = "Preferred Name",
-  preferred_pronouns = "Preferred Pronouns",
-  term = "Term",
-  year = "Year",
-  major = "Major",
-  program = "Program"
+  about_me = 'About Me',
+  birth_date = 'Birth Date',
+  preferred_name = 'Preferred Name',
+  preferred_pronouns = 'Preferred Pronouns',
+  term = 'Term',
+  year = 'Year',
+  faculty = 'Faculty',
+  program = 'Program'
 }
 
 class UserProfileAboutCommand extends BaseCommand {
@@ -34,26 +34,25 @@ class UserProfileAboutCommand extends BaseCommand {
     });
   }
 
-  async onRun(message: CommandoMessage, args: { user: User} ): Promise<Message> {
+  async onRun(message: CommandoMessage, args: { user: User }): Promise<Message> {
     const { user } = args;
     const profileDetails: UserProfile | undefined = await getUserProfileById(user.id);
-    if (!profileDetails){
-      return message.reply(`${user.username} has not set up their profile!`)
+    if (!profileDetails) {
+      return message.reply(`${user.username} has not set up their profile!`);
     } else {
-      const notDisplay = ["user_id", "last_updated"]
-      const profileDisplay = new MessageEmbed().setTitle(`${user.username}'s profile`)
-      profileDisplay.setColor('GREEN') // maybe user should be able to set their colour?
-      if (user.avatar){
-        profileDisplay.setImage(user.displayAvatarURL())
+      const notDisplay = ['user_id', 'last_updated'];
+      const profileDisplay = new MessageEmbed().setTitle(`${user.username}'s profile`);
+      profileDisplay.setColor('GREEN'); // maybe user should be able to set their colour?
+      if (user.avatar) {
+        profileDisplay.setImage(user.displayAvatarURL());
       }
-      for (const [key, val] of Object.entries(profileDetails)){
-        if (val && !notDisplay.includes(key) ){
-          profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val)
+      for (const [key, val] of Object.entries(profileDetails)) {
+        if (val && !notDisplay.includes(key)) {
+          profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val);
         }
       }
       return message.channel.send(profileDisplay);
     }
-
   }
 }
 
