@@ -3,6 +3,8 @@ import { Listener, Store } from '@sapphire/framework';
 import { blue, gray, green, magenta, magentaBright, white, yellow } from 'colorette';
 import { vars } from '../../config';
 import Discord from 'discord.js';
+import { initEmojis } from '../../components/emojis';
+import { client } from '../../bot';
 
 const dev = process.env.NODE_ENV !== 'production';
 
@@ -22,6 +24,7 @@ export class ReadyListener extends Listener {
     this.printBanner();
     this.printStoreDebugInformation();
     this.sendReady();
+    initEmojis(client);
   };
 
   sendReady = async (): Promise<void> => {

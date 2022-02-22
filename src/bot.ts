@@ -4,9 +4,9 @@ dotenv.config();
 import '@sapphire/plugin-logger/register';
 import * as colorette from 'colorette';
 import { inspect } from 'util';
-
 import { LogLevel, SapphireClient } from '@sapphire/framework';
-const BOT_PREFIX = '.';
+
+export const BOT_PREFIX = '.';
 
 // Set default inspection depth
 inspect.defaultOptions.depth = 2;
