@@ -54,7 +54,7 @@ class UserProfileAboutCommand extends BaseCommand {
         }
       }
       const userCoins = await getCoinBalanceByUserId(user.id);
-      profileDisplay.addField("Codeycoins", userCoins);
+      profileDisplay.addField('Codeycoins', userCoins);
       return message.channel.send(profileDisplay);
     }
   }

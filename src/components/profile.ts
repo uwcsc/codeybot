@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { openDB } from './db';
 
 // since interfaces are for compile time there is no easy way to extract keys
@@ -88,10 +87,7 @@ export const validUserCustomization = (
 ): userCustomization => {
   if (!(Object.keys(configMaps) as Array<keyof typeof configMaps>).includes(customization)) {
     return {
-      reason: `Invalid customization selection. Must be one of **${(
-        Object.keys(configMaps) as Array<keyof typeof configMaps>
-      ).map((key) => ' ' + key)}**`
-    };
+      reason: `Invalid customization selection. Must be one of **${(Object.keys(configMaps) as Array<keyof typeof configMaps>).map((key) => ' ' + key)}**`};
   }
   let parsedDescription = description;
   switch (customization) {

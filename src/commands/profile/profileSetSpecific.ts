@@ -1,13 +1,6 @@
 import { Message } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import _ from 'lodash';
-import {
-  editUserProfileById,
-  UserProfile,
-  customizationLimits,
-  validUserCustomization,
-  configMaps
-} from '../../components/profile';
+import { editUserProfileById, UserProfile, validUserCustomization, configMaps } from '../../components/profile';
 import { BaseCommand } from '../../utils/commands';
 
 class UserProfileSetSpecificCommand extends BaseCommand {
