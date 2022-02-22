@@ -98,6 +98,25 @@ const initUserCoinTable = async (db: Database): Promise<void> => {
   );
 };
 
+const initUserProfileTable = async (db: Database): Promise<void> => {
+  await db.run(
+    `
+    CREATE TABLE IF NOT EXISTS user_profile_table (
+      user_id VARCHAR(255) PRIMARY KEY NOT NULL,
+      about_me TEXT,
+      birth_date TEXT,
+      preferred_name VARCHAR(32),
+      preferred_pronouns VARCHAR(16),
+      term VARCHAR(2),
+      year INTEGER,
+      last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      major VARCHAR(16),
+      program VARCHAR(32)
+    )
+    `
+  );
+};
+
 const initTables = async (db: Database): Promise<void> => {
   //initialize all relevant tables
   await initCoffeeChatTables(db);
@@ -106,6 +125,7 @@ const initTables = async (db: Database): Promise<void> => {
   await initUserCoinBonusTable(db);
   await initUserCoinLedgerTable(db);
   await initUserCoinTable(db);
+  await initUserProfileTable(db);
 };
 
 export const openDB = async (): Promise<Database> => {

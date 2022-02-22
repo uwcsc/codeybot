@@ -1,6 +1,6 @@
 import { actions, Game, Card, Action, presets } from 'engine-blackjack-ts';
 import _ from 'lodash';
-import logger from '../logger';
+import { client } from '../../bot';
 
 const PLAYER_DEFAULT_POSITION = 'right';
 
@@ -86,7 +86,7 @@ const getGameState = (game: Game): GameState => {
   Starts a blackjack game for a given player and returns the new game's state
 */
 export const startGame = (amount: number, playerId: string, channelId: string): GameState | null => {
-  logger.info({
+  client.logger.info({
     event: 'blackjack_start',
     amount,
     channelId,
@@ -100,7 +100,7 @@ export const startGame = (amount: number, playerId: string, channelId: string): 
     const now = new Date().getTime();
     if (startedAt && now - startedAt < 60000) {
       // game was started in the past minute, don't start a new one
-      logger.info({
+      client.logger.info({
         event: 'blackjack_start_exists',
         startedAt,
         now,
@@ -123,7 +123,7 @@ export const startGame = (amount: number, playerId: string, channelId: string): 
   End blackjack game for a given player
 */
 export const endGame = (playerId: string): void => {
-  logger.info({ event: 'blackjack_end', playerId });
+  client.logger.info({ event: 'blackjack_end', playerId });
   gamesByPlayerId.delete(playerId);
 };
 
@@ -131,7 +131,7 @@ export const endGame = (playerId: string): void => {
   Perform a player action and returns the game state after that action
 */
 export const performGameAction = (playerId: string, actionName: BlackjackAction): GameState | null => {
-  logger.info({
+  client.logger.info({
     event: 'blackjack_action',
     actionName,
     playerId
@@ -143,7 +143,7 @@ export const performGameAction = (playerId: string, actionName: BlackjackAction)
 
   if (!game || !gameAction) {
     // no game state if game does not exist or if action is in valid
-    logger.info({
+    client.logger.info({
       event: 'blackjack_action_error',
       error: !game ? 'game does not exist for player' : 'invalid action',
       actionName,

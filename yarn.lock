@@ -97,6 +97,13 @@
   resolved "https://registry.yarnpkg.com/@sapphire/async-queue/-/async-queue-1.2.0.tgz#7a56afd318101d338433d7180ebd6af349243268"
   integrity sha512-O5ND5Ljpef86X5oy8zXorQ754TMjWALcPSAgPBu4+76HLtDTrNoDyzU2uGE2G4A8Wv51u0MXHzGQ0WZ4GMtpIw==
 
+"@sapphire/decorators@^4.2.3":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/@sapphire/decorators/-/decorators-4.2.3.tgz#8d4cf445b4891dd261c71b57154509ccb5c81309"
+  integrity sha512-DQByv0qXwU+XkEqiUoj0PRQR445e+/QDHkD6kibfgmQdmOWShAcGS2f++zPNdjkrnIAHLIavZ9cTP6qAFK3jsg==
+  dependencies:
+    tslib "^2.3.1"
+
 "@sapphire/discord-utilities@^2.7.0":
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/@sapphire/discord-utilities/-/discord-utilities-2.7.0.tgz#2f488f568e86322e459c3756ae3b0c8012117ce9"
