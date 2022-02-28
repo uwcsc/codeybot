@@ -6,10 +6,10 @@ import { BaseCommand } from '../../utils/commands';
 class UserProfileSetSpecificCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
-      name: 'setprofile',
+      name: 'profile-set',
       aliases: ['setp'],
-      group: 'userprofiles',
-      memberName: 'setprofile',
+      group: 'profiles',
+      memberName: 'set',
       description: `Set your user profile.`,
       args: [
         {
@@ -25,7 +25,7 @@ class UserProfileSetSpecificCommand extends BaseCommand {
           type: 'string'
         }
       ],
-      examples: [`${client.commandPrefix}setprofile`, `${client.commandPrefix}setp`]
+      examples: [`${client.commandPrefix}profile-set`, `${client.commandPrefix}setp`]
     });
   }
 

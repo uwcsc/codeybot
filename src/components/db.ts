@@ -109,7 +109,7 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
             preferred_pronouns VARCHAR(16),
             term VARCHAR(2),
             year INTEGER,
-            last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
             faculty VARCHAR(32),
             program VARCHAR(32),
             specialization VARCHAR(32)
