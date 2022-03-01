@@ -2,10 +2,9 @@ import { Message, User } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { writeHistoricMatches, getMatch } from '../../components/coffeechat';
 import { AdminCommand } from '../../utils/commands';
-import _ from 'lodash';
 import { logError } from '../../components/logger';
 
-class coffeeMatchCommand extends AdminCommand {
+class CoffeeMatchCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'coffee-match',
@@ -48,9 +47,13 @@ class coffeeMatchCommand extends AdminCommand {
       const userTargets = targets.map((value) => userMap.get(value)!);
       try {
         if (targets.length > 1) {
-          await discordUser.send(`Your coffee chat matches for this week are ${_.join(userTargets, ' and ')}`);
+          await discordUser.send(
+            `Your coffee chat :coffee: matches for this week are... **${userTargets[0].tag}** and **${userTargets[1].tag}**! Feel free to contact ${userTargets[0]} and ${userTargets[1]} at your earliest convenience. :wink:`
+          );
         } else {
-          await discordUser.send(`Your coffee chat match for this week is ${userTargets[0]}`);
+          await discordUser.send(
+            `Your coffee chat :coffee: match for this week is... **${userTargets[0].tag}**! Feel free to contact ${userTargets[0]} at your earliest convenience. :wink:`
+          );
         }
       } catch (err) {
         logError(err as Error);
@@ -59,4 +62,4 @@ class coffeeMatchCommand extends AdminCommand {
   };
 }
 
-export default coffeeMatchCommand;
+export default CoffeeMatchCommand;

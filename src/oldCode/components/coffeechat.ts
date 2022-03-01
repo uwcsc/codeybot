@@ -75,7 +75,7 @@ const getMaxDupe = (matched: number[][], matches: string[][], userList: Map<stri
  */
 const loadMatched = async (notMatched: Map<string, number>): Promise<number[][]> => {
   const db = await openDB();
-  const matched: number[][] = Array.from(Array(notMatched.size), () => new Array(4).fill(0));
+  const matched: number[][] = Array.from(Array(notMatched.size), () => new Array(notMatched.size).fill(0));
   const matches = (await db.all(`SELECT * FROM coffee_historic_matches`)) as historic_match[];
   for (const { first_user_id, second_user_id } of matches) {
     if (notMatched.has(first_user_id) && notMatched.has(second_user_id)) {

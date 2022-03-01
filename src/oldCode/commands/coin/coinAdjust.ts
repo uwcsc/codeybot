@@ -3,7 +3,7 @@ import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { AdminCommand } from '../../utils/commands';
 import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
 
-class CoinBalanceCommand extends AdminCommand {
+class CoinAdjustCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'coin-adjust',
@@ -52,4 +52,4 @@ class CoinBalanceCommand extends AdminCommand {
   }
 }
 
-export default CoinBalanceCommand;
+export default CoinAdjustCommand;
