@@ -1,20 +1,17 @@
 /* eslint-disable prettier/prettier */
 import { Message } from 'discord.js';
+import { ApplyOptions } from '@sapphire/decorators';
 import { Args, Command, CommandOptions } from '@sapphire/framework';
 import { BOT_PREFIX } from '../../bot'
 
-class RollDiceCommand extends Command {
-  constructor(context: Command.Context) {
-    super(context, {
+@ApplyOptions<CommandOptions>({
       name: 'roll-dice',
       aliases: ['rd', 'roll', 'rolldice', 'dice-roll', 'diceroll', 'dice'],
       fullCategory: ['fun'],
       description: 'Roll a dice!',
       detailedDescription: `Example: ${BOT_PREFIX} roll-dice <size>`
-    });
-  }
-
-
+})
+class RollDiceCommand extends Command {
   getRandomInt(max: number): number {
     return Math.floor(Math.random() * max) + 1;
   }
