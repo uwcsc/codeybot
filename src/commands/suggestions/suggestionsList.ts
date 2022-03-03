@@ -1,38 +1,31 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { CommandoClient, CommandoMessage } from 'discord.js-commando';
+import { Args, Command} from '@sapphire/framework';
 
-import { AdminCommand } from '../../utils/commands';
 import {
   suggestionStatesReadable,
   getAvailableStatesString,
+  getSuggestionPrintout,
+  addSuggestion,
+  updateSuggestionState,
   getSuggestions,
   Suggestion
 } from '../../components/suggestions';
 import { EMBED_COLOUR } from '../../utils/embeds';
-import { parseStateArg, validateState } from './utils';
+import { BOT_PREFIX } from '../../bot';
+import { getEmojiByName } from '../../components/emojis';
+import _ from 'lodash';
 
 const RESULTS_PER_PAGE = 6;
 
-class SuggestionsListCommand extends AdminCommand {
-  constructor(client: CommandoClient) {
-    super(client, {
+class SuggestionsListCommand extends Command {
+  constructor(context: Command.Context) {
+    super(context, {
       name: 'suggestions-list',
       aliases: ['suggestions', 'suggestion-list', 'suggest-list'],
-      group: 'suggestions',
-      memberName: 'list',
-      args: [
-        {
-          key: 'state',
-          prompt: `enter one of ${getAvailableStatesString()}.`,
-          type: 'string',
-          default: '',
-          validate: validateState,
-          parse: parseStateArg
-        }
-      ],
+      fullCategory: ['fun'],
       description: 'Shows you a list of suggestions.',
-      examples: [`${client.commandPrefix}suggestions`, `${client.commandPrefix}suggestions-list actionable`]
-    });
+      detailedDescription: `Example: ${BOT_PREFIX} suggestions`
+    })
   }
 
   private async getSuggestionDisplayInfo(suggestion: Suggestion) {
@@ -45,6 +38,10 @@ class SuggestionsListCommand extends AdminCommand {
       suggestion['suggestion'] +
       '\n\n'
     );
+  }
+
+  async messageRun(message: Message, args: Args) : Promise<Message> {
+    
   }
 
   async onRun(message: CommandoMessage, args: { state: string }): Promise<Message> {
