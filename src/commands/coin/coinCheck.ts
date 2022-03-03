@@ -7,8 +7,7 @@ import { BOT_PREFIX } from '../../bot';
 @ApplyOptions<CommandOptions>({
   aliases: ['cc', 'coin-balance-check', 'coin-check'],
   description: "Checks a user's Codey coin balance.",
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}coin-check @Codey\`\n\`${BOT_PREFIX}cc @Codey\``,
-  requiredUserPermissions: ['ADMINISTRATOR']
+  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}coin-check @Codey\`\n\`${BOT_PREFIX}cc @Codey\``
 })
 export class CoinCheck extends Command {
   async messageRun(message: Message, args: Args): Promise<Message> {
