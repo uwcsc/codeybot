@@ -24,5 +24,5 @@ export const sendKickEmbed = async (message: Message, user: User, reason = '', i
       kickEmbed.addField('Attachment', `${attachment.url}`);
     });
   }
-  await (client.channels.cache.get(NOTIF_CHANNEL_ID) as TextChannel).send(kickEmbed);
+  await (client.channels.cache.get(NOTIF_CHANNEL_ID) as TextChannel).send({ embeds: [kickEmbed] });
 };
