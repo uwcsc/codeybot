@@ -27,13 +27,9 @@ export interface UserProfile {
 }
 
 const validFaculties = ['Mathematics', 'Engineering', 'Arts', 'Health', 'Science'];
-const validTerms: string[] = ['1A', '1B', '2A', '2B', '3A', '3B', '4A', '4B', 'MASc', 'PHD'];
-const validYears: number[] = [];
+const validTerms: string[] = ['1A', '1B', '2A', '2B', '3A', '3B', '4A', '4B', 'MASc', 'PHD', 'Alumni', 'Professor'];
 const yearStart = 1900;
-const yearEnd = 2050;
-for (let i = yearStart; i <= yearEnd; i++) {
-  validYears.push(i);
-}
+const yearEnd = new Date().getFullYear() + 7;
 
 export enum configMaps {
   aboutme = 'about_me',
@@ -66,7 +62,7 @@ export const customizationLimits = {
   aboutme:
     'Feel free to enter anything you want about yourself! Your hobbies, interests, etc. Must be less than 1000 characters.',
   birthdate:
-    'To protect your personal information, this must be just your month. Must be one of ' + validBirthdates.join(', '),
+    'To protect your personal information, this must only be your month. Must be one of ' + validBirthdates.join(', '),
   preferred_name: 'Your preferred name.',
   preferred_pronouns: 'Your preferred pronouns.',
   term: 'Your school term. Must be one of ' + validTerms.join(', '),
@@ -128,8 +124,8 @@ export const validUserCustomization = (
       }
       break;
     case validatedFields.year:
-      if (!validYears.includes(parseInt(description))) {
-        return { reason: 'Invalid year. Must be between of : ' + validYears.join(', ') + '.' };
+      if (parseInt(parsedDescription) < yearStart || parseInt(parsedDescription) > yearEnd) {
+        return { reason: 'Invalid year. Must be between: ' + yearStart + ' and ' + yearEnd + '.' };
       }
       break;
   }

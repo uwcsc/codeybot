@@ -3,12 +3,12 @@ import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { editUserProfileById, UserProfile, validUserCustomization, configMaps } from '../../components/profile';
 import { BaseCommand } from '../../utils/commands';
 
-class UserProfileSetSpecificCommand extends BaseCommand {
+class UserProfileSetCommand extends BaseCommand {
   constructor(client: CommandoClient) {
     super(client, {
       name: 'profile-set',
       aliases: ['setp'],
-      group: 'profiles',
+      group: 'profile',
       memberName: 'set',
       description: `Set your user profile.`,
       args: [
@@ -45,4 +45,4 @@ class UserProfileSetSpecificCommand extends BaseCommand {
   }
 }
 
-export default UserProfileSetSpecificCommand;
+export default UserProfileSetCommand;

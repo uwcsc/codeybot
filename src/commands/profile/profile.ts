@@ -21,7 +21,7 @@ class UserProfileCommand extends BaseCommand {
     super(client, {
       name: 'profile',
       aliases: ['profile-about', 'userabout', 'aboutuser'],
-      group: 'profiles',
+      group: 'profile',
       memberName: 'about',
       description: 'Shows the user profile',
       examples: [`${client.commandPrefix}profile-about @Codey`, `${client.commandPrefix}userabout @Codey`],
