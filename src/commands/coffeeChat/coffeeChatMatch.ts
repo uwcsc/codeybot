@@ -2,15 +2,15 @@ import { Message, User } from 'discord.js';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
 import { container } from '@sapphire/pieces';
-import { writeHistoricMatches, getMatch } from '../../components/coffeechat';
+import { writeHistoricMatches, getMatch } from '../../components/coffeeChat';
 
 @ApplyOptions<CommandOptions>({
-  aliases: ['coffee-match'],
-  description: 'Matches current coffee chat roles.',
+  aliases: ['coffee-match', 'coffeematch', 'coffee-chat-match'],
+  description: 'Matches members with the coffee chat role.',
   detailedDescription: `**Examples:**\n\`${container.client.options.defaultPrefix}coffeematch\``,
   requiredUserPermissions: ['ADMINISTRATOR']
 })
-export class CoffeeMatchCommand extends Command {
+export class CoffeeChatMatchCommand extends Command {
   async messageRun(message: Message): Promise<Message> {
     const { client } = container;
     //makes sure future matches are valid (made for the current group / still has matches left)
