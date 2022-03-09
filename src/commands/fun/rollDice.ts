@@ -4,8 +4,7 @@ import { Args, Command, CommandOptions } from '@sapphire/framework';
 import { BOT_PREFIX } from '../../bot';
 
 @ApplyOptions<CommandOptions>({
-  name: 'roll-dice',
-  aliases: ['rd', 'roll', 'rolldice', 'dice-roll', 'diceroll', 'dice'],
+  aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
   fullCategory: ['fun'],
   description: 'Roll a dice!',
   detailedDescription: `Example: ${BOT_PREFIX} roll-dice <size>`
