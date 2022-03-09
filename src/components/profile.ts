@@ -62,7 +62,8 @@ export const customizationLimits = {
   aboutme:
     'Feel free to enter anything you want about yourself! Your hobbies, interests, etc. Must be less than 1000 characters.',
   birthdate:
-    'To protect your personal information, this must only be your month. Must be one of ' + validBirthdates.join(', '),
+    'To protect your personal information, this must only be your month of birth. Must be one of ' +
+    validBirthdates.join(', '),
   preferred_name: 'Your preferred name.',
   preferred_pronouns: 'Your preferred pronouns.',
   term: 'Your school term. Must be one of ' + validTerms.join(', '),
