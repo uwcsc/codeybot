@@ -2,6 +2,7 @@ import { Message } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, Command, CommandOptions } from '@sapphire/framework';
 import { BOT_PREFIX } from '../../bot';
+import { isInteger } from 'lodash';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
@@ -21,11 +22,22 @@ export class FunRollDiceCommand extends Command {
   }
 
   async messageRun(message: Message, args: Args): Promise<Message> {
-    const sides = await args.pick('number').catch(() => 6);
-    if (sides <= 0) {
+    const sidesLowerBound = 0;
+    const sidesUpperBound = 1000000;
+    const sides = await args.pick('integer').catch(() => 6);
+
+    //Argument enforcement
+    if (!isInteger(sides) || !args.finished) {
+      return message.reply(
+        `Invalid Parameters! Usage: \`rolldice <sides>\` \n` +
+          `\`sides\` - The number of sides on the dice you wish to roll, ` +
+          `must be \`0 < sides <= ${sidesUpperBound}\``
+      );
+    }
+    if (sides <= sidesLowerBound) {
       return message.reply(`I cannot compute ${sides} sides!`);
     }
-    if (sides > 1000000) {
+    if (sides > sidesUpperBound) {
       return message.reply("that's too many sides!");
     }
     const diceFace = this.getRandomInt(sides);

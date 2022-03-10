@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
-import { Command, CommandOptions } from '@sapphire/framework';
+import { Args, Command, CommandOptions } from '@sapphire/framework';
 import { BOT_PREFIX } from '../../bot';
 
 @ApplyOptions<CommandOptions>({
@@ -15,7 +15,11 @@ import { BOT_PREFIX } from '../../bot';
   `
 })
 export class FunFlipCoinCommand extends Command {
-  async messageRun(message: Message): Promise<Message> {
+  async messageRun(message: Message, args: Args): Promise<Message> {
+    //Argument enforcement
+    if (!args.finished) {
+      return message.reply("`flipcoin` doesn't take any parameters");
+    }
     const onHeads = Math.random() < 0.5;
     return message.reply(`The coin landed on **${onHeads ? 'heads' : 'tails'}**!`);
   }
