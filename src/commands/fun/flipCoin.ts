@@ -6,12 +6,12 @@ import { BOT_PREFIX } from '../../bot';
 @ApplyOptions<CommandOptions>({
   aliases: ['fc', 'flip', 'flip-coin', 'coin-flip', 'coinflip'],
   description: 'Flip a coin! In making decisions, if it is not great, at least it is fair!',
-  detailedDescription: `**Example:** \`${BOT_PREFIX}flip-coin\`\n
+  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}flip-coin\`\n
   \`${BOT_PREFIX}fc\`\n
   \`${BOT_PREFIX}flip\`\n
   \`${BOT_PREFIX}coin-flip\`\n
   \`${BOT_PREFIX}coinflip\`\n
-  \`${BOT_PREFIX}flipcoin\`\n
+  \`${BOT_PREFIX}flipcoin\`
   `
 })
 export class FunFlipCoinCommand extends Command {

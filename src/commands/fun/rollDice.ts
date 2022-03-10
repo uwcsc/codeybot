@@ -7,13 +7,13 @@ import { isInteger } from 'lodash';
 @ApplyOptions<CommandOptions>({
   aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
   description: 'Roll a dice!',
-  detailedDescription: `**Example:** \`${BOT_PREFIX}roll-dice 6\`\n
+  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}roll-dice 6\`\n
   \`${BOT_PREFIX}dice-roll 30\`\n
   \`${BOT_PREFIX}roll 100\`\n
   \`${BOT_PREFIX}rd 4\`\n
   \`${BOT_PREFIX}diceroll 2\`\n
   \`${BOT_PREFIX}dice 1\`\n
-  \`${BOT_PREFIX}rolldice 10\`\n
+  \`${BOT_PREFIX}rolldice 10\`
   `
 })
 export class FunRollDiceCommand extends Command {
