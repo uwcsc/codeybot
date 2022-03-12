@@ -1,4 +1,4 @@
-import { Client } from 'discord.js-commando';
+import { SapphireClient } from '@sapphire/framework';
 import { openDB } from './db';
 import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
@@ -21,7 +21,7 @@ interface historic_match {
  * Does NOT save this match to history; must call writeHistoricMatches to "confirm" this matching happened
  * Returns a potential single chatter in the single field, null otherwise
  */
-export const getMatch = async (client: Client): Promise<string[][]> => {
+export const getMatch = async (client: SapphireClient): Promise<string[][]> => {
   //get list of users and their historic chat history
   const userList = await loadCoffeeChatUsers(client);
   const matched = await loadMatched(userList);
@@ -35,7 +35,7 @@ export const getMatch = async (client: Client): Promise<string[][]> => {
  * Returns a mapping of string -> int, where string is their ID, while int is an index assigned to the ID
  * The index is used in place of the ID for match tallying
  */
-const loadCoffeeChatUsers = async (client: Client): Promise<Map<string, number>> => {
+const loadCoffeeChatUsers = async (client: SapphireClient): Promise<Map<string, number>> => {
   //gets list of users with the coffee chat role
   const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
     ?.filter((member) => member.roles.cache.has(COFFEE_ROLE_ID))
