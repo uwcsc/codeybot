@@ -22,8 +22,8 @@ export class FunRollDiceCommand extends Command {
   }
 
   async messageRun(message: Message, args: Args): Promise<Message> {
-    const sidesLowerBound = 0;
-    const sidesUpperBound = 1000000;
+    const SIDES_LOWER_BOUND = 0;
+    const SIDES_UPPER_BOUND = 1000000;
     const sides = await args.pick('integer').catch(() => 6);
 
     //Argument enforcement
@@ -31,13 +31,13 @@ export class FunRollDiceCommand extends Command {
       return message.reply(
         `Invalid Parameters! Usage: \`rolldice <sides>\` \n` +
           `\`sides\` - The number of sides on the dice you wish to roll, ` +
-          `must be \`0 < sides <= ${sidesUpperBound}\``
+          `must be \`${SIDES_LOWER_BOUND} < sides <= ${SIDES_UPPER_BOUND}\``
       );
     }
-    if (sides <= sidesLowerBound) {
+    if (sides <= SIDES_LOWER_BOUND) {
       return message.reply(`I cannot compute ${sides} sides!`);
     }
-    if (sides > sidesUpperBound) {
+    if (sides > SIDES_UPPER_BOUND) {
       return message.reply("that's too many sides!");
     }
     const diceFace = this.getRandomInt(sides);
