@@ -1,20 +1,24 @@
-import { Message, User } from 'discord.js';
-import { Command, CommandOptions } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
-import { container } from '@sapphire/pieces';
-import { writeHistoricMatches, getMatch } from '../../components/coffeeChat';
+import { Args, Command, CommandOptions, container } from '@sapphire/framework';
+import { Message, User } from 'discord.js';
+import { getMatch, writeHistoricMatches } from '../../components/coffeeChat';
+import { enforceNoArgumentsMessage } from '../../utils/arguments';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['coffee-match', 'coffeematch', 'coffee-chat-match'],
   description: 'Matches members with the coffee chat role.',
-  detailedDescription: `**Examples:**\n\`${container.client.options.defaultPrefix}coffeematch\``,
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}coffeechatmatch\`\n
+  \`${container.botPrefix}coffeematch\``,
   requiredUserPermissions: ['ADMINISTRATOR']
 })
 export class CoffeeChatMatchCommand extends Command {
-  async messageRun(message: Message): Promise<Message> {
-    const { client } = container;
+  async messageRun(message: Message, args: Args): Promise<Message> {
+    // No arguments
+    if (!args.finished) return message.reply(enforceNoArgumentsMessage(this.name));
+
     //makes sure future matches are valid (made for the current group / still has matches left)
-    const matches = await getMatch(client);
+    const matches = await getMatch();
     await this.alertMatches(matches);
     await writeHistoricMatches(matches);
     return message.reply(`Sent ${matches.length} match(es).`);

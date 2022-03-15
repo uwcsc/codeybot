@@ -1,6 +1,6 @@
+import { container } from '@sapphire/framework';
+import { Database, open } from 'sqlite';
 import sqlite3 from 'sqlite3';
-import { open, Database } from 'sqlite';
-import { client } from '../bot';
 
 let db: Database | null = null;
 
@@ -129,13 +129,14 @@ const initTables = async (db: Database): Promise<void> => {
 };
 
 export const openDB = async (): Promise<Database> => {
+  const { logger } = container;
   if (db == null) {
     db = await open({
       filename: 'db/bot.db',
       driver: sqlite3.Database
     });
     await initTables(db);
-    client.logger.info('Initialized database and tables.');
+    logger.info('Initialized database and tables.');
   }
   return db;
 };

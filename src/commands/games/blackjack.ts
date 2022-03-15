@@ -1,6 +1,8 @@
-import { Collection, Message, MessageEmbed, MessageReaction, Snowflake, User, ColorResolvable } from 'discord.js';
-import { Args, Command, CommandOptions } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { Args, Command, CommandOptions, container } from '@sapphire/framework';
+import { Collection, ColorResolvable, Message, MessageEmbed, MessageReaction, Snowflake, User } from 'discord.js';
+import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
+import { getEmojiByName } from '../../components/emojis';
 import {
   BlackjackAction,
   BlackjackHand,
@@ -11,9 +13,6 @@ import {
   performGameAction,
   startGame
 } from '../../components/games/blackjack';
-import { getEmojiByName } from '../../components/emojis';
-import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
-import { BOT_PREFIX } from '../../bot';
 
 const DEFAULT_BET = 10;
 const MIN_BET = 10;
@@ -28,7 +27,9 @@ const validateBetAmount = (amount: number): string => {
 @ApplyOptions<CommandOptions>({
   aliases: ['blj', 'bj'],
   description: 'Start a Blackjack game to win some Codey coins!',
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}blackjack 100\`\n\`${BOT_PREFIX}blj 100\``
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}blackjack 100\`\n
+  \`${container.botPrefix}blj 100\``
 })
 export class BlackjackCommand extends Command {
   /*
@@ -203,7 +204,7 @@ export class BlackjackCommand extends Command {
     if (playerBalance < bet)
       return message.reply(`you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`);
 
-    // intialize the game
+    // initialize the game
     let game = startGame(bet, author.id, channel.id);
     if (!game) {
       return message.reply('please finish your current game before starting another one!');

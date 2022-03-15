@@ -1,20 +1,19 @@
-import { Message } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
-import { Args, Command, CommandOptions } from '@sapphire/framework';
-import { BOT_PREFIX } from '../../bot';
+import { Args, Command, CommandOptions, container } from '@sapphire/framework';
+import { Message } from 'discord.js';
 import { isInteger } from 'lodash';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
   description: 'Roll a dice!',
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}roll-dice 6\`\n
-  \`${BOT_PREFIX}dice-roll 30\`\n
-  \`${BOT_PREFIX}roll 100\`\n
-  \`${BOT_PREFIX}rd 4\`\n
-  \`${BOT_PREFIX}diceroll 2\`\n
-  \`${BOT_PREFIX}dice 1\`\n
-  \`${BOT_PREFIX}rolldice 10\`
-  `
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}roll-dice 6\`\n
+  \`${container.botPrefix}dice-roll 30\`\n
+  \`${container.botPrefix}roll 100\`\n
+  \`${container.botPrefix}rd 4\`\n
+  \`${container.botPrefix}diceroll 2\`\n
+  \`${container.botPrefix}dice 1\`\n
+  \`${container.botPrefix}rolldice 10\``
 })
 export class FunRollDiceCommand extends Command {
   getRandomInt(max: number): number {

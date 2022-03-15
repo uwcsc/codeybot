@@ -1,13 +1,14 @@
-import { Message } from 'discord.js';
-import { Args, Command, CommandOptions } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { Args, Command, CommandOptions, container } from '@sapphire/framework';
+import { Message } from 'discord.js';
 import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
-import { BOT_PREFIX } from '../../bot';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['ca', 'coin-adjust'],
   description: "Adjusts a user's Codey coin balance by an amount.",
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}coin-adjust @Codey 100\`\n\`${BOT_PREFIX}coin-adjust @Codey -100 Codey broke.\``,
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}coin-adjust @Codey 100\`\n
+  \`${container.botPrefix}coin-adjust @Codey -100 Codey broke.\``,
   requiredUserPermissions: ['ADMINISTRATOR']
 })
 export class CoinAdjustCommand extends Command {

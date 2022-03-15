@@ -1,13 +1,16 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { Command, CommandOptions } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { Args, Command, CommandOptions, container } from '@sapphire/framework';
+import { Message, MessageEmbed } from 'discord.js';
+import { enforceNoArgumentsMessage } from '../../utils/arguments';
 import { EMBED_COLOUR } from '../../utils/embeds';
-import { BOT_PREFIX } from '../../bot';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['ci', 'coin-info'],
   description: 'Info about Codey coin, including ways to get and how to spend Codey coins.',
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}coin-info\`\n\`${BOT_PREFIX}ci\`\n\`${BOT_PREFIX}coininfo\``
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}coin-info\`\n
+  \`${container.botPrefix}ci\`\n
+  \`${container.botPrefix}coininfo\``
 })
 export class CoinInfo extends Command {
   infoEmbed = new MessageEmbed()
@@ -32,7 +35,10 @@ export class CoinInfo extends Command {
       }
     );
 
-  async messageRun(message: Message): Promise<Message> {
+  async messageRun(message: Message, args: Args): Promise<Message> {
+    // No arguments
+    if (!args.finished) return message.reply(enforceNoArgumentsMessage(this.name));
+
     // show embed
     return message.channel.send({ embeds: [this.infoEmbed] });
   }
