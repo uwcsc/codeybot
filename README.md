@@ -1,6 +1,21 @@
+<div align="center">
+
+<img src="assets/codeyProduction.png" width="250" height="250" align="left">
+<img src="assets/codeyStaging.png" width="250" height="250" align="center">
+<img src="assets/codeyDevelopment.png" width="250" height="250" align="right">
+
+<br />
+
 # Codey Bot
 
+**University of Waterloo Computer Science Club Discord Bot**
+
 [![Build](https://github.com/uwcsc/codeybot/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/uwcsc/codeybot/actions/workflows/build.yml?query=branch%3Amaster)
+[![Discord Server](https://discord.com/api/guilds/667823274201448469/widget.png)](https://discord.gg/pHfYBCg)
+
+</div>
+
+---
 
 ## Required config variables
 
