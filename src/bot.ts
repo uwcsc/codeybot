@@ -33,8 +33,6 @@ export const client = new SapphireClient({
   ]
 });
 
-client.fetchPrefix = (): string => BOT_PREFIX;
-
 export const startBot = async (): Promise<void> => {
   client.on('error', client.logger.error);
 
