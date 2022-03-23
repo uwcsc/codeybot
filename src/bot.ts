@@ -5,7 +5,6 @@ import '@sapphire/plugin-logger/register';
 import * as colorette from 'colorette';
 import { inspect } from 'util';
 import { LogLevel, SapphireClient } from '@sapphire/framework';
-
 export const BOT_PREFIX = '.';
 
 // Set default inspection depth

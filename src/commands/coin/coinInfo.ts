@@ -1,19 +1,15 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import { BaseCommand } from '../../utils/commands';
+import { Command, CommandOptions } from '@sapphire/framework';
+import { ApplyOptions } from '@sapphire/decorators';
 import { EMBED_COLOUR } from '../../utils/embeds';
+import { BOT_PREFIX } from '../../bot';
 
-class CoinInfo extends BaseCommand {
-  constructor(client: CommandoClient) {
-    super(client, {
-      name: 'coin-info',
-      aliases: ['ci', 'coininfo'],
-      group: 'coin',
-      memberName: 'coin-info',
-      description: 'Info about Codey coin, including ways to get and how to spend Codey coins.',
-      examples: [`${client.commandPrefix}coin-info`, `${client.commandPrefix}ci`, `${client.commandPrefix}coininfo`]
-    });
-  }
+@ApplyOptions<CommandOptions>({
+  aliases: ['ci', 'coin-info'],
+  description: 'Info about Codey coin, including ways to get and how to spend Codey coins.',
+  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}coin-info\`\n\`${BOT_PREFIX}ci\`\n\`${BOT_PREFIX}coininfo\``
+})
+export class CoinInfo extends Command {
   infoEmbed = new MessageEmbed()
     .setColor(EMBED_COLOUR)
     .setTitle('🪙   About Codey Coin   🪙')
@@ -36,10 +32,8 @@ class CoinInfo extends BaseCommand {
       }
     );
 
-  async onRun(message: CommandoMessage): Promise<Message> {
+  async messageRun(message: Message): Promise<Message> {
     // show embed
-    return message.channel.send(this.infoEmbed);
+    return message.channel.send({ embeds: [this.infoEmbed] });
   }
 }
-
-export default CoinInfo;
