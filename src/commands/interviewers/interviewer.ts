@@ -1,10 +1,11 @@
-import { SubCommandPluginCommand } from '@sapphire/plugin-subcommands';
-import type { Args } from '@sapphire/framework';
+import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
+import type { Args, CommandOptions } from '@sapphire/framework';
 import { Message, MessageEmbed } from 'discord.js';
 import { EMBED_COLOUR } from '../../utils/embeds';
 import {
   availableDomains,
   clearProfile,
+  getAvailableDomainsString,
   getDomains,
   getDomainsString,
   getInterviewer,
@@ -20,16 +21,18 @@ import {
 import { BOT_PREFIX } from '../../bot';
 import { getEmojiByName } from '../../components/emojis';
 import _ from 'lodash';
+import { container } from '@sapphire/pieces';
+import { ApplyOptions } from '@sapphire/decorators';
 
-// Extend `SubCommandPluginCommand` instead of `Command`
-export class UserCommand extends SubCommandPluginCommand {
-  public constructor(context: SubCommandPluginCommand.Context, options: SubCommandPluginCommand.Options) {
-    super(context, {
-      ...options,
-      subCommands: ['clear', 'domain', 'pause', 'profile', 'resume', 'signup', { input: 'list', default: true }]
-    });
-  }
+const RESULTS_PER_PAGE = 6;
 
+@ApplyOptions<SubCommandPluginCommandOptions>({
+  aliases: ['interviewers'],
+  description: 'Handles interviewer functions',
+  detailedDescription: `**Examples:**\n\`${container.client.options.defaultPrefix}interviewer frontend\``,
+  subCommands: ['clear', 'domain', 'pause', 'profile', 'resume', 'signup', { input: 'list', default: true }]
+})
+export class InterviewerCommand extends SubCommandPluginCommand {
   public async clear(message: Message): Promise<Message> {
     const { id } = message.author;
 
@@ -46,9 +49,10 @@ export class UserCommand extends SubCommandPluginCommand {
   }
 
   async domain(message: Message, args: Args): Promise<Message> {
-    const domain = args.next();
+    const domain = await args.rest('string').catch(() => `Err`);
+    if (!(domain.toLowerCase() in availableDomains))
+      return message.reply(`you entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`);
     const { id } = message.author;
-
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
       return message.reply(
@@ -128,17 +132,16 @@ export class UserCommand extends SubCommandPluginCommand {
     }
   }
 
-  RESULTS_PER_PAGE = 6;
-
   async list(message: Message, args: Args): Promise<Message> {
-    const domain = args.next();
-
+    const domain = await args.pick('string').catch(() => '');
+    if (domain !== '' && !(domain.toLowerCase() in availableDomains))
+      return message.reply(`you entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`);
     // query interviewers
     const interviewers = await getInterviewers(domain);
     // shuffles interviewers to load balance
     const shuffledInterviewers = _.shuffle(interviewers);
     // only show up to page limit
-    const interviewersToShow = shuffledInterviewers.slice(0, this.RESULTS_PER_PAGE);
+    const interviewersToShow = shuffledInterviewers.slice(0, RESULTS_PER_PAGE);
     // get information from each interviewer
     const interviewersInfo = await Promise.all(
       interviewersToShow.map((interviewer) => this.getInterviewerDisplayInfo(interviewer))
