@@ -3,11 +3,12 @@ import { Command, CommandOptions } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
 import { container } from '@sapphire/pieces';
 import { writeHistoricMatches, getMatch } from '../../components/coffeeChat';
+import { BOT_PREFIX } from '../../bot';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['coffee-match', 'coffeematch', 'coffee-chat-match'],
   description: 'Matches members with the coffee chat role.',
-  detailedDescription: `**Examples:**\n\`${container.client.options.defaultPrefix}coffeematch\``,
+  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}coffeematch\``,
   requiredUserPermissions: ['ADMINISTRATOR']
 })
 export class CoffeeChatMatchCommand extends Command {

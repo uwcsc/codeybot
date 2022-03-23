@@ -1,5 +1,5 @@
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
-import type { Args, CommandOptions } from '@sapphire/framework';
+import type { Args } from '@sapphire/framework';
 import { Message, MessageEmbed } from 'discord.js';
 import { EMBED_COLOUR } from '../../utils/embeds';
 import {
@@ -21,7 +21,6 @@ import {
 import { BOT_PREFIX } from '../../bot';
 import { getEmojiByName } from '../../components/emojis';
 import _ from 'lodash';
-import { container } from '@sapphire/pieces';
 import { ApplyOptions } from '@sapphire/decorators';
 
 const RESULTS_PER_PAGE = 6;
@@ -29,7 +28,7 @@ const RESULTS_PER_PAGE = 6;
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['interviewers'],
   description: 'Handles interviewer functions',
-  detailedDescription: `**Examples:**\n\`${container.client.options.defaultPrefix}interviewer frontend\``,
+  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}interviewer frontend\``,
   subCommands: ['clear', 'domain', 'pause', 'profile', 'resume', 'signup', { input: 'list', default: true }]
 })
 export class InterviewerCommand extends SubCommandPluginCommand {
