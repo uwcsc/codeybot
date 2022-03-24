@@ -1,7 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
-import { Args, Command, CommandOptions, container } from '@sapphire/framework';
+import { Command, CommandOptions, container } from '@sapphire/framework';
 import { Message } from 'discord.js';
-import { enforceNoArgumentsMessage } from '../../utils/arguments';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['fc', 'flip', 'flip-coin', 'coin-flip', 'coinflip'],
@@ -15,10 +14,7 @@ import { enforceNoArgumentsMessage } from '../../utils/arguments';
   \`${container.botPrefix}flipcoin\``
 })
 export class FunFlipCoinCommand extends Command {
-  async messageRun(message: Message, args: Args): Promise<Message> {
-    //Argument enforcement
-    if (!args.finished) return message.reply(enforceNoArgumentsMessage(this.name));
-
+  async messageRun(message: Message): Promise<Message> {
     const onHeads = Math.random() < 0.5;
     return message.reply(`The coin landed on **${onHeads ? 'heads' : 'tails'}**!`);
   }
