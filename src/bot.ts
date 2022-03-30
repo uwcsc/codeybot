@@ -33,27 +33,6 @@ export const client = new SapphireClient({
   ]
 });
 
-<<<<<<< HEAD
-=======
-// register command groups
-client.registry
-  .registerDefaultTypes()
-  .registerDefaultGroups()
-  .registerDefaultCommands({ unknownCommand: false })
-  .registerGroups([
-    ['suggestions', 'Suggestions'],
-    ['interviews', 'Mock Interviews'],
-    ['coffeechats', 'Coffee Chats'],
-    ['coin', 'Codey Coin'],
-    ['fun', 'Fun'],
-    ['games', 'Games'],
-    ['profile', 'User Profiles']
-  ])
-  .registerCommandsIn(path.join(__dirname, 'commands'));
-// set DB provider for persisting bot config
-client.setProvider(openCommandoDB().then((db) => new Commando.SQLiteProvider(db))).catch(console.error);
-
->>>>>>> 74111f0 (Add user profile customizations (#173))
 export const startBot = async (): Promise<void> => {
   client.on('error', client.logger.error);
 

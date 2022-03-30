@@ -1,8 +1,9 @@
-import { Message, MessageEmbed, User } from 'discord.js';
-import { CommandoClient, CommandoMessage } from 'discord.js-commando';
+import { Message, MessageEmbed } from 'discord.js';
+import { Args, Command, CommandOptions } from '@sapphire/framework';
+import { ApplyOptions } from '@sapphire/decorators';
 import { UserProfile, getUserProfileById } from '../../components/profile';
 import { getCoinBalanceByUserId } from '../../components/coin';
-import { BaseCommand } from '../../utils/commands';
+import { BOT_PREFIX } from '../../bot';
 
 enum prettyProfileDetails {
   about_me = 'About Me',
@@ -13,30 +14,19 @@ enum prettyProfileDetails {
   year = 'Year',
   faculty = 'Faculty',
   program = 'Program',
+  specialization = 'Specialization',
   last_updated = 'Last Updated'
 }
 
-class UserProfileCommand extends BaseCommand {
-  constructor(client: CommandoClient) {
-    super(client, {
-      name: 'profile',
-      aliases: ['profile-about', 'userabout', 'aboutuser'],
-      group: 'profile',
-      memberName: 'about',
-      description: 'Shows the user profile',
-      examples: [`${client.commandPrefix}profile-about @Codey`, `${client.commandPrefix}userabout @Codey`],
-      args: [
-        {
-          key: 'user',
-          prompt: 'tag the user you want to check.',
-          type: 'user'
-        }
-      ]
-    });
-  }
-
-  async onRun(message: CommandoMessage, args: { user: User }): Promise<Message> {
-    const { user } = args;
+@ApplyOptions<CommandOptions>({
+  aliases: ['profile-about', 'userabout', 'aboutuser'],
+  description: 'Shows the user profile',
+  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}profile-about @Codey\`\n\`${BOT_PREFIX}userabout @Codey\``,
+})
+export class UserProfileCommand extends Command {
+  async messageRun(message: Message, args: Args): Promise<Message> {
+    const user = await args.rest('user').catch(() => 'please enter a valid user mention or ID to check their profile.');
+    if (typeof user === 'string') return message.reply(user);
     // get user profile if exists
     const profileDetails: UserProfile | undefined = await getUserProfileById(user.id);
     if (!profileDetails) {
@@ -54,15 +44,15 @@ class UserProfileCommand extends BaseCommand {
         if (val && !notDisplay.includes(key)) {
           // iterate through each of the configurations, prettyProfileDetails making the configuration more readable
           // as opposed to snake case
-          profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val);
+          // need to cast val to string since addField does not take in numbers
+          profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val.toString());
         }
       }
       // add codeycoins onto the fields as well
-      const userCoins = await getCoinBalanceByUserId(user.id);
+      const userCoins = (await getCoinBalanceByUserId(user.id)).toString();
       profileDisplay.addField('Codeycoins', userCoins);
-      return message.channel.send(profileDisplay);
+      return message.channel.send({ embeds: [profileDisplay]});
     }
   }
 }
 
-export default UserProfileCommand;

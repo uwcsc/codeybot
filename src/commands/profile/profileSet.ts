@@ -1,48 +1,32 @@
 import { Message } from 'discord.js';
-import { CommandoClient, CommandoMessage } from 'discord.js-commando';
+import { Args, Command, CommandOptions } from '@sapphire/framework'
+import { ApplyOptions } from '@sapphire/decorators'
 import { editUserProfileById, UserProfile, validUserCustomization, configMaps } from '../../components/profile';
-import { BaseCommand } from '../../utils/commands';
+import { BOT_PREFIX } from '../../bot';
 
-class UserProfileSetCommand extends BaseCommand {
-  constructor(client: CommandoClient) {
-    super(client, {
-      name: 'profile-set',
-      aliases: ['setp'],
-      group: 'profile',
-      memberName: 'set',
-      description: `Set your user profile.`,
-      args: [
-        {
-          key: 'customization',
-          prompt: `enter one of **${(Object.keys(configMaps) as Array<keyof typeof configMaps>).map(
-            (key) => ' ' + key
-          )}**`,
-          type: 'string'
-        },
-        {
-          key: 'description',
-          prompt: `What would you like to set it as?`,
-          type: 'string'
-        }
-      ],
-      examples: [`${client.commandPrefix}profile-set`, `${client.commandPrefix}setp`]
-    });
-  }
-
-  async onRun(
-    message: CommandoMessage,
-    args: { customization: keyof typeof configMaps; description: string }
+@ApplyOptions<CommandOptions>({
+  aliases: ['setp'],
+  description: 'Set your user profile.',
+  detailedDescription: `**Examples**\n\`${BOT_PREFIX}profile-set\`\n\`${BOT_PREFIX}setp\``
+})
+export class UserProfileSetCommand extends Command {
+  async messageRun(
+    message: Message,
+    args: Args
   ): Promise<Message> {
     const { author } = message;
-    const { customization, description } = args;
+    const customization = <keyof typeof configMaps> await args.pick('string').catch(() => `please enter a valid customization. `)
+    const description = await args.rest('string').catch(() => false)
+    if (typeof description === 'boolean'){
+      return message.reply("Please enter a description.")
+    }
     const { reason, parsedDescription } = validUserCustomization(customization, description);
     if (reason == 'valid') {
       editUserProfileById(author.id, { [configMaps[customization]]: parsedDescription } as UserProfile);
       return message.reply(`${customization} has been set!`);
     }
-    const messagePrefix = 'Invalid description, please try again. Reason: ';
+    const messagePrefix = 'Invalid arguments, please try again. Reason: ';
     return message.reply(messagePrefix + reason);
   }
 }
 
-export default UserProfileSetCommand;
