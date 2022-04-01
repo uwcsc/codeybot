@@ -1,9 +1,9 @@
-import { Message, DMChannel } from 'discord.js';
-import { applyBonusByUserId } from './coin';
-import { client } from '../bot';
-import { logError } from './logger';
-import { sendKickEmbed } from '../utils/embeds';
+import { ApplyOptions } from '@sapphire/decorators';
+import { container, Listener } from '@sapphire/framework';
+import { Message } from 'discord.js';
+import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
+import { sendKickEmbed } from '../utils/embeds';
 
 const HONEYPOT_CHANNEL_ID: string = vars.HONEYPOT_CHANNEL_ID;
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
@@ -21,8 +21,8 @@ const detectSpammersAndTrollsNotByHoneypot = (message: Message): boolean => {
   return (
     pingWords.some((word) => message.content.includes(word)) &&
     punishableWords.some((word) => message.content.toLowerCase().includes(word)) &&
-    !(message.channel instanceof DMChannel) &&
-    message.channel.permissionsFor(message.channel.guild.roles.everyone)!.has('VIEW_CHANNEL') &&
+    message.channel.type !== 'DM' &&
+    message.channel.permissionsFor(message.channel.guild.roles.everyone).has('VIEW_CHANNEL') &&
     message.channel.id !== ANNOUNCEMENTS_CHANNEL_ID
   );
 };
@@ -32,6 +32,7 @@ const detectSpammersAndTrollsNotByHoneypot = (message: Message): boolean => {
  * Return true if someone of this kind is detected, false otherwise
  */
 const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
+  const { logger } = container;
   if (detectSpammersAndTrollsNotByHoneypot(message) || message.channel.id === HONEYPOT_CHANNEL_ID) {
     // Delete the message, and if the user is still in the server, then kick them and log it
     await message.delete();
@@ -43,7 +44,10 @@ const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
         await message.member.kick(reason);
       } catch (err) {
         isSuccessful = false;
-        logError(err as Error);
+        logger.error({
+          event: 'client_error',
+          error: (err as Error).toString()
+        });
       }
       await sendKickEmbed(message, user, reason, isSuccessful);
     }
@@ -52,22 +56,29 @@ const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
   return false;
 };
 
-export const messageListener = async (message: Message): Promise<void> => {
-  if (!client.user) {
-    return;
-  }
+@ApplyOptions<Listener.Options>({
+  event: 'messageCreate'
+})
+export class MessageCreateListener extends Listener {
+  async run(message: Message): Promise<void> {
+    const { client } = container;
 
-  // Ignore all messages created by the bot itself
-  if (message.author.id === client.user.id) {
-    return;
-  }
+    if (!client.user) {
+      return;
+    }
 
-  if (await punishSpammersAndTrolls(message)) {
-    return;
-  }
+    // Ignore all messages created by the bot itself
+    if (message.author.id === client.user.id) {
+      return;
+    }
 
-  // Ignore DMs; include channels of type TextChannel (regular text channel) and NewsChannel (announcements channel)
-  if (!(message.channel instanceof DMChannel)) {
-    await applyBonusByUserId(message.author.id);
+    if (await punishSpammersAndTrolls(message)) {
+      return;
+    }
+
+    // Ignore DMs; include announcements, thread, and regular text channels
+    if (message.channel.type !== 'DM') {
+      await applyBonusByUserId(message.author.id);
+    }
   }
-};
+}

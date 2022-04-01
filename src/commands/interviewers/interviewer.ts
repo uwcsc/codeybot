@@ -159,7 +159,6 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     // get calendar URL from the 1st capture group
     const calendarUrl = args.next();
     const { id } = message.author;
-    console.log('test' + calendarUrl);
     //parses link and checks for validity
     const parsedUrl = parseLink(calendarUrl);
     if (!parsedUrl) {
