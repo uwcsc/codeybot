@@ -1,11 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { container, LogLevel, SapphireClient, SapphirePrefix } from '@sapphire/framework';
 import '@sapphire/plugin-logger/register';
 import * as colorette from 'colorette';
 import { inspect } from 'util';
-import { LogLevel, SapphireClient } from '@sapphire/framework';
-export const BOT_PREFIX = '.';
 
 // Set default inspection depth
 inspect.defaultOptions.depth = 2;
@@ -13,8 +12,8 @@ inspect.defaultOptions.depth = 2;
 // Enable colorette
 colorette.createColors({ useColor: true });
 
-export const client = new SapphireClient({
-  defaultPrefix: BOT_PREFIX,
+const client = new SapphireClient({
+  defaultPrefix: '.',
   caseInsensitiveCommands: true,
   logger: {
     level: LogLevel.Debug
@@ -33,8 +32,17 @@ export const client = new SapphireClient({
   ]
 });
 
+container.botPrefix = client.options.defaultPrefix!;
+
 export const startBot = async (): Promise<void> => {
   client.on('error', client.logger.error);
 
   client.login();
 };
+
+// Augment Container to have the botPrefix property, since container.botPrefix is shorter than container.client.options.defaultPrefix
+declare module '@sapphire/pieces' {
+  interface Container {
+    botPrefix: SapphirePrefix;
+  }
+}
