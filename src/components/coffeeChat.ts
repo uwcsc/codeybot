@@ -1,8 +1,8 @@
-import { SapphireClient } from '@sapphire/framework';
-import { openDB } from './db';
+import { container } from '@sapphire/framework';
 import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
 import { vars } from '../config';
+import { openDB } from './db';
 
 const COFFEE_ROLE_ID: string = vars.COFFEE_ROLE_ID;
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
@@ -21,9 +21,9 @@ interface historic_match {
  * Does NOT save this match to history; must call writeHistoricMatches to "confirm" this matching happened
  * Returns a potential single chatter in the single field, null otherwise
  */
-export const getMatch = async (client: SapphireClient): Promise<string[][]> => {
+export const getMatch = async (): Promise<string[][]> => {
   //get list of users and their historic chat history
-  const userList = await loadCoffeeChatUsers(client);
+  const userList = await loadCoffeeChatUsers();
   const matched = await loadMatched(userList);
   //generate one week of matches, and updates match freq tables accordingly
   const matches = stableMatch(userList, matched);
@@ -35,7 +35,8 @@ export const getMatch = async (client: SapphireClient): Promise<string[][]> => {
  * Returns a mapping of string -> int, where string is their ID, while int is an index assigned to the ID
  * The index is used in place of the ID for match tallying
  */
-const loadCoffeeChatUsers = async (client: SapphireClient): Promise<Map<string, number>> => {
+const loadCoffeeChatUsers = async (): Promise<Map<string, number>> => {
+  const { client } = container;
   //gets list of users with the coffee chat role
   const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
     ?.filter((member) => member.roles.cache.has(COFFEE_ROLE_ID))
@@ -104,14 +105,14 @@ export const writeHistoricMatches = async (newMatches: string[][]): Promise<void
 };
 
 /*
- * matching algorithm leveraging stable marriage
- * takes in the users and their historical match data
+ * Matching algorithm leveraging stable marriage
+ * Takes in the users and their historical match data
  * Returns a round of match results based on this algorithm:
- * 1. Separate users randomly into 2 even sections, removing 1 user if list size is odd
- * 2. build a preference list for each user, sorted by how little they have chatted with each user
- * in the other section (fewest chatted user comes first, then second, etc)
+ * 1. Separate users randomly into 2 even sections, duplicating 1 user if list size is odd
+ * 2. Build a preference list for each user, sorted by how little they have chatted with each user
+ * in the other section (fewest chatted user comes first, then second, etc.)
  * 3. Run the stable marriage library with the 2 sections and their preferences
- * 4. Test this output to a finalOutput; If contender has a lower MaxDupe than the final, overwrite final
+ * 4. Test this output to a finalOutput; if contender has a lower maxDupe than the final, overwrite final
  * 5. Run 1-4 RANDOM_ITERATIONS times; every time an overwrite occurs, restart the iteration count
  * Return finalOutput
  */
@@ -127,7 +128,7 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
     if (A.length < B.length) {
       A.push(new Person(notMatched[Math.floor(Math.random() * Math.floor(notMatched.length / 2))]));
     }
-    //generates comparator attacher for both "genders" which prioritizes user with less chats than the subject
+    //generates comparator attacher for both "genders" which prioritizes user that has less chats with the subject
     //stable marriage function is written in JS, no type declarations :/
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const generateComparators = (left: any[], right: any[]) => {
@@ -151,7 +152,7 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
     for (const person of A) {
       output.push([person.name, person.fiance.name]);
     }
-    //compare with finaloutput's max Dupe count, overwrite is contender's is lower
+    //compare with finalOutput's maxDupe count, overwrite if contender's is lower
     if (!finalOutput || getMaxDupe(matched, finalOutput, userList) > getMaxDupe(matched, output, userList)) {
       i = 0;
       finalOutput = output;
@@ -164,7 +165,7 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
 /*
  * Matching algo (not really an algo) leveraging random matches
  * Returns a round of match results
- * Optimizes by MaxDupe for RANDOM_ITERATION number of times; counter refreshed on valid optimization
+ * Optimizes by maxDupe for RANDOM_ITERATION number of times; counter refreshed on valid optimization
  */
 const randomMatch = (userList: Map<string, number>, matched: number[][]): string[][] => {
   let finalOutput: string[][] | undefined = undefined;
@@ -202,7 +203,7 @@ export const testPerformance = async (testSize: number): Promise<Map<string, num
   let matched: number[][] = new Array(testSize).fill(0).map(() => new Array(testSize).fill(0));
   let tally = 0;
   while (true) {
-    //run an algo, udpate match tallies, then see if a dupe was created
+    //run an algo, update match tallies, then see if a dupe was created
     const matches = stableMatch(userList, matched);
     for (const pair of matches) {
       matched[userList.get(pair[0])!][userList.get(pair[1])!]++;
