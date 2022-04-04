@@ -1,13 +1,15 @@
-import { Message } from 'discord.js';
-import { Command, CommandOptions } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { Command, CommandOptions, container } from '@sapphire/framework';
+import { Message } from 'discord.js';
 import { getCoinBalanceByUserId } from '../../components/coin';
-import { BOT_PREFIX } from '../../bot';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['bal', 'balance', 'coins', 'coin-balance'],
   description: 'Shows your Codey coin balance.',
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}coin\`\n\`${BOT_PREFIX}bal\`\n\`${BOT_PREFIX}balance\``
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}coin\`\n
+  \`${container.botPrefix}bal\`\n
+  \`${container.botPrefix}balance\``
 })
 export class CoinBalanceCommand extends Command {
   async messageRun(message: Message): Promise<Message> {

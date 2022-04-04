@@ -1,13 +1,14 @@
-import { Message } from 'discord.js';
-import { Args, Command, CommandOptions } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { Args, Command, CommandOptions, container } from '@sapphire/framework';
+import { Message } from 'discord.js';
 import { getCoinBalanceByUserId } from '../../components/coin';
-import { BOT_PREFIX } from '../../bot';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['cc', 'coin-balance-check', 'coin-check'],
   description: "Checks a user's Codey coin balance.",
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}coin-check @Codey\`\n\`${BOT_PREFIX}cc @Codey\``
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}coin-check @Codey\`\n
+  \`${container.botPrefix}cc @Codey\``
 })
 export class CoinCheck extends Command {
   async messageRun(message: Message, args: Args): Promise<Message> {

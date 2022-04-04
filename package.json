@@ -20,7 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "@sapphire/decorators": "^4.2.3",
-    "@sapphire/framework": "^2.4.0",
+    "@sapphire/framework": "^2.4.1",
     "@sapphire/plugin-logger": "^2.1.3",
     "@sapphire/plugin-subcommands": "^2.1.3",
     "@sapphire/utilities": "^3.3.0",

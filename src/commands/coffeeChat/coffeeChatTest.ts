@@ -1,14 +1,15 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { Args, Command, CommandOptions } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { Args, Command, CommandOptions, container } from '@sapphire/framework';
+import { Message, MessageEmbed } from 'discord.js';
 import { testPerformance } from '../../components/coffeeChat';
 import { EMBED_COLOUR } from '../../utils/embeds';
-import { BOT_PREFIX } from '../../bot';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['coffee-test', 'coffeetest', 'coffee-chat-test'],
   description: 'Tests coffeechatmatch, displaying the number of rounds before there is a duplicate.',
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}coffeetest 10\``,
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}coffeechattest 5\`\n
+  \`${container.botPrefix}coffeetest 10\``,
   requiredUserPermissions: ['ADMINISTRATOR']
 })
 export class CoffeeChatTestCommand extends Command {
