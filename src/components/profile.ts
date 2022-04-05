@@ -97,7 +97,7 @@ export const validUserCustomization = (
       }
       break;
     case validatedFields.term:
-      let parsedDescription = description.toUpperCase();
+      parsedDescription = description.toUpperCase();
       if (parsedDescription === 'MASC') {
         parsedDescription = 'MASc';
       } else if (parsedDescription === 'PHD') {
