@@ -33,7 +33,6 @@
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "npm": "^8.6.0",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2",
     "stable-marriage": "^1.0.2",
