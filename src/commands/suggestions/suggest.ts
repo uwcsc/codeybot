@@ -42,10 +42,12 @@ export class SuggestCommand extends SubCommandPluginCommand {
         );
     }
 
-    async list(message: Message, args: { state: string}): Promise<Message> {
+    async list(message: Message, args: Args): Promise<Message> {
         const { id } = message.author;
-        const { state } = args;
-
+        const state = args.finished ? null : await (await args.rest('string')).toLowerCase();
+        //validate state
+        if ((state !== null) && !(state.toLowerCase() in suggestionStatesReadable))
+            return message.reply(`you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`);
         // query suggestions
         const suggestions = await getSuggestions(state);
         // only show up to page limit
@@ -62,8 +64,9 @@ export class SuggestCommand extends SubCommandPluginCommand {
         return message.channel.send({ embeds: [outEmbed] });
     }
 
-    async update(message: Message, args: { state: string; ids: string }): Promise<Message> {
-        const { state, ids } = args;
+    async update(message: Message, args: Args): Promise<Message> {
+        const state = await args.pick('string').catch(() => `please enter a valid suggestion state`);
+        const ids = await args.rest('string').catch(() => `please enter valid suggestion IDs`);
         const suggestionIds = ids.split(' ').map((a) => Number(a));
         //validate state
         if (!(state.toLowerCase() in suggestionStatesReadable))
