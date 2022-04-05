@@ -97,14 +97,11 @@ export const validUserCustomization = (
       }
       break;
     case validatedFields.term:
-      // MASc is the only term that is not full upper case
-      let checkDescription = description.toUpperCase()
-      if (checkDescription.toLowerCase() === 'MASC') {
+      let parsedDescription = description.toUpperCase();
+      if (parsedDescription === 'MASC') {
         parsedDescription = 'MASc';
-      } else if (checkDescription.toLowerCase() === 'PHD') {
+      } else if (parsedDescription === 'PHD') {
         parsedDescription = 'PhD';
-      } else {
-        parsedDescription = description.toUpperCase();
       }
       if (!validTerms.includes(parsedDescription)) {
         return { reason: 'Invalid term. Must be one of : ' + validTerms.join(', ') + '.' };
