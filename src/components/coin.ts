@@ -200,17 +200,20 @@ export const applyTimeBonus = async (userId: string, bonusType: BonusType): Prom
     return false; // type does not exist
   }
 
-  const lastBonusOccurence = await latestBonusByUserId(userId, bonusOfInterest.type);
+  const lastBonusOccurrence = await latestBonusByUserId(userId, bonusOfInterest.type);
   const nowTime = new Date().getTime();
   if (bonusOfInterest.cooldown === null) {
     throw 'Bonus does not have cooldown';
   }
   const cooldown = nowTime - bonusOfInterest.cooldown;
-  // lastBonusOccurenceTime either does not exist yet (set as -1), or is pulled from db
-  const lastBonusOccurenceTime = !lastBonusOccurence ? -1 : new Date(lastBonusOccurence['last_granted']).getTime();
+  // lastBonusOccurrenceTime either does not exist yet (set as -1), or is pulled from db
+  const lastBonusOccurrenceTime = !lastBonusOccurrence
+    ? -1
+    : new Date(lastBonusOccurrence['last_granted']).getTime() -
+      new Date(lastBonusOccurrence['last_granted']).getTimezoneOffset() * 60 * 1000; // convert minutes to milliseconds
 
   // TODO wrap operations in transaction
-  if (!lastBonusOccurence || lastBonusOccurenceTime < cooldown) {
+  if (!lastBonusOccurrence || lastBonusOccurrenceTime < cooldown) {
     await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount, bonusOfInterest.event);
     await updateUserBonusTableByUserId(userId, bonusType);
     return true; // bonus type is applied
