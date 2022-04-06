@@ -2,8 +2,8 @@ import type { ListenerOptions, Piece, PieceContext } from '@sapphire/framework';
 import { Listener, Store } from '@sapphire/framework';
 import { blue, gray, green, magenta, magentaBright, white, yellow } from 'colorette';
 import Discord from 'discord.js';
-import { initEmojis } from '../../components/emojis';
-import { vars } from '../../config';
+import { initEmojis } from '../components/emojis';
+import { vars } from '../config';
 
 const dev = process.env.NODE_ENV !== 'production';
 

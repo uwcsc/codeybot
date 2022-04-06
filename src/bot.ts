@@ -29,7 +29,8 @@ const client = new SapphireClient({
     'GUILD_MESSAGE_REACTIONS',
     'DIRECT_MESSAGES',
     'DIRECT_MESSAGE_REACTIONS'
-  ]
+  ],
+  partials: ['CHANNEL', 'GUILD_MEMBER', 'MESSAGE', 'REACTION', 'USER']
 });
 
 container.botPrefix = client.options.defaultPrefix!;
