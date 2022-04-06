@@ -2,7 +2,7 @@ import { Message, User } from 'discord.js';
 import { CommandoClient, CommandoMessage } from 'discord.js-commando';
 import { AdminCommand } from '../../utils/commands';
 import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
-// change for cache
+
 class CoinAdjustCommand extends AdminCommand {
   constructor(client: CommandoClient) {
     super(client, {
