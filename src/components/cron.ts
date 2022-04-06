@@ -1,4 +1,9 @@
-import { SuggestionState, getSuggestions, getSuggestionPrintout, updateSuggestionState } from './suggestions';
+import {
+  SuggestionState,
+  getSuggestions,
+  getSuggestionPrintout,
+  updateSuggestionState
+} from '../oldCode/components/suggestions';
 import { TextChannel, MessageEmbed } from 'discord.js';
 import { CommandoClient } from 'discord.js-commando';
 import { CronJob } from 'cron';
