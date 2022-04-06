@@ -1,25 +1,20 @@
-import { Message } from 'discord.js';
 import { ApplyOptions } from '@sapphire/decorators';
-import { Args, Command, CommandOptions } from '@sapphire/framework';
-import { BOT_PREFIX } from '../../bot';
+import { Command, CommandOptions, container } from '@sapphire/framework';
+import { Message } from 'discord.js';
 
 @ApplyOptions<CommandOptions>({
   aliases: ['fc', 'flip', 'flip-coin', 'coin-flip', 'coinflip'],
   description: 'Flip a coin! In making decisions, if it is not great, at least it is fair!',
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}flip-coin\`\n
-  \`${BOT_PREFIX}fc\`\n
-  \`${BOT_PREFIX}flip\`\n
-  \`${BOT_PREFIX}coin-flip\`\n
-  \`${BOT_PREFIX}coinflip\`\n
-  \`${BOT_PREFIX}flipcoin\`
-  `
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}flip-coin\`\n
+  \`${container.botPrefix}fc\`\n
+  \`${container.botPrefix}flip\`\n
+  \`${container.botPrefix}coin-flip\`\n
+  \`${container.botPrefix}coinflip\`\n
+  \`${container.botPrefix}flipcoin\``
 })
 export class FunFlipCoinCommand extends Command {
-  async messageRun(message: Message, args: Args): Promise<Message> {
-    //Argument enforcement
-    if (!args.finished) {
-      return message.reply("`flipcoin` doesn't take any parameters");
-    }
+  async messageRun(message: Message): Promise<Message> {
     const onHeads = Math.random() < 0.5;
     return message.reply(`The coin landed on **${onHeads ? 'heads' : 'tails'}**!`);
   }

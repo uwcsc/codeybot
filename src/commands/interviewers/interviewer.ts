@@ -1,7 +1,9 @@
+import { ApplyOptions } from '@sapphire/decorators';
+import { Args, container } from '@sapphire/framework';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
-import type { Args } from '@sapphire/framework';
 import { Message, MessageEmbed } from 'discord.js';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import _ from 'lodash';
+import { getEmojiByName } from '../../components/emojis';
 import {
   availableDomains,
   clearProfile,
@@ -18,17 +20,16 @@ import {
   toggleDomain,
   upsertInterviewer
 } from '../../components/interview';
-import { BOT_PREFIX } from '../../bot';
-import { getEmojiByName } from '../../components/emojis';
-import _ from 'lodash';
-import { ApplyOptions } from '@sapphire/decorators';
+import { EMBED_COLOUR } from '../../utils/embeds';
 
 const RESULTS_PER_PAGE = 6;
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['interviewers'],
   description: 'Handles interviewer functions',
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}interviewer frontend\``,
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}interviewer\`\n
+  \`${container.botPrefix}interviewer frontend\``,
   subCommands: ['clear', 'domain', 'pause', 'profile', 'resume', 'signup', { input: 'list', default: true }]
 })
 export class InterviewerCommand extends SubCommandPluginCommand {
@@ -38,7 +39,7 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
       return message.reply(
-        `you don't seem to have signed up yet, please sign up using \`${BOT_PREFIX}interviewer signup <calendarUrl>\`!`
+        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`
       );
     }
 
@@ -55,7 +56,7 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
       return message.reply(
-        `you don't seem to have signed up yet, please sign up using \`${BOT_PREFIX}interviewer signup <calendarUrl>\`!`
+        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`
       );
     }
 
@@ -74,14 +75,14 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
       return message.reply(
-        `you don't seem to have signed up yet, please sign up using \`${BOT_PREFIX}interviewer signup <calendarUrl>\`!`
+        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`
       );
     }
 
     // pause interviewer data
     await pauseProfile(id);
     return message.reply(
-      `your interviewer profile has been paused! You will not appear in interviewer queries anymore, until you run \`${BOT_PREFIX}interviewer resume\`.`
+      `your interviewer profile has been paused! You will not appear in interviewer queries anymore, until you run \`${container.botPrefix}interviewer resume\`.`
     );
   }
 
@@ -92,7 +93,7 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     const interviewer = await getInterviewer(id);
     if (!interviewer) {
       return message.reply(
-        `you don't seem to have signed up yet, please sign up using \`${BOT_PREFIX}interviewer signup <calendarUrl>\`!`
+        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`
       );
     }
 
@@ -112,7 +113,7 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
       return message.reply(
-        `you don't seem to have signed up yet, please sign up using \`${BOT_PREFIX}interviewer signup <calendarUrl>\`!`
+        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`
       );
     }
 
@@ -122,7 +123,8 @@ export class InterviewerCommand extends SubCommandPluginCommand {
   }
 
   private async getInterviewerDisplayInfo(interviewer: Interviewer) {
-    const user = await this.container.client.users.fetch(interviewer['user_id']);
+    const { client } = container;
+    const user = await client.users.fetch(interviewer['user_id']);
     const userDomainsAddIn = await getInterviewerDomainsString(interviewer['user_id']);
     if (userDomainsAddIn === '') {
       return `${user} | [Calendar](${interviewer['link']})\n\n`;

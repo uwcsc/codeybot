@@ -1,22 +1,21 @@
-import { Command } from '@sapphire/framework';
+import { ApplyOptions } from '@sapphire/decorators';
+import { Command, CommandOptions, container } from '@sapphire/framework';
 import type { Message } from 'discord.js';
 
+@ApplyOptions<CommandOptions>({
+  aliases: ['pong'],
+  description: 'ping pong',
+  detailedDescription: `**Examples:**\n
+  \`${container.botPrefix}ping\`\n
+  \`${container.botPrefix}pong\``
+})
 export class PingCommand extends Command {
-  public constructor(context: Command.Context, options: Command.Options) {
-    super(context, {
-      ...options,
-      aliases: ['pong'],
-      description: 'ping pong'
-    });
-  }
-
-  public async messageRun(message: Message): Promise<Message> {
+  async messageRun(message: Message): Promise<Message> {
+    const { client } = container;
     const msg = await message.channel.send('Ping?');
-
-    const content = `Pong from JavaScript! Bot Latency ${Math.round(this.container.client.ws.ping)}ms. API Latency ${
+    const content = `Pong from JavaScript! Bot Latency ${Math.round(client.ws.ping)}ms. API Latency ${
       msg.createdTimestamp - message.createdTimestamp
     }ms.`;
-
     return msg.edit(content);
   }
 }
