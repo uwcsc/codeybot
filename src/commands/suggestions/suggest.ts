@@ -11,12 +11,11 @@ const RESULTS_PER_PAGE = 15;
 @ApplyOptions<SubCommandPluginCommandOptions>({
     aliases: ['suggestions'],
     description: 'Handles suggestion functions',
-    detailedDescription: `This command will forward a suggestion to the CSC Discord Mods.\n
-    Please note that your suggestion is not anonymous, your Discord username and ID will be recorded.\n
+    detailedDescription: `This command will forward a suggestion to the CSC Discord Mods. \
+    Please note that your suggestion is not anonymous, your Discord username and ID will be recorded. \
     If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.\n
-    **Examples:**
+    **Examples:**\n
     \`${container.botPrefix}suggestion I want a new discord channel named #hobbies\``,
-    subCommands: ['list', 'update', { input: 'create', default: true }]
 })
 
 export class SuggestCommand extends SubCommandPluginCommand {
