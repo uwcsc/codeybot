@@ -1,19 +1,5 @@
 import { openDB } from './db';
 
-// since interfaces are for compile time there is no easy way to extract keys
-// so this userProfileKeys is needed
-export const userProfileKeys = [
-  'about_me',
-  'birth_date',
-  'preferred_name',
-  'preferred_pronouns',
-  'term',
-  'year',
-  'faculty',
-  'program',
-  'specialization'
-];
-
 export interface UserProfile {
   about_me?: string;
   birth_date?: string;
@@ -27,7 +13,7 @@ export interface UserProfile {
 }
 
 const validFaculties = ['Mathematics', 'Engineering', 'Arts', 'Health', 'Science'];
-const validTerms: string[] = ['1A', '1B', '2A', '2B', '3A', '3B', '4A', '4B', 'MASc', 'PHD', 'Alumni', 'Professor'];
+const validTerms: string[] = ['1A', '1B', '2A', '2B', '3A', '3B', '4A', '4B', 'MASc', 'PhD', 'Alumni', 'Professor'];
 const yearStart = 1900;
 const yearEnd = new Date().getFullYear() + 7;
 
@@ -85,15 +71,17 @@ enum validatedFields {
   year = 'year'
 }
 
+export const validCustomizations = `${(Object.keys(configMaps) as Array<keyof typeof configMaps>).map(
+  (key) => ' ' + key
+)}`;
+
 export const validUserCustomization = (
   customization: keyof typeof configMaps,
   description: string
 ): userCustomization => {
   if (!(Object.keys(configMaps) as Array<keyof typeof configMaps>).includes(customization)) {
     return {
-      reason: `Invalid customization selection. Must be one of **${(Object.keys(configMaps) as Array<
-        keyof typeof configMaps
-      >).map((key) => ' ' + key)}**`
+      reason: `Invalid customization selection. Must be one of**${validCustomizations}**`
     };
   }
   let parsedDescription = description;
@@ -109,11 +97,11 @@ export const validUserCustomization = (
       }
       break;
     case validatedFields.term:
-      // MASc is the only term that is not full upper case
-      if (description.toLowerCase() === 'masc') {
+      parsedDescription = description.toUpperCase();
+      if (parsedDescription === 'MASC') {
         parsedDescription = 'MASc';
-      } else {
-        parsedDescription = description.toUpperCase();
+      } else if (parsedDescription === 'PHD') {
+        parsedDescription = 'PhD';
       }
       if (!validTerms.includes(parsedDescription)) {
         return { reason: 'Invalid term. Must be one of : ' + validTerms.join(', ') + '.' };
@@ -128,6 +116,9 @@ export const validUserCustomization = (
       if (parseInt(parsedDescription) < yearStart || parseInt(parsedDescription) > yearEnd) {
         return { reason: 'Invalid year. Must be between: ' + yearStart + ' and ' + yearEnd + '.' };
       }
+      break;
+    default:
+      parsedDescription = description;
       break;
   }
   return { reason: 'valid', parsedDescription };
@@ -144,9 +135,9 @@ export const editUserProfileById = async (userId: string, data: UserProfile): Pr
   const db = await openDB();
   // check if a user exists in the user_profile_table already
   const res = await db.get(`SELECT COUNT(*) as found FROM user_profile_table where user_id = ?`, userId);
-  const user = res.found == 1;
+  const user = res;
   let query;
-  if (user) {
+  if (user.found === 1) {
     query = `UPDATE user_profile_table SET last_updated=CURRENT_DATE, `;
     for (const [customization, description] of Object.entries(data)) {
       // will set that one extra field equal to the description provided

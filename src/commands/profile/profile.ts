@@ -1,42 +1,41 @@
-import { Message, MessageEmbed, User } from 'discord.js';
-import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import { UserProfile, getUserProfileById } from '../../components/profile';
+import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
+import { Message, MessageEmbed } from 'discord.js';
+import { Args, Command, CommandOptions } from '@sapphire/framework';
+import { ApplyOptions } from '@sapphire/decorators';
+import {
+  UserProfile,
+  getUserProfileById,
+  editUserProfileById,
+  validUserCustomization,
+  validCustomizations,
+  configMaps
+} from '../../components/profile';
 import { getCoinBalanceByUserId } from '../../components/coin';
-import { BaseCommand } from '../../utils/commands';
+import { BOT_PREFIX } from '../../bot';
+import { EMBED_COLOUR } from '../../utils/embeds';
 
-enum prettyProfileDetails {
-  about_me = 'About Me',
-  birth_date = 'Birth Date',
-  preferred_name = 'Preferred Name',
-  preferred_pronouns = 'Preferred Pronouns',
-  term = 'Term',
-  year = 'Year',
-  faculty = 'Faculty',
-  program = 'Program',
-  last_updated = 'Last Updated'
-}
-
-class UserProfileCommand extends BaseCommand {
-  constructor(client: CommandoClient) {
-    super(client, {
-      name: 'profile',
-      aliases: ['profile-about', 'userabout', 'aboutuser'],
-      group: 'profile',
-      memberName: 'about',
-      description: 'Shows the user profile',
-      examples: [`${client.commandPrefix}profile-about @Codey`, `${client.commandPrefix}userabout @Codey`],
-      args: [
-        {
-          key: 'user',
-          prompt: 'tag the user you want to check.',
-          type: 'user'
-        }
-      ]
-    });
-  }
-
-  async onRun(message: CommandoMessage, args: { user: User }): Promise<Message> {
-    const { user } = args;
+@ApplyOptions<SubCommandPluginCommandOptions>({
+  aliases: ['profile'],
+  description: 'Handles user profile functions',
+  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}profile @Codey\``,
+  subCommands: ['about', 'set', { input: 'list', default: true }]
+})
+export class ProfileCommand extends SubCommandPluginCommand {
+  public async about(message: Message, args: Args): Promise<Message> {
+    enum prettyProfileDetails {
+      about_me = 'About Me',
+      birth_date = 'Birth Date',
+      preferred_name = 'Preferred Name',
+      preferred_pronouns = 'Preferred Pronouns',
+      term = 'Term',
+      year = 'Year',
+      faculty = 'Faculty',
+      program = 'Program',
+      specialization = 'Specialization',
+      last_updated = 'Last Updated'
+    }
+    const user = await args.rest('user').catch(() => 'please enter a valid user mention or ID to check their profile.');
+    if (typeof user === 'string') return message.reply(user);
     // get user profile if exists
     const profileDetails: UserProfile | undefined = await getUserProfileById(user.id);
     if (!profileDetails) {
@@ -46,7 +45,7 @@ class UserProfileCommand extends BaseCommand {
       const notDisplay = ['user_id'];
       const profileDisplay = new MessageEmbed().setTitle(`${user.username}'s profile`);
       // setting profile colour might not be useful, but we should leave it to a separate discussion/ticket
-      profileDisplay.setColor('GREEN');
+      profileDisplay.setColor(EMBED_COLOUR);
       if (user.avatar) {
         profileDisplay.setImage(user.displayAvatarURL());
       }
@@ -54,15 +53,33 @@ class UserProfileCommand extends BaseCommand {
         if (val && !notDisplay.includes(key)) {
           // iterate through each of the configurations, prettyProfileDetails making the configuration more readable
           // as opposed to snake case
-          profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val);
+          // need to cast val to string since addField does not take in numbers
+          profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val.toString());
         }
       }
       // add codeycoins onto the fields as well
-      const userCoins = await getCoinBalanceByUserId(user.id);
-      profileDisplay.addField('Codeycoins', userCoins);
-      return message.channel.send(profileDisplay);
+      const userCoins = (await getCoinBalanceByUserId(user.id)).toString();
+      profileDisplay.addField('Codey Coins', userCoins);
+      return message.channel.send({ embeds: [profileDisplay] });
     }
   }
-}
 
-export default UserProfileCommand;
+  public async set(message: Message, args: Args): Promise<Message> {
+    const { author } = message;
+    const customization = <keyof typeof configMaps>await args.pick('string').catch(() => false);
+    if (typeof customization === 'boolean') {
+      return message.reply(`Please enter a customization. Must be one of**${validCustomizations}**`);
+    }
+    const description = await args.rest('string').catch(() => false);
+    if (typeof description === 'boolean') {
+      return message.reply('Please enter a description.');
+    }
+    const { reason, parsedDescription } = validUserCustomization(customization, description);
+    if (reason === 'valid') {
+      editUserProfileById(author.id, { [configMaps[customization]]: parsedDescription } as UserProfile);
+      return message.reply(`${customization} has been set!`);
+    }
+    const messagePrefix = 'Invalid arguments, please try again. Reason: ';
+    return message.reply(messagePrefix + reason);
+  }
+}
