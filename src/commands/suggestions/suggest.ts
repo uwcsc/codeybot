@@ -16,6 +16,7 @@ const RESULTS_PER_PAGE = 15;
     If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.\n
     **Examples:**\n
     \`${container.botPrefix}suggestion I want a new discord channel named #hobbies\``,
+    subCommands: ['list', 'update', { input: 'create', default: true }]
 })
 
 export class SuggestCommand extends SubCommandPluginCommand {
