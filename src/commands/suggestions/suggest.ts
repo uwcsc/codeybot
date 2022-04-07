@@ -6,14 +6,14 @@ import { addSuggestion, getSuggestions, suggestionStatesReadable, SuggestionStat
 import { EMBED_COLOUR } from '../../utils/embeds';
 import _ from 'lodash';
 
-const RESULTS_PER_PAGE = 6;
+const RESULTS_PER_PAGE = 15;
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
     aliases: ['suggestions'],
     description: 'Handles suggestion functions',
-    detailedDescription: `This command will forward a suggestion to the CSC executives. \
-    Please note that your suggestion is not anonymous, your Discord username and ID will be recorded. \
-    If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead. \
+    detailedDescription: `This command will forward a suggestion to the CSC Discord Mods. \n
+    Please note that your suggestion is not anonymous, your Discord username and ID will be recorded. \n
+    If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead. \n
     **Examples:**\n
     \`${container.botPrefix}suggestion I want a new discord channel named #hobbies\`\n`,
     subCommands: ['list', 'update', { input: 'create', default: true }]
@@ -32,13 +32,9 @@ export class SuggestCommand extends SubCommandPluginCommand {
 
     private async getSuggestionDisplayInfo(suggestion: Suggestion) {
         return (
-          '**' +
-          suggestion['id'] +
-          '** | ' +
-          suggestionStatesReadable[suggestion['state']] +
-          ' | ' +
-          suggestion['suggestion'] +
-          '\n\n'
+            `**${suggestion['id']}** | ${
+          suggestionStatesReadable[suggestion['state']]} | ${
+          suggestion['suggestion']}\n\n`
         );
     }
 
