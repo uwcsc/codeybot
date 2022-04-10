@@ -4,6 +4,7 @@ import { blue, gray, green, magenta, magentaBright, white, yellow } from 'colore
 import Discord from 'discord.js';
 import { initEmojis } from '../components/emojis';
 import { vars } from '../config';
+import { createSuggestionCron, createBonusInterviewerListCron } from '../components/cron';
 
 const dev = process.env.NODE_ENV !== 'production';
 
@@ -23,7 +24,13 @@ export class ReadyListener extends Listener {
     this.printBanner();
     this.printStoreDebugInformation();
     this.sendReady();
+    this.initCrons();
     initEmojis();
+  };
+
+  initCrons = async (): Promise<void> => {
+    createSuggestionCron().start();
+    createBonusInterviewerListCron().start();
   };
 
   sendReady = async (): Promise<void> => {

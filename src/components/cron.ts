@@ -1,7 +1,7 @@
 import { SuggestionState, getSuggestions, getSuggestionPrintout, updateSuggestionState } from './suggestions';
 import { TextChannel, MessageEmbed } from 'discord.js';
-import { CommandoClient } from 'discord.js-commando';
 import { CronJob } from 'cron';
+import { container } from '@sapphire/framework';
 import { EMBED_COLOUR } from '../utils/embeds';
 import { getInterviewers } from './interview';
 import { coinBonusMap, BonusType, adjustCoinBalanceByUserId } from './coin';
@@ -11,8 +11,9 @@ import { vars } from '../config';
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 
 // Checks for new suggestions every min
-export const createSuggestionCron = (client: CommandoClient): CronJob =>
+export const createSuggestionCron = (): CronJob =>
   new CronJob('0 */1 * * * *', async function () {
+    const { client } = container;
     const createdSuggestions = await getSuggestions(SuggestionState.Created);
     const createdSuggestionIds = createdSuggestions.map((a) => Number(a.id));
     if (!_.isEmpty(createdSuggestionIds)) {
@@ -20,12 +21,12 @@ export const createSuggestionCron = (client: CommandoClient): CronJob =>
 
       if (!messageChannel) {
         throw 'Bad channel ID';
-      } else if (messageChannel.type === 'text') {
+      } else if (messageChannel.type === 'GUILD_TEXT') {
         // construct embed for display
         const output = await getSuggestionPrintout(createdSuggestions);
         const title = 'New Suggestions';
         const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title).setDescription(output);
-        (messageChannel as TextChannel).send(outEmbed);
+        (messageChannel as TextChannel).send({ embeds: [outEmbed] });
         // Update states
         await updateSuggestionState(createdSuggestionIds);
       } else {

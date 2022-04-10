@@ -84,4 +84,3 @@ export const getSuggestions = async (state: string | null): Promise<Suggestion[]
 
   return res;
 };
-
