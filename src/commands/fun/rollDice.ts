@@ -6,14 +6,14 @@ import { isInteger } from 'lodash';
 @ApplyOptions<CommandOptions>({
   aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
   description: 'Roll a dice!',
-  detailedDescription: `**Examples:**\n
-  \`${container.botPrefix}roll-dice 6\`\n
-  \`${container.botPrefix}dice-roll 30\`\n
-  \`${container.botPrefix}roll 100\`\n
-  \`${container.botPrefix}rd 4\`\n
-  \`${container.botPrefix}diceroll 2\`\n
-  \`${container.botPrefix}dice 1\`\n
-  \`${container.botPrefix}rolldice 10\``
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}roll-dice 6\`
+\`${container.botPrefix}dice-roll 30\`
+\`${container.botPrefix}roll 100\`
+\`${container.botPrefix}rd 4\`
+\`${container.botPrefix}diceroll 2\`
+\`${container.botPrefix}dice 1\`
+\`${container.botPrefix}rolldice 10\``
 })
 export class FunRollDiceCommand extends Command {
   getRandomInt(max: number): number {

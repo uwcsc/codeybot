@@ -1,18 +1,24 @@
+import { ApplyOptions } from '@sapphire/decorators';
+import { Args, container } from '@sapphire/framework';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
-import { Args, Command, CommandOptions } from '@sapphire/framework';
-import { ApplyOptions } from '@sapphire/decorators';
-import { UserProfile, getUserProfileById, editUserProfileById, validUserCustomization, validCustomizations, configMaps } from '../../components/profile';
 import { getCoinBalanceByUserId } from '../../components/coin';
-import { BOT_PREFIX } from '../../bot';
+import {
+  configMaps,
+  editUserProfileById,
+  getUserProfileById,
+  UserProfile,
+  validCustomizations,
+  validUserCustomization
+} from '../../components/profile';
 import { EMBED_COLOUR } from '../../utils/embeds';
-
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['profile'],
   description: 'Handles user profile functions',
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}profile @Codey\``,
-  subCommands: ['about', 'set', { input: 'list', default: true}]
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}profile @Codey\``,
+  subCommands: ['about', 'set', { input: 'list', default: true }]
 })
 export class ProfileCommand extends SubCommandPluginCommand {
   public async about(message: Message, args: Args): Promise<Message> {
@@ -54,19 +60,19 @@ export class ProfileCommand extends SubCommandPluginCommand {
       // add codeycoins onto the fields as well
       const userCoins = (await getCoinBalanceByUserId(user.id)).toString();
       profileDisplay.addField('Codey Coins', userCoins);
-      return message.channel.send({ embeds: [profileDisplay]});
+      return message.channel.send({ embeds: [profileDisplay] });
     }
   }
 
   public async set(message: Message, args: Args): Promise<Message> {
     const { author } = message;
-    const customization = <keyof typeof configMaps> await args.pick('string').catch(() => false)
-    if (typeof customization === 'boolean'){
-      return message.reply(`Please enter a customization. Must be one of**${validCustomizations}**`)
+    const customization = <keyof typeof configMaps>await args.pick('string').catch(() => false);
+    if (typeof customization === 'boolean') {
+      return message.reply(`Please enter a customization. Must be one of**${validCustomizations}**`);
     }
-    const description = await args.rest('string').catch(() => false)
-    if (typeof description === 'boolean'){
-      return message.reply("Please enter a description.")
+    const description = await args.rest('string').catch(() => false);
+    if (typeof description === 'boolean') {
+      return message.reply('Please enter a description.');
     }
     const { reason, parsedDescription } = validUserCustomization(customization, description);
     if (reason === 'valid') {
@@ -77,4 +83,3 @@ export class ProfileCommand extends SubCommandPluginCommand {
     return message.reply(messagePrefix + reason);
   }
 }
-
