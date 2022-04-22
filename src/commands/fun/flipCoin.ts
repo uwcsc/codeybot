@@ -5,13 +5,13 @@ import { Message } from 'discord.js';
 @ApplyOptions<CommandOptions>({
   aliases: ['fc', 'flip', 'flip-coin', 'coin-flip', 'coinflip'],
   description: 'Flip a coin! In making decisions, if it is not great, at least it is fair!',
-  detailedDescription: `**Examples:**\n
-  \`${container.botPrefix}flip-coin\`\n
-  \`${container.botPrefix}fc\`\n
-  \`${container.botPrefix}flip\`\n
-  \`${container.botPrefix}coin-flip\`\n
-  \`${container.botPrefix}coinflip\`\n
-  \`${container.botPrefix}flipcoin\``
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}flip-coin\`
+\`${container.botPrefix}fc\`
+\`${container.botPrefix}flip\`
+\`${container.botPrefix}coin-flip\`
+\`${container.botPrefix}coinflip\`
+\`${container.botPrefix}flipcoin\``
 })
 export class FunFlipCoinCommand extends Command {
   async messageRun(message: Message): Promise<Message> {
