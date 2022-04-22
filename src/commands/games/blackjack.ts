@@ -27,15 +27,15 @@ const validateBetAmount = (amount: number): string => {
 @ApplyOptions<CommandOptions>({
   aliases: ['blj', 'bj'],
   description: 'Start a Blackjack game to win some Codey coins!',
-  detailedDescription: `**Examples:**\n
-  \`${container.botPrefix}blackjack 100\`\n
-  \`${container.botPrefix}blj 100\``
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}blackjack 100\`
+\`${container.botPrefix}blj 100\``
 })
 export class BlackjackCommand extends Command {
   /*
     Returns the corresponding emoji given the card's suit
   */
-  getSuitEmoji(suit: string): string {
+  private getSuitEmoji(suit: string): string {
     switch (suit) {
       case CardSuit.SPADES:
         return '♤';

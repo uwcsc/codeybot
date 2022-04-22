@@ -5,9 +5,9 @@ import type { Message } from 'discord.js';
 @ApplyOptions<CommandOptions>({
   aliases: ['pong'],
   description: 'ping pong',
-  detailedDescription: `**Examples:**\n
-  \`${container.botPrefix}ping\`\n
-  \`${container.botPrefix}pong\``
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}ping\`
+\`${container.botPrefix}pong\``
 })
 export class PingCommand extends Command {
   async messageRun(message: Message): Promise<Message> {

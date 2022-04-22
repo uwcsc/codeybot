@@ -147,7 +147,7 @@ export const editUserProfileById = async (userId: string, data: UserProfile): Pr
     await db.run(query, userId);
   } else {
     query = `
-            INSERT INTO user_profile_table 
+            INSERT INTO user_profile_table
             (user_id, last_updated,
             `;
     // add on the one data value that will be set

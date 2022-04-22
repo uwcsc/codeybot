@@ -1,12 +1,12 @@
-import { SuggestionState, getSuggestions, getSuggestionPrintout, updateSuggestionState } from './suggestions';
-import { TextChannel, MessageEmbed } from 'discord.js';
-import { CronJob } from 'cron';
 import { container } from '@sapphire/framework';
-import { EMBED_COLOUR } from '../utils/embeds';
-import { getInterviewers } from './interview';
-import { coinBonusMap, BonusType, adjustCoinBalanceByUserId } from './coin';
+import { CronJob } from 'cron';
+import { MessageEmbed, TextChannel } from 'discord.js';
 import _ from 'lodash';
 import { vars } from '../config';
+import { EMBED_COLOUR } from '../utils/embeds';
+import { adjustCoinBalanceByUserId, BonusType, coinBonusMap } from './coin';
+import { getInterviewers } from './interviewer';
+import { getSuggestionPrintout, getSuggestions, SuggestionState, updateSuggestionState } from './suggestion';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 
