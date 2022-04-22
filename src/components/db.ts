@@ -103,7 +103,7 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
     `
         CREATE TABLE IF NOT EXISTS user_profile_table (
             user_id VARCHAR(255) PRIMARY KEY NOT NULL,
-            about_me TEXT, 
+            about_me TEXT,
             birth_date TEXT,
             preferred_name VARCHAR(32),
             preferred_pronouns VARCHAR(16),

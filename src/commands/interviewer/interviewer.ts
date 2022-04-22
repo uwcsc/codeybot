@@ -19,17 +19,17 @@ import {
   resumeProfile,
   toggleDomain,
   upsertInterviewer
-} from '../../components/interview';
+} from '../../components/interviewer';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 const RESULTS_PER_PAGE = 6;
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
-  aliases: ['interviewers'],
+  aliases: ['interviewers', 'int'],
   description: 'Handles interviewer functions',
-  detailedDescription: `**Examples:**\n
-  \`${container.botPrefix}interviewer\`\n
-  \`${container.botPrefix}interviewer frontend\``,
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}interviewer\`
+\`${container.botPrefix}interviewer frontend\``,
   subCommands: ['clear', 'domain', 'pause', 'profile', 'resume', 'signup', { input: 'list', default: true }]
 })
 export class InterviewerCommand extends SubCommandPluginCommand {
@@ -157,7 +157,7 @@ export class InterviewerCommand extends SubCommandPluginCommand {
 
   async signup(message: Message, args: Args): Promise<Message> {
     // get calendar URL from the 1st capture group
-    const calendarUrl = args.next();
+    const calendarUrl = await args.pick('string').catch(() => '');
     const { id } = message.author;
     //parses link and checks for validity
     const parsedUrl = parseLink(calendarUrl);

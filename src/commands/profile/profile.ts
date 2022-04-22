@@ -1,24 +1,24 @@
+import { ApplyOptions } from '@sapphire/decorators';
+import { Args, container } from '@sapphire/framework';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
-import { Args, Command, CommandOptions } from '@sapphire/framework';
-import { ApplyOptions } from '@sapphire/decorators';
-import {
-  UserProfile,
-  getUserProfileById,
-  editUserProfileById,
-  validUserCustomization,
-  validCustomizations,
-  configMaps
-} from '../../components/profile';
 import { getCoinBalanceByUserId } from '../../components/coin';
-import { BOT_PREFIX } from '../../bot';
+import {
+  configMaps,
+  editUserProfileById,
+  getUserProfileById,
+  UserProfile,
+  validCustomizations,
+  validUserCustomization
+} from '../../components/profile';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['profile'],
   description: 'Handles user profile functions',
-  detailedDescription: `**Examples:**\n\`${BOT_PREFIX}profile @Codey\``,
-  subCommands: ['about', 'set', { input: 'list', default: true }]
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}profile @Codey\``,
+  subCommands: ['about', 'set']
 })
 export class ProfileCommand extends SubCommandPluginCommand {
   public async about(message: Message, args: Args): Promise<Message> {
