@@ -24,11 +24,14 @@ Please note that your suggestion is not anonymous, your Discord username and ID 
 If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
 **Examples:**
 \`${container.botPrefix}suggestion I want a new Discord channel named #hobbies.\``,
-  subCommands: ['list', 'update', { input: 'create', default: true }]
+  subCommands: [{ input: 'list', default: true }, 'update', 'create']
 })
 export class SuggestionCommand extends SubCommandPluginCommand {
   public async create(message: Message, args: Args): Promise<Message> {
-    const suggestion = await args.rest('string');
+    const suggestion = await args.rest('string').catch(() => false);
+    if (typeof suggestion === 'boolean') {
+      return message.reply('please add a suggestion');
+    }
     // Add suggestion
     await addSuggestion(message.author.id, message.author.username, suggestion);
     //Confirm suggestion was taken
@@ -63,11 +66,11 @@ export class SuggestionCommand extends SubCommandPluginCommand {
   }
 
   async update(message: Message, args: Args): Promise<Message> {
-    const state = await args.pick('string').catch(() => `please enter a valid suggestion state.`);
+    const state = (await args.pick('string').catch(() => `please enter a valid suggestion state.`)).toLowerCase();
     const ids = await args.rest('string').catch(() => `please enter valid suggestion IDs.`);
     const suggestionIds = ids.split(' ').map((a) => Number(a));
     //validate state
-    if (!(state.toLowerCase() in suggestionStatesReadable))
+    if (!(state in suggestionStatesReadable))
       return message.reply(`you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`);
     // validate each id after first word
     if (_.some(suggestionIds, isNaN)) {

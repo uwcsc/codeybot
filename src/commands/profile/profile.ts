@@ -18,7 +18,7 @@ import { EMBED_COLOUR } from '../../utils/embeds';
   description: 'Handles user profile functions',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}profile @Codey\``,
-  subCommands: ['about', 'set', { input: 'list', default: true }]
+  subCommands: ['about', 'set']
 })
 export class ProfileCommand extends SubCommandPluginCommand {
   public async about(message: Message, args: Args): Promise<Message> {

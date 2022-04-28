@@ -157,7 +157,7 @@ export class InterviewerCommand extends SubCommandPluginCommand {
 
   async signup(message: Message, args: Args): Promise<Message> {
     // get calendar URL from the 1st capture group
-    const calendarUrl = args.next();
+    const calendarUrl = await args.pick('string').catch(() => '');
     const { id } = message.author;
     //parses link and checks for validity
     const parsedUrl = parseLink(calendarUrl);
