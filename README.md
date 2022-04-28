@@ -1,6 +1,21 @@
+<div align="center">
+
+<img src="assets/codeyProduction.png" width="250" height="250" align="left">
+<img src="assets/codeyStaging.png" width="250" height="250" align="center">
+<img src="assets/codeyDevelopment.png" width="250" height="250" align="right">
+
+<br />
+
 # Codey Bot
 
+**The Discord Bot of University of Waterloo's Computer Science Club**
+
 [![Build](https://github.com/uwcsc/codeybot/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/uwcsc/codeybot/actions/workflows/build.yml?query=branch%3Amaster)
+[![Discord Server](https://discord.com/api/guilds/667823274201448469/widget.png)](https://discord.gg/pHfYBCg)
+
+</div>
+
+---
 
 ## Required config variables
 
@@ -10,7 +25,7 @@ Set these accordingly within the correct config folder. If you are testing local
 - `COFFEE_ROLE_ID`: the ID of the role the bot will use to decide who is enrolled into coffee chats.
 - `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
 - `HONEYPOT_CHANNEL_ID`: the ID of the honeypot channel, used to help detect spammers and trolls.
-- `PC_CATEGORY_ID`: the ID of the Program Committee category, containing the Program Committee channels.
+- `ANNOUNCEMENTS_CHANNEL_ID`: the ID of the announcements channel.
 
 ## Required environment variables
 
