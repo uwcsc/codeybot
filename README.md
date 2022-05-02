@@ -31,7 +31,7 @@ Set these accordingly within the correct config folder. If you are testing local
 
 Set these into your `.env` file. Make sure to not push these changes to git.
 
-- `BOT_TOKEN`: the token found in the bot user account. IF THIS TOKEN IS REVEALED, ANYONE CAN CONTROL YOUR BOT.
+- `DISCORD_TOKEN`: the bot's token, found in the Discord Developer Portal. DO NOT REVEAL THIS TOKEN; ANYONE WITH THIS TOKEN CAN CONTROL YOUR BOT.
 
 ## Prerequisites
 

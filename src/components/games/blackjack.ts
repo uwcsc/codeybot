@@ -1,6 +1,6 @@
-import { actions, Game, Card, Action, presets } from 'engine-blackjack-ts';
+import { container } from '@sapphire/framework';
+import { Action, actions, Card, Game, presets } from 'engine-blackjack-ts';
 import _ from 'lodash';
-import logger from '../logger';
 
 const PLAYER_DEFAULT_POSITION = 'right';
 
@@ -86,6 +86,7 @@ const getGameState = (game: Game): GameState => {
   Starts a blackjack game for a given player and returns the new game's state
 */
 export const startGame = (amount: number, playerId: string, channelId: string): GameState | null => {
+  const { logger } = container;
   logger.info({
     event: 'blackjack_start',
     amount,
@@ -123,6 +124,7 @@ export const startGame = (amount: number, playerId: string, channelId: string): 
   End blackjack game for a given player
 */
 export const endGame = (playerId: string): void => {
+  const { logger } = container;
   logger.info({ event: 'blackjack_end', playerId });
   gamesByPlayerId.delete(playerId);
 };
@@ -131,6 +133,7 @@ export const endGame = (playerId: string): void => {
   Perform a player action and returns the game state after that action
 */
 export const performGameAction = (playerId: string, actionName: BlackjackAction): GameState | null => {
+  const { logger } = container;
   logger.info({
     event: 'blackjack_action',
     actionName,

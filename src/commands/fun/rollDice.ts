@@ -1,42 +1,45 @@
+import { ApplyOptions } from '@sapphire/decorators';
+import { Args, Command, CommandOptions, container } from '@sapphire/framework';
 import { Message } from 'discord.js';
-import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import { BaseCommand } from '../../utils/commands';
+import { isInteger } from 'lodash';
 
-class RollDiceCommand extends BaseCommand {
-  constructor(client: CommandoClient) {
-    super(client, {
-      name: 'roll-dice',
-      aliases: ['rd', 'roll', 'rolldice', 'dice-roll', 'diceroll', 'dice'],
-      group: 'fun',
-      args: [
-        {
-          default: 6,
-          key: 'sides',
-          prompt: 'enter the number of sides of the dice',
-          type: 'integer'
-        }
-      ],
-      memberName: 'dice-coin',
-      description: 'Roll a dice!',
-      examples: [`${client.commandPrefix}dice-roll`]
-    });
-  }
-
+@ApplyOptions<CommandOptions>({
+  aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
+  description: 'Roll a dice!',
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}roll-dice 6\`
+\`${container.botPrefix}dice-roll 30\`
+\`${container.botPrefix}roll 100\`
+\`${container.botPrefix}rd 4\`
+\`${container.botPrefix}diceroll 2\`
+\`${container.botPrefix}dice 1\`
+\`${container.botPrefix}rolldice 10\``
+})
+export class FunRollDiceCommand extends Command {
   getRandomInt(max: number): number {
     return Math.floor(Math.random() * max) + 1;
   }
 
-  async onRun(message: CommandoMessage, args: { sides: number }): Promise<Message> {
-    const { sides } = args;
-    if (sides <= 0) {
-      return message.reply(`I cannot compute ` + sides + ' sides!');
+  async messageRun(message: Message, args: Args): Promise<Message> {
+    const SIDES_LOWER_BOUND = 0;
+    const SIDES_UPPER_BOUND = 1000000;
+    const sides = await args.pick('integer').catch(() => 6);
+
+    //Argument enforcement
+    if (!isInteger(sides) || !args.finished) {
+      return message.reply(
+        `Invalid Parameters! Usage: \`rolldice <sides>\` \n` +
+          `\`sides\` - The number of sides on the dice you wish to roll, ` +
+          `must be \`${SIDES_LOWER_BOUND} < sides <= ${SIDES_UPPER_BOUND}\``
+      );
     }
-    if (sides > 1000000) {
-      return message.reply(`that's too many sides!`);
+    if (sides <= SIDES_LOWER_BOUND) {
+      return message.reply(`I cannot compute ${sides} sides!`);
+    }
+    if (sides > SIDES_UPPER_BOUND) {
+      return message.reply("that's too many sides!");
     }
     const diceFace = this.getRandomInt(sides);
-    return message.reply(`you rolled a ` + diceFace + `!`);
+    return message.reply(`you rolled a ${diceFace}!`);
   }
 }
-
-export default RollDiceCommand;

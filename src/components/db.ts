@@ -1,6 +1,6 @@
+import { container } from '@sapphire/framework';
+import { Database, open } from 'sqlite';
 import sqlite3 from 'sqlite3';
-import { open, Database } from 'sqlite';
-import logger from './logger';
 
 let db: Database | null = null;
 
@@ -103,11 +103,11 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
     `
         CREATE TABLE IF NOT EXISTS user_profile_table (
             user_id VARCHAR(255) PRIMARY KEY NOT NULL,
-            about_me TEXT, 
+            about_me TEXT,
             birth_date TEXT,
             preferred_name VARCHAR(32),
             preferred_pronouns VARCHAR(16),
-            term VARCHAR(2),
+            term VARCHAR(16),
             year INTEGER,
             last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
             faculty VARCHAR(32),
@@ -130,6 +130,7 @@ const initTables = async (db: Database): Promise<void> => {
 };
 
 export const openDB = async (): Promise<Database> => {
+  const { logger } = container;
   if (db == null) {
     db = await open({
       filename: 'db/bot.db',
