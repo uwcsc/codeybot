@@ -10,6 +10,7 @@ export interface UserProfile {
   faculty?: string;
   program?: string;
   specialization?: string;
+  last_updated?: string;
 }
 
 const validFaculties = ['Mathematics', 'Engineering', 'Arts', 'Health', 'Science'];

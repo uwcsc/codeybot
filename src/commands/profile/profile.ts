@@ -14,11 +14,11 @@ import {
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
-  aliases: ['profile'],
+  aliases: ['profile', 'userprofile'],
   description: 'Handles user profile functions',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}profile @Codey\``,
-  subCommands: ['about', 'set']
+  subCommands: [{ input: 'about', default: true}, 'set']
 })
 export class ProfileCommand extends SubCommandPluginCommand {
   public async about(message: Message, args: Args): Promise<Message> {
@@ -41,8 +41,8 @@ export class ProfileCommand extends SubCommandPluginCommand {
     if (!profileDetails) {
       return message.reply(`${user.username} has not set up their profile!`);
     } else {
-      // fields that are fetched that we do not want to display to the user
-      const notDisplay = ['user_id'];
+      // fields that are fetched that we do not want to display to the user, or want to display later (last_updated)
+      const notDisplay = ['user_id', 'last_updated'];
       const profileDisplay = new MessageEmbed().setTitle(`${user.username}'s profile`);
       // setting profile colour might not be useful, but we should leave it to a separate discussion/ticket
       profileDisplay.setColor(EMBED_COLOUR);
@@ -54,12 +54,20 @@ export class ProfileCommand extends SubCommandPluginCommand {
           // iterate through each of the configurations, prettyProfileDetails making the configuration more readable
           // as opposed to snake case
           // need to cast val to string since addField does not take in numbers
-          profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val.toString());
+          if (key === "about_me"){ // about me can be pretty long, so we do not inline it   
+            profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val.toString());
+          } else {
+            profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val.toString(), true);
+          }
         }
       }
       // add codeycoins onto the fields as well
       const userCoins = (await getCoinBalanceByUserId(user.id)).toString();
-      profileDisplay.addField('Codey Coins', userCoins);
+      profileDisplay.addField('Codey Coins', userCoins, true);
+      // display last updated last
+      if (profileDetails['last_updated']){
+        profileDisplay.addField(prettyProfileDetails.last_updated, profileDetails['last_updated'], true)
+      }
       return message.channel.send({ embeds: [profileDisplay] });
     }
   }
