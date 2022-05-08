@@ -14,11 +14,11 @@ import {
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
-  aliases: ['profile', 'userprofile'],
+  aliases: ['profile', 'userprofile', 'aboutme'],
   description: 'Handles user profile functions',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}profile @Codey\``,
-  subCommands: [{ input: 'about', default: true}, 'set']
+  subCommands: [{ input: 'about', default: true }, 'set']
 })
 export class ProfileCommand extends SubCommandPluginCommand {
   public async about(message: Message, args: Args): Promise<Message> {
@@ -54,10 +54,15 @@ export class ProfileCommand extends SubCommandPluginCommand {
           // iterate through each of the configurations, prettyProfileDetails making the configuration more readable
           // as opposed to snake case
           // need to cast val to string since addField does not take in numbers
-          if (key === "about_me"){ // about me can be pretty long, so we do not inline it   
+          if (key === 'about_me') {
+            // about me can be pretty long, so we do not inline it
             profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val.toString());
           } else {
-            profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val.toString(), true);
+            profileDisplay.addField(
+              prettyProfileDetails[key as keyof typeof prettyProfileDetails],
+              val.toString(),
+              true
+            );
           }
         }
       }
@@ -65,8 +70,8 @@ export class ProfileCommand extends SubCommandPluginCommand {
       const userCoins = (await getCoinBalanceByUserId(user.id)).toString();
       profileDisplay.addField('Codey Coins', userCoins, true);
       // display last updated last
-      if (profileDetails['last_updated']){
-        profileDisplay.addField(prettyProfileDetails.last_updated, profileDetails['last_updated'], true)
+      if (profileDetails['last_updated']) {
+        profileDisplay.addField(prettyProfileDetails.last_updated, profileDetails['last_updated'], true);
       }
       return message.channel.send({ embeds: [profileDisplay] });
     }
