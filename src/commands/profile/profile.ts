@@ -9,6 +9,7 @@ import {
   getUserProfileById,
   UserProfile,
   validCustomizations,
+  validCustomizationsDisplay,
   validUserCustomization
 } from '../../components/profile';
 import { EMBED_COLOUR } from '../../utils/embeds';
@@ -80,8 +81,9 @@ export class ProfileCommand extends SubCommandPluginCommand {
   public async set(message: Message, args: Args): Promise<Message> {
     const { author } = message;
     const customization = <keyof typeof configMaps>await args.pick('string').catch(() => false);
-    if (typeof customization === 'boolean') {
-      return message.reply(`Please enter a customization. Must be one of**${validCustomizations}**`);
+    // if no customization is supplied, or its not one of the customizations we provide, return
+    if (typeof customization === 'boolean' || !validCustomizations.includes(customization)) {
+      return message.reply(`Please enter a customization. Must be one of**${validCustomizationsDisplay}**`);
     }
     const description = await args.rest('string').catch(() => false);
     if (typeof description === 'boolean') {
@@ -92,6 +94,7 @@ export class ProfileCommand extends SubCommandPluginCommand {
       editUserProfileById(author.id, { [configMaps[customization]]: parsedDescription } as UserProfile);
       return message.reply(`${customization} has been set!`);
     }
+    // if reason is not valid the reason will be returned by the validUserCustomization function
     const messagePrefix = 'Invalid arguments, please try again. Reason: ';
     return message.reply(messagePrefix + reason);
   }
