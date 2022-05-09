@@ -137,50 +137,61 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
           }
           if (timer) {
             let minLeft = 1;
-            let newTimer = timer.content.replace(/(\d+)+/g, (_match, num: string): string => {
+            let newTimer = timer.content.replace(/-?(\d+)+/g, (_match, num: string): string => {
               minLeft = parseInt(num) - 1;
               return minLeft.toString();
             });
-            if (minLeft == 1) newTimer = 'You have **1** minute remaining.';
-            timer.edit(newTimer).then(() => {
-              if (minLeft == 5) {
-                const queueVoice = <VoiceChannel>(
-                  chatChannel.parent?.children?.find(
-                    (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
-                  )
-                );
-                const callMembers = queueVoice?.members;
-                let memberMentions = '';
-                callMembers?.forEach((member) => {
-                  memberMentions = `${member.user}` + memberMentions;
-                });
-                chatChannel.send(memberMentions + '\n**5 minutes remaining**, please start wrapping up your review!');
-              } else if (minLeft == 0) {
-                const queueVoice = <VoiceChannel>(
-                  chatChannel.parent?.children?.find(
-                    (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
-                  )
-                );
-                const callMembers = queueVoice?.members;
-                let memberMentions = '';
-                callMembers?.forEach((member) => {
-                  memberMentions = `${member.user}` + memberMentions;
-                });
-                chatChannel.send(memberMentions + '\n**Time is up!**, hope you had fun!');
-              } else if (minLeft == -1) {
-                // const queueVoice = <VoiceChannel>(
-                //   chatChannel.parent?.children?.find(
-                //     (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
-                //   )
-                // );
-                // const callMembers = queueVoice?.members;
-                // callMembers
-                //   ?.filter((member) => !member.roles.cache.map((role) => role.id).includes(mentorRole))
-                //   .forEach((member) => {
-                //     member.voice.setChannel(null);
-                //   });
-              }
-            });
+            if (minLeft == 1) {
+              newTimer = 'You have **1** minute remaining.';
+            }
+            // FIX NEEDED BUT STILL VIABLE
+            if (minLeft == -1) {
+              newTimer = "You're **1** minute past the time limit. Please wrap up your review!";
+            }
+            if (minLeft < 0) {
+              newTimer = "You're **" + -minLeft + '** minutes past the time limit. Please wrap up your review!';
+            } else {
+              timer.edit(newTimer).then(() => {
+                if (minLeft == 5) {
+                  const queueVoice = <VoiceChannel>(
+                    chatChannel.parent?.children?.find(
+                      (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
+                    )
+                  );
+                  const callMembers = queueVoice?.members;
+                  let memberMentions = '';
+                  callMembers?.forEach((member) => {
+                    memberMentions = `${member.user}` + memberMentions;
+                  });
+                  chatChannel.send(memberMentions + '\n**5 minutes remaining**, please start wrapping up your review!');
+                } else if (minLeft == 0) {
+                  const queueVoice = <VoiceChannel>(
+                    chatChannel.parent?.children?.find(
+                      (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
+                    )
+                  );
+                  const callMembers = queueVoice?.members;
+                  let memberMentions = '';
+                  callMembers?.forEach((member) => {
+                    memberMentions = `${member.user}` + memberMentions;
+                  });
+                  chatChannel.send(memberMentions + '\n**Time is up!** Hope you had fun!');
+                } else if (minLeft == -1) {
+                  // OLD CODE TO KICK THE MENTEE
+                  // const queueVoice = <VoiceChannel>(
+                  //   chatChannel.parent?.children?.find(
+                  //     (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
+                  //   )
+                  // );
+                  // const callMembers = queueVoice?.members;
+                  // callMembers
+                  //   ?.filter((member) => !member.roles.cache.map((role) => role.id).includes(mentorRole))
+                  //   .forEach((member) => {
+                  //     member.voice.setChannel(null);
+                  //   });
+                }
+              });
+            }
           }
         })();
       });
