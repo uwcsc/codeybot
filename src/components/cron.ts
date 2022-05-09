@@ -166,19 +166,19 @@ export const mentorCallTimer = (client: CommandoClient): CronJob =>
                 callMembers?.forEach((member) => {
                   memberMentions = `${member.user}` + memberMentions;
                 });
-                chatChannel.send(memberMentions + "\n**30 seconds remaining**, say goodbye before it's too late!");
+                chatChannel.send(memberMentions + '\n**Time is up!**, hope you had fun!');
               } else if (minLeft == -1) {
-                const queueVoice = <VoiceChannel>(
-                  chatChannel.parent?.children?.find(
-                    (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
-                  )
-                );
-                const callMembers = queueVoice?.members;
-                callMembers
-                  ?.filter((member) => !member.roles.cache.map((role) => role.id).includes(mentorRole))
-                  .forEach((member) => {
-                    member.voice.setChannel(null);
-                  });
+                // const queueVoice = <VoiceChannel>(
+                //   chatChannel.parent?.children?.find(
+                //     (channel) => channel.name === toTitleCase(chatChannel.name.split('-').slice(0, -1).join(' '))
+                //   )
+                // );
+                // const callMembers = queueVoice?.members;
+                // callMembers
+                //   ?.filter((member) => !member.roles.cache.map((role) => role.id).includes(mentorRole))
+                //   .forEach((member) => {
+                //     member.voice.setChannel(null);
+                //   });
               }
             });
           }
