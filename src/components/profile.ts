@@ -138,13 +138,15 @@ export const editUserProfileById = async (userId: string, data: UserProfile): Pr
   const user = res;
   let query;
   if (user.found === 1) {
-    query = `UPDATE user_profile_table SET last_updated=CURRENT_DATE, `;
+    let onlyDescription;
+    let onlyCustomization;
     for (const [customization, description] of Object.entries(data)) {
-      // will set that one extra field equal to the description provided
-      query = query.concat(`${customization}='${description}'`);
+      // grab the only customization and its corresponding description
+      onlyCustomization = customization;
+      onlyDescription = description;
     }
-    query = query.concat('WHERE user_id = ?');
-    await db.run(query, userId);
+    query = `UPDATE user_profile_table SET last_updated=CURRENT_DATE, ${onlyCustomization}=? WHERE user_id=?`;
+    await db.run(query, onlyDescription, userId);
   } else {
     query = `
             INSERT INTO user_profile_table
