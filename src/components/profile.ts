@@ -10,6 +10,7 @@ export interface UserProfile {
   faculty?: string;
   program?: string;
   specialization?: string;
+  last_updated?: string;
 }
 
 const validFaculties = ['Mathematics', 'Engineering', 'Arts', 'Health', 'Science'];
@@ -27,6 +28,19 @@ export enum configMaps {
   faculty = 'faculty',
   program = 'program',
   specialization = 'specialization'
+}
+
+export enum prettyProfileDetails {
+  about_me = 'About Me',
+  birth_date = 'Birth Date',
+  preferred_name = 'Preferred Name',
+  preferred_pronouns = 'Preferred Pronouns',
+  term = 'Term',
+  year = 'Year',
+  faculty = 'Faculty',
+  program = 'Program',
+  specialization = 'Specialization',
+  last_updated = 'Last Updated'
 }
 
 const validBirthdates = [
@@ -71,19 +85,16 @@ enum validatedFields {
   year = 'year'
 }
 
-export const validCustomizations = `${(Object.keys(configMaps) as Array<keyof typeof configMaps>).map(
-  (key) => ' ' + key
-)}`;
+export const validCustomizations = Object.keys(configMaps) as Array<keyof typeof configMaps>;
 
+export const validCustomizationsDisplay = `${validCustomizations.map((key) => ' ' + key)}`;
+
+// validUserCustomization checks the customization description to ensure it is proper
+// and also returns a formatted version of their description (proper capitalization)
 export const validUserCustomization = (
   customization: keyof typeof configMaps,
   description: string
 ): userCustomization => {
-  if (!(Object.keys(configMaps) as Array<keyof typeof configMaps>).includes(customization)) {
-    return {
-      reason: `Invalid customization selection. Must be one of**${validCustomizations}**`
-    };
-  }
   let parsedDescription = description;
   if (customization !== validatedFields.term) {
     // convert first letter to capital in case the user doesnt use proper capitalization
