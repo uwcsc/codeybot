@@ -30,6 +30,19 @@ export enum configMaps {
   specialization = 'specialization'
 }
 
+export enum prettyProfileDetails {
+  about_me = 'About Me',
+  birth_date = 'Birth Date',
+  preferred_name = 'Preferred Name',
+  preferred_pronouns = 'Preferred Pronouns',
+  term = 'Term',
+  year = 'Year',
+  faculty = 'Faculty',
+  program = 'Program',
+  specialization = 'Specialization',
+  last_updated = 'Last Updated'
+}
+
 const validBirthdates = [
   'January',
   'February',

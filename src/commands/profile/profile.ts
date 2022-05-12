@@ -10,7 +10,8 @@ import {
   UserProfile,
   validCustomizations,
   validCustomizationsDisplay,
-  validUserCustomization
+  validUserCustomization,
+  prettyProfileDetails
 } from '../../components/profile';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
@@ -23,18 +24,6 @@ import { EMBED_COLOUR } from '../../utils/embeds';
 })
 export class ProfileCommand extends SubCommandPluginCommand {
   public async about(message: Message, args: Args): Promise<Message> {
-    enum prettyProfileDetails {
-      about_me = 'About Me',
-      birth_date = 'Birth Date',
-      preferred_name = 'Preferred Name',
-      preferred_pronouns = 'Preferred Pronouns',
-      term = 'Term',
-      year = 'Year',
-      faculty = 'Faculty',
-      program = 'Program',
-      specialization = 'Specialization',
-      last_updated = 'Last Updated'
-    }
     const user = await args.rest('user').catch(() => 'please enter a valid user mention or ID to check their profile.');
     if (typeof user === 'string') return message.reply(user);
     // get user profile if exists
@@ -55,16 +44,11 @@ export class ProfileCommand extends SubCommandPluginCommand {
           // iterate through each of the configurations, prettyProfileDetails making the configuration more readable
           // as opposed to snake case
           // need to cast val to string since addField does not take in numbers
-          if (key === 'about_me') {
-            // about me can be pretty long, so we do not inline it
-            profileDisplay.addField(prettyProfileDetails[key as keyof typeof prettyProfileDetails], val.toString());
-          } else {
-            profileDisplay.addField(
-              prettyProfileDetails[key as keyof typeof prettyProfileDetails],
-              val.toString(),
-              true
-            );
-          }
+          profileDisplay.addField(
+            prettyProfileDetails[key as keyof typeof prettyProfileDetails],
+            val.toString(),
+            key !== 'about_me' // since about_me can be long, we dont want to inline it
+          );
         }
       }
       // add codeycoins onto the fields as well
