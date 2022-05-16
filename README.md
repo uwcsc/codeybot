@@ -19,7 +19,7 @@
 
 ## Required config variables
 
-Set these accordingly within the correct config folder. If you are testing locally, use the `/config/dev` folder for local configurations.
+Set these accordingly within the correct config folder. If you are testing locally, use the `/config/dev` folder for local configurations. By default, these variables should not be pushed to the remote.
 
 - `TARGET_GUILD_ID`: the ID of the guild (server) in which coffee chats are being held.
 - `COFFEE_ROLE_ID`: the ID of the role the bot will use to decide who is enrolled into coffee chats.
