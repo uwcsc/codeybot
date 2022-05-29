@@ -17,7 +17,7 @@ import { EMBED_COLOUR } from '../../utils/embeds';
   requiredUserPermissions: ['ADMINISTRATOR']
 })
 export class CoffeeChatCommand extends SubCommandPluginCommand {
-  private async alertMatches(matches: string[][]): Promise<void> {
+  static async alertMatches(matches: string[][]): Promise<void> {
     const { client, logger } = container;
     const outputMap: Map<string, string[]> = new Map();
     const userMap: Map<string, User> = new Map();
@@ -61,7 +61,7 @@ export class CoffeeChatCommand extends SubCommandPluginCommand {
   async match(message: Message): Promise<Message> {
     //makes sure future matches are valid (made for the current group / still has matches left)
     const matches = await getMatch();
-    await this.alertMatches(matches);
+    await CoffeeChatCommand.alertMatches(matches);
     await writeHistoricMatches(matches);
     return message.reply(`Sent ${matches.length} match(es).`);
   }
