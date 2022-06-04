@@ -52,7 +52,7 @@ export const createBonusInterviewerListCron = (): CronJob =>
 
 // Match coffeechat users every week on Friday
 export const createCoffeeChatCron = (): CronJob =>
-  new CronJob('0 0 20 * * 0', async function () {
+  new CronJob('0 0 14 * * 5', async function () {
     const { client } = container;
 
     const matches = await getMatch();
