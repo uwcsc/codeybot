@@ -156,6 +156,8 @@ export const editUserProfileById = async (userId: string, data: UserProfile): Pr
       onlyCustomization = customization;
       onlyDescription = description;
     }
+    // escape any instances of ' character by placing another ' in front of it by sqlite specifications
+    onlyDescription.replace(/'/g, "''");
     query = `UPDATE user_profile_table SET last_updated=CURRENT_DATE, ${onlyCustomization}=? WHERE user_id=?`;
     await db.run(query, onlyDescription, userId);
   } else {
@@ -169,6 +171,9 @@ export const editUserProfileById = async (userId: string, data: UserProfile): Pr
     }
     query = query.concat(`VALUES (?, CURRENT_DATE, ?)`);
     // there is only one element in object.values (which is the description)
-    await db.run(query, userId, Object.values(data)[0]);
+    const description = Object.values(data)[0];
+    // escape any instances of ' character by placing another ' in front of it by sqlite specifications
+    description.replace(/'/g, "''");
+    await db.run(query, userId, description);
   }
 };
