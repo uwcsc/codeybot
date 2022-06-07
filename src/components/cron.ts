@@ -2,8 +2,10 @@ import { container } from '@sapphire/framework';
 import { CronJob } from 'cron';
 import { MessageEmbed, TextChannel } from 'discord.js';
 import _ from 'lodash';
+import { CoffeeChatCommand } from '../commands/coffeeChat/coffeeChat';
 import { vars } from '../config';
 import { EMBED_COLOUR } from '../utils/embeds';
+import { getMatch, writeHistoricMatches } from './coffeeChat';
 import { adjustCoinBalanceByUserId, BonusType, coinBonusMap } from './coin';
 import { getInterviewers } from './interviewer';
 import { getSuggestionPrintout, getSuggestions, SuggestionState, updateSuggestionState } from './suggestion';
@@ -46,4 +48,23 @@ export const createBonusInterviewerListCron = (): CronJob =>
     activeInterviewers.forEach(async (interviewer) => {
       await adjustCoinBalanceByUserId(interviewer.user_id, bonus.amount, bonus.event);
     });
+  });
+
+// Match coffeechat users every week on Friday
+export const createCoffeeChatCron = (): CronJob =>
+  new CronJob('0 0 14 * * 5', async function () {
+    const { client } = container;
+
+    const matches = await getMatch();
+    await CoffeeChatCommand.alertMatches(matches);
+    await writeHistoricMatches(matches);
+
+    const messageChannel = client.channels.cache.get(NOTIF_CHANNEL_ID);
+    if (!messageChannel) {
+      throw 'Bad channel ID';
+    } else if (messageChannel.type === 'GUILD_TEXT') {
+      (messageChannel as TextChannel).send(`Sent ${matches.length} match(es).`);
+    } else {
+      throw 'Bad channel type';
+    }
   });
