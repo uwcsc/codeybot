@@ -5,7 +5,7 @@ import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 
 @ApplyOptions<Command.Options>({
-  aliases: ['ping'],
+  aliases: ['pong'],
   description: 'ping pong',
   detailedDescription: `**Examples:**
     \`${container.botPrefix}ping\`
@@ -14,7 +14,20 @@ import { isMessageInstance } from '@sapphire/discord.js-utilities';
     register: true
   }
 })
+
 export class PingCommand extends Command {
+
+  // Regular command (.ping)
+  public async messageRun(message: Message) {
+    const { client } = container;
+    const msg = await message.channel.send('Ping?');
+    const content = `Pong from JavaScript! Bot Latency ${Math.round(client.ws.ping)}ms. API Latency ${
+      msg.createdTimestamp - message.createdTimestamp
+    }ms.`;
+    return msg.edit(content);
+  }
+
+  // Slash command (/ping)
   public async chatInputRun(interaction: Command.ChatInputInteraction): Promise<APIMessage | Message<boolean>> {
     const msg = await interaction.reply({ content: `Ping?`, ephemeral: true, fetchReply: true });
     if (isMessageInstance(msg)) {
