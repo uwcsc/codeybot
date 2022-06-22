@@ -15,6 +15,7 @@ colorette.createColors({ useColor: true });
 const client = new SapphireClient({
   defaultPrefix: '.',
   caseInsensitiveCommands: true,
+  loadMessageCommandListeners: true,
   logger: {
     level: LogLevel.Debug
   },
