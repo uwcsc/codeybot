@@ -4,38 +4,39 @@ import { Message } from 'discord.js';
 import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 
-@ApplyOptions<Command.Options>({
-  aliases: ['pong'],
-  description: 'ping pong',
-  detailedDescription: `**Examples:**
-    \`${container.botPrefix}ping\`
-    \`${container.botPrefix}pong\``,
-  chatInputCommand: {
-    register: true
-  }
-})
+import { CodeyCommand, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 
-export class PingCommand extends Command {
+const executeCommand: SapphireMessageExecuteType = (client, messageFromUser, initialMessageFromBot): 
+  SapphireMessageResponse => {
+    // Assert message types are Message<boolean>
+    // We have to do this because APIMessage does not have "createdTimestamp" property
+    const messageFromUserAsMessage = <Message<boolean>> messageFromUser;
+    const initialMessageFromBotAsMessage = <Message<boolean>> initialMessageFromBot;
 
-  // Regular command (.ping)
-  public async messageRun(message: Message) {
-    const { client } = container;
-    const msg = await message.channel.send('Ping?');
-    const content = `Pong from JavaScript! Bot Latency ${Math.round(client.ws.ping)}ms. API Latency ${
-      msg.createdTimestamp - message.createdTimestamp
-    }ms.`;
-    return msg.edit(content);
+    const botLatency = client.ws.ping;
+    const apiLatency = initialMessageFromBotAsMessage.createdTimestamp - messageFromUserAsMessage.createdTimestamp
+
+    const content = `Pong from JavaScript! Bot Latency ${botLatency}ms. API Latency ${apiLatency}ms.`;
+    return content;
   }
 
-  // Slash command (/ping)
-  public async chatInputRun(interaction: Command.ChatInputInteraction): Promise<APIMessage | Message<boolean>> {
-    const msg = await interaction.reply({ content: `Ping?`, ephemeral: true, fetchReply: true });
-    if (isMessageInstance(msg)) {
-      const diff = msg.createdTimestamp - interaction.createdTimestamp;
-      const ping = Math.round(this.container.client.ws.ping);
+export class PingCommand extends CodeyCommand {
 
-      return interaction.editReply(`Pong 🏓! (Round trip took: ${diff}ms. Heartbeat: ${ping}ms.)`);
-    }
-    return interaction.editReply('Failed to retrieve ping :(');
+  messageWhenExecutingCommand: string = 'Ping?';
+  messageIfFailure: string = 'Failed to receive ping.';
+  executeCommand: SapphireMessageExecuteType = executeCommand;
+
+  public constructor(context: Command.Context, options: Command.Options) {
+    super(context, {
+      ...options,
+      aliases: ['pong'],
+      description: 'ping pong',
+      detailedDescription: `**Examples:**
+        \`${container.botPrefix}ping\`
+        \`${container.botPrefix}pong\``,
+      chatInputCommand: {
+        register: true
+      }
+    });
   }
 }
