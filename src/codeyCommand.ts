@@ -8,19 +8,18 @@ export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessa
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
-  messageFromUser: Message | SapphireCommand.ChatInputInteraction, 
+  messageFromUser: Message | SapphireCommand.ChatInputInteraction,
   initialMessageFromBot: SapphireMessageRequest
 ) => SapphireMessageResponse;
 
 export type CodeyCommandOptions = {
-  name: string; 
+  name: string;
   aliases: string[];
   description: string;
   detailedDescription: string;
-}
+};
 
 export class CodeyCommand extends SapphireCommand {
-  
   messageWhenExecutingCommand!: string;
   executeCommand!: SapphireMessageExecuteType;
   messageIfFailure!: SapphireMessageResponse;
@@ -34,23 +33,28 @@ export class CodeyCommand extends SapphireCommand {
     try {
       const successResponse = this.executeCommand(client, message, initialMessageFromBot);
       return initialMessageFromBot.edit(successResponse);
-    }
-    catch (e: any) {
+    } catch (e) {
+      console.log(e);
       return initialMessageFromBot.edit(this.messageIfFailure);
-    } 
+    }
   }
 
   // Slash command
   public async chatInputRun(interaction: SapphireCommand.ChatInputInteraction): Promise<APIMessage | Message<boolean>> {
     const { client } = container;
-    const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({ 
-      content: this.messageWhenExecutingCommand, 
+    const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
+      content: this.messageWhenExecutingCommand,
       ephemeral: true, // whether user sees message or not
-      fetchReply: true 
+      fetchReply: true
     });
     if (isMessageInstance(initialMessageFromBot)) {
-      const successResponse = this.executeCommand(client, interaction, initialMessageFromBot);
-      return interaction.editReply(successResponse);
+      try {
+        const successResponse = this.executeCommand(client, interaction, initialMessageFromBot);
+        return interaction.editReply(successResponse);
+      } catch (e) {
+        console.log(e);
+        return interaction.editReply(this.messageIfFailure);
+      }
     }
     return interaction.editReply(this.messageIfFailure);
   }
