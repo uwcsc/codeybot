@@ -13,14 +13,6 @@ export type SapphireMessageExecuteType = (
   initialMessageFromBot: SapphireMessageRequest
 ) => SapphireMessageResponse;
 
-// Can modify this as needed
-export type CodeyCommandOptions = {
-  name: string;
-  aliases: string[];
-  description: string;
-  detailedDescription: string;
-};
-
 export class CodeyCommand extends SapphireCommand {
   // The message to display whilst the command is executing
   messageWhenExecutingCommand!: string;
@@ -28,8 +20,6 @@ export class CodeyCommand extends SapphireCommand {
   executeCommand!: SapphireMessageExecuteType;
   // The message to display if the command fails
   messageIfFailure: SapphireMessageResponse = 'Codey backend error - contact a mod for assistance';
-
-  commandOptions!: CodeyCommandOptions;
 
   // Regular command
   public async messageRun(message: Message): Promise<Message<boolean>> {
