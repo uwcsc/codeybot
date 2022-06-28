@@ -8,10 +8,12 @@ export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessa
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
+  // Message is for normal commands, ChatInputInteraction is for slash commands
   messageFromUser: Message | SapphireCommand.ChatInputInteraction,
   initialMessageFromBot: SapphireMessageRequest
 ) => SapphireMessageResponse;
 
+// Can modify this as needed
 export type CodeyCommandOptions = {
   name: string;
   aliases: string[];
@@ -20,9 +22,12 @@ export type CodeyCommandOptions = {
 };
 
 export class CodeyCommand extends SapphireCommand {
+  // The message to display whilst the command is executing
   messageWhenExecutingCommand!: string;
+  // The function to be called when the command is executing
   executeCommand!: SapphireMessageExecuteType;
-  messageIfFailure!: SapphireMessageResponse;
+  // The message to display if the command fails
+  messageIfFailure: SapphireMessageResponse = 'Codey backend error - contact a mod for assistance';
 
   commandOptions!: CodeyCommandOptions;
 
