@@ -31,10 +31,7 @@ export class PingCommand extends CodeyCommand {
       description: 'ping pong',
       detailedDescription: `**Examples:**
         \`${container.botPrefix}ping\`
-        \`${container.botPrefix}pong\``,
-      chatInputCommand: {
-        register: true
-      }
+        \`${container.botPrefix}pong\``
     });
   }
 }
