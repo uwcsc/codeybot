@@ -13,6 +13,7 @@ import fetch from 'node-fetch';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_CHANNEL_ID: string = vars.OFFICE_CHANNEL_ID;
+const OFFICE_HOURS_STATUS_API = 'https://csclub.uwaterloo.ca/~n3parikh/office-status.json';
 
 export const initCrons = async (): Promise<void> => {
   createSuggestionCron().start();
@@ -30,15 +31,11 @@ interface officeStatus {
 export const createOfficeStatusCron = (): CronJob =>
   new CronJob('0 */5 * * * *', async function () {
     const { client } = container;
-    const response = (await (
-      await fetch('https://csclub.uwaterloo.ca/~n3parikh/office-status.json')
-    ).json()) as officeStatus;
-    console.log(response['status']);
+    const response = (await (await fetch(OFFICE_HOURS_STATUS_API)).json()) as officeStatus;
     const messageChannel = client.channels.cache.get(OFFICE_CHANNEL_ID);
     if (!messageChannel) {
       throw 'Bad channel ID';
     } else if (messageChannel.type === 'GUILD_TEXT') {
-      console.log((messageChannel as TextChannel).name);
       // if there is an emoji, prune it, otherwise leave name as is
       const curName =
         (messageChannel as TextChannel).name.replace(/\p{Extended_Pictographic}+/gu, '') +
