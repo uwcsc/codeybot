@@ -2,7 +2,7 @@ import type { ListenerOptions, Piece, PieceContext } from '@sapphire/framework';
 import { Listener, Store } from '@sapphire/framework';
 import { blue, gray, green, magenta, magentaBright, white, yellow } from 'colorette';
 import Discord from 'discord.js';
-import { createBonusInterviewerListCron, createCoffeeChatCron, createSuggestionCron } from '../components/cron';
+import { initCrons } from '../components/cron';
 import { initEmojis } from '../components/emojis';
 import { vars } from '../config';
 
@@ -24,14 +24,8 @@ export class ReadyListener extends Listener {
     this.printBanner();
     this.printStoreDebugInformation();
     this.sendReady();
-    this.initCrons();
+    initCrons();
     initEmojis();
-  };
-
-  initCrons = async (): Promise<void> => {
-    createSuggestionCron().start();
-    createBonusInterviewerListCron().start();
-    createCoffeeChatCron().start();
   };
 
   sendReady = async (): Promise<void> => {

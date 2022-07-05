@@ -9,8 +9,47 @@ import { getMatch, writeHistoricMatches } from './coffeeChat';
 import { adjustCoinBalanceByUserId, BonusType, coinBonusMap } from './coin';
 import { getInterviewers } from './interviewer';
 import { getSuggestionPrintout, getSuggestions, SuggestionState, updateSuggestionState } from './suggestion';
+import fetch from 'node-fetch';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
+const OFFICE_CHANNEL_ID: string = vars.OFFICE_CHANNEL_ID;
+
+export const initCrons = async (): Promise<void> => {
+  createSuggestionCron().start();
+  createBonusInterviewerListCron().start();
+  createCoffeeChatCron().start();
+  createOfficeStatusCron().start();
+};
+
+interface officeStatus {
+  status: number;
+  time: number;
+}
+
+// Updates office status based on webcom API
+export const createOfficeStatusCron = (): CronJob =>
+  new CronJob('0 */5 * * * *', async function () {
+    const { client } = container;
+    const response = (await (
+      await fetch('https://csclub.uwaterloo.ca/~n3parikh/office-status.json')
+    ).json()) as officeStatus;
+    console.log(response['status']);
+    const messageChannel = client.channels.cache.get(OFFICE_CHANNEL_ID);
+    if (!messageChannel) {
+      throw 'Bad channel ID';
+    } else if (messageChannel.type === 'GUILD_TEXT') {
+      console.log((messageChannel as TextChannel).name);
+      // if there is an emoji, prune it, otherwise leave name as is
+      const curName =
+        (messageChannel as TextChannel).name.replace(/\p{Extended_Pictographic}+/gu, '') +
+        // add no status if office is in unknown status
+        //discord channel names don't accept :emoji: so we have to use actual unicode
+        (response['status'] == 1 ? '✅' : response['status'] == 0 ? '❌' : '');
+      (messageChannel as TextChannel).setName(curName);
+    } else {
+      throw 'Bad channel type';
+    }
+  });
 
 // Checks for new suggestions every min
 export const createSuggestionCron = (): CronJob =>

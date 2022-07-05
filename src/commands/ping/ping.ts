@@ -1,6 +1,5 @@
 import { Command, container } from '@sapphire/framework';
 import { Message } from 'discord.js';
-
 import { CodeyCommand, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 
 const executeCommand: SapphireMessageExecuteType = (
@@ -12,7 +11,6 @@ const executeCommand: SapphireMessageExecuteType = (
   // We have to do this because APIMessage does not have "createdTimestamp" property
   const messageFromUserAsMessage = <Message<boolean>>messageFromUser;
   const initialMessageFromBotAsMessage = <Message<boolean>>initialMessageFromBot;
-
   const botLatency = client.ws.ping;
   const apiLatency = initialMessageFromBotAsMessage.createdTimestamp - messageFromUserAsMessage.createdTimestamp;
   const content = `Pong from JavaScript! Bot Latency ${botLatency}ms. API Latency ${apiLatency}ms.`;
