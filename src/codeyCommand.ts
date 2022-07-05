@@ -1,4 +1,4 @@
-import { Command as SapphireCommand, container, SapphireClient } from '@sapphire/framework';
+import { ChatInputCommand, Command as SapphireCommand, container, SapphireClient } from '@sapphire/framework';
 import { Message, MessagePayload, WebhookEditMessageOptions } from 'discord.js';
 import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
@@ -30,6 +30,11 @@ export class CodeyCommand extends SapphireCommand {
   messageIfFailure: SapphireMessageResponse = 'Codey backend error - contact a mod for assistance';
 
   commandOptions!: CodeyCommandOptions;
+
+  // Register application commands
+  public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
+    registry.registerChatInputCommand((builder) => builder.setName(this.name).setDescription(this.description));
+  }
 
   // Regular command
   public async messageRun(message: Message): Promise<Message<boolean>> {
