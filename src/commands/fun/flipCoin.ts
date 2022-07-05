@@ -17,9 +17,6 @@ const commandOptions: Command.Options = {
 \`${container.botPrefix}coin-flip\`
 \`${container.botPrefix}coinflip\`
 \`${container.botPrefix}flipcoin\``,
-  chatInputCommand: {
-    register: true
-  }
 };
 
 const executeCommand: SapphireMessageExecuteType = (

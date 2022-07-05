@@ -17,7 +17,7 @@ import { EMBED_COLOUR } from '../../utils/embeds';
   requiredUserPermissions: ['ADMINISTRATOR']
 })
 export class CoffeeChatCommand extends SubCommandPluginCommand {
-  private async alertMatches(matches: string[][]): Promise<void> {
+  static async alertMatches(matches: string[][]): Promise<void> {
     const { client, logger } = container;
     const outputMap: Map<string, string[]> = new Map();
     const userMap: Map<string, User> = new Map();
@@ -42,11 +42,11 @@ export class CoffeeChatCommand extends SubCommandPluginCommand {
       try {
         if (targets.length > 1) {
           await discordUser.send(
-            `Your coffee chat :coffee: matches for this week are... **${userTargets[0].tag}** and **${userTargets[1].tag}**! Feel free to contact ${userTargets[0]} and ${userTargets[1]} at your earliest convenience. :wink:`
+            `Your coffee chat :coffee: matches for this week are... **${userTargets[0].tag}** and **${userTargets[1].tag}**! Feel free to contact ${userTargets[0]} and ${userTargets[1]} at your earliest convenience. :wink: If you have any suggestions, please use the suggestion feature to give us feedback!`
           );
         } else {
           await discordUser.send(
-            `Your coffee chat :coffee: match for this week is... **${userTargets[0].tag}**! Feel free to contact ${userTargets[0]} at your earliest convenience. :wink:`
+            `Your coffee chat :coffee: match for this week is... **${userTargets[0].tag}**! Feel free to contact ${userTargets[0]} at your earliest convenience. :wink: If you have any suggestions, please use the .suggestion feature to give us feedback!`
           );
         }
       } catch (err) {
@@ -61,7 +61,7 @@ export class CoffeeChatCommand extends SubCommandPluginCommand {
   async match(message: Message): Promise<Message> {
     //makes sure future matches are valid (made for the current group / still has matches left)
     const matches = await getMatch();
-    await this.alertMatches(matches);
+    await CoffeeChatCommand.alertMatches(matches);
     await writeHistoricMatches(matches);
     return message.reply(`Sent ${matches.length} match(es).`);
   }

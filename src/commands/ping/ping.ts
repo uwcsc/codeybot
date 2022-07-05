@@ -3,17 +3,6 @@ import { Message } from 'discord.js';
 
 import { CodeyCommand, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 
-const commandOptions = {
-  aliases: ['pong'],
-  description: 'ping pong',
-  detailedDescription: `**Examples:**
-    \`${container.botPrefix}ping\`
-    \`${container.botPrefix}pong\``,
-  chatInputCommand: {
-    register: true
-  }
-}
-
 const executeCommand: SapphireMessageExecuteType = (
   client,
   messageFromUser,
@@ -42,10 +31,7 @@ export class PingCommand extends CodeyCommand {
       description: 'ping pong',
       detailedDescription: `**Examples:**
         \`${container.botPrefix}ping\`
-        \`${container.botPrefix}pong\``,
-      chatInputCommand: {
-        register: true
-      }
+        \`${container.botPrefix}pong\``
     });
   }
 }
