@@ -1,6 +1,8 @@
 import { Command, container } from '@sapphire/framework';
 import { CodeyCommand, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 
+const wikiLink = 'https://github.com/uwcsc/codeybot/wiki/Command-Help:';
+
 const commandOptions: Command.Options = {
   aliases: ['wiki'],
   description: 'Provides the URL to the wiki page.',
@@ -14,7 +16,7 @@ const executeCommand: SapphireMessageExecuteType = (
   _messageFromUser,
   _initialMessageFromBot
 ): SapphireMessageResponse => {
-  return `<https://github.com/uwcsc/codeybot/wiki/Command-Help:>`;
+  return `<${wikiLink}>`;
 };
 
 export class MiscellaneousHelpCommand extends CodeyCommand {
