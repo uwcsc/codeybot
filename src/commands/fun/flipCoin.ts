@@ -1,9 +1,4 @@
-// import { ApplyOptions } from '@sapphire/decorators';
-// import { Command, CommandOptions, container } from '@sapphire/framework';
-// import { Message } from 'discord.js';
-
 import { Command, container } from '@sapphire/framework';
-import { Message } from 'discord.js';
 
 import { CodeyCommand, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 
@@ -16,20 +11,19 @@ const commandOptions: Command.Options = {
 \`${container.botPrefix}flip\`
 \`${container.botPrefix}coin-flip\`
 \`${container.botPrefix}coinflip\`
-\`${container.botPrefix}flipcoin\``,
+\`${container.botPrefix}flipcoin\``
 };
 
 const executeCommand: SapphireMessageExecuteType = (
-  client,
-  messageFromUser,
-  initialMessageFromBot
+  _client,
+  _messageFromUser,
+  _initialMessageFromBot
 ): SapphireMessageResponse => {
   const onHeads = Math.random() < 0.5;
   return `The coin landed on **${onHeads ? 'heads' : 'tails'}**!`;
-}
+};
 
 export class FunFlipCoinCommand extends CodeyCommand {
-
   messageWhenExecutingCommand = 'Flipping a coin...';
   executeCommand: SapphireMessageExecuteType = executeCommand;
 

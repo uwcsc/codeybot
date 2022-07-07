@@ -32,8 +32,10 @@ export class CodeyCommand extends SapphireCommand {
   commandOptions!: CodeyCommandOptions;
 
   // Register application commands
-  public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
-    registry.registerChatInputCommand((builder) => builder.setName(this.name).setDescription(this.description));
+  public override registerApplicationCommands(registry: ChatInputCommand.Registry): void {
+    registry.registerChatInputCommand(builder => builder
+      .setName(this.name)
+      .setDescription(this.description));
   }
 
   // Regular command
