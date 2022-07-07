@@ -26,6 +26,7 @@ Set these accordingly within the correct config folder. If you are testing local
 - `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
 - `HONEYPOT_CHANNEL_ID`: the ID of the honeypot channel, used to help detect spammers and trolls.
 - `ANNOUNCEMENTS_CHANNEL_ID`: the ID of the announcements channel.
+- `OFFICE_CHANNEL_ID`: the ID of the office hours channel.
 
 ## Required environment variables
 
