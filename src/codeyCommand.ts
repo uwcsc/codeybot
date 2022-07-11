@@ -25,7 +25,7 @@ export type CodeyCommandOptions = {
 export enum CodeyCommandResponseType {
   STRING,
   EMBED
-};
+}
 
 export class CodeyCommand extends SapphireCommand {
   // The message to display whilst the command is executing
@@ -33,12 +33,11 @@ export class CodeyCommand extends SapphireCommand {
   // The function to be called when the command is executing
   executeCommand!: SapphireMessageExecuteType;
   // The message to display if the command fails
-  messageIfFailure: string = 'Codey backend error - contact a mod for assistance';
+  messageIfFailure = 'Codey backend error - contact a mod for assistance';
 
-  isCommandResponseEphemeral: boolean = true;
+  isCommandResponseEphemeral = true;
   // Type of response Codey command sends
   codeyCommandResponseType: CodeyCommandResponseType = CodeyCommandResponseType.STRING;
-  
 
   commandOptions!: CodeyCommandOptions;
 
@@ -55,9 +54,9 @@ export class CodeyCommand extends SapphireCommand {
       const successResponse = this.executeCommand(client, message, initialMessageFromBot);
       switch (this.codeyCommandResponseType) {
         case CodeyCommandResponseType.EMBED:
-          return initialMessageFromBot.edit({embeds: [<MessageEmbed> successResponse]});
+          return initialMessageFromBot.edit({ embeds: [<MessageEmbed>successResponse] });
         case CodeyCommandResponseType.STRING:
-          return initialMessageFromBot.edit(<string> successResponse);
+          return initialMessageFromBot.edit(<string>successResponse);
       }
     } catch (e) {
       console.log(e);
@@ -78,12 +77,10 @@ export class CodeyCommand extends SapphireCommand {
         const successResponse = this.executeCommand(client, interaction, initialMessageFromBot);
         switch (this.codeyCommandResponseType) {
           case CodeyCommandResponseType.EMBED:
-            console.log(interaction.channelId);
             const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
-            console.log(currentChannel);
-            return currentChannel.send({embeds: [<MessageEmbed> successResponse]});
+            return currentChannel.send({ embeds: [<MessageEmbed>successResponse] });
           case CodeyCommandResponseType.STRING:
-            return interaction.editReply(<string> successResponse);
+            return interaction.editReply(<string>successResponse);
         }
       } catch (e) {
         console.log(e);
