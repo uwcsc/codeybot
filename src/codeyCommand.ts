@@ -1,10 +1,10 @@
 import { ChatInputCommand, Command as SapphireCommand, container, SapphireClient } from '@sapphire/framework';
-import { Message, MessagePayload, WebhookEditMessageOptions } from 'discord.js';
+import { Message, MessageEmbed, MessagePayload, TextChannel, WebhookEditMessageOptions } from 'discord.js';
 import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
-export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions;
+export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions | MessageEmbed;
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
@@ -21,13 +21,24 @@ export type CodeyCommandOptions = {
   detailedDescription: string;
 };
 
+// Type of response the Codey command will send
+export enum CodeyCommandResponseType {
+  STRING,
+  EMBED
+};
+
 export class CodeyCommand extends SapphireCommand {
   // The message to display whilst the command is executing
   messageWhenExecutingCommand!: string;
   // The function to be called when the command is executing
   executeCommand!: SapphireMessageExecuteType;
   // The message to display if the command fails
-  messageIfFailure: SapphireMessageResponse = 'Codey backend error - contact a mod for assistance';
+  messageIfFailure: string = 'Codey backend error - contact a mod for assistance';
+
+  isCommandResponseEphemeral: boolean = true;
+  // Type of response Codey command sends
+  codeyCommandResponseType: CodeyCommandResponseType = CodeyCommandResponseType.STRING;
+  
 
   commandOptions!: CodeyCommandOptions;
 
@@ -42,7 +53,12 @@ export class CodeyCommand extends SapphireCommand {
     const initialMessageFromBot: SapphireMessageRequest = await message.channel.send(this.messageWhenExecutingCommand);
     try {
       const successResponse = this.executeCommand(client, message, initialMessageFromBot);
-      return initialMessageFromBot.edit(successResponse);
+      switch (this.codeyCommandResponseType) {
+        case CodeyCommandResponseType.EMBED:
+          return initialMessageFromBot.edit({embeds: [<MessageEmbed> successResponse]});
+        case CodeyCommandResponseType.STRING:
+          return initialMessageFromBot.edit(<string> successResponse);
+      }
     } catch (e) {
       console.log(e);
       return initialMessageFromBot.edit(this.messageIfFailure);
@@ -54,13 +70,21 @@ export class CodeyCommand extends SapphireCommand {
     const { client } = container;
     const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
       content: this.messageWhenExecutingCommand,
-      ephemeral: true, // whether user sees message or not
+      ephemeral: this.isCommandResponseEphemeral, // whether user sees message or not
       fetchReply: true
     });
     if (isMessageInstance(initialMessageFromBot)) {
       try {
         const successResponse = this.executeCommand(client, interaction, initialMessageFromBot);
-        return interaction.editReply(successResponse);
+        switch (this.codeyCommandResponseType) {
+          case CodeyCommandResponseType.EMBED:
+            console.log(interaction.channelId);
+            const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
+            console.log(currentChannel);
+            return currentChannel.send({embeds: [<MessageEmbed> successResponse]});
+          case CodeyCommandResponseType.STRING:
+            return interaction.editReply(<string> successResponse);
+        }
       } catch (e) {
         console.log(e);
         return interaction.editReply(this.messageIfFailure);
