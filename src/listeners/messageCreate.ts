@@ -5,15 +5,19 @@ import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
 
-const HONEYPOT_CHANNEL_ID: string = vars.HONEYPOT_CHANNEL_ID;
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 
 /*
- * Detect spammers/trolls/people who got hacked, not by the honeypot method, by
- * detecting that the message contains a ping and punishable word, and is sent
- * in a public channel of the Discord server that is not the announcements channel
+ * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
+ * and add a check for a message's channel ID being equal to HONEYPOT_CHANNEL_ID
  */
-const detectSpammersAndTrollsNotByHoneypot = (message: Message): boolean => {
+
+/*
+ * Detect spammers/trolls/people who got hacked, by detecting that the message
+ * contains a ping and punishable word, and is sent in a public channel of the
+ * Discord server that is not the announcements channel
+ */
+const detectSpammersAndTrolls = (message: Message): boolean => {
   // Pings that would mention many people in the Discord server
   const pingWords = ['@everyone', '@here'];
   // Keywords that point towards the user being a spammer/troll/someone who got hacked
@@ -33,7 +37,7 @@ const detectSpammersAndTrollsNotByHoneypot = (message: Message): boolean => {
  */
 const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
   const { logger } = container;
-  if (detectSpammersAndTrollsNotByHoneypot(message) || message.channel.id === HONEYPOT_CHANNEL_ID) {
+  if (detectSpammersAndTrolls(message)) {
     // Delete the message, and if the user is still in the server, then kick them and log it
     await message.delete();
     if (message.member) {

@@ -24,7 +24,6 @@ Set these accordingly within the correct config folder. If you are testing local
 - `TARGET_GUILD_ID`: the ID of the guild (server) in which coffee chats are being held.
 - `COFFEE_ROLE_ID`: the ID of the role the bot will use to decide who is enrolled into coffee chats.
 - `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
-- `HONEYPOT_CHANNEL_ID`: the ID of the honeypot channel, used to help detect spammers and trolls.
 - `ANNOUNCEMENTS_CHANNEL_ID`: the ID of the announcements channel.
 - `OFFICE_CHANNEL_ID`: the ID of the office hours channel.
 
