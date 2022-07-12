@@ -11,7 +11,7 @@ export type SapphireMessageExecuteType = (
   // Message is for normal commands, ChatInputInteraction is for slash commands
   messageFromUser: Message | SapphireCommand.ChatInputInteraction,
   initialMessageFromBot: SapphireMessageRequest
-) => SapphireMessageResponse;
+) => Promise<SapphireMessageResponse>;
 
 // Can modify this as needed
 export type CodeyCommandOptions = {
@@ -51,7 +51,7 @@ export class CodeyCommand extends SapphireCommand {
     const { client } = container;
     const initialMessageFromBot: SapphireMessageRequest = await message.channel.send(this.messageWhenExecutingCommand);
     try {
-      const successResponse = this.executeCommand(client, message, initialMessageFromBot);
+      const successResponse = await this.executeCommand(client, message, initialMessageFromBot);
       switch (this.codeyCommandResponseType) {
         case CodeyCommandResponseType.EMBED:
           return initialMessageFromBot.edit({ embeds: [<MessageEmbed>successResponse] });
@@ -74,7 +74,7 @@ export class CodeyCommand extends SapphireCommand {
     });
     if (isMessageInstance(initialMessageFromBot)) {
       try {
-        const successResponse = this.executeCommand(client, interaction, initialMessageFromBot);
+        const successResponse = await this.executeCommand(client, interaction, initialMessageFromBot);
         switch (this.codeyCommandResponseType) {
           case CodeyCommandResponseType.EMBED:
             const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;

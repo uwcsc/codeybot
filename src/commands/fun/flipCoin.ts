@@ -18,9 +18,10 @@ const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
   _initialMessageFromBot
-): SapphireMessageResponse => {
+): Promise<SapphireMessageResponse> => {
   const onHeads = Math.random() < 0.5;
-  return `The coin landed on **${onHeads ? 'heads' : 'tails'}**!`;
+  const content = `The coin landed on **${onHeads ? 'heads' : 'tails'}**!`;
+  return new Promise((resolve, _reject) => resolve(content));
 };
 
 export class FunFlipCoinCommand extends CodeyCommand {

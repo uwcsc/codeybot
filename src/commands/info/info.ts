@@ -6,6 +6,7 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
+import { getRepositoryInfo } from '../../utils/github';
 
 const INFO_EMBED_COLOR = '#4287f5';
 
@@ -13,23 +14,25 @@ const INFO_EMBED_COLOR = '#4287f5';
  * Get info embed
  * TODO:
  * - get app version and display it in the embed
- * - get issue templates links
  */
-export const getInfoEmbed = (): MessageEmbed => {
+export const getInfoEmbed = async (): Promise<MessageEmbed> => {
+  const githubRepositoryInfo = await getRepositoryInfo("uwcsc", "codeybot");
+  console.log(githubRepositoryInfo);
   const infoEmbed = new MessageEmbed()
     .setColor(INFO_EMBED_COLOR)
-    .setTitle('Codey Information')
-    .setURL('https://github.com/uwcsc/codeybot')
-    .setDescription('Links to issue templates: <link>'); // I have no idea where to find this
+    .setTitle(githubRepositoryInfo.full_name)
+    .setURL(githubRepositoryInfo.html_url)
+    .setThumbnail(githubRepositoryInfo.owner.avatar_url)
+    .setDescription('Links to issue templates: https://github.com/uwcsc/codeybot/tree/master/.github/ISSUE_TEMPLATE'); // I have no idea where to find this
   return infoEmbed;
 };
 
-const executeCommand: SapphireMessageExecuteType = (
+const executeCommand: SapphireMessageExecuteType = async (
   _client,
   _messageFromUser,
   _initialMessageFromBot
-): SapphireMessageResponse => {
-  const infoEmbed = getInfoEmbed();
+): Promise<SapphireMessageResponse> => {
+  const infoEmbed = await getInfoEmbed();
   return infoEmbed;
 };
 
