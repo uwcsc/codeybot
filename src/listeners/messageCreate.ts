@@ -8,6 +8,11 @@ import { sendKickEmbed } from '../utils/embeds';
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 
 /*
+ * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
+ * and add a check for a message's channel ID being equal to HONEYPOT_CHANNEL_ID
+ */
+
+/*
  * Detect spammers/trolls/people who got hacked, by detecting that the message
  * contains a ping and punishable word, and is sent in a public channel of the
  * Discord server that is not the announcements channel
