@@ -7,6 +7,7 @@ import { sendKickEmbed } from '../utils/embeds';
 
 const HONEYPOT_CHANNEL_ID: string = vars.HONEYPOT_CHANNEL_ID;
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
+const APPEAL_MODERATOR_ID: string = "ǝʞıɹʇSǝldıɹ⊥#5402";
 
 /*
  * Detect spammers/trolls/people who got hacked, not by the honeypot method, by
@@ -38,7 +39,7 @@ const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
     await message.delete();
     if (message.member) {
       const user = message.member.user;
-      const reason = 'Spammer/troll/got hacked';
+      const reason = 'Spammer/troll/got hacked'+'for appeal, please contact: '+APPEAL_MODERATOR_ID;
       let isSuccessful = true;
       try {
         await message.member.kick(reason);
