@@ -35,7 +35,7 @@ export class ReadyListener extends Listener {
       event: 'init'
     });
     const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
-    const latestRelease = (await getRepositoryReleases("uwcsc", "codeybot"))[0];
+    const latestRelease = (await getRepositoryReleases('uwcsc', 'codeybot'))[0];
     notif.send(`Codey is up! App version: ${latestRelease.tag_name}`);
   };
 

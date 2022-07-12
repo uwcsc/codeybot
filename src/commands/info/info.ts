@@ -16,8 +16,8 @@ const INFO_EMBED_COLOR = '#4287f5';
  * - get app version and display it in the embed
  */
 export const getInfoEmbed = async (): Promise<MessageEmbed> => {
-  const githubRepositoryInfo = await getRepositoryInfo("uwcsc", "codeybot");
-  const githubRepositoryReleases = await getRepositoryReleases("uwcsc", "codeybot");
+  const githubRepositoryInfo = await getRepositoryInfo('uwcsc', 'codeybot');
+  const githubRepositoryReleases = await getRepositoryReleases('uwcsc', 'codeybot');
   const infoEmbed = new MessageEmbed()
     .setColor(INFO_EMBED_COLOR)
     .setTitle(githubRepositoryInfo.full_name)
