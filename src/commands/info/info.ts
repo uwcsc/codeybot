@@ -6,7 +6,7 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
-import { getRepositoryInfo } from '../../utils/github';
+import { getRepositoryInfo, getRepositoryReleases } from '../../utils/github';
 
 const INFO_EMBED_COLOR = '#4287f5';
 
@@ -17,13 +17,14 @@ const INFO_EMBED_COLOR = '#4287f5';
  */
 export const getInfoEmbed = async (): Promise<MessageEmbed> => {
   const githubRepositoryInfo = await getRepositoryInfo("uwcsc", "codeybot");
-  console.log(githubRepositoryInfo);
+  const githubRepositoryReleases = await getRepositoryReleases("uwcsc", "codeybot");
   const infoEmbed = new MessageEmbed()
     .setColor(INFO_EMBED_COLOR)
     .setTitle(githubRepositoryInfo.full_name)
     .setURL(githubRepositoryInfo.html_url)
     .setThumbnail(githubRepositoryInfo.owner.avatar_url)
-    .setDescription('Links to issue templates: https://github.com/uwcsc/codeybot/tree/master/.github/ISSUE_TEMPLATE'); // I have no idea where to find this
+    .setDescription('Links to issue templates: https://github.com/uwcsc/codeybot/tree/master/.github/ISSUE_TEMPLATE')
+    .setFooter(`App version: ${githubRepositoryReleases[0].tag_name}`); // I have no idea where to find this
   return infoEmbed;
 };
 
