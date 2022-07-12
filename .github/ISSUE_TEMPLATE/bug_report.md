@@ -3,7 +3,6 @@ name: "\U0001F41E Bug Report"
 about: Help us improve and fix existing issues
 title: '[BUG]'
 labels: bug
-assignees: asdera
 ---
 
 **Describe the bug**
