@@ -5,4 +5,5 @@
 <!-- A summary or description of changes made in this PR. -->
 
 # Steps to Reproduce
-<!-- List the steps needed for the reviewer to produce your PR changes. -->
+<!-- List the steps needed for the reviewer to produce your PR changes.
+     If possible, also include screenshots to illustrate your new feature or fix. -->
