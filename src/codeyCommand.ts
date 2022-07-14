@@ -1,10 +1,10 @@
-import { ApplicationCommandRegistries, ChatInputCommand, Command as SapphireCommand, container, RegisterBehavior, SapphireClient } from '@sapphire/framework';
+import { ApplicationCommandRegistries, ChatInputCommand, Command as SapphireCommand, container, Args, ArgType, RegisterBehavior, SapphireClient } from '@sapphire/framework';
 import { Message, MessageEmbed, MessagePayload, TextChannel, WebhookEditMessageOptions } from 'discord.js';
 import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
-import { SlashCommandBuilder, SlashCommandStringOption , SlashCommandIntegerOption , SlashCommandBooleanOption
-  , SlashCommandUserOption , SlashCommandChannelOption , SlashCommandRoleOption
-  , SlashCommandMentionableOption , SlashCommandNumberOption , SlashCommandAttachmentOption} from '@discordjs/builders';
+import { SlashCommandBuilder, SlashCommandStringOption, SlashCommandIntegerOption, SlashCommandBooleanOption,
+  SlashCommandUserOption, SlashCommandChannelOption, SlashCommandRoleOption,
+  SlashCommandMentionableOption, SlashCommandNumberOption, SlashCommandAttachmentOption} from '@discordjs/builders';
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
 export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions | MessageEmbed;
@@ -26,15 +26,15 @@ export enum CodeyCommandResponseType {
 
 // Command options
 export enum CodeyCommandOptionType {
-  STRING,
-  INTEGER,
-  BOOLEAN,
-  USER,
-  CHANNEL,
-  ROLE,
-  MENTIONABLE,
-  NUMBER,
-  ATTACHMENT
+  STRING = 'string',
+  INTEGER = 'integer',
+  BOOLEAN = 'boolean',
+  USER = 'user',
+  CHANNEL = 'channel',
+  ROLE = 'role',
+  MENTIONABLE = 'mentionable',
+  NUMBER = 'number',
+  ATTACHMENT = 'attachment'
 }
 
 type SlashCommandOption = SlashCommandStringOption | SlashCommandIntegerOption | SlashCommandBooleanOption
@@ -69,7 +69,8 @@ const setCommandOption = (builder: SlashCommandBuilder, option: CodeyCommandOpti
   }
 }
 
-export type CodeyCommandArguments = {[key: string]: string | number | boolean | undefined};
+export type CodeyCommandArgumentValueType = string | number | boolean | undefined;
+export type CodeyCommandArguments = {[key: string]: CodeyCommandArgumentValueType};
 
 export class CodeyCommand extends SapphireCommand {
   // The message to display whilst the command is executing
@@ -99,21 +100,27 @@ export class CodeyCommand extends SapphireCommand {
 
   // Register application commands
   public override registerApplicationCommands(registry: ChatInputCommand.Registry): void {
-    // This ensures if any new changes are made to the slash commands,
-    // they are displayed
+    // This ensures any new changes are made to the slash commands are made
     ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.Overwrite);
     registry.registerChatInputCommand(this.getSlashCommandBuilder());
   }
 
   // Regular command
   // TODO: implement options for regular commands
-  public async messageRun(message: Message): Promise<Message<boolean>> {
+  public async messageRun(message: Message, commandArgs: Args): Promise<Message<boolean>> {
     const { client } = container;
     const initialMessageFromBot: SapphireMessageRequest = await message.channel.send({
       content: this.messageWhenExecutingCommand
     });
+
+    // Get command arguments
+    const args: CodeyCommandArguments = {};
+    for (let commandOption of this.commandOptions) {
+      args[commandOption.name] = <CodeyCommandArgumentValueType> await commandArgs.pick(<keyof ArgType> commandOption.type);
+    }
+
     try {
-      const successResponse = await this.executeCommand(client, message, initialMessageFromBot);
+      const successResponse = await this.executeCommand(client, message, initialMessageFromBot, args);
       switch (this.codeyCommandResponseType) {
         case CodeyCommandResponseType.EMBED:
           return await message.channel.send({ embeds: [<MessageEmbed>successResponse] });

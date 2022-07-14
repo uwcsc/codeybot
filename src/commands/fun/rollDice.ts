@@ -2,6 +2,7 @@ import { Command, container } from '@sapphire/framework';
 import { CodeyCommand, CodeyCommandOptionType, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 import { Message } from 'discord.js';
 import { isInteger } from 'lodash';
+import { isConstructorDeclaration } from 'typescript';
 
 const commandDetails: Command.Options = {
   aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
