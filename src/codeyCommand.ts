@@ -47,13 +47,11 @@ export class CodeyCommand extends SapphireCommand {
   }
 
   // Regular command
-  public async messageRun(message: Message): Promise<Message<boolean>> {
+  public async messageRun(message: Message): Promise<Message<boolean> | undefined> {
     const { client } = container;
-    const initialMessageFromBot: SapphireMessageRequest = await message.channel.send({
-      content: this.messageWhenExecutingCommand
-    });
     try {
-      const successResponse = await this.executeCommand(client, message, initialMessageFromBot);
+      const successResponse = await this.executeCommand(client, message);
+      if (!successResponse) return;
       switch (this.codeyCommandResponseType) {
         case CodeyCommandResponseType.EMBED:
           return await message.channel.send({ embeds: [<MessageEmbed>successResponse] });
@@ -67,7 +65,9 @@ export class CodeyCommand extends SapphireCommand {
   }
 
   // Slash command
-  public async chatInputRun(interaction: SapphireCommand.ChatInputInteraction): Promise<APIMessage | Message<boolean>> {
+  public async chatInputRun(
+    interaction: SapphireCommand.ChatInputInteraction
+  ): Promise<APIMessage | Message<boolean> | undefined> {
     const { client } = container;
     const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
       content: this.messageWhenExecutingCommand,
