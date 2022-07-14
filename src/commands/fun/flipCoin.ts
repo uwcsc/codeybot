@@ -2,7 +2,7 @@ import { Command, container } from '@sapphire/framework';
 
 import { CodeyCommand, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 
-const commandOptions: Command.Options = {
+const commandDetails: Command.Options = {
   aliases: ['fc', 'flip', 'flip-coin', 'coin-flip', 'coinflip'],
   description: 'Flip a coin! In making decisions, if it is not great, at least it is fair!',
   detailedDescription: `**Examples:**
@@ -31,7 +31,7 @@ export class FunFlipCoinCommand extends CodeyCommand {
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {
       ...options,
-      ...commandOptions
+      ...commandDetails
     });
   }
 }

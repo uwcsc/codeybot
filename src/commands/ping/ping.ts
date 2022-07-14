@@ -1,6 +1,6 @@
 import { Command, container } from '@sapphire/framework';
 import { Message } from 'discord.js';
-import { CodeyCommand, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
+import { CodeyCommand, CodeyCommandOptionType, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 
 const executeCommand: SapphireMessageExecuteType = (
   client,
@@ -26,7 +26,7 @@ export class PingCommand extends CodeyCommand {
     super(context, {
       ...options,
       aliases: ['pong'],
-      description: 'ping pong',
+      description: 'Ping the bot to see if it is alive.',
       detailedDescription: `**Examples:**
         \`${container.botPrefix}ping\`
         \`${container.botPrefix}pong\``
