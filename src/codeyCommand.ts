@@ -10,7 +10,7 @@ export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
   // Message is for normal commands, ChatInputInteraction is for slash commands
   messageFromUser: Message | SapphireCommand.ChatInputInteraction,
-  initialMessageFromBot: SapphireMessageRequest
+  initialMessageFromBot?: SapphireMessageRequest
 ) => SapphireMessageResponse;
 
 // Can modify this as needed
@@ -39,13 +39,12 @@ export class CodeyCommand extends SapphireCommand {
   // Regular command
   public async messageRun(message: Message): Promise<Message<boolean>> {
     const { client } = container;
-    const initialMessageFromBot: SapphireMessageRequest = await message.channel.send(this.messageWhenExecutingCommand);
     try {
-      const successResponse = this.executeCommand(client, message, initialMessageFromBot);
-      return initialMessageFromBot.edit(successResponse);
+      const successResponse = this.executeCommand(client, message);
+      return await message.channel.send(successResponse);
     } catch (e) {
       console.log(e);
-      return initialMessageFromBot.edit(this.messageIfFailure);
+      return await message.channel.send(this.messageIfFailure);
     }
   }
 
