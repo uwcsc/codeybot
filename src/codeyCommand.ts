@@ -64,6 +64,48 @@ const setCommandOption = (builder: SlashCommandBuilder, option: CodeyCommandOpti
       commandOption.setDescription(option.description);
       commandOption.setRequired(option.required);
       return <SlashCommandBuilder> builder.addIntegerOption(commandOption);
+    case CodeyCommandOptionType.BOOLEAN:
+      commandOption = new SlashCommandBooleanOption();
+      commandOption.setName(option.name);
+      commandOption.setDescription(option.description);
+      commandOption.setRequired(option.required);
+      return <SlashCommandBuilder> builder.addBooleanOption(commandOption);
+    case CodeyCommandOptionType.USER:
+      commandOption = new SlashCommandUserOption();
+      commandOption.setName(option.name);
+      commandOption.setDescription(option.description);
+      commandOption.setRequired(option.required);
+      return <SlashCommandBuilder> builder.addUserOption(commandOption);
+    case CodeyCommandOptionType.CHANNEL:
+      commandOption = new SlashCommandChannelOption();
+      commandOption.setName(option.name);
+      commandOption.setDescription(option.description);
+      commandOption.setRequired(option.required);
+      return <SlashCommandBuilder> builder.addChannelOption(commandOption);
+    case CodeyCommandOptionType.ROLE:
+      commandOption = new SlashCommandRoleOption();
+      commandOption.setName(option.name);
+      commandOption.setDescription(option.description);
+      commandOption.setRequired(option.required);
+      return <SlashCommandBuilder> builder.addRoleOption(commandOption);
+      case CodeyCommandOptionType.MENTIONABLE:
+        commandOption = new SlashCommandMentionableOption();
+        commandOption.setName(option.name);
+        commandOption.setDescription(option.description);
+        commandOption.setRequired(option.required);
+        return <SlashCommandBuilder> builder.addMentionableOption(commandOption);
+      case CodeyCommandOptionType.NUMBER:
+        commandOption = new SlashCommandNumberOption();
+        commandOption.setName(option.name);
+        commandOption.setDescription(option.description);
+        commandOption.setRequired(option.required);
+        return <SlashCommandBuilder> builder.addNumberOption(commandOption);
+        case CodeyCommandOptionType.ATTACHMENT:
+          commandOption = new SlashCommandAttachmentOption();
+          commandOption.setName(option.name);
+          commandOption.setDescription(option.description);
+          commandOption.setRequired(option.required);
+          return <SlashCommandBuilder> builder.addAttachmentOption(commandOption);
     default:
       throw new Error(`Unknown option type.`)
   }
