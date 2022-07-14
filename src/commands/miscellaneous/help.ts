@@ -15,8 +15,8 @@ const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
   _initialMessageFromBot
-): SapphireMessageResponse => {
-  return `<${wikiLink}>`;
+): Promise<SapphireMessageResponse> => {
+  return new Promise((resolve, _reject) => resolve(`<${wikiLink}>`));
 };
 
 export class MiscellaneousHelpCommand extends CodeyCommand {

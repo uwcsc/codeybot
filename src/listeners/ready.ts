@@ -5,6 +5,7 @@ import Discord from 'discord.js';
 import { initCrons } from '../components/cron';
 import { initEmojis } from '../components/emojis';
 import { vars } from '../config';
+import { getRepositoryReleases } from '../utils/github';
 
 const dev = process.env.NODE_ENV !== 'production';
 
@@ -34,7 +35,8 @@ export class ReadyListener extends Listener {
       event: 'init'
     });
     const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as Discord.TextChannel;
-    notif.send('Codey is up!');
+    const latestRelease = (await getRepositoryReleases('uwcsc', 'codeybot'))[0];
+    notif.send(`Codey is up! App version: ${latestRelease.tag_name}`);
   };
 
   printBanner = (): void => {

@@ -6,7 +6,7 @@ const executeCommand: SapphireMessageExecuteType = (
   client,
   messageFromUser,
   initialMessageFromBot
-): SapphireMessageResponse => {
+): Promise<SapphireMessageResponse> => {
   // Assert message types are Message<boolean>
   // We have to do this because APIMessage does not have "createdTimestamp" property
   const messageFromUserAsMessage = <Message<boolean>>messageFromUser;
@@ -14,7 +14,7 @@ const executeCommand: SapphireMessageExecuteType = (
   const botLatency = client.ws.ping;
   const apiLatency = initialMessageFromBotAsMessage.createdTimestamp - messageFromUserAsMessage.createdTimestamp;
   const content = `Pong from JavaScript! Bot Latency ${botLatency}ms. API Latency ${apiLatency}ms.`;
-  return content;
+  return new Promise((resolve, _reject) => resolve(content));
 };
 
 export class PingCommand extends CodeyCommand {

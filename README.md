@@ -32,6 +32,7 @@ Set these accordingly within the correct config folder. If you are testing local
 Set these into your `.env` file. Make sure to not push these changes to git.
 
 - `DISCORD_TOKEN`: the bot's token, found in the Discord Developer Portal. DO NOT REVEAL THIS TOKEN; ANYONE WITH THIS TOKEN CAN CONTROL YOUR BOT.
+- `GITHUB_ACCESS_TOKEN`: a personal access token of your GitHub account. DO NOT REVEAL THIS TOKEN; IT CAN BE USED TO TAKE CONTROL OF YOUR GITHUB ACCOUNT AND REPOSITORIES.
 
 ## Prerequisites
 
