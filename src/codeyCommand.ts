@@ -178,7 +178,9 @@ export class CodeyCommand extends SapphireCommand {
     // This ensures any new changes are made to the slash commands are made
     ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.Overwrite);
     // We need to do this because TS is weird
-    registry.registerChatInputCommand(builder => this.configureSlashCommandBuilder(<SlashCommandBuilder> <unknown> builder));
+    registry.registerChatInputCommand((builder) =>
+      this.configureSlashCommandBuilder(<SlashCommandBuilder>(<unknown>builder))
+    );
   }
 
   // Regular command
