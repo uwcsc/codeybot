@@ -65,9 +65,7 @@ export class CodeyCommand extends SapphireCommand {
   }
 
   // Slash command
-  public async chatInputRun(
-    interaction: SapphireCommand.ChatInputInteraction
-  ): Promise<APIMessage | Message<boolean> | undefined> {
+  public async chatInputRun(interaction: SapphireCommand.ChatInputInteraction): Promise<APIMessage | Message<boolean>> {
     const { client } = container;
     const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
       content: this.messageWhenExecutingCommand,
