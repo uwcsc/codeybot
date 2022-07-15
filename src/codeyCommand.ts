@@ -154,8 +154,7 @@ export class CodeyCommand extends SapphireCommand {
   commandOptions: CodeyCommandOption[] = [];
 
   // Get slash command builder
-  public getSlashCommandBuilder(): SlashCommandBuilder {
-    const builder = new SlashCommandBuilder();
+  public configureSlashCommandBuilder(builder: SlashCommandBuilder): SlashCommandBuilder {
     builder.setName(this.name);
     builder.setDescription(this.description);
     for (const commandOption of this.commandOptions) {
@@ -168,7 +167,8 @@ export class CodeyCommand extends SapphireCommand {
   public override registerApplicationCommands(registry: ChatInputCommand.Registry): void {
     // This ensures any new changes are made to the slash commands are made
     ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.Overwrite);
-    registry.registerChatInputCommand(this.getSlashCommandBuilder());
+    // We need to do this because TS is weird
+    registry.registerChatInputCommand(builder => this.configureSlashCommandBuilder(<SlashCommandBuilder> <unknown> builder));
   }
 
   // Regular command
