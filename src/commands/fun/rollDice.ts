@@ -1,8 +1,10 @@
 import { Command, container } from '@sapphire/framework';
-import { CodeyCommand, CodeyCommandOptionType, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
-import { Message } from 'discord.js';
-import { isInteger } from 'lodash';
-import { isConstructorDeclaration } from 'typescript';
+import {
+  CodeyCommand,
+  CodeyCommandOptionType,
+  SapphireMessageExecuteType,
+  SapphireMessageResponse
+} from '../../codeyCommand';
 
 const commandDetails: Command.Options = {
   aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
@@ -19,7 +21,7 @@ const commandDetails: Command.Options = {
 
 const getRandomInt = (max: number): number => {
   return Math.floor(Math.random() * max) + 1;
-}
+};
 
 const executeCommand: SapphireMessageExecuteType = (
   _client,
@@ -29,7 +31,7 @@ const executeCommand: SapphireMessageExecuteType = (
 ): Promise<SapphireMessageResponse> => {
   const SIDES_LOWER_BOUND = 0;
   const SIDES_UPPER_BOUND = 1000000;
-  const sides = <number> args!["sides"];
+  const sides = <number>args!['sides'];
 
   if (sides <= SIDES_LOWER_BOUND) {
     return new Promise((resolve, _reject) => resolve(`I cannot compute ${sides} sides!`));
@@ -39,18 +41,20 @@ const executeCommand: SapphireMessageExecuteType = (
   }
   const diceFace = getRandomInt(sides);
   return new Promise((resolve, _reject) => resolve(`you rolled a ${diceFace}!`));
-}
+};
 
 export class FunRollDiceCommand extends CodeyCommand {
-  messageWhenExecutingCommand = "Rolling a die...";
+  messageWhenExecutingCommand = 'Rolling a die...';
   executeCommand: SapphireMessageExecuteType = executeCommand;
 
-  commandOptions = [{
-    name: "sides",
-    description: "The number of sides on the dice",
-    required: true,
-    type: CodeyCommandOptionType.INTEGER,
-  }]
+  commandOptions = [
+    {
+      name: 'sides',
+      description: 'The number of sides on the dice',
+      required: true,
+      type: CodeyCommandOptionType.INTEGER
+    }
+  ];
 
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {

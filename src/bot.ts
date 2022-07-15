@@ -6,8 +6,6 @@ import '@sapphire/plugin-logger/register';
 import * as colorette from 'colorette';
 import { inspect } from 'util';
 
-import { RegisterBehavior } from '@sapphire/framework';
-
 // Set default inspection depth
 inspect.defaultOptions.depth = 2;
 

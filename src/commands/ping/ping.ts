@@ -1,6 +1,6 @@
 import { Command, container } from '@sapphire/framework';
 import { Message } from 'discord.js';
-import { CodeyCommand, CodeyCommandOptionType, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
+import { CodeyCommand, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 
 const executeCommand: SapphireMessageExecuteType = (
   client,
