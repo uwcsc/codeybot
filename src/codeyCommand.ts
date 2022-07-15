@@ -43,6 +43,7 @@ export enum CodeyCommandResponseType {
 }
 
 // Command options
+/** The type of the codey command option */
 export enum CodeyCommandOptionType {
   STRING = 'string',
   INTEGER = 'integer',
@@ -55,6 +56,7 @@ export enum CodeyCommandOptionType {
   ATTACHMENT = 'attachment'
 }
 
+/** We use this for convenience to put all the different types of SlashCommandOptions into one */
 type SlashCommandOption =
   | SlashCommandStringOption
   | SlashCommandIntegerOption
@@ -66,13 +68,19 @@ type SlashCommandOption =
   | SlashCommandNumberOption
   | SlashCommandAttachmentOption;
 
+/** The codey command option */
 export interface CodeyCommandOption {
+  /** The name of the option */
   name: string;
+  /** The description of the option */
   description: string;
+  /** The type of the option */
   type: CodeyCommandOptionType;
+  /** Whether the option is required */
   required: boolean;
 }
 
+/** Sets the command option in the slash command builder */
 const setCommandOption = (builder: SlashCommandBuilder, option: CodeyCommandOption): SlashCommandBuilder => {
   let commandOption: SlashCommandOption;
   switch (option.type) {
@@ -135,7 +143,9 @@ const setCommandOption = (builder: SlashCommandBuilder, option: CodeyCommandOpti
   }
 };
 
+/** The possible types of the value of a command option */
 export type CodeyCommandArgumentValueType = string | number | boolean | undefined;
+/** A standardized dictionary that stores the arguments of the command */
 export type CodeyCommandArguments = { [key: string]: CodeyCommandArgumentValueType };
 
 export class CodeyCommand extends SapphireCommand {
