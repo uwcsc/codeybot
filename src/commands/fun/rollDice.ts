@@ -1,23 +1,12 @@
 import { Command, container } from '@sapphire/framework';
 import {
   CodeyCommand,
+  CodeyCommandDetails,
   CodeyCommandOptionType,
+  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
-
-const commandDetails: Command.Options = {
-  aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
-  description: 'Roll a dice!',
-  detailedDescription: `**Examples:**
-\`${container.botPrefix}roll-dice 6\`
-\`${container.botPrefix}dice-roll 30\`
-\`${container.botPrefix}roll 100\`
-\`${container.botPrefix}rd 4\`
-\`${container.botPrefix}diceroll 2\`
-\`${container.botPrefix}dice 1\`
-\`${container.botPrefix}rolldice 10\``
-};
 
 const getRandomInt = (max: number): number => {
   return Math.floor(Math.random() * max) + 1;
@@ -43,23 +32,45 @@ const executeCommand: SapphireMessageExecuteType = (
   return new Promise((resolve, _reject) => resolve(`you rolled a ${diceFace}!`));
 };
 
-export class FunRollDiceCommand extends CodeyCommand {
-  messageWhenExecutingCommand = 'Rolling a die...';
-  executeCommand: SapphireMessageExecuteType = executeCommand;
+const rollDiceCommandDetails: CodeyCommandDetails = {
+  name: 'rollDice',
+  aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
+  description: 'Roll a dice!',
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}roll-dice 6\`
+\`${container.botPrefix}dice-roll 30\`
+\`${container.botPrefix}roll 100\`
+\`${container.botPrefix}rd 4\`
+\`${container.botPrefix}diceroll 2\`
+\`${container.botPrefix}dice 1\`
+\`${container.botPrefix}rolldice 10\``,
 
-  commandOptions = [
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Rolling a die...',
+  executeCommand: executeCommand,
+  messageIfFailure: 'Failed to roll a dice.',
+  codeyCommandResponseType: CodeyCommandResponseType.STRING,
+
+  options: [
     {
       name: 'sides',
       description: 'The number of sides on the dice',
       required: true,
       type: CodeyCommandOptionType.INTEGER
     }
-  ];
+  ],
+  subcommandDetails: {}
+};
+
+export class FunRollDiceCommand extends CodeyCommand {
+  details = rollDiceCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {
       ...options,
-      ...commandDetails
+      aliases: rollDiceCommandDetails.aliases,
+      description: rollDiceCommandDetails.description,
+      detailedDescription: rollDiceCommandDetails.detailedDescription
     });
   }
 }

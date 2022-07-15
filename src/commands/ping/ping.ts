@@ -1,6 +1,12 @@
 import { Command, container } from '@sapphire/framework';
 import { Message } from 'discord.js';
-import { CodeyCommand, CodeyCommandDetails, CodeyCommandResponseType, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
+import {
+  CodeyCommand,
+  CodeyCommandDetails,
+  CodeyCommandResponseType,
+  SapphireMessageExecuteType,
+  SapphireMessageResponse
+} from '../../codeyCommand';
 
 const executeCommand: SapphireMessageExecuteType = (
   client,
@@ -32,8 +38,8 @@ const pingCommandDetails: CodeyCommandDetails = {
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
   options: [],
-  subcommandDetails: {},
-}
+  subcommandDetails: {}
+};
 
 export class PingCommand extends CodeyCommand {
   details = pingCommandDetails;
@@ -43,7 +49,7 @@ export class PingCommand extends CodeyCommand {
       ...options,
       aliases: pingCommandDetails.aliases,
       description: pingCommandDetails.description,
-      detailedDescription: pingCommandDetails.detailedDescription,
+      detailedDescription: pingCommandDetails.detailedDescription
     });
   }
 }

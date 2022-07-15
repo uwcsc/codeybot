@@ -159,7 +159,6 @@ export class CodeyCommandDetails {
   /** A longer description of the command (shown in the help menu for the command) */
   detailedDescription: string = this.description;
 
-
   /** The message to display when the command is executing (for slash commands) */
   messageWhenExecutingCommand!: string;
   /** The function to be called to execute the command */
@@ -174,7 +173,7 @@ export class CodeyCommandDetails {
   /** Options for the Codey command */
   options: CodeyCommandOption[] = [];
   /** Subcommands under the CodeyCommand */
-  subcommandDetails: {[name: string]: CodeyCommandDetails} = {};
+  subcommandDetails: { [name: string]: CodeyCommandDetails } = {};
 }
 
 /** The codey command class */

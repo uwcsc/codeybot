@@ -50,8 +50,8 @@ const infoCommandDetails: CodeyCommandDetails = {
   codeyCommandResponseType: CodeyCommandResponseType.EMBED,
 
   options: [],
-  subcommandDetails: {},
-}
+  subcommandDetails: {}
+};
 
 export class InfoCommand extends CodeyCommand {
   details = infoCommandDetails;
@@ -61,7 +61,7 @@ export class InfoCommand extends CodeyCommand {
       ...options,
       aliases: infoCommandDetails.aliases,
       description: infoCommandDetails.description,
-      detailedDescription: infoCommandDetails.detailedDescription,
+      detailedDescription: infoCommandDetails.detailedDescription
     });
   }
 }

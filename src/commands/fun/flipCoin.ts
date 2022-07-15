@@ -1,6 +1,12 @@
 import { Command, container } from '@sapphire/framework';
 
-import { CodeyCommand, CodeyCommandDetails, CodeyCommandResponseType, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
+import {
+  CodeyCommand,
+  CodeyCommandDetails,
+  CodeyCommandResponseType,
+  SapphireMessageExecuteType,
+  SapphireMessageResponse
+} from '../../codeyCommand';
 
 const executeCommand: SapphireMessageExecuteType = (
   _client,
@@ -31,18 +37,18 @@ const flipcoinCommandDetails: CodeyCommandDetails = {
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
   options: [],
-  subcommandDetails: {},
-}
+  subcommandDetails: {}
+};
 
 export class FunFlipCoinCommand extends CodeyCommand {
   details = flipcoinCommandDetails;
-  
+
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {
       ...options,
       aliases: flipcoinCommandDetails.aliases,
       description: flipcoinCommandDetails.description,
-      detailedDescription: flipcoinCommandDetails.detailedDescription,
+      detailedDescription: flipcoinCommandDetails.detailedDescription
     });
   }
 }

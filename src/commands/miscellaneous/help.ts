@@ -1,15 +1,13 @@
 import { Command, container } from '@sapphire/framework';
-import { CodeyCommand, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
+import {
+  CodeyCommand,
+  CodeyCommandDetails,
+  CodeyCommandResponseType,
+  SapphireMessageExecuteType,
+  SapphireMessageResponse
+} from '../../codeyCommand';
 
-const wikiLink = 'https://github.com/uwcsc/codeybot/wiki/Command-Help:';
-
-const commandOptions: Command.Options = {
-  aliases: ['wiki'],
-  description: 'Provides the URL to the wiki page.',
-  detailedDescription: `**Examples:**
-\`${container.botPrefix}help\`
-\`${container.botPrefix}wiki\``
-};
+const wikiLink = 'https://github.com/uwcsc/codeybot/wiki/Command-Help';
 
 const executeCommand: SapphireMessageExecuteType = (
   _client,
@@ -19,14 +17,33 @@ const executeCommand: SapphireMessageExecuteType = (
   return new Promise((resolve, _reject) => resolve(`<${wikiLink}>`));
 };
 
+const helpCommandDetails: CodeyCommandDetails = {
+  name: 'help',
+  aliases: ['wiki'],
+  description: 'Provides the URL to the wiki page.',
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}help\`
+\`${container.botPrefix}wiki\``,
+
+  isCommandResponseEphemeral: false,
+  messageWhenExecutingCommand: 'Retrieving URL to the wiki page...',
+  executeCommand: executeCommand,
+  messageIfFailure: 'Could not retrieve URL to the wiki page.',
+  codeyCommandResponseType: CodeyCommandResponseType.STRING,
+
+  options: [],
+  subcommandDetails: {}
+};
+
 export class MiscellaneousHelpCommand extends CodeyCommand {
-  messageWhenExecutingCommand = 'Retrieving URL to the wiki page...';
-  executeCommand: SapphireMessageExecuteType = executeCommand;
+  details = helpCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {
       ...options,
-      ...commandOptions
+      aliases: helpCommandDetails.aliases,
+      description: helpCommandDetails.description,
+      detailedDescription: helpCommandDetails.detailedDescription
     });
   }
 }
