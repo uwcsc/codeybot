@@ -26,7 +26,6 @@ interface officeStatus {
   status: number;
   time: number;
 }
-
 // Updates office status based on webcom API
 export const createOfficeStatusCron = (): CronJob =>
   new CronJob('0 */5 * * * *', async function () {
@@ -41,7 +40,7 @@ export const createOfficeStatusCron = (): CronJob =>
         (messageChannel as TextChannel).name.replace(/\p{Extended_Pictographic}+/gu, '') +
         // add no status if office is in unknown status
         //discord channel names don't accept :emoji: so we have to use actual unicode
-        (response['status'] == 1 ? '✅' : response['status'] == 0 ? '❌' : '');
+        (response['status'] == 1 ? '✅' : response['status'] == 0 ? '❌' : '❓');
       (messageChannel as TextChannel).setName(curName);
     } else {
       throw 'Bad channel type';
