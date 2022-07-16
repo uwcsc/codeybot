@@ -13,6 +13,7 @@ import fetch from 'node-fetch';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_CHANNEL_ID: string = vars.OFFICE_CHANNEL_ID;
+const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
 const OFFICE_HOURS_STATUS_API = 'https://csclub.uwaterloo.ca/~n3parikh/office-status.json';
 
 export const initCrons = async (): Promise<void> => {
@@ -29,10 +30,10 @@ interface officeStatus {
 
 // Updates office status based on webcom API
 export const createOfficeStatusCron = (): CronJob =>
-  new CronJob('0 */5 * * * *', async function () {
+  new CronJob('0 */1 * * * *', async function () {
     const { client } = container;
     const response = (await (await fetch(OFFICE_HOURS_STATUS_API)).json()) as officeStatus;
-    const messageChannel = client.channels.cache.get(OFFICE_CHANNEL_ID);
+    const messageChannel = client.channels.cache.get(OFFICE_STATUS_CHANNEL_ID);
     if (!messageChannel) {
       throw 'Bad channel ID';
     } else if (messageChannel.type === 'GUILD_TEXT') {
