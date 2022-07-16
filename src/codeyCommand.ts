@@ -13,6 +13,8 @@ import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
   SlashCommandBuilder,
+  SlashCommandSubcommandBuilder,
+  SlashCommandSubcommandsOnlyBuilder,
   SlashCommandStringOption,
   SlashCommandIntegerOption,
   SlashCommandBooleanOption,
@@ -81,7 +83,7 @@ export interface CodeyCommandOption {
 }
 
 /** Sets the command option in the slash command builder */
-const setCommandOption = (builder: SlashCommandBuilder, option: CodeyCommandOption): SlashCommandBuilder => {
+const setCommandOption = (builder: SlashCommandBuilder | SlashCommandSubcommandBuilder, option: CodeyCommandOption): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
   let commandOption: SlashCommandOption;
   switch (option.type) {
     case CodeyCommandOptionType.STRING:
@@ -176,6 +178,17 @@ export class CodeyCommandDetails {
   subcommandDetails: { [name: string]: CodeyCommandDetails } = {};
 }
 
+/** Sets the command subcommand in the slash command builder */
+const setCommandSubcommand = (builder: SlashCommandBuilder, subcommandDetails: CodeyCommandDetails): SlashCommandSubcommandsOnlyBuilder => {
+  const subcommandBuilder = new SlashCommandSubcommandBuilder();
+  subcommandBuilder.setName(subcommandDetails.name);
+  subcommandBuilder.setDescription(subcommandDetails.description);
+  for (const commandOption of subcommandDetails.options) {
+    setCommandOption(subcommandBuilder, commandOption);
+  }
+  return builder.addSubcommand(subcommandBuilder);
+}
+
 /** The codey command class */
 export class CodeyCommand extends SapphireCommand {
   /** The details of the command */
@@ -187,6 +200,9 @@ export class CodeyCommand extends SapphireCommand {
     builder.setDescription(this.details.description);
     for (const commandOption of this.details.options) {
       setCommandOption(builder, commandOption);
+    }
+    for (const subcommandName in this.details.subcommandDetails) {
+      setCommandSubcommand(builder, this.details.subcommandDetails[subcommandName]);
     }
     return builder;
   }

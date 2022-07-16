@@ -23,6 +23,72 @@ const executeCommand: SapphireMessageExecuteType = (
   return new Promise((resolve, _reject) => resolve(content));
 };
 
+const executeCommand1: SapphireMessageExecuteType = (
+  client,
+  messageFromUser,
+  initialMessageFromBot
+): Promise<SapphireMessageResponse> => {
+  // Assert message types are Message<boolean>
+  // We have to do this because APIMessage does not have "createdTimestamp" property
+  const messageFromUserAsMessage = <Message<boolean>>messageFromUser;
+  const initialMessageFromBotAsMessage = <Message<boolean>>initialMessageFromBot;
+  const botLatency = client.ws.ping;
+  const apiLatency = initialMessageFromBotAsMessage.createdTimestamp - messageFromUserAsMessage.createdTimestamp;
+  const content = `Pong from JavaScript (1)! Bot Latency ${botLatency}ms. API Latency ${apiLatency}ms.`;
+  return new Promise((resolve, _reject) => resolve(content));
+};
+
+const pingCommand1Details: CodeyCommandDetails = {
+  name: 'one',
+  aliases: [],
+  description: 'Ping the bot to see if it is alive. Subcommand 1',
+  detailedDescription: `**Examples:**
+    \`${container.botPrefix}ping\`
+    \`${container.botPrefix}pong\``,
+
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Ping?',
+  messageIfFailure: 'Failed to receive ping.',
+  executeCommand: executeCommand1,
+  codeyCommandResponseType: CodeyCommandResponseType.STRING,
+
+  options: [],
+  subcommandDetails: {}
+};
+
+const executeCommand2: SapphireMessageExecuteType = (
+  client,
+  messageFromUser,
+  initialMessageFromBot
+): Promise<SapphireMessageResponse> => {
+  // Assert message types are Message<boolean>
+  // We have to do this because APIMessage does not have "createdTimestamp" property
+  const messageFromUserAsMessage = <Message<boolean>>messageFromUser;
+  const initialMessageFromBotAsMessage = <Message<boolean>>initialMessageFromBot;
+  const botLatency = client.ws.ping;
+  const apiLatency = initialMessageFromBotAsMessage.createdTimestamp - messageFromUserAsMessage.createdTimestamp;
+  const content = `Pong from JavaScript (2)! Bot Latency ${botLatency}ms. API Latency ${apiLatency}ms.`;
+  return new Promise((resolve, _reject) => resolve(content));
+};
+
+const pingCommand2Details: CodeyCommandDetails = {
+  name: 'two',
+  aliases: [],
+  description: 'Ping the bot to see if it is alive. Subcommand 2',
+  detailedDescription: `**Examples:**
+    \`${container.botPrefix}ping\`
+    \`${container.botPrefix}pong\``,
+
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Ping?',
+  messageIfFailure: 'Failed to receive ping.',
+  executeCommand: executeCommand2,
+  codeyCommandResponseType: CodeyCommandResponseType.STRING,
+
+  options: [],
+  subcommandDetails: {}
+};
+
 const pingCommandDetails: CodeyCommandDetails = {
   name: 'ping',
   aliases: ['pong'],
@@ -38,7 +104,10 @@ const pingCommandDetails: CodeyCommandDetails = {
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
   options: [],
-  subcommandDetails: {}
+  subcommandDetails: {
+    one: pingCommand1Details,
+    two: pingCommand2Details
+  }
 };
 
 export class PingCommand extends CodeyCommand {
