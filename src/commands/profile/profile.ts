@@ -24,8 +24,7 @@ import { EMBED_COLOUR } from '../../utils/embeds';
 })
 export class ProfileCommand extends SubCommandPluginCommand {
   public async about(message: Message, args: Args): Promise<Message> {
-    const user = await args.rest('user').catch(() => 'please enter a valid user mention or ID to check their profile.');
-    if (typeof user === 'string') return message.reply(user);
+    const user = await args.rest('user').catch(() => message.author);
     // get user profile if exists
     const profileDetails: UserProfile | undefined = await getUserProfileById(user.id);
     if (!profileDetails) {
