@@ -272,10 +272,10 @@ export class CodeyCommand extends SapphireCommand {
     );
 
     // Get subcommand name
-    let subcommandName: string = '';
+    let subcommandName = '';
     try {
       subcommandName = interaction.options.getSubcommand();
-    } catch (e: any) {}
+    } catch (e) {}
     /** The command details object to use */
     const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
 
