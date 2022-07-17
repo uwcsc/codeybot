@@ -83,7 +83,10 @@ export interface CodeyCommandOption {
 }
 
 /** Sets the command option in the slash command builder */
-const setCommandOption = (builder: SlashCommandBuilder | SlashCommandSubcommandBuilder, option: CodeyCommandOption): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
+const setCommandOption = (
+  builder: SlashCommandBuilder | SlashCommandSubcommandBuilder,
+  option: CodeyCommandOption
+): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
   let commandOption: SlashCommandOption;
   switch (option.type) {
     case CodeyCommandOptionType.STRING:
@@ -157,7 +160,7 @@ export class CodeyCommandDetails {
   /** The aliases of the command (for regular commands) */
   aliases: string[] = [];
   /** A short description of the command (shown in the slash command menu) */
-  description: string = `Codey command for ${this.name}`;
+  description = `Codey command for ${this.name}`;
   /** A longer description of the command (shown in the help menu for the command) */
   detailedDescription: string = this.description;
 
@@ -166,9 +169,9 @@ export class CodeyCommandDetails {
   /** The function to be called to execute the command */
   executeCommand!: SapphireMessageExecuteType;
   /** The message to display if the command fails */
-  messageIfFailure: string = 'Codey backend error - contact a mod for assistance';
+  messageIfFailure = 'Codey backend error - contact a mod for assistance';
   /** A flag to indicate if the command response is ephemeral (ie visible to others) */
-  isCommandResponseEphemeral: boolean = true;
+  isCommandResponseEphemeral = true;
   /** Type of response the Codey command sends */
   codeyCommandResponseType: CodeyCommandResponseType = CodeyCommandResponseType.STRING;
 
@@ -179,7 +182,10 @@ export class CodeyCommandDetails {
 }
 
 /** Sets the command subcommand in the slash command builder */
-const setCommandSubcommand = (builder: SlashCommandBuilder, subcommandDetails: CodeyCommandDetails): SlashCommandSubcommandsOnlyBuilder => {
+const setCommandSubcommand = (
+  builder: SlashCommandBuilder,
+  subcommandDetails: CodeyCommandDetails
+): SlashCommandSubcommandsOnlyBuilder => {
   const subcommandBuilder = new SlashCommandSubcommandBuilder();
   subcommandBuilder.setName(subcommandDetails.name);
   subcommandBuilder.setDescription(subcommandDetails.description);
@@ -187,7 +193,7 @@ const setCommandSubcommand = (builder: SlashCommandBuilder, subcommandDetails: C
     setCommandOption(subcommandBuilder, commandOption);
   }
   return builder.addSubcommand(subcommandBuilder);
-}
+};
 
 /** The codey command class */
 export class CodeyCommand extends SapphireCommand {
@@ -232,9 +238,9 @@ export class CodeyCommand extends SapphireCommand {
       );
     }
 
-    let subcommandName = message.content.split(' ')[1];
+    const subcommandName = message.content.split(' ')[1];
     /** The command details object to use */
-    let commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
+    const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
 
     try {
       const successResponse = await commandDetails.executeCommand(client, message, initialMessageFromBot, args);
@@ -266,9 +272,9 @@ export class CodeyCommand extends SapphireCommand {
         .map((commandOption) => commandOption.name)
         .map((commandOptionName) => ({ [commandOptionName]: interaction.options.get(commandOptionName)?.value }))
     );
-    
+
     /** The command details object to use */
-    let commandDetails = this.details.subcommandDetails[interaction.options.getSubcommand()] ?? this.details;
+    const commandDetails = this.details.subcommandDetails[interaction.options.getSubcommand()] ?? this.details;
 
     if (isMessageInstance(initialMessageFromBot)) {
       try {
