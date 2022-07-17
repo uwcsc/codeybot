@@ -224,11 +224,8 @@ export class CodeyCommand extends SapphireCommand {
   }
 
   // Regular command
-  public async messageRun(message: Message, commandArgs: Args): Promise<Message<boolean>> {
+  public async messageRun(message: Message, commandArgs: Args): Promise<Message<boolean> | undefined> {
     const { client } = container;
-    const initialMessageFromBot: SapphireMessageRequest = await message.channel.send({
-      content: this.details.messageWhenExecutingCommand
-    });
 
     // Get command arguments
     const args: CodeyCommandArguments = {};
@@ -243,7 +240,8 @@ export class CodeyCommand extends SapphireCommand {
     const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
 
     try {
-      const successResponse = await commandDetails.executeCommand(client, message, initialMessageFromBot, args);
+      const successResponse = await commandDetails.executeCommand(client, message, undefined, args);
+      if (!successResponse) return;
       switch (commandDetails.codeyCommandResponseType) {
         case CodeyCommandResponseType.EMBED:
           return await message.channel.send({ embeds: [<MessageEmbed>successResponse] });
@@ -272,9 +270,15 @@ export class CodeyCommand extends SapphireCommand {
         .map((commandOption) => commandOption.name)
         .map((commandOptionName) => ({ [commandOptionName]: interaction.options.get(commandOptionName)?.value }))
     );
-
+    
+    // Get subcommand name
+    let subcommandName: string = '';
+    try {
+      subcommandName = interaction.options.getSubcommand();
+    }
+    catch (e: any) {}
     /** The command details object to use */
-    const commandDetails = this.details.subcommandDetails[interaction.options.getSubcommand()] ?? this.details;
+    const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
 
     if (isMessageInstance(initialMessageFromBot)) {
       try {
