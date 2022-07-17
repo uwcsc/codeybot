@@ -44,7 +44,9 @@ export class SuggestionCommand extends SubCommandPluginCommand {
     }\n\n`;
   }
 
-  async list(message: Message, args: Args): Promise<Message> {
+  async list(message: Message, args: Args): Promise<Message | void> {
+    if (!message.member?.permissions.has('ADMINISTRATOR')) return;
+
     const state = args.finished ? null : (await args.rest('string')).toLowerCase();
     //validate state
     if (state !== null && !(state.toLowerCase() in suggestionStatesReadable))
@@ -65,7 +67,9 @@ export class SuggestionCommand extends SubCommandPluginCommand {
     return message.channel.send({ embeds: [outEmbed] });
   }
 
-  async update(message: Message, args: Args): Promise<Message> {
+  async update(message: Message, args: Args): Promise<Message | void> {
+    if (!message.member?.permissions.has('ADMINISTRATOR')) return;
+
     const state = (await args.pick('string').catch(() => `please enter a valid suggestion state.`)).toLowerCase();
     const ids = await args.rest('string').catch(() => `please enter valid suggestion IDs.`);
     const suggestionIds = ids.split(' ').map((a) => Number(a));
