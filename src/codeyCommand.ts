@@ -232,9 +232,13 @@ export class CodeyCommand extends SapphireCommand {
       );
     }
 
+    let subcommandName = message.content.split(' ')[1];
+    /** The command details object to use */
+    let commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
+
     try {
-      const successResponse = await this.details.executeCommand(client, message, initialMessageFromBot, args);
-      switch (this.details.codeyCommandResponseType) {
+      const successResponse = await commandDetails.executeCommand(client, message, initialMessageFromBot, args);
+      switch (commandDetails.codeyCommandResponseType) {
         case CodeyCommandResponseType.EMBED:
           return await message.channel.send({ embeds: [<MessageEmbed>successResponse] });
         case CodeyCommandResponseType.STRING:
@@ -242,7 +246,7 @@ export class CodeyCommand extends SapphireCommand {
       }
     } catch (e) {
       console.log(e);
-      return await message.channel.send(this.details.messageIfFailure);
+      return await message.channel.send(commandDetails.messageIfFailure);
     }
   }
 
@@ -262,11 +266,14 @@ export class CodeyCommand extends SapphireCommand {
         .map((commandOption) => commandOption.name)
         .map((commandOptionName) => ({ [commandOptionName]: interaction.options.get(commandOptionName)?.value }))
     );
+    
+    /** The command details object to use */
+    let commandDetails = this.details.subcommandDetails[interaction.options.getSubcommand()] ?? this.details;
 
     if (isMessageInstance(initialMessageFromBot)) {
       try {
-        const successResponse = await this.details.executeCommand(client, interaction, initialMessageFromBot, args);
-        switch (this.details.codeyCommandResponseType) {
+        const successResponse = await commandDetails.executeCommand(client, interaction, initialMessageFromBot, args);
+        switch (commandDetails.codeyCommandResponseType) {
           case CodeyCommandResponseType.EMBED:
             const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
             return currentChannel.send({ embeds: [<MessageEmbed>successResponse] });
@@ -275,9 +282,9 @@ export class CodeyCommand extends SapphireCommand {
         }
       } catch (e) {
         console.log(e);
-        return interaction.editReply(this.details.messageIfFailure);
+        return interaction.editReply(commandDetails.messageIfFailure);
       }
     }
-    return interaction.editReply(this.details.messageIfFailure);
+    return interaction.editReply(commandDetails.messageIfFailure);
   }
 }
