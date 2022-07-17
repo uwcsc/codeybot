@@ -12,6 +12,7 @@ const wikiLink = 'https://github.com/uwcsc/codeybot/wiki/Command-Help';
 const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
+  _args,
   _initialMessageFromBot
 ): Promise<SapphireMessageResponse> => {
   return new Promise((resolve, _reject) => resolve(`<${wikiLink}>`));

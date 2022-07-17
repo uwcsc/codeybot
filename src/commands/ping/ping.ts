@@ -22,8 +22,8 @@ const content = (botLatency: number, apiLatency: number) =>
 const executeCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
-  initialMessageFromBot,
-  _args
+  _args,
+  initialMessageFromBot
 ): Promise<SapphireMessageResponse> => {
   // Assert message types are Message<boolean>
   // We have to do this because APIMessage does not have "createdTimestamp" property

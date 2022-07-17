@@ -15,8 +15,8 @@ const getRandomInt = (max: number): number => {
 const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
-  _initialMessageFromBot,
-  args
+  args,
+  _initialMessageFromBot
 ): Promise<SapphireMessageResponse> => {
   const SIDES_LOWER_BOUND = 0;
   const SIDES_UPPER_BOUND = 1000000;

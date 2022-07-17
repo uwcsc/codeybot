@@ -30,6 +30,7 @@ export const getInfoEmbed = async (): Promise<MessageEmbed> => {
 const executeCommand: SapphireMessageExecuteType = async (
   _client,
   _messageFromUser,
+  _args,
   _initialMessageFromBot
 ): Promise<SapphireMessageResponse> => {
   const infoEmbed = await getInfoEmbed();

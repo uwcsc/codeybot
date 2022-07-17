@@ -11,6 +11,7 @@ import {
 const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
+  _args,
   _initialMessageFromBot
 ): Promise<SapphireMessageResponse> => {
   const onHeads = Math.random() < 0.5;
