@@ -2,6 +2,8 @@ import { Command, container } from '@sapphire/framework';
 import { Message } from 'discord.js';
 import {
   CodeyCommand,
+  CodeyCommandDetails,
+  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageRequest,
   SapphireMessageResponse
@@ -20,6 +22,7 @@ const content = (botLatency: number, apiLatency: number) =>
 const executeCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
+  _args,
   initialMessageFromBot
 ): Promise<SapphireMessageResponse> => {
   // Assert message types are Message<boolean>
@@ -36,19 +39,33 @@ const executeCommand: SapphireMessageExecuteType = async (
   return Promise.resolve('');
 };
 
+const pingCommandDetails: CodeyCommandDetails = {
+  name: 'ping',
+  aliases: ['pong'],
+  description: 'Ping the bot to see if it is alive.',
+  detailedDescription: `**Examples:**
+    \`${container.botPrefix}ping\`
+    \`${container.botPrefix}pong\``,
+
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Ping?',
+  messageIfFailure: 'Failed to receive ping.',
+  executeCommand: executeCommand,
+  codeyCommandResponseType: CodeyCommandResponseType.STRING,
+
+  options: [],
+  subcommandDetails: {}
+};
+
 export class PingCommand extends CodeyCommand {
-  messageWhenExecutingCommand = initialPingContent;
-  messageIfFailure = 'Failed to receive ping.';
-  executeCommand: SapphireMessageExecuteType = executeCommand;
+  details = pingCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {
       ...options,
-      aliases: ['pong'],
-      description: 'ping pong',
-      detailedDescription: `**Examples:**
-        \`${container.botPrefix}ping\`
-        \`${container.botPrefix}pong\``
+      aliases: pingCommandDetails.aliases,
+      description: pingCommandDetails.description,
+      detailedDescription: pingCommandDetails.detailedDescription
     });
   }
 }

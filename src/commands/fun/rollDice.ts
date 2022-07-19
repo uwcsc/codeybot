@@ -1,9 +1,39 @@
-import { ApplyOptions } from '@sapphire/decorators';
-import { Args, Command, CommandOptions, container } from '@sapphire/framework';
-import { Message } from 'discord.js';
-import { isInteger } from 'lodash';
+import { Command, container } from '@sapphire/framework';
+import {
+  CodeyCommand,
+  CodeyCommandDetails,
+  CodeyCommandOptionType,
+  CodeyCommandResponseType,
+  SapphireMessageExecuteType,
+  SapphireMessageResponse
+} from '../../codeyCommand';
 
-@ApplyOptions<CommandOptions>({
+const getRandomInt = (max: number): number => {
+  return Math.floor(Math.random() * max) + 1;
+};
+
+const executeCommand: SapphireMessageExecuteType = (
+  _client,
+  _messageFromUser,
+  args,
+  _initialMessageFromBot
+): Promise<SapphireMessageResponse> => {
+  const SIDES_LOWER_BOUND = 0;
+  const SIDES_UPPER_BOUND = 1000000;
+  const sides = <number>args!['sides'];
+
+  if (sides <= SIDES_LOWER_BOUND) {
+    return new Promise((resolve, _reject) => resolve(`I cannot compute ${sides} sides!`));
+  }
+  if (sides > SIDES_UPPER_BOUND) {
+    return new Promise((resolve, _reject) => resolve("that's too many sides!"));
+  }
+  const diceFace = getRandomInt(sides);
+  return new Promise((resolve, _reject) => resolve(`you rolled a ${diceFace}!`));
+};
+
+const rollDiceCommandDetails: CodeyCommandDetails = {
+  name: 'rollDice',
   aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
   description: 'Roll a dice!',
   detailedDescription: `**Examples:**
@@ -13,33 +43,34 @@ import { isInteger } from 'lodash';
 \`${container.botPrefix}rd 4\`
 \`${container.botPrefix}diceroll 2\`
 \`${container.botPrefix}dice 1\`
-\`${container.botPrefix}rolldice 10\``
-})
-export class FunRollDiceCommand extends Command {
-  getRandomInt(max: number): number {
-    return Math.floor(Math.random() * max) + 1;
-  }
+\`${container.botPrefix}rolldice 10\``,
 
-  async messageRun(message: Message, args: Args): Promise<Message> {
-    const SIDES_LOWER_BOUND = 0;
-    const SIDES_UPPER_BOUND = 1000000;
-    const sides = await args.pick('integer').catch(() => 6);
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Rolling a die...',
+  executeCommand: executeCommand,
+  messageIfFailure: 'Failed to roll a dice.',
+  codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
-    //Argument enforcement
-    if (!isInteger(sides) || !args.finished) {
-      return message.reply(
-        `Invalid Parameters! Usage: \`rolldice <sides>\` \n` +
-          `\`sides\` - The number of sides on the dice you wish to roll, ` +
-          `must be \`${SIDES_LOWER_BOUND} < sides <= ${SIDES_UPPER_BOUND}\``
-      );
+  options: [
+    {
+      name: 'sides',
+      description: 'The number of sides on the dice',
+      required: true,
+      type: CodeyCommandOptionType.INTEGER
     }
-    if (sides <= SIDES_LOWER_BOUND) {
-      return message.reply(`I cannot compute ${sides} sides!`);
-    }
-    if (sides > SIDES_UPPER_BOUND) {
-      return message.reply("that's too many sides!");
-    }
-    const diceFace = this.getRandomInt(sides);
-    return message.reply(`you rolled a ${diceFace}!`);
+  ],
+  subcommandDetails: {}
+};
+
+export class FunRollDiceCommand extends CodeyCommand {
+  details = rollDiceCommandDetails;
+
+  public constructor(context: Command.Context, options: Command.Options) {
+    super(context, {
+      ...options,
+      aliases: rollDiceCommandDetails.aliases,
+      description: rollDiceCommandDetails.description,
+      detailedDescription: rollDiceCommandDetails.detailedDescription
+    });
   }
 }

@@ -2,6 +2,7 @@ import { Command, container } from '@sapphire/framework';
 import { MessageEmbed } from 'discord.js';
 import {
   CodeyCommand,
+  CodeyCommandDetails,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse
@@ -22,31 +23,46 @@ export const getInfoEmbed = async (): Promise<MessageEmbed> => {
     .setURL(githubRepositoryInfo.html_url)
     .setThumbnail(githubRepositoryInfo.owner.avatar_url)
     .setDescription('Links to issue templates: https://github.com/uwcsc/codeybot/tree/master/.github/ISSUE_TEMPLATE')
-    .setFooter(`App version: ${githubRepositoryReleases[0].tag_name}`); // I have no idea where to find this
+    .setFooter(`App version: ${githubRepositoryReleases[0].tag_name}`);
   return infoEmbed;
 };
 
 const executeCommand: SapphireMessageExecuteType = async (
   _client,
   _messageFromUser,
+  _args,
   _initialMessageFromBot
 ): Promise<SapphireMessageResponse> => {
   const infoEmbed = await getInfoEmbed();
   return infoEmbed;
 };
 
+const infoCommandDetails: CodeyCommandDetails = {
+  name: 'info',
+  aliases: [],
+  description: 'Get Codey information - app version, repository link and issue templates',
+  detailedDescription: `**Examples:**
+  \`${container.botPrefix}info\``,
+
+  isCommandResponseEphemeral: false,
+  messageWhenExecutingCommand: 'Getting Codey Info...',
+  messageIfFailure: 'Could not get Codey info.',
+  executeCommand: executeCommand,
+  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
+
+  options: [],
+  subcommandDetails: {}
+};
+
 export class InfoCommand extends CodeyCommand {
-  messageWhenExecutingCommand = 'Fetching Codey info:';
-  executeCommand: SapphireMessageExecuteType = executeCommand;
-  isCommandResponseEphemeral = false;
-  codeyCommandResponseType = CodeyCommandResponseType.EMBED;
+  details = infoCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {
       ...options,
-      description: 'Fetches Codey information - app version, repository link and issue templates',
-      detailedDescription: `**Examples:**
-        \`${container.botPrefix}info\``
+      aliases: infoCommandDetails.aliases,
+      description: infoCommandDetails.description,
+      detailedDescription: infoCommandDetails.detailedDescription
     });
   }
 }
