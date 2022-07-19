@@ -20,7 +20,7 @@ const executeCommand: SapphireMessageExecuteType = (
 };
 
 const flipcoinCommandDetails: CodeyCommandDetails = {
-  name: 'flipCoin',
+  name: 'flipcoin',
   aliases: ['fc', 'flip', 'flip-coin', 'coin-flip', 'coinflip'],
   description: 'Flip a coin! In making decisions, if it is not great, at least it is fair!',
   detailedDescription: `**Examples:**
