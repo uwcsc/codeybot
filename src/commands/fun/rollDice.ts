@@ -33,7 +33,7 @@ const executeCommand: SapphireMessageExecuteType = (
 };
 
 const rollDiceCommandDetails: CodeyCommandDetails = {
-  name: 'rollDice',
+  name: 'rolldice',
   aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
   description: 'Roll a dice!',
   detailedDescription: `**Examples:**

@@ -164,16 +164,18 @@ export class CodeyCommandDetails {
   /** A longer description of the command (shown in the help menu for the command) */
   detailedDescription: string = this.description;
 
+  // The following can all technically be nullable, because the actual command might not be used
+  // Rather, the command might just be a "folder" for subcommands.
   /** The message to display when the command is executing (for slash commands) */
-  messageWhenExecutingCommand!: string;
+  messageWhenExecutingCommand?: string;
   /** The function to be called to execute the command */
-  executeCommand!: SapphireMessageExecuteType;
+  executeCommand?: SapphireMessageExecuteType;
   /** The message to display if the command fails */
-  messageIfFailure = 'Codey backend error - contact a mod for assistance';
+  messageIfFailure? = 'Codey backend error - contact a mod for assistance';
   /** A flag to indicate if the command response is ephemeral (ie visible to others) */
-  isCommandResponseEphemeral = true;
+  isCommandResponseEphemeral? = true;
   /** Type of response the Codey command sends */
-  codeyCommandResponseType: CodeyCommandResponseType = CodeyCommandResponseType.STRING;
+  codeyCommandResponseType?: CodeyCommandResponseType = CodeyCommandResponseType.STRING;
 
   /** Options for the Codey command */
   options: CodeyCommandOption[] = [];
@@ -227,20 +229,20 @@ export class CodeyCommand extends SapphireCommand {
   public async messageRun(message: Message, commandArgs: Args): Promise<Message<boolean> | undefined> {
     const { client } = container;
 
+    const subcommandName = message.content.split(' ')[1];
+    /** The command details object to use */
+    const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
+
     // Get command arguments
     const args: CodeyCommandArguments = {};
-    for (const commandOption of this.details.options!) {
+    for (const commandOption of commandDetails.options!) {
       args[commandOption.name] = <CodeyCommandArgumentValueType>(
         await commandArgs.pick(<keyof ArgType>commandOption.type)
       );
     }
 
-    const subcommandName = message.content.split(' ')[1];
-    /** The command details object to use */
-    const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
-
     try {
-      const successResponse = await commandDetails.executeCommand(client, message, args);
+      const successResponse = await commandDetails.executeCommand!(client, message, args);
       if (!successResponse) return;
       switch (commandDetails.codeyCommandResponseType) {
         case CodeyCommandResponseType.EMBED:
@@ -250,26 +252,13 @@ export class CodeyCommand extends SapphireCommand {
       }
     } catch (e) {
       console.log(e);
-      return await message.channel.send(commandDetails.messageIfFailure);
+      return await message.channel.send(commandDetails.messageIfFailure!);
     }
   }
 
   // Slash command
   public async chatInputRun(interaction: SapphireCommand.ChatInputInteraction): Promise<APIMessage | Message<boolean>> {
     const { client } = container;
-    const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
-      content: this.details.messageWhenExecutingCommand,
-      ephemeral: this.details.isCommandResponseEphemeral, // whether user sees message or not
-      fetchReply: true
-    });
-
-    // Get command arguments
-    const args: CodeyCommandArguments = Object.assign(
-      {},
-      ...this.details.options
-        .map((commandOption) => commandOption.name)
-        .map((commandOptionName) => ({ [commandOptionName]: interaction.options.get(commandOptionName)?.value }))
-    );
 
     // Get subcommand name
     let subcommandName = '';
@@ -279,9 +268,23 @@ export class CodeyCommand extends SapphireCommand {
     /** The command details object to use */
     const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
 
+    const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
+      content: commandDetails.messageWhenExecutingCommand,
+      ephemeral: commandDetails.isCommandResponseEphemeral, // whether user sees message or not
+      fetchReply: true
+    });
+
+    // Get command arguments
+    const args: CodeyCommandArguments = Object.assign(
+      {},
+      ...commandDetails.options
+        .map((commandOption) => commandOption.name)
+        .map((commandOptionName) => ({ [commandOptionName]: interaction.options.get(commandOptionName)?.value }))
+    );
+
     if (isMessageInstance(initialMessageFromBot)) {
       try {
-        const successResponse = await commandDetails.executeCommand(client, interaction, args, initialMessageFromBot);
+        const successResponse = await commandDetails.executeCommand!(client, interaction, args, initialMessageFromBot);
         switch (commandDetails.codeyCommandResponseType) {
           case CodeyCommandResponseType.EMBED:
             const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
@@ -291,9 +294,9 @@ export class CodeyCommand extends SapphireCommand {
         }
       } catch (e) {
         console.log(e);
-        return interaction.editReply(commandDetails.messageIfFailure);
+        return interaction.editReply(commandDetails.messageIfFailure!);
       }
     }
-    return interaction.editReply(commandDetails.messageIfFailure);
+    return interaction.editReply(commandDetails.messageIfFailure!);
   }
 }
