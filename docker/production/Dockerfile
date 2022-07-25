@@ -1,19 +1,21 @@
 # Stage 1: Typescript build app
-FROM node:16-alpine AS ts-build
+FROM node:18-alpine AS ts-build
 WORKDIR /usr/app
-COPY package.json .
-RUN npm install
+COPY package.json yarn.lock ./
+RUN yarn --frozen-lockfile
 COPY . .
-RUN npm run ts:build
+RUN yarn run ts:build
 
-# Stage 2: Run in production env
-FROM node:16-alpine
+# Stage 2: Run in staging env
+FROM node:18-alpine
 WORKDIR /usr/app
 ENV NODE_ENV="prod"
-COPY package.json .
-RUN npm install --only=production
-RUN npm install pm2 -g
-COPY . .
+COPY package.json yarn.lock ./
+RUN yarn --frozen-lockfile --prod
+RUN yarn global add pm2
 COPY --from=ts-build /usr/app/dist ./dist
+COPY ./config ./config
+COPY ./db ./db
+COPY ./logs ./logs
 
 CMD [ "pm2-runtime", "--raw", "./dist/index.js" ]
