@@ -8,7 +8,7 @@ import {
   RegisterBehavior,
   SapphireClient
 } from '@sapphire/framework';
-import { Message, MessageEmbed, MessagePayload, TextChannel, WebhookEditMessageOptions } from 'discord.js';
+import { Message, MessageEmbed, MessagePayload, TextChannel, User, WebhookEditMessageOptions } from 'discord.js';
 import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
@@ -149,7 +149,7 @@ const setCommandOption = (
 };
 
 /** The possible types of the value of a command option */
-export type CodeyCommandArgumentValueType = string | number | boolean | undefined;
+export type CodeyCommandArgumentValueType = string | number | boolean | User | undefined;
 /** A standardized dictionary that stores the arguments of the command */
 export type CodeyCommandArguments = { [key: string]: CodeyCommandArgumentValueType };
 
@@ -232,16 +232,20 @@ export class CodeyCommand extends SapphireCommand {
     const subcommandName = message.content.split(' ')[1];
     /** The command details object to use */
     const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
-
-    // Get command arguments
-    const args: CodeyCommandArguments = {};
-    for (const commandOption of commandDetails.options!) {
-      args[commandOption.name] = <CodeyCommandArgumentValueType>(
-        await commandArgs.pick(<keyof ArgType>commandOption.type)
-      );
+    // Move the "argument picker" by one parameter is subcommand name is not undefined
+    if (subcommandName) {
+      await commandArgs.pick('string');
     }
 
     try {
+    const args: CodeyCommandArguments = {};
+    for (const commandOption of commandDetails.options!) {
+      try {
+        args[commandOption.name] = <CodeyCommandArgumentValueType>(
+          await commandArgs.pick(<keyof ArgType>commandOption.type)
+        );
+      } catch (e) {}
+    }
       const successResponse = await commandDetails.executeCommand!(client, message, args);
       if (!successResponse) return;
       switch (commandDetails.codeyCommandResponseType) {
@@ -274,29 +278,57 @@ export class CodeyCommand extends SapphireCommand {
       fetchReply: true
     });
 
-    // Get command arguments
-    const args: CodeyCommandArguments = Object.assign(
-      {},
-      ...commandDetails.options
-        .map((commandOption) => commandOption.name)
-        .map((commandOptionName) => ({ [commandOptionName]: interaction.options.get(commandOptionName)?.value }))
-    );
+    try {
+      // Get command arguments
+      const args: CodeyCommandArguments = Object.assign(
+        {},
+        ...commandDetails.options
+          .map((commandOption) => commandOption.name)
+          .map((commandOptionName) => {
+            let commandInteractionOption = interaction.options.get(commandOptionName);
+            let result: CodeyCommandArgumentValueType;
+            if (commandInteractionOption) {
+              let type = commandInteractionOption.type;
+              switch (type) {
+                case "USER":
+                  return { 
+                    [commandOptionName]: commandInteractionOption.user, 
+                  }
+                case "STRING":
+                case "INTEGER":
+                case "NUMBER":
+                case "BOOLEAN":
+                default:
+                  return { 
+                    [commandOptionName]: commandInteractionOption.value, 
+                  };
+              }
+            }
 
-    if (isMessageInstance(initialMessageFromBot)) {
-      try {
-        const successResponse = await commandDetails.executeCommand!(client, interaction, args, initialMessageFromBot);
-        switch (commandDetails.codeyCommandResponseType) {
-          case CodeyCommandResponseType.EMBED:
-            const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
-            return currentChannel.send({ embeds: [<MessageEmbed>successResponse] });
-          case CodeyCommandResponseType.STRING:
-            return interaction.editReply(<string>successResponse);
+            return { 
+              [commandOptionName]: result, 
+            }
+          })
+      );
+
+      if (isMessageInstance(initialMessageFromBot)) {
+        try {
+          const successResponse = await commandDetails.executeCommand!(client, interaction, args, initialMessageFromBot);
+          switch (commandDetails.codeyCommandResponseType) {
+            case CodeyCommandResponseType.EMBED:
+              const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
+              return currentChannel.send({ embeds: [<MessageEmbed>successResponse] });
+            case CodeyCommandResponseType.STRING:
+              return interaction.editReply(<string>successResponse);
+          }
+        } catch (e) {
+          console.log(e);
+          return interaction.editReply(commandDetails.messageIfFailure!);
         }
-      } catch (e) {
-        console.log(e);
-        return interaction.editReply(commandDetails.messageIfFailure!);
       }
     }
-    return interaction.editReply(commandDetails.messageIfFailure!);
+    finally {
+      return interaction.editReply(commandDetails.messageIfFailure!);
+    }
   }
 }
