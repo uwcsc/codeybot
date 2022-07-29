@@ -60,7 +60,7 @@ const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
 
 const coinAdjustCommandDetails: CodeyCommandDetails = {
   name: 'adjust',
-  aliases: [],
+  aliases: ['a'],
   description: 'Adjust the coin balance of a user.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coin adjust @Codey 100\`
@@ -108,7 +108,7 @@ const coinBalanceExecuteCommand: SapphireMessageExecuteType = async (
 
 const coinBalanceCommandDetails: CodeyCommandDetails = {
   name: 'balance',
-  aliases: ['bal'],
+  aliases: ['b', 'bal'],
   description: 'Get your coin balance.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coin bal\`
@@ -193,6 +193,78 @@ const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
   return infoEmbed;
 }
 
+// Update coin balance of a user
+const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (
+  client,
+  messageFromUser,
+  args
+) => {
+  if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) return '';
+
+  // First mandatory argument is user
+  const user = <User>args['user']
+  if (!user) {
+    throw new Error('please enter a valid user mention or ID for balance adjustment.');
+  }
+
+  // Second mandatory argument is amount
+  const amount = args['amount'];
+  if (!amount) {
+    throw new Error('please enter a valid amount to adjust.');
+  }
+
+  // Optional argument is reason
+  const reason = args['reason'];
+
+  // Adjust coin balance
+  await updateCoinBalanceByUserId(
+    user.id,
+    <number> amount,
+    UserCoinEvent.AdminCoinAdjust,
+    <string>(reason ? reason : ''),
+    client.user?.id,
+  );
+  // Get new balance
+  const newBalance = await getCoinBalanceByUserId(user.id);
+
+  return `${user.username} now has ${newBalance} Codey coins 🪙.`;
+}
+
+const coinUpdateCommandDetails: CodeyCommandDetails = {
+  name: 'update',
+  aliases: ['u'],
+  description: 'Update the coin balance of a user.',
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}coin update @Codey 100\``,
+
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Updating coin balance...',
+  executeCommand: coinUpdateExecuteCommand,
+  codeyCommandResponseType: CodeyCommandResponseType.STRING,
+
+  options: [
+    {
+      name: 'user',
+      description: 'The user to adjust the balance of,',
+      type: CodeyCommandOptionType.USER,
+      required: true,
+    },
+    {
+      name: 'amount',
+      description: 'The amount to adjust the balance of the specified user to,',
+      type: CodeyCommandOptionType.NUMBER,
+      required: true,
+    },
+    {
+      name: 'reason',
+      description: 'The reason why we are adjusting the balance,',
+      type: CodeyCommandOptionType.STRING,
+      required: false,
+    },
+  ],
+  subcommandDetails: {}
+};
+
 const coinInfoCommandDetails: CodeyCommandDetails = {
   name: 'info',
   aliases: ['information, i'],
@@ -233,6 +305,7 @@ const coinCommandDetails: CodeyCommandDetails = {
     balance: coinBalanceCommandDetails,
     check: coinCheckCommandDetails,
     info: coinInfoCommandDetails,
+    update: coinUpdateCommandDetails,
   }
 }
 
