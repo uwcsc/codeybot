@@ -6,7 +6,7 @@ RUN yarn --frozen-lockfile
 COPY . .
 RUN yarn run ts:build
 
-# Stage 2: Run in staging env
+# Stage 2: Run in production env
 FROM node:18-alpine
 WORKDIR /usr/app
 ENV NODE_ENV="prod"
