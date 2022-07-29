@@ -19,22 +19,34 @@ export interface GithubRepositoryRelease {
   tag_name: string;
 }
 
+//set date to 0 as unix start time
+let RepoRefreshDate = new Date(0);
+let ghRepo: GitHubRepository | null = null;
+
 // Get repository information
 export const getRepositoryInfo = async (owner: string, repo: string): Promise<GitHubRepository> => {
-  const response = axios.get(`${API_LINK}/repos/${owner}/${repo}`, {
-    params: {
-      auth: process.env.GITHUB_ACCESS_TOKEN
-    }
-  });
-  return (await response).data;
+  const curTime = new Date();
+  //8640000 is a day of delay
+  if (ghRepo == null || RepoRefreshDate.getTime() - curTime.getTime() > 86400000) {
+    RepoRefreshDate = curTime;
+    const response = axios.get(`${API_LINK}/repos/${owner}/${repo}`);
+    ghRepo = (await response).data;
+  }
+  return ghRepo!;
 };
+
+//set date to 0 as unix start time
+let ReleaseRefreshDate = new Date(0);
+let ghRelease: GithubRepositoryRelease[] | null = null;
 
 // Get repository releases
 export const getRepositoryReleases = async (owner: string, repo: string): Promise<GithubRepositoryRelease[]> => {
-  const response = axios.get(`${API_LINK}/repos/${owner}/${repo}/releases`, {
-    params: {
-      auth: process.env.GITHUB_ACCESS_TOKEN
-    }
-  });
-  return (await response).data;
+  const curTime = new Date();
+  //8640000 is a day of delay
+  if (ghRepo == null || ReleaseRefreshDate.getTime() - curTime.getTime() > 86400000) {
+    ReleaseRefreshDate = curTime;
+    const response = axios.get(`${API_LINK}/repos/${owner}/${repo}/releases`);
+    ghRelease = (await response).data;
+  }
+  return ghRelease!;
 };
