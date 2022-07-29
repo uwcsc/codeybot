@@ -232,20 +232,21 @@ export class CodeyCommand extends SapphireCommand {
     const subcommandName = message.content.split(' ')[1];
     /** The command details object to use */
     const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
-    // Move the "argument picker" by one parameter is subcommand name is not undefined
-    if (subcommandName) {
-      await commandArgs.pick('string');
-    }
-
+    
     try {
-    const args: CodeyCommandArguments = {};
-    for (const commandOption of commandDetails.options!) {
-      try {
-        args[commandOption.name] = <CodeyCommandArgumentValueType>(
-          await commandArgs.pick(<keyof ArgType>commandOption.type)
-        );
-      } catch (e) {}
-    }
+      // Move the "argument picker" by one parameter is subcommand name is not undefined
+      if (subcommandName) {
+        await commandArgs.pick('string');
+      }
+      const args: CodeyCommandArguments = {};
+      for (const commandOption of commandDetails.options!) {
+        try {
+          args[commandOption.name] = <CodeyCommandArgumentValueType>(
+            await commandArgs.pick(<keyof ArgType>commandOption.type)
+          );
+        } catch (e) {}
+      }
+
       const successResponse = await commandDetails.executeCommand!(client, message, args);
       if (!successResponse) return;
       switch (commandDetails.codeyCommandResponseType) {
@@ -261,7 +262,7 @@ export class CodeyCommand extends SapphireCommand {
   }
 
   // Slash command
-  public async chatInputRun(interaction: SapphireCommand.ChatInputInteraction): Promise<APIMessage | Message<boolean>> {
+  public async chatInputRun(interaction: SapphireCommand.ChatInputInteraction): Promise<APIMessage | Message<boolean> | undefined> {
     const { client } = container;
 
     // Get subcommand name
@@ -326,9 +327,6 @@ export class CodeyCommand extends SapphireCommand {
           return interaction.editReply(commandDetails.messageIfFailure!);
         }
       }
-    }
-    finally {
-      return interaction.editReply(commandDetails.messageIfFailure!);
-    }
+    } catch (e) {}
   }
 }

@@ -7,7 +7,7 @@ import * as colorette from 'colorette';
 import { inspect } from 'util';
 
 // Set default inspection depth
-inspect.defaultOptions.depth = 2;
+inspect.defaultOptions.depth = 3;
 
 // Enable colorette
 colorette.createColors({ useColor: true });

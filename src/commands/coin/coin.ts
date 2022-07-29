@@ -94,6 +94,35 @@ const coinAdjustCommandDetails: CodeyCommandDetails = {
   subcommandDetails: {}
 };
 
+// Get coin balance
+const coinBalanceExecuteCommand: SapphireMessageExecuteType = async (
+  client,
+  _messageFromUser,
+  _args
+): Promise<SapphireMessageResponse> => {
+  const balance = await getCoinBalanceByUserId(client.user?.id!);
+  // Show coin balance
+  return `You have ${balance} Codey coins 🪙.`;
+}
+
+const coinBalanceCommandDetails: CodeyCommandDetails = {
+  name: 'balance',
+  aliases: ['bal'],
+  description: 'Get your coin balance.',
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}coin bal\`
+\`${container.botPrefix}coin balance\``,
+
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Getting your coin balance...',
+  executeCommand: coinBalanceExecuteCommand,
+  codeyCommandResponseType: CodeyCommandResponseType.STRING,
+
+  options: [],
+  subcommandDetails: {}
+};
+
+
 const coinCommandDetails: CodeyCommandDetails = {
   name: 'coin',
   aliases: [],
@@ -112,7 +141,8 @@ const coinCommandDetails: CodeyCommandDetails = {
 \`${container.botPrefix}coin update @Codey 0 Reset Codey's balance.\``,
   options: [],
   subcommandDetails: {
-    adjust: coinAdjustCommandDetails
+    adjust: coinAdjustCommandDetails,
+    balance: coinBalanceCommandDetails,
   }
 }
 
