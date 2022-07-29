@@ -37,9 +37,11 @@ const client = new SapphireClient({
 container.botPrefix = client.options.defaultPrefix!;
 
 export const startBot = async (): Promise<void> => {
-  client.on('error', client.logger.error);
+  try {
+    client.on('error', client.logger.error);
 
-  client.login();
+    client.login();
+  } catch (e) {}
 };
 
 // Augment Container to have the botPrefix property, since container.botPrefix is shorter than container.client.options.defaultPrefix

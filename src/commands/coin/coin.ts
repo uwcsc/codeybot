@@ -97,10 +97,11 @@ const coinAdjustCommandDetails: CodeyCommandDetails = {
 // Get coin balance
 const coinBalanceExecuteCommand: SapphireMessageExecuteType = async (
   client,
-  _messageFromUser,
+  messageFromUser,
   _args
 ): Promise<SapphireMessageResponse> => {
-  const balance = await getCoinBalanceByUserId(client.user?.id!);
+  console.log(messageFromUser);
+  const balance = await getCoinBalanceByUserId((<Message>messageFromUser).author.id);
   // Show coin balance
   return `You have ${balance} Codey coins 🪙.`;
 }
@@ -119,6 +120,46 @@ const coinBalanceCommandDetails: CodeyCommandDetails = {
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
   options: [],
+  subcommandDetails: {}
+};
+
+// Check a user's balance
+// Get coin balance
+const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
+  client,
+  _messageFromUser,
+  args
+): Promise<SapphireMessageResponse> => {
+  // Mandatory argument is user
+  const user = <User>args['user'];
+
+  // Get coin balance
+  const balance = await getCoinBalanceByUserId(user.id);
+  // Show coin balance
+  return `${user.username} has ${balance} Codey coins 🪙.`;
+}
+
+const coinCheckCommandDetails: CodeyCommandDetails = {
+  name: 'check',
+  aliases: ['c'],
+  description: 'Check a user\'s coin balance.',
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}coin check @Codey\`
+\`${container.botPrefix}coin c @Codey\``,
+
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Getting user\'s coin balance...',
+  executeCommand: coinCheckExecuteCommand,
+  codeyCommandResponseType: CodeyCommandResponseType.STRING,
+
+  options: [
+    {
+      name: 'user',
+      description: 'The user to check the balance of,',
+      type: CodeyCommandOptionType.USER,
+      required: true,
+    }
+  ],
   subcommandDetails: {}
 };
 
@@ -143,6 +184,7 @@ const coinCommandDetails: CodeyCommandDetails = {
   subcommandDetails: {
     adjust: coinAdjustCommandDetails,
     balance: coinBalanceCommandDetails,
+    check: coinCheckCommandDetails,
   }
 }
 
