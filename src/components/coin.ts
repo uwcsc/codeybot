@@ -69,15 +69,11 @@ export interface UserCoinBonus {
 }
 
 export const getCoinBalanceByUserId = async (userId: string): Promise<number | undefined> => {
-  try {
-    const db = await openDB();
-    // Query user coin balance from DB.
-    const res = await db.get('SELECT balance FROM user_coin WHERE user_id = ?', userId);
-    // If user doesn't have a balance, default to 0.
-    return _.get(res, 'balance', 0);
-  } catch (e) {
-    console.log(e);
-  }
+  const db = await openDB();
+  // Query user coin balance from DB.
+  const res = await db.get('SELECT balance FROM user_coin WHERE user_id = ?', userId);
+  // If user doesn't have a balance, default to 0.
+  return _.get(res, 'balance', 0);
 };
 
 /*
@@ -92,13 +88,9 @@ export const updateCoinBalanceByUserId = async (
   reason: string | null = null,
   adminId: string | null = null
 ): Promise<void> => {
-  try {
-    const oldBalance = await getCoinBalanceByUserId(userId);
-    const actualNewBalance = Math.max(newBalance, 0);
-    await changeDbCoinBalanceByUserId(userId, oldBalance!, actualNewBalance, event, reason, adminId);
-  } catch (e) {
-    console.log(e);
-  }
+  const oldBalance = await getCoinBalanceByUserId(userId);
+  const actualNewBalance = Math.max(newBalance, 0);
+  await changeDbCoinBalanceByUserId(userId, oldBalance!, actualNewBalance, event, reason, adminId);
 };
 
 /*
@@ -113,13 +105,9 @@ export const adjustCoinBalanceByUserId = async (
   reason: string | null = null,
   adminId: string | null = null
 ): Promise<void> => {
-  try {
-    const oldBalance = await getCoinBalanceByUserId(userId);
-    const newBalance = Math.max(oldBalance! + amount, 0);
-    await changeDbCoinBalanceByUserId(userId, oldBalance!, newBalance, event, reason, adminId);
-  } catch (e) {
-    console.log(e);
-  }
+  const oldBalance = await getCoinBalanceByUserId(userId);
+  const newBalance = Math.max(oldBalance! + amount, 0);
+  await changeDbCoinBalanceByUserId(userId, oldBalance!, newBalance, event, reason, adminId);
 };
 
 /*
@@ -134,19 +122,17 @@ export const changeDbCoinBalanceByUserId = async (
   reason: string | null,
   adminId: string | null
 ): Promise<void> => {
-  try {
-    const db = await openDB();
-    await db.run(
-      `
+  const db = await openDB();
+  await db.run(
+    `
       INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
       ON CONFLICT(user_id)
       DO UPDATE SET balance = ?`,
-      userId,
-      newBalance,
-      newBalance
-    );
-    await createCoinLedgerEntry(userId, oldBalance, newBalance, event, reason, adminId);
-  } catch (e) {}
+    userId,
+    newBalance,
+    newBalance
+  );
+  await createCoinLedgerEntry(userId, oldBalance, newBalance, event, reason, adminId);
 };
 
 /*
@@ -162,18 +148,16 @@ export const createCoinLedgerEntry = async (
   reason: string | null,
   adminId: string | null
 ): Promise<void> => {
-  try {
-    const db = await openDB();
-    await db.run(
-      'INSERT INTO user_coin_ledger (user_id, amount, new_balance, event, reason, admin_id) VALUES (?, ?, ?, ?, ?, ?)',
-      userId,
-      newBalance - oldBalance,
-      newBalance,
-      event,
-      reason,
-      adminId
-    );
-  } catch (e) {}
+  const db = await openDB();
+  await db.run(
+    'INSERT INTO user_coin_ledger (user_id, amount, new_balance, event, reason, admin_id) VALUES (?, ?, ?, ?, ?, ?)',
+    userId,
+    newBalance - oldBalance,
+    newBalance,
+    event,
+    reason,
+    adminId
+  );
 };
 
 /*

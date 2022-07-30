@@ -149,7 +149,7 @@ export class CodeyCommandDetails {
   /** The function to be called to execute the command */
   executeCommand?: SapphireMessageExecuteType;
   /** The message to display if the command fails */
-  messageIfFailure? = 'Codey backend error - contact a mod for assistance';
+  messageIfFailure = 'Codey backend error - contact a mod for assistance';
   /** A flag to indicate if the command response is ephemeral (ie visible to others) */
   isCommandResponseEphemeral? = true;
   /** Type of response the Codey command sends */
@@ -221,7 +221,7 @@ export class CodeyCommand extends SapphireCommand {
     /** The command details object to use */
     const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
 
-    // Move the "argument picker" by one parameter is subcommand name is not undefined
+    // Move the "argument picker" by one parameter if subcommand name is defined
     if (subcommandName) {
       await commandArgs.pick('string');
     }
@@ -245,6 +245,7 @@ export class CodeyCommand extends SapphireCommand {
       }
     } catch (e) {
       console.log(e);
+      return await message.channel.send(commandDetails.messageIfFailure);
     }
   }
 
@@ -282,10 +283,6 @@ export class CodeyCommand extends SapphireCommand {
                 return {
                   [commandOptionName]: commandInteractionOption.user
                 };
-              case 'STRING':
-              case 'INTEGER':
-              case 'NUMBER':
-              case 'BOOLEAN':
               default:
                 return {
                   [commandOptionName]: commandInteractionOption.value
@@ -301,27 +298,18 @@ export class CodeyCommand extends SapphireCommand {
 
     try {
       if (isMessageInstance(initialMessageFromBot)) {
-        try {
-          const successResponse = await commandDetails.executeCommand!(
-            client,
-            interaction,
-            args,
-            initialMessageFromBot
-          );
-          switch (commandDetails.codeyCommandResponseType) {
-            case CodeyCommandResponseType.EMBED:
-              const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
-              return currentChannel.send({ embeds: [<MessageEmbed>successResponse] });
-            case CodeyCommandResponseType.STRING:
-              return interaction.editReply(<string>successResponse);
-          }
-        } catch (e) {
-          console.log(e);
-          return interaction.editReply(commandDetails.messageIfFailure!);
+        const successResponse = await commandDetails.executeCommand!(client, interaction, args, initialMessageFromBot);
+        switch (commandDetails.codeyCommandResponseType) {
+          case CodeyCommandResponseType.EMBED:
+            const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
+            return currentChannel.send({ embeds: [<MessageEmbed>successResponse] });
+          case CodeyCommandResponseType.STRING:
+            return interaction.editReply(<string>successResponse);
         }
       }
     } catch (e) {
       console.log(e);
+      return await interaction.editReply(commandDetails.messageIfFailure);
     }
   }
 }
