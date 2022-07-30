@@ -41,7 +41,10 @@ export const startBot = async (): Promise<void> => {
     client.on('error', client.logger.error);
 
     client.login();
-  } catch (e) {}
+  } catch (e) {
+    console.log("Bot failure");
+    console.log(e);
+  }
 };
 
 // Augment Container to have the botPrefix property, since container.botPrefix is shorter than container.client.options.defaultPrefix

@@ -10,6 +10,7 @@ import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
   CodeyCommandResponseType,
+  getUserIdFromMessage,
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
@@ -100,8 +101,7 @@ const coinBalanceExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   _args
 ): Promise<SapphireMessageResponse> => {
-  console.log(messageFromUser);
-  const balance = await getCoinBalanceByUserId((<Message>messageFromUser).author.id);
+  const balance = await getCoinBalanceByUserId(getUserIdFromMessage(messageFromUser));
   // Show coin balance
   return `You have ${balance} Codey coins 🪙.`;
 }
@@ -114,7 +114,7 @@ const coinBalanceCommandDetails: CodeyCommandDetails = {
 \`${container.botPrefix}coin bal\`
 \`${container.botPrefix}coin balance\``,
 
-  isCommandResponseEphemeral: true,
+  isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Getting your coin balance...',
   executeCommand: coinBalanceExecuteCommand,
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
@@ -131,6 +131,7 @@ const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
 ): Promise<SapphireMessageResponse> => {
   // Mandatory argument is user
   const user = <User>args['user'];
+
 
   // Get coin balance
   const balance = await getCoinBalanceByUserId(user.id);
