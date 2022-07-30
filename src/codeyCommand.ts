@@ -14,16 +14,7 @@ import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
-  SlashCommandSubcommandsOnlyBuilder,
-  SlashCommandStringOption,
-  SlashCommandIntegerOption,
-  SlashCommandBooleanOption,
-  SlashCommandUserOption,
-  SlashCommandChannelOption,
-  SlashCommandRoleOption,
-  SlashCommandMentionableOption,
-  SlashCommandNumberOption,
-  SlashCommandAttachmentOption
+  SlashCommandSubcommandsOnlyBuilder
 } from '@discordjs/builders';
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
@@ -58,18 +49,6 @@ export enum CodeyCommandOptionType {
   ATTACHMENT = 'attachment'
 }
 
-/** We use this for convenience to put all the different types of SlashCommandOptions into one */
-type SlashCommandOption =
-  | SlashCommandStringOption
-  | SlashCommandIntegerOption
-  | SlashCommandBooleanOption
-  | SlashCommandUserOption
-  | SlashCommandChannelOption
-  | SlashCommandRoleOption
-  | SlashCommandMentionableOption
-  | SlashCommandNumberOption
-  | SlashCommandAttachmentOption;
-
 /** The codey command option */
 export interface CodeyCommandOption {
   /** The name of the option */
@@ -87,7 +66,6 @@ const setCommandOption = (
   builder: SlashCommandBuilder | SlashCommandSubcommandBuilder,
   option: CodeyCommandOption
 ): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
-  let commandOption: SlashCommandOption;
   switch (option.type) {
     case CodeyCommandOptionType.STRING:
       return <SlashCommandBuilder>(
@@ -199,7 +177,7 @@ const setCommandSubcommand = (
 };
 
 /** Helper method to get user id from message */
-export const getUserIdFromMessage = (message: Message | SapphireCommand.ChatInputInteraction) => {
+export const getUserIdFromMessage = (message: Message | SapphireCommand.ChatInputInteraction): string => {
   if (message instanceof Message) {
     return message.author.id;
   } else {
@@ -295,10 +273,10 @@ export class CodeyCommand extends SapphireCommand {
       ...commandDetails.options
         .map((commandOption) => commandOption.name)
         .map((commandOptionName) => {
-          let commandInteractionOption = interaction.options.get(commandOptionName);
+          const commandInteractionOption = interaction.options.get(commandOptionName);
           let result: CodeyCommandArgumentValueType;
           if (commandInteractionOption) {
-            let type = commandInteractionOption.type;
+            const type = commandInteractionOption.type;
             switch (type) {
               case 'USER':
                 return {

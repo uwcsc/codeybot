@@ -1,10 +1,5 @@
-// import { ApplyOptions } from '@sapphire/decorators';
-// import { Args, container } from '@sapphire/framework';
-// import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
-// import { Message, MessageEmbed } from 'discord.js';
-
 import { Command, container } from '@sapphire/framework';
-import { Message, MessageEmbed, Permissions, User } from 'discord.js';
+import { MessageEmbed, Permissions, User } from 'discord.js';
 import {
   CodeyCommand,
   CodeyCommandDetails,
