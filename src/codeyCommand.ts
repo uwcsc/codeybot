@@ -90,50 +90,59 @@ const setCommandOption = (
   let commandOption: SlashCommandOption;
   switch (option.type) {
     case CodeyCommandOptionType.STRING:
-      return <SlashCommandBuilder>builder.addStringOption(commandOption => commandOption
-        .setName(option.name)
-        .setDescription(option.description)
-        .setRequired(option.required));
+      return <SlashCommandBuilder>(
+        builder.addStringOption((commandOption) =>
+          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
+        )
+      );
     case CodeyCommandOptionType.INTEGER:
-      return <SlashCommandBuilder>builder.addIntegerOption(commandOption => commandOption
-        .setName(option.name)
-        .setDescription(option.description)
-        .setRequired(option.required));
+      return <SlashCommandBuilder>(
+        builder.addIntegerOption((commandOption) =>
+          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
+        )
+      );
     case CodeyCommandOptionType.BOOLEAN:
-      return <SlashCommandBuilder>builder.addBooleanOption(commandOption => commandOption
-        .setName(option.name)
-        .setDescription(option.description)
-        .setRequired(option.required));
+      return <SlashCommandBuilder>(
+        builder.addBooleanOption((commandOption) =>
+          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
+        )
+      );
     case CodeyCommandOptionType.USER:
-      return <SlashCommandBuilder>builder.addUserOption(commandOption => commandOption
-        .setName(option.name)
-        .setDescription(option.description)
-        .setRequired(option.required));
+      return <SlashCommandBuilder>(
+        builder.addUserOption((commandOption) =>
+          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
+        )
+      );
     case CodeyCommandOptionType.CHANNEL:
-      return <SlashCommandBuilder>builder.addChannelOption(commandOption => commandOption
-        .setName(option.name)
-        .setDescription(option.description)
-        .setRequired(option.required));
+      return <SlashCommandBuilder>(
+        builder.addChannelOption((commandOption) =>
+          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
+        )
+      );
     case CodeyCommandOptionType.ROLE:
-      return <SlashCommandBuilder>builder.addRoleOption(commandOption => commandOption
-        .setName(option.name)
-        .setDescription(option.description)
-        .setRequired(option.required));
+      return <SlashCommandBuilder>(
+        builder.addRoleOption((commandOption) =>
+          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
+        )
+      );
     case CodeyCommandOptionType.MENTIONABLE:
-      return <SlashCommandBuilder>builder.addMentionableOption(commandOption => commandOption
-        .setName(option.name)
-        .setDescription(option.description)
-        .setRequired(option.required));
+      return <SlashCommandBuilder>(
+        builder.addMentionableOption((commandOption) =>
+          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
+        )
+      );
     case CodeyCommandOptionType.NUMBER:
-      return <SlashCommandBuilder>builder.addNumberOption(commandOption => commandOption
-        .setName(option.name)
-        .setDescription(option.description)
-        .setRequired(option.required));
+      return <SlashCommandBuilder>(
+        builder.addNumberOption((commandOption) =>
+          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
+        )
+      );
     case CodeyCommandOptionType.ATTACHMENT:
-      return <SlashCommandBuilder>builder.addAttachmentOption(commandOption => commandOption
-        .setName(option.name)
-        .setDescription(option.description)
-        .setRequired(option.required));
+      return <SlashCommandBuilder>(
+        builder.addAttachmentOption((commandOption) =>
+          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
+        )
+      );
     default:
       throw new Error(`Unknown option type.`);
   }
@@ -179,7 +188,7 @@ const setCommandSubcommand = (
   builder: SlashCommandBuilder,
   subcommandDetails: CodeyCommandDetails
 ): SlashCommandSubcommandsOnlyBuilder => {
-  return builder.addSubcommand(subcommandBuilder => {
+  return builder.addSubcommand((subcommandBuilder) => {
     subcommandBuilder.setName(subcommandDetails.name);
     subcommandBuilder.setDescription(subcommandDetails.description);
     for (const commandOption of subcommandDetails.options) {
@@ -193,11 +202,10 @@ const setCommandSubcommand = (
 export const getUserIdFromMessage = (message: Message | SapphireCommand.ChatInputInteraction) => {
   if (message instanceof Message) {
     return message.author.id;
-  }
-  else {
+  } else {
     return message.user.id;
   }
-}
+};
 
 /** The codey command class */
 export class CodeyCommand extends SapphireCommand {
@@ -229,24 +237,24 @@ export class CodeyCommand extends SapphireCommand {
 
   // Regular command
   public async messageRun(message: Message, commandArgs: Args): Promise<Message<boolean> | undefined> {
-      const { client } = container;
+    const { client } = container;
 
-      const subcommandName = message.content.split(' ')[1];
-      /** The command details object to use */
-      const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
-  
-      // Move the "argument picker" by one parameter is subcommand name is not undefined
-      if (subcommandName) {
-        await commandArgs.pick('string');
-      }
-      const args: CodeyCommandArguments = {};
-      for (const commandOption of commandDetails.options!) {
-        try {
-          args[commandOption.name] = <CodeyCommandArgumentValueType>(
-            await commandArgs.pick(<keyof ArgType>commandOption.type)
-          );
-        } catch (e) {}
-      }
+    const subcommandName = message.content.split(' ')[1];
+    /** The command details object to use */
+    const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
+
+    // Move the "argument picker" by one parameter is subcommand name is not undefined
+    if (subcommandName) {
+      await commandArgs.pick('string');
+    }
+    const args: CodeyCommandArguments = {};
+    for (const commandOption of commandDetails.options!) {
+      try {
+        args[commandOption.name] = <CodeyCommandArgumentValueType>(
+          await commandArgs.pick(<keyof ArgType>commandOption.type)
+        );
+      } catch (e) {}
+    }
 
     try {
       const successResponse = await commandDetails.executeCommand!(client, message, args);
@@ -263,58 +271,65 @@ export class CodeyCommand extends SapphireCommand {
   }
 
   // Slash command
-  public async chatInputRun(interaction: SapphireCommand.ChatInputInteraction): Promise<APIMessage | Message<boolean> | undefined> {
-      const { client } = container;
+  public async chatInputRun(
+    interaction: SapphireCommand.ChatInputInteraction
+  ): Promise<APIMessage | Message<boolean> | undefined> {
+    const { client } = container;
 
-      // Get subcommand name
-      let subcommandName = '';
-      try {
-        subcommandName = interaction.options.getSubcommand();
-      } catch (e) {}
-      /** The command details object to use */
-      const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
+    // Get subcommand name
+    let subcommandName = '';
+    try {
+      subcommandName = interaction.options.getSubcommand();
+    } catch (e) {}
+    /** The command details object to use */
+    const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
 
-      const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
-        content: commandDetails.messageWhenExecutingCommand,
-        ephemeral: commandDetails.isCommandResponseEphemeral, // whether user sees message or not
-        fetchReply: true
-      });
-      // Get command arguments
-      const args: CodeyCommandArguments = Object.assign(
-        {},
-        ...commandDetails.options
-          .map((commandOption) => commandOption.name)
-          .map((commandOptionName) => {
-            let commandInteractionOption = interaction.options.get(commandOptionName);
-            let result: CodeyCommandArgumentValueType;
-            if (commandInteractionOption) {
-              let type = commandInteractionOption.type;
-              switch (type) {
-                case "USER":
-                  return { 
-                    [commandOptionName]: commandInteractionOption.user, 
-                  }
-                case "STRING":
-                case "INTEGER":
-                case "NUMBER":
-                case "BOOLEAN":
-                default:
-                  return { 
-                    [commandOptionName]: commandInteractionOption.value, 
-                  };
-              }
+    const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
+      content: commandDetails.messageWhenExecutingCommand,
+      ephemeral: commandDetails.isCommandResponseEphemeral, // whether user sees message or not
+      fetchReply: true
+    });
+    // Get command arguments
+    const args: CodeyCommandArguments = Object.assign(
+      {},
+      ...commandDetails.options
+        .map((commandOption) => commandOption.name)
+        .map((commandOptionName) => {
+          let commandInteractionOption = interaction.options.get(commandOptionName);
+          let result: CodeyCommandArgumentValueType;
+          if (commandInteractionOption) {
+            let type = commandInteractionOption.type;
+            switch (type) {
+              case 'USER':
+                return {
+                  [commandOptionName]: commandInteractionOption.user
+                };
+              case 'STRING':
+              case 'INTEGER':
+              case 'NUMBER':
+              case 'BOOLEAN':
+              default:
+                return {
+                  [commandOptionName]: commandInteractionOption.value
+                };
             }
+          }
 
-            return { 
-              [commandOptionName]: result, 
-            }
-          })
-      );
+          return {
+            [commandOptionName]: result
+          };
+        })
+    );
 
     try {
       if (isMessageInstance(initialMessageFromBot)) {
         try {
-          const successResponse = await commandDetails.executeCommand!(client, interaction, args, initialMessageFromBot);
+          const successResponse = await commandDetails.executeCommand!(
+            client,
+            interaction,
+            args,
+            initialMessageFromBot
+          );
           switch (commandDetails.codeyCommandResponseType) {
             case CodeyCommandResponseType.EMBED:
               const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;

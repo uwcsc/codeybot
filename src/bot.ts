@@ -42,7 +42,7 @@ export const startBot = async (): Promise<void> => {
 
     client.login();
   } catch (e) {
-    console.log("Bot failure");
+    console.log('Bot failure');
     console.log(e);
   }
 };

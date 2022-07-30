@@ -31,7 +31,7 @@ const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
   if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) return '';
 
   // First mandatory argument is user
-  const user = <User>args['user']
+  const user = <User>args['user'];
   if (!user) {
     throw new Error('please enter a valid user mention or ID for balance adjustment.');
   }
@@ -48,16 +48,16 @@ const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
   // Adjust coin balance
   await adjustCoinBalanceByUserId(
     user.id,
-    <number> amount,
+    <number>amount,
     UserCoinEvent.AdminCoinAdjust,
     <string>(reason ? reason : ''),
-    client.user?.id,
+    client.user?.id
   );
   // Get new balance
   const newBalance = await getCoinBalanceByUserId(user.id);
 
   return `${user.username} now has ${newBalance} Codey coins 🪙.`;
-}
+};
 
 const coinAdjustCommandDetails: CodeyCommandDetails = {
   name: 'adjust',
@@ -77,20 +77,20 @@ const coinAdjustCommandDetails: CodeyCommandDetails = {
       name: 'user',
       description: 'The user to adjust the balance of,',
       type: CodeyCommandOptionType.USER,
-      required: true,
+      required: true
     },
     {
       name: 'amount',
       description: 'The amount to adjust the balance of the specified user to,',
       type: CodeyCommandOptionType.NUMBER,
-      required: true,
+      required: true
     },
     {
       name: 'reason',
       description: 'The reason why we are adjusting the balance,',
       type: CodeyCommandOptionType.STRING,
-      required: false,
-    },
+      required: false
+    }
   ],
   subcommandDetails: {}
 };
@@ -104,7 +104,7 @@ const coinBalanceExecuteCommand: SapphireMessageExecuteType = async (
   const balance = await getCoinBalanceByUserId(getUserIdFromMessage(messageFromUser));
   // Show coin balance
   return `You have ${balance} Codey coins 🪙.`;
-}
+};
 
 const coinBalanceCommandDetails: CodeyCommandDetails = {
   name: 'balance',
@@ -132,23 +132,22 @@ const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
   // Mandatory argument is user
   const user = <User>args['user'];
 
-
   // Get coin balance
   const balance = await getCoinBalanceByUserId(user.id);
   // Show coin balance
   return `${user.username} has ${balance} Codey coins 🪙.`;
-}
+};
 
 const coinCheckCommandDetails: CodeyCommandDetails = {
   name: 'check',
   aliases: ['c'],
-  description: 'Check a user\'s coin balance.',
+  description: "Check a user's coin balance.",
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coin check @Codey\`
 \`${container.botPrefix}coin c @Codey\``,
 
-  isCommandResponseEphemeral: true,
-  messageWhenExecutingCommand: 'Getting user\'s coin balance...',
+  isCommandResponseEphemeral: false,
+  messageWhenExecutingCommand: "Getting user's coin balance...",
   executeCommand: coinCheckExecuteCommand,
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
@@ -157,7 +156,7 @@ const coinCheckCommandDetails: CodeyCommandDetails = {
       name: 'user',
       description: 'The user to check the balance of,',
       type: CodeyCommandOptionType.USER,
-      required: true,
+      required: true
     }
   ],
   subcommandDetails: {}
@@ -192,18 +191,14 @@ const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
   _args
 ): Promise<SapphireMessageResponse> => {
   return infoEmbed;
-}
+};
 
 // Update coin balance of a user
-const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (
-  client,
-  messageFromUser,
-  args
-) => {
+const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
   if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) return '';
 
   // First mandatory argument is user
-  const user = <User>args['user']
+  const user = <User>args['user'];
   if (!user) {
     throw new Error('please enter a valid user mention or ID for balance adjustment.');
   }
@@ -220,16 +215,16 @@ const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (
   // Adjust coin balance
   await updateCoinBalanceByUserId(
     user.id,
-    <number> amount,
+    <number>amount,
     UserCoinEvent.AdminCoinAdjust,
     <string>(reason ? reason : ''),
-    client.user?.id,
+    client.user?.id
   );
   // Get new balance
   const newBalance = await getCoinBalanceByUserId(user.id);
 
   return `${user.username} now has ${newBalance} Codey coins 🪙.`;
-}
+};
 
 const coinUpdateCommandDetails: CodeyCommandDetails = {
   name: 'update',
@@ -248,20 +243,20 @@ const coinUpdateCommandDetails: CodeyCommandDetails = {
       name: 'user',
       description: 'The user to adjust the balance of,',
       type: CodeyCommandOptionType.USER,
-      required: true,
+      required: true
     },
     {
       name: 'amount',
       description: 'The amount to adjust the balance of the specified user to,',
       type: CodeyCommandOptionType.NUMBER,
-      required: true,
+      required: true
     },
     {
       name: 'reason',
       description: 'The reason why we are adjusting the balance,',
       type: CodeyCommandOptionType.STRING,
-      required: false,
-    },
+      required: false
+    }
   ],
   subcommandDetails: {}
 };
@@ -306,12 +301,12 @@ const coinCommandDetails: CodeyCommandDetails = {
     balance: coinBalanceCommandDetails,
     check: coinCheckCommandDetails,
     info: coinInfoCommandDetails,
-    update: coinUpdateCommandDetails,
+    update: coinUpdateCommandDetails
   }
-}
+};
 
 export class CoinCommand extends CodeyCommand {
-  details=coinCommandDetails;
+  details = coinCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {
