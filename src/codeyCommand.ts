@@ -149,7 +149,7 @@ export class CodeyCommandDetails {
   /** The function to be called to execute the command */
   executeCommand?: SapphireMessageExecuteType;
   /** The message to display if the command fails */
-  messageIfFailure = 'Codey backend error - contact a mod for assistance';
+  messageIfFailure?: string;
   /** A flag to indicate if the command response is ephemeral (ie visible to others) */
   isCommandResponseEphemeral? = true;
   /** Type of response the Codey command sends */
@@ -184,6 +184,8 @@ export const getUserIdFromMessage = (message: Message | SapphireCommand.ChatInpu
     return message.user.id;
   }
 };
+
+const defaultBackendErrorMessage = 'Codey backend error - contact a mod for assistance';
 
 /** The codey command class */
 export class CodeyCommand extends SapphireCommand {
@@ -245,7 +247,7 @@ export class CodeyCommand extends SapphireCommand {
       }
     } catch (e) {
       console.log(e);
-      return await message.channel.send(commandDetails.messageIfFailure);
+      return await message.channel.send(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
     }
   }
 
@@ -309,7 +311,7 @@ export class CodeyCommand extends SapphireCommand {
       }
     } catch (e) {
       console.log(e);
-      return await interaction.editReply(commandDetails.messageIfFailure);
+      return await interaction.editReply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
     }
   }
 }
