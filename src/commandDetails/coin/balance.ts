@@ -9,7 +9,7 @@ import {
 import { getCoinBalanceByUserId } from '../../components/coin';
 
 // Get coin balance
-export const coinBalanceExecuteCommand: SapphireMessageExecuteType = async (
+const coinBalanceExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
   _args
