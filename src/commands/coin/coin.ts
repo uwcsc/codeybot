@@ -62,7 +62,7 @@ const coinAdjustCommandDetails: CodeyCommandDetails = {
 \`${container.botPrefix}coin adjust @Codey 100\`
 \`${container.botPrefix}coin adjust @Codey -100 Codey broke.\``,
 
-  isCommandResponseEphemeral: true,
+  isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Adjusting coin balance...',
   executeCommand: coinAdjustExecuteCommand,
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
@@ -176,7 +176,7 @@ const infoEmbed = new MessageEmbed()
       name: '🪙   What Can I Do With Codey Coins?',
       value: `Use Codey coins to:
       • Play Casino games such as Blackjack
-      • Buy CSC Swag (more info to come!)`
+      • Buy in-server CSC Swag (more info to come!)`
     }
   );
 
@@ -186,6 +186,24 @@ const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
   _args
 ): Promise<SapphireMessageResponse> => {
   return infoEmbed;
+};
+
+const coinInfoCommandDetails: CodeyCommandDetails = {
+  name: 'info',
+  aliases: ['information, i'],
+  description: 'Get info about CodeyCoin.',
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}coin info\`
+\`${container.botPrefix}coin information\`
+\`${container.botPrefix}coin i\``,
+
+  isCommandResponseEphemeral: false,
+  messageWhenExecutingCommand: 'Getting information about coin:',
+  executeCommand: coinInfoExecuteCommand,
+  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
+
+  options: [],
+  subcommandDetails: {}
 };
 
 // Update coin balance of a user
@@ -228,7 +246,7 @@ const coinUpdateCommandDetails: CodeyCommandDetails = {
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coin update @Codey 100\``,
 
-  isCommandResponseEphemeral: true,
+  isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Updating coin balance...',
   executeCommand: coinUpdateExecuteCommand,
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
@@ -253,24 +271,6 @@ const coinUpdateCommandDetails: CodeyCommandDetails = {
       required: false
     }
   ],
-  subcommandDetails: {}
-};
-
-const coinInfoCommandDetails: CodeyCommandDetails = {
-  name: 'info',
-  aliases: ['information, i'],
-  description: 'Get info about CodeyCoin.',
-  detailedDescription: `**Examples:**
-\`${container.botPrefix}coin info\`
-\`${container.botPrefix}coin information\`
-\`${container.botPrefix}coin i\``,
-
-  isCommandResponseEphemeral: false,
-  messageWhenExecutingCommand: 'Getting information about coin:',
-  executeCommand: coinInfoExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
-
-  options: [],
   subcommandDetails: {}
 };
 

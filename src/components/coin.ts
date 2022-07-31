@@ -68,7 +68,7 @@ export interface UserCoinBonus {
   last_granted: Date;
 }
 
-export const getCoinBalanceByUserId = async (userId: string): Promise<number | undefined> => {
+export const getCoinBalanceByUserId = async (userId: string): Promise<number> => {
   const db = await openDB();
   // Query user coin balance from DB.
   const res = await db.get('SELECT balance FROM user_coin WHERE user_id = ?', userId);
@@ -165,17 +165,15 @@ export const createCoinLedgerEntry = async (
   Otherwise, update last_granted to CURRENT_TIMESTAMP.
 */
 export const updateUserBonusTableByUserId = async (userId: string, bonusType: BonusType): Promise<void> => {
-  try {
-    const db = await openDB();
-    await db.run(
-      `
+  const db = await openDB();
+  await db.run(
+    `
       INSERT INTO user_coin_bonus (user_id, bonus_type, last_granted) VALUES (?, ?, CURRENT_TIMESTAMP)
       ON CONFLICT(user_id, bonus_type)
       DO UPDATE SET last_granted = CURRENT_TIMESTAMP`,
-      userId,
-      bonusType
-    );
-  } catch (e) {}
+    userId,
+    bonusType
+  );
 };
 
 /*
