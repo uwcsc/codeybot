@@ -159,6 +159,8 @@ export class CodeyCommandDetails {
   options: CodeyCommandOption[] = [];
   /** Subcommands under the CodeyCommand */
   subcommandDetails: { [name: string]: CodeyCommandDetails } = {};
+  /** The default subcommand to execute if no subcommand is specified */
+  defaultSubcommandDetails?: CodeyCommandDetails;
 }
 
 /** Sets the command subcommand in the slash command builder */
@@ -221,7 +223,14 @@ export class CodeyCommand extends SapphireCommand {
 
     const subcommandName = message.content.split(' ')[1];
     /** The command details object to use */
-    const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
+    let commandDetails = this.details.subcommandDetails[subcommandName];
+    if (!commandDetails) {
+      if (this.details.subcommandDetails !== {}) {
+        commandDetails = this.details.defaultSubcommandDetails!;
+      } else {
+        commandDetails = this.details;
+      }
+    }
 
     // Move the "argument picker" by one parameter if subcommand name is defined
     if (subcommandName) {
@@ -241,13 +250,13 @@ export class CodeyCommand extends SapphireCommand {
       if (!successResponse) return;
       switch (commandDetails.codeyCommandResponseType) {
         case CodeyCommandResponseType.EMBED:
-          return await message.channel.send({ embeds: [<MessageEmbed>successResponse] });
+          return await message.reply({ embeds: [<MessageEmbed>successResponse] });
         case CodeyCommandResponseType.STRING:
-          return await message.channel.send(<string>successResponse);
+          return await message.reply(<string>successResponse);
       }
     } catch (e) {
       console.log(e);
-      return await message.channel.send(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
+      return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
     }
   }
 

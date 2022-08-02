@@ -29,7 +29,8 @@ const coinCommandDetails: CodeyCommandDetails = {
     check: coinCheckCommandDetails,
     info: coinInfoCommandDetails,
     update: coinUpdateCommandDetails
-  }
+  },
+  defaultSubcommandDetails: coinBalanceCommandDetails
 };
 
 export class CoinCommand extends CodeyCommand {
