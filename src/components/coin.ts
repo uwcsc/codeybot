@@ -90,7 +90,7 @@ export const updateCoinBalanceByUserId = async (
 ): Promise<void> => {
   const oldBalance = await getCoinBalanceByUserId(userId);
   const actualNewBalance = Math.max(newBalance, 0);
-  await changeDbCoinBalanceByUserId(userId, oldBalance, actualNewBalance, event, reason, adminId);
+  await changeDbCoinBalanceByUserId(userId, oldBalance!, actualNewBalance, event, reason, adminId);
 };
 
 /*
@@ -106,8 +106,8 @@ export const adjustCoinBalanceByUserId = async (
   adminId: string | null = null
 ): Promise<void> => {
   const oldBalance = await getCoinBalanceByUserId(userId);
-  const newBalance = Math.max(oldBalance + amount, 0);
-  await changeDbCoinBalanceByUserId(userId, oldBalance, newBalance, event, reason, adminId);
+  const newBalance = Math.max(oldBalance! + amount, 0);
+  await changeDbCoinBalanceByUserId(userId, oldBalance!, newBalance, event, reason, adminId);
 };
 
 /*
@@ -125,9 +125,9 @@ export const changeDbCoinBalanceByUserId = async (
   const db = await openDB();
   await db.run(
     `
-    INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
-    ON CONFLICT(user_id)
-    DO UPDATE SET balance = ?`,
+      INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
+      ON CONFLICT(user_id)
+      DO UPDATE SET balance = ?`,
     userId,
     newBalance,
     newBalance
@@ -168,9 +168,9 @@ export const updateUserBonusTableByUserId = async (userId: string, bonusType: Bo
   const db = await openDB();
   await db.run(
     `
-    INSERT INTO user_coin_bonus (user_id, bonus_type, last_granted) VALUES (?, ?, CURRENT_TIMESTAMP)
-    ON CONFLICT(user_id, bonus_type)
-    DO UPDATE SET last_granted = CURRENT_TIMESTAMP`,
+      INSERT INTO user_coin_bonus (user_id, bonus_type, last_granted) VALUES (?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(user_id, bonus_type)
+      DO UPDATE SET last_granted = CURRENT_TIMESTAMP`,
     userId,
     bonusType
   );

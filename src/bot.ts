@@ -7,7 +7,7 @@ import * as colorette from 'colorette';
 import { inspect } from 'util';
 
 // Set default inspection depth
-inspect.defaultOptions.depth = 2;
+inspect.defaultOptions.depth = 3;
 
 // Enable colorette
 colorette.createColors({ useColor: true });
@@ -37,9 +37,14 @@ const client = new SapphireClient({
 container.botPrefix = client.options.defaultPrefix!;
 
 export const startBot = async (): Promise<void> => {
-  client.on('error', client.logger.error);
+  try {
+    client.on('error', client.logger.error);
 
-  client.login();
+    client.login();
+  } catch (e) {
+    console.log('Bot failure');
+    console.log(e);
+  }
 };
 
 // Augment Container to have the botPrefix property, since container.botPrefix is shorter than container.client.options.defaultPrefix

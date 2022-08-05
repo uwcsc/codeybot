@@ -201,7 +201,7 @@ export class BlackjackCommand extends Command {
 
     // check player balance and see if it can cover the bet amount
     const playerBalance = await getCoinBalanceByUserId(author.id);
-    if (playerBalance < bet)
+    if (playerBalance! < bet)
       return message.reply(`you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`);
 
     // initialize the game
