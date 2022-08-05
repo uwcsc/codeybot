@@ -10,7 +10,9 @@ import { getCoinBalanceByUserId, updateCoinBalanceByUserId, UserCoinEvent } from
 
 // Update coin balance of a user
 const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
-  if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) return '';
+  if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) {
+    return `You do not have permission to use this command.`;
+  }
 
   // First mandatory argument is user
   const user = <User>args['user'];
