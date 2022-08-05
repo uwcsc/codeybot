@@ -104,7 +104,7 @@ export class CoinCommand extends SubCommandPluginCommand {
         name: '🪙   What Can I Do With Codey Coins?',
         value: `Use Codey coins to:
         • Play Casino games such as Blackjack
-        • Buy CSC Swag (more info to come!)`
+        • Buy virtual CSC Swag in this server (more info to come!)`
       }
     );
 
