@@ -27,7 +27,7 @@ const infoEmbed = new MessageEmbed()
       name: '🪙   What Can I Do With Codey Coins?',
       value: `Use Codey coins to:
       • Play Casino games such as Blackjack
-      • Buy in-server CSC Swag (more info to come!)`
+      • Buy virtual CSC Swag in the server (more info to come!)`
     }
   );
 
