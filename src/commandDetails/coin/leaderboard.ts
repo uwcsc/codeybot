@@ -9,6 +9,7 @@ import {
 } from '../../codeyCommand';
 import { getCurrentCoinLeaderboard, UserCoinEntry } from '../../components/coin';
 import { EMBED_COLOUR } from '../../utils/embeds';
+import { Alignment, generateTextTable, TableHeader } from '../../utils/textTable';
 
 const getCurrentCoinLeaderboardEmbed = async (
   client: SapphireClient<boolean>,
@@ -22,8 +23,9 @@ const getCurrentCoinLeaderboardEmbed = async (
   for (let i = 0; i < limit; i++) {
     if (leaderboard.length <= i) break;
     const userCoinEntry = leaderboard[i];
-    const user = await client.users.cache.get(userCoinEntry.user_id);
-    const userCoinEntryText = `${i + 1}. ${user?.username ?? '<unknown>'} - ${userCoinEntry.balance} 🪙.\n`;
+    const user = await client.users.fetch(userCoinEntry.user_id);
+    const userTag = user?.tag ?? '<unknown>';
+    const userCoinEntryText = `${i + 1}. ${userTag} - ${userCoinEntry.balance} 🪙.\n`;
     currentLeaderboardText += userCoinEntryText;
   }
   currentLeaderboardEmbed.addFields({
