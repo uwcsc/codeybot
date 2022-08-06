@@ -61,6 +61,11 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
   ]
 ]);
 
+export interface UserCoinEntry {
+  user_id: string;
+  balance: number;
+}
+
 export interface UserCoinBonus {
   id: string;
   user_id: string;
@@ -136,6 +141,21 @@ export const changeDbCoinBalanceByUserId = async (
 };
 
 /*
+  Get the leaderboard for the current coin amounts.
+*/
+export const getCurrentCoinLeaderboard = async (): Promise<UserCoinEntry[]> => {
+  const db = await openDB();
+  const res = await db.all(
+    `
+      SELECT user_id, balance
+      FROM user_coin
+      ORDER BY balance DESC
+    `
+  );
+  return res;
+};
+
+/*
   Adds an entry to the Codey coin ledger due to a change in a user's coin balance.
   reason is only applicable for admin commands and is optional.
   adminId is only applicable for admin commands and is mandatory.
@@ -149,7 +169,7 @@ export const createCoinLedgerEntry = async (
   adminId: string | null
 ): Promise<void> => {
   const db = await openDB();
-  await db.run(
+  const res = await db.get(
     'INSERT INTO user_coin_ledger (user_id, amount, new_balance, event, reason, admin_id) VALUES (?, ?, ?, ?, ?, ?)',
     userId,
     newBalance - oldBalance,
