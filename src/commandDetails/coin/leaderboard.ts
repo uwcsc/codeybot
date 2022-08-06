@@ -9,7 +9,6 @@ import {
 } from '../../codeyCommand';
 import { getCurrentCoinLeaderboard, UserCoinEntry } from '../../components/coin';
 import { EMBED_COLOUR } from '../../utils/embeds';
-import { Alignment, generateTextTable, TableHeader } from '../../utils/textTable';
 
 const getCurrentCoinLeaderboardEmbed = async (
   client: SapphireClient<boolean>,
@@ -18,6 +17,7 @@ const getCurrentCoinLeaderboardEmbed = async (
   limit = 10
 ): Promise<MessageEmbed> => {
   const currentLeaderboardEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle('Current CodeyCoin Leaderboard');
+  const currentPosition = leaderboard.findIndex((userCoinEntry) => userCoinEntry.user_id === currentUserId) + 1;
 
   let currentLeaderboardText = '';
   for (let i = 0; i < limit; i++) {
@@ -28,10 +28,19 @@ const getCurrentCoinLeaderboardEmbed = async (
     const userCoinEntryText = `${i + 1}. ${userTag} - ${userCoinEntry.balance} 🪙.\n`;
     currentLeaderboardText += userCoinEntryText;
   }
-  currentLeaderboardEmbed.addFields({
-    name: 'Current Leaderboard',
-    value: currentLeaderboardText
-  });
+  currentLeaderboardEmbed.addFields(
+    {
+      name: 'Current Leaderboard',
+      value: currentLeaderboardText
+    },
+    {
+      name: 'Current Position',
+      value:
+        currentPosition === 0
+          ? `You are currently unranked in the leaderboard: type \`.coin bal\` to get started!`
+          : `You are currently **#${currentPosition}** in the leaderboard.`
+    }
+  );
 
   return currentLeaderboardEmbed;
 };
