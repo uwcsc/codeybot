@@ -61,6 +61,11 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
   ]
 ]);
 
+export interface UserCoinEntry {
+  user_id: string;
+  balance: number;
+}
+
 export interface UserCoinBonus {
   id: string;
   user_id: string;
@@ -133,6 +138,39 @@ export const changeDbCoinBalanceByUserId = async (
     newBalance
   );
   await createCoinLedgerEntry(userId, oldBalance, newBalance, event, reason, adminId);
+};
+
+/*
+  Get the leaderboard for the current coin amounts.
+*/
+export const getCurrentCoinLeaderboard = async (limit = 10): Promise<UserCoinEntry[]> => {
+  const db = await openDB();
+  const res = await db.all(
+    `
+      SELECT user_id, balance
+      FROM user_coin
+      ORDER BY balance DESC
+      LIMIT ?
+    `,
+    limit
+  );
+  return res;
+};
+
+/*
+  Get the position for a user id's balance
+*/
+export const getUserIdCurrentCoinPosition = async (userId: string): Promise<number> => {
+  const db = await openDB();
+  const res = await db.get(
+    `
+      SELECT COUNT(user_id) AS count
+      FROM user_coin
+      WHERE balance >= ?
+    `,
+    await getCoinBalanceByUserId(userId)
+  );
+  return _.get(res, 'count', 0);
 };
 
 /*
