@@ -7,7 +7,12 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
-import { getCurrentCoinLeaderboard, getCoinBalanceByUserId, UserCoinEntry } from '../../components/coin';
+import {
+  getCurrentCoinLeaderboard,
+  getCoinBalanceByUserId,
+  UserCoinEntry,
+  getUserIdCurrentCoinPosition
+} from '../../components/coin';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 const getCurrentCoinLeaderboardEmbed = async (
@@ -18,7 +23,7 @@ const getCurrentCoinLeaderboardEmbed = async (
 ): Promise<MessageEmbed> => {
   // Initialise user's coin balance if they have not already
   const userBalance = await getCoinBalanceByUserId(currentUserId);
-  const currentPosition = leaderboard.findIndex((userCoinEntry) => userCoinEntry.user_id === currentUserId) + 1;
+  const currentPosition = await getUserIdCurrentCoinPosition(currentUserId);
 
   let currentLeaderboardText = '';
   for (let i = 0; i < limit; i++) {
@@ -47,9 +52,9 @@ const coinCurrentLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   _args
 ): Promise<SapphireMessageResponse> => {
-  const userid = getUserIdFromMessage(messageFromUser);
+  const userId = getUserIdFromMessage(messageFromUser);
   const leaderboard = await getCurrentCoinLeaderboard();
-  return getCurrentCoinLeaderboardEmbed(client, leaderboard, userid);
+  return getCurrentCoinLeaderboardEmbed(client, leaderboard, userId);
 };
 
 export const coinCurrentLeaderboardCommandDetails: CodeyCommandDetails = {
@@ -57,8 +62,8 @@ export const coinCurrentLeaderboardCommandDetails: CodeyCommandDetails = {
   aliases: ['lb'],
   description: 'Get the current coin leaderboard.',
   detailedDescription: `**Examples:**
-  \`${container.botPrefix}coin lb\`
-  \`${container.botPrefix}coin leaderboard\``,
+\`${container.botPrefix}coin lb\`
+\`${container.botPrefix}coin leaderboard\``,
 
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Getting the current coin leaderboard...',
