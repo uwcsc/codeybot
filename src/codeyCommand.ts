@@ -225,10 +225,20 @@ export class CodeyCommand extends SapphireCommand {
     /** The command details object to use */
     let commandDetails = this.details.subcommandDetails[subcommandName];
     if (!commandDetails) {
-      if (this.details.subcommandDetails !== {}) {
-        commandDetails = this.details.defaultSubcommandDetails!;
-      } else {
-        commandDetails = this.details;
+      // Check whether the subcommand is an alias of another command
+      for (const subcommandDetail of Object.values(this.details.subcommandDetails)) {
+        if (subcommandDetail.aliases.includes(subcommandName)) {
+          commandDetails = subcommandDetail;
+          break;
+        }
+      }
+      // If the subcommand is not an alias of another subcommand, use the default
+      if (!commandDetails) {
+        if (this.details.subcommandDetails !== {}) {
+          commandDetails = this.details.defaultSubcommandDetails!;
+        } else {
+          commandDetails = this.details;
+        }
       }
     }
 
