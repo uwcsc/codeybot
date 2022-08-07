@@ -1,5 +1,5 @@
 import { container, SapphireClient } from '@sapphire/framework';
-import { Client, MessageEmbed } from 'discord.js';
+import { MessageEmbed } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
@@ -26,7 +26,7 @@ const getCurrentCoinLeaderboardEmbed = async (
     const userCoinEntry = leaderboard[i];
     const user = await client.users.fetch(userCoinEntry.user_id);
     const userTag = user?.tag ?? '<unknown>';
-    const userCoinEntryText = `${i + 1}. ${userTag} - ${userCoinEntry.balance} 🪙.\n`;
+    const userCoinEntryText = `${i + 1}. ${userTag} - ${userCoinEntry.balance} 🪙\n`;
     currentLeaderboardText += userCoinEntryText;
   }
   const currentLeaderboardEmbed = new MessageEmbed()
@@ -36,7 +36,7 @@ const getCurrentCoinLeaderboardEmbed = async (
 
   currentLeaderboardEmbed.addFields({
     name: 'Your Position',
-    value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} 🪙`
+    value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} 🪙.`
   });
 
   return currentLeaderboardEmbed;

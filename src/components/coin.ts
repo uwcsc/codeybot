@@ -169,7 +169,7 @@ export const createCoinLedgerEntry = async (
   adminId: string | null
 ): Promise<void> => {
   const db = await openDB();
-  const res = await db.get(
+  await db.run(
     'INSERT INTO user_coin_ledger (user_id, amount, new_balance, event, reason, admin_id) VALUES (?, ?, ?, ?, ?, ?)',
     userId,
     newBalance - oldBalance,
