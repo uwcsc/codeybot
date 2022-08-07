@@ -150,8 +150,9 @@ export const getCurrentCoinLeaderboard = async (limit = 10): Promise<UserCoinEnt
       SELECT user_id, balance
       FROM user_coin
       ORDER BY balance DESC
-      LIMIT ${limit}
-    `
+      LIMIT ?
+    `,
+    limit
   );
   return res;
 };
@@ -165,8 +166,9 @@ export const getUserIdCurrentCoinPosition = async (userId: string): Promise<numb
     `
       SELECT COUNT(user_id) AS count
       FROM user_coin
-      WHERE balance >= (SELECT balance FROM user_coin WHERE user_id = '${userId}')
-    `
+      WHERE balance >= ?
+    `,
+    await getCoinBalanceByUserId(userId)
   );
   return _.get(res, 'count', 0);
 };

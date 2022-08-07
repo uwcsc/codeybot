@@ -15,11 +15,13 @@ import {
 } from '../../components/coin';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
+// How many people are shown on the leaderboard
+const limit = 10;
+
 const getCurrentCoinLeaderboardEmbed = async (
   client: SapphireClient<boolean>,
   leaderboard: UserCoinEntry[],
-  currentUserId: string,
-  limit = 10
+  currentUserId: string
 ): Promise<MessageEmbed> => {
   // Initialise user's coin balance if they have not already
   const userBalance = await getCoinBalanceByUserId(currentUserId);
