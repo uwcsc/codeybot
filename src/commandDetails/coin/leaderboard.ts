@@ -16,7 +16,6 @@ const getCurrentCoinLeaderboardEmbed = async (
   currentUserId: string,
   limit = 10
 ): Promise<MessageEmbed> => {
-  const currentLeaderboardEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle('Current CodeyCoin Leaderboard');
   // Initialise user's coin balance if they have not already
   const userBalance = await getCoinBalanceByUserId(currentUserId);
   const currentPosition = leaderboard.findIndex((userCoinEntry) => userCoinEntry.user_id === currentUserId) + 1;
@@ -30,16 +29,15 @@ const getCurrentCoinLeaderboardEmbed = async (
     const userCoinEntryText = `${i + 1}. ${userTag} - ${userCoinEntry.balance} 🪙.\n`;
     currentLeaderboardText += userCoinEntryText;
   }
-  currentLeaderboardEmbed.addFields(
-    {
-      name: 'Current Leaderboard',
-      value: currentLeaderboardText
-    },
-    {
-      name: 'Current Position',
-      value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} 🪙`
-    }
-  );
+  const currentLeaderboardEmbed = new MessageEmbed()
+    .setColor(EMBED_COLOUR)
+    .setTitle('CodeyCoin Leaderboard')
+    .setDescription(currentLeaderboardText);
+
+  currentLeaderboardEmbed.addFields({
+    name: 'Your Position',
+    value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} 🪙`
+  });
 
   return currentLeaderboardEmbed;
 };
