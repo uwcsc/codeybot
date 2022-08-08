@@ -186,10 +186,21 @@ export class BlackjackCommand extends Command {
   async messageRun(message: Message, args: Args): Promise<Message> {
     // if there are no arguments, then resolve to the default bet amount; if there is only one argument and it is an
     // integer, then this is the bet amount; otherwise, reply that a valid bet amount must be entered
-    const bet = args.finished
+    const betAmount = await args.restResult<number>('integer');
+    const betPercent = await args.restResult<string>('string');
+    let bet = args.finished
       ? DEFAULT_BET
-      : await args.rest('integer').catch(() => 'please enter a valid bet amount.');
-    if (typeof bet === 'string') return message.reply(bet);
+      : betAmount.success
+      ? betAmount
+      : betPercent;
+    // if (typeof bet === 'string') return message.reply(bet);
+    const isPercent = typeof bet == 'string' && bet.includes('%');
+    const playerBalance = await getCoinBalanceByUserId(author.id);
+
+    if (isPercent) {
+      const percentage = parseInt(bet.trim().replace('%', ''), 10) / 100;
+      bet = Math.round(playerBalance * percentage);
+    }
 
     const { author, channel } = message;
 
@@ -200,7 +211,6 @@ export class BlackjackCommand extends Command {
     }
 
     // check player balance and see if it can cover the bet amount
-    const playerBalance = await getCoinBalanceByUserId(author.id);
     if (playerBalance! < bet)
       return message.reply(`you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`);
 
