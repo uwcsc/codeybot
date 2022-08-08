@@ -186,7 +186,7 @@ export class BlackjackCommand extends Command {
   async messageRun(message: Message, args: Args): Promise<Message> {
     // if there are no arguments, then resolve to the default bet amount; if there is only one argument and it is an
     // integer, then this is the bet amount; otherwise, reply that a valid bet amount must be entered
-    let betString = await args.pick('string').catch(() => String(DEFAULT_BET));
+    const betString = await args.pick('string').catch(() => String(DEFAULT_BET));
 
     const { author, channel } = message;
     const playerBalance = await getCoinBalanceByUserId(author.id);
