@@ -1,14 +1,17 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { container, Listener } from '@sapphire/framework';
-import { Message } from 'discord.js';
+import { DiscordAPIError, Message, MessageAttachment } from 'discord.js';
 import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
 import { convertPdfToPic } from '../utils/pdfToPic';
 
-import { readdirSync } from 'fs';
+import { writeFile } from 'fs/promises';
+import axios from 'axios';
+import { WriteImageResponse } from 'pdf2pic/dist/types/writeImageResponse';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
+const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;
 
 /*
  * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
@@ -63,14 +66,29 @@ const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
   return false;
 };
 
+/**
+ * Convert any pdfs sent in the #resumes channel to an image.
+ */
+const convertResumePdfsIntoImages = async (message: Message): Promise<Message<boolean>> => {
+  // Get resume pdf from message and write locally to tmp
+  const pdfLink = Array.from(message.attachments.values()).map((file) => file.attachment)[0];
+  const pdfResponse = await axios.get(pdfLink, { responseType: 'stream' });
+  const pdfContent = pdfResponse.data;
+  await writeFile('tmp/resume.pdf', pdfContent);
+
+  // Convert the resume pdf into image
+  const imgResponse = <WriteImageResponse>await convertPdfToPic('tmp/resume.pdf', 1, 'resume');
+
+  // Send the image back to the channel
+  return await message.channel.send({ files: [imgResponse.path] });
+};
+
 @ApplyOptions<Listener.Options>({
   event: 'messageCreate'
 })
 export class MessageCreateListener extends Listener {
   async run(message: Message): Promise<void> {
     const { client } = container;
-
-    console.log(await convertPdfToPic('./tmp/sample.pdf', 1));
 
     if (!client.user) {
       return;
@@ -83,6 +101,11 @@ export class MessageCreateListener extends Listener {
 
     if (await punishSpammersAndTrolls(message)) {
       return;
+    }
+
+    // If channel is in resumes, convert the message attachment to an image
+    if (message.channelId === RESUME_CHANNEL_ID) {
+      await convertResumePdfsIntoImages(message);
     }
 
     // Ignore DMs; include announcements, thread, and regular text channels
