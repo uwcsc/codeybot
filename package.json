@@ -5,7 +5,7 @@
   "main": "dist/src/bot.js",
   "scripts": {
     "local:run": "NODE_ENV=dev tsc-watch --onSuccess \"node dist/index.js\"",
-    "ts:build": "tsc",
+    "ts:build": "tsc && cp -r tmp dist/tmp",
     "image:build": "docker build . -t codey",
     "clean": "docker-compose down",
     "stop": "docker-compose stop",
@@ -35,6 +35,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "node-fetch": "^2.6.2",
+    "pdf2pic": "^2.1.4",
     "sqlite": "^4.0.22",
     "sqlite3": "^5.0.2",
     "stable-marriage": "^1.0.2",

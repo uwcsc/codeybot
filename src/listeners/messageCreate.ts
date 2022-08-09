@@ -4,6 +4,9 @@ import { Message } from 'discord.js';
 import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
+import { convertPdfToPic } from '../utils/pdfToPic';
+
+import { readdirSync } from 'fs';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 
@@ -66,6 +69,8 @@ const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
 export class MessageCreateListener extends Listener {
   async run(message: Message): Promise<void> {
     const { client } = container;
+
+    console.log(await convertPdfToPic('./tmp/sample.pdf', 1));
 
     if (!client.user) {
       return;

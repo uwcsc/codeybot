@@ -7,6 +7,10 @@ WORKDIR /usr/app
 COPY package.json yarn.lock ./
 RUN yarn --frozen-lockfile
 
+# Install the dependencies needed for pdf2pic
+RUN apk add --update ghostscript
+RUN apk add --update graphicsmagick
+
 # Copy app files
 COPY . .
 
