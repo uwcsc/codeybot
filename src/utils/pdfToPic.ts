@@ -1,14 +1,12 @@
 import { fromPath } from 'pdf2pic';
-import { ToBase64Response } from 'pdf2pic/dist/types/toBase64Response';
 import { WriteImageResponse } from 'pdf2pic/dist/types/writeImageResponse';
 
 export const convertPdfToPic = async (
   filePath: string,
-  pageToConvertAsImage: number,
   saveFileName: string,
   width: number,
   height: number
-): Promise<WriteImageResponse | ToBase64Response> => {
+): Promise<WriteImageResponse[]> => {
   const options = {
     density: 500,
     saveFilename: saveFileName,
@@ -18,7 +16,7 @@ export const convertPdfToPic = async (
     height: height
   };
 
-  const storeAsImage = fromPath(filePath, options);
-  const res = await storeAsImage(pageToConvertAsImage);
+  const convert = fromPath(filePath, options);
+  const res = await convert.bulk!(-1);
   return res;
 };

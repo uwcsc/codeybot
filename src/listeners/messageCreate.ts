@@ -10,7 +10,6 @@ import { readFileSync } from 'fs';
 import { writeFile } from 'fs/promises';
 import axios from 'axios';
 import { PDFDocument } from 'pdf-lib';
-import { WriteImageResponse } from 'pdf2pic/dist/types/writeImageResponse';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;
@@ -87,10 +86,11 @@ const convertResumePdfsIntoImages = async (message: Message): Promise<Message<bo
   const { width, height } = pdfDocument.getPage(0).getSize();
 
   // Convert the resume pdf into image
-  const imgResponse = <WriteImageResponse>await convertPdfToPic('tmp/resume.pdf', 1, 'resume', width * 2, height * 2);
-
+  const imgResponse = await convertPdfToPic('tmp/resume.pdf', 'resume', width * 2, height * 2);
   // Send the image back to the channel
-  return await message.channel.send({ files: [imgResponse.path] });
+  return await message.channel.send({
+    files: imgResponse.map((img) => img.path)
+  });
 };
 
 @ApplyOptions<Listener.Options>({
