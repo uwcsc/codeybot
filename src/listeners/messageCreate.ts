@@ -1,13 +1,15 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { container, Listener } from '@sapphire/framework';
-import { DiscordAPIError, Message, MessageAttachment } from 'discord.js';
+import { Message } from 'discord.js';
 import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
 import { convertPdfToPic } from '../utils/pdfToPic';
 
+import { readFileSync } from 'fs';
 import { writeFile } from 'fs/promises';
 import axios from 'axios';
+import { PDFDocument } from 'pdf-lib';
 import { WriteImageResponse } from 'pdf2pic/dist/types/writeImageResponse';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
@@ -76,8 +78,12 @@ const convertResumePdfsIntoImages = async (message: Message): Promise<Message<bo
   const pdfContent = pdfResponse.data;
   await writeFile('tmp/resume.pdf', pdfContent);
 
+  // Get the size of the pdf
+  const pdfDocument = await PDFDocument.load(readFileSync('tmp/resume.pdf'));
+  const { width, height } = pdfDocument.getPage(0).getSize();
+
   // Convert the resume pdf into image
-  const imgResponse = <WriteImageResponse>await convertPdfToPic('tmp/resume.pdf', 1, 'resume');
+  const imgResponse = <WriteImageResponse>await convertPdfToPic('tmp/resume.pdf', 1, 'resume', width * 2, height * 2);
 
   // Send the image back to the channel
   return await message.channel.send({ files: [imgResponse.path] });
