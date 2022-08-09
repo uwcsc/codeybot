@@ -71,9 +71,13 @@ const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
 /**
  * Convert any pdfs sent in the #resumes channel to an image.
  */
-const convertResumePdfsIntoImages = async (message: Message): Promise<Message<boolean>> => {
+const convertResumePdfsIntoImages = async (message: Message): Promise<Message<boolean> | undefined> => {
+  // If no resume pdf is provided, do nothing
+  const attachments = message.attachments;
+  if (attachments.size === 0) return;
+
   // Get resume pdf from message and write locally to tmp
-  const pdfLink = Array.from(message.attachments.values()).map((file) => file.attachment)[0];
+  const pdfLink = Array.from(attachments.values()).map((file) => file.attachment)[0];
   const pdfResponse = await axios.get(pdfLink, { responseType: 'stream' });
   const pdfContent = pdfResponse.data;
   await writeFile('tmp/resume.pdf', pdfContent);
