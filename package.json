@@ -5,7 +5,7 @@
   "main": "dist/src/bot.js",
   "scripts": {
     "local:run": "NODE_ENV=dev tsc-watch --onSuccess \"node dist/index.js\"",
-    "ts:build": "tsc",
+    "ts:build": "tsc && mkdir tmp",
     "image:build": "docker build . -t codey",
     "clean": "docker-compose down",
     "stop": "docker-compose stop",

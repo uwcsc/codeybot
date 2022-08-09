@@ -13,5 +13,6 @@ RUN apk add --update graphicsmagick
 
 # Copy app files
 COPY . .
+RUN mkdir ./tmp
 
 CMD [ "yarn", "run", "local:run" ]
