@@ -13,6 +13,9 @@ RUN yarn run ts:build
 FROM node:18-alpine
 WORKDIR /usr/app
 ENV NODE_ENV="prod"
+RUN apk add --update ghostscript
+RUN apk add --update graphicsmagick
+RUN mkdir ./tmp
 COPY package.json yarn.lock ./
 RUN yarn --frozen-lockfile --prod
 RUN yarn global add pm2
