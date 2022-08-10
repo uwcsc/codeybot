@@ -27,7 +27,7 @@ let ghRepo: GitHubRepository | null = null;
 export const getRepositoryInfo = async (owner: string, repo: string): Promise<GitHubRepository> => {
   const curTime = new Date();
   //8640000 is a day of delay
-  if (ghRepo == null || RepoRefreshDate.getTime() - curTime.getTime() > 86400000) {
+  if (ghRepo == null || curTime.getTime() - RepoRefreshDate.getTime() > 86400000) {
     RepoRefreshDate = curTime;
     const response = axios.get(`${API_LINK}/repos/${owner}/${repo}`);
     ghRepo = (await response).data;
@@ -43,7 +43,7 @@ let ghRelease: GithubRepositoryRelease[] | null = null;
 export const getRepositoryReleases = async (owner: string, repo: string): Promise<GithubRepositoryRelease[]> => {
   const curTime = new Date();
   //8640000 is a day of delay
-  if (ghRepo == null || ReleaseRefreshDate.getTime() - curTime.getTime() > 86400000) {
+  if (ghRepo == null || curTime.getTime() - ReleaseRefreshDate.getTime() > 86400000) {
     ReleaseRefreshDate = curTime;
     const response = axios.get(`${API_LINK}/repos/${owner}/${repo}/releases`);
     ghRelease = (await response).data;
