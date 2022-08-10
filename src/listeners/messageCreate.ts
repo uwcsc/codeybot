@@ -84,6 +84,9 @@ const convertResumePdfsIntoImages = async (message: Message): Promise<Message<bo
   // Get the size of the pdf
   const pdfDocument = await PDFDocument.load(readFileSync('tmp/resume.pdf'));
   const { width, height } = pdfDocument.getPage(0).getSize();
+  if (pdfDocument.getPageCount() > 10) {
+    return await message.channel.send('Resumes must be less than 10 pages.');
+  }
 
   // Convert the resume pdf into image
   const imgResponse = await convertPdfToPic('tmp/resume.pdf', 'resume', width * 2, height * 2);

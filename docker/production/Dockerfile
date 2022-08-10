@@ -4,6 +4,8 @@ WORKDIR /usr/app
 COPY package.json yarn.lock ./
 RUN yarn --frozen-lockfile
 COPY . .
+RUN apk add --update ghostscript
+RUN apk add --update graphicsmagick
 RUN yarn run ts:build
 
 # Stage 2: Run in production env
