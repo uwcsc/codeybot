@@ -3,16 +3,16 @@ FROM node:18-alpine
 # Create app directory
 WORKDIR /usr/app
 
-# Install app dependencies
-COPY package.json yarn.lock ./
-RUN yarn --frozen-lockfile
-
+RUN mkdir ./tmp
 # Install the dependencies needed for pdf2pic and calipers
 RUN apk add --update ghostscript
 RUN apk add --update graphicsmagick
 
+# Install app dependencies
+COPY package.json yarn.lock ./
+RUN yarn --frozen-lockfile
+
 # Copy app files
 COPY . .
-RUN mkdir ./tmp
 
 CMD [ "yarn", "run", "local:run" ]
