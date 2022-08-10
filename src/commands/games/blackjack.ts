@@ -186,17 +186,21 @@ export class BlackjackCommand extends Command {
   async messageRun(message: Message, args: Args): Promise<Message> {
     // if there are no arguments, then resolve to the default bet amount; if there is only one argument and it is an
     // integer, then this is the bet amount; otherwise, reply that a valid bet amount must be entered
-    const betString = await args.rest('string').catch(() => 'please enter a valid bet amount.');
+    const betString = await args.pick('string').catch(() => String(DEFAULT_BET));
 
     const { author, channel } = message;
     const playerBalance = await getCoinBalanceByUserId(author.id);
 
+    if (isNaN(parseInt(betString, 10))) {
+      return message.reply('please enter a valid bet amount.');
+    }
+
     let bet: number;
-    if (betString.includes('%')) {
-      const percentage = parseInt(betString.replace('%', '').trim(), 10) / 100;
+    if (betString.endsWith('%')) {
+      const percentage = parseInt(betString, 10) / 100;
       bet = Math.round(playerBalance * percentage);
     } else {
-      bet = args.finished ? DEFAULT_BET : parseInt(betString, 10);
+      bet = parseInt(betString, 10);
     }
 
     const validateRes = validateBetAmount(bet);
@@ -206,8 +210,19 @@ export class BlackjackCommand extends Command {
     }
 
     // check player balance and see if it can cover the bet amount
-    if (playerBalance! < bet)
-      return message.reply(`you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`);
+
+    if (playerBalance! < bet) {
+      if (betString.endsWith('%')) {
+        const percentNeeded = playerBalance / (playerBalance / 10);
+        return message.reply(
+          `you don't have enough coins to place that bet. (you'd need at least ${percentNeeded}%) ${getEmojiByName(
+            'codeySad'
+          )}`
+        );
+      } else {
+        return message.reply(`you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`);
+      }
+    }
 
     // initialize the game
     let game = startGame(bet, author.id, channel.id);
