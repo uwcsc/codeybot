@@ -1,6 +1,7 @@
 import { container } from '@sapphire/framework';
 import { CronJob } from 'cron';
-import { MessageEmbed, TextChannel } from 'discord.js';
+import { EmbedBuilder, TextChannel } from 'discord.js';
+import { ChannelType } from 'discord-api-types/v10';
 import _ from 'lodash';
 import { CoffeeChatCommand } from '../commands/coffeeChat/coffeeChat';
 import { vars } from '../config';
@@ -34,7 +35,7 @@ export const createOfficeStatusCron = (): CronJob =>
     const messageChannel = client.channels.cache.get(OFFICE_STATUS_CHANNEL_ID);
     if (!messageChannel) {
       throw 'Bad channel ID';
-    } else if (messageChannel.type === 'GUILD_TEXT') {
+    } else if (messageChannel.type === ChannelType.GuildText) {
       // if there is an emoji, prune it, otherwise leave name as is
       const curName =
         (messageChannel as TextChannel).name.replace(/\p{Extended_Pictographic}+/gu, '') +
@@ -58,11 +59,11 @@ export const createSuggestionCron = (): CronJob =>
 
       if (!messageChannel) {
         throw 'Bad channel ID';
-      } else if (messageChannel.type === 'GUILD_TEXT') {
+      } else if (messageChannel.type === ChannelType.GuildText) {
         // construct embed for display
         const output = await getSuggestionPrintout(createdSuggestions);
         const title = 'New Suggestions';
-        const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title).setDescription(output);
+        const outEmbed = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle(title).setDescription(output);
         (messageChannel as TextChannel).send({ embeds: [outEmbed] });
         // Update states
         await updateSuggestionState(createdSuggestionIds);
@@ -97,7 +98,7 @@ export const createCoffeeChatCron = (): CronJob =>
     const messageChannel = client.channels.cache.get(NOTIF_CHANNEL_ID);
     if (!messageChannel) {
       throw 'Bad channel ID';
-    } else if (messageChannel.type === 'GUILD_TEXT') {
+    } else if (messageChannel.type === ChannelType.GuildText) {
       (messageChannel as TextChannel).send(`Sent ${matches.length} match(es).`);
     } else {
       throw 'Bad channel type';

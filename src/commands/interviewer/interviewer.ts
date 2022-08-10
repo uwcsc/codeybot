@@ -1,7 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import _ from 'lodash';
 import { getEmojiByName } from '../../components/emojis';
 import {
@@ -101,9 +101,9 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     const domains = await getDomains(id);
 
     //build output embed
-    const profileEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle('Interviewer Profile');
-    profileEmbed.addField('**Link**', interviewer.link);
-    profileEmbed.addField('**Domains**', _.isEmpty(domains) ? 'None' : getDomainsString(domains));
+    const profileEmbed = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle('Interviewer Profile');
+    profileEmbed.addFields([{ name: '**Link**', value: interviewer.link}]);
+    profileEmbed.addFields([{ name: '**Domains**', value: _.isEmpty(domains) ? 'None' : getDomainsString(domains)}]);
     return message.channel.send({ embeds: [profileEmbed] });
   }
 
@@ -150,7 +150,7 @@ export class InterviewerCommand extends SubCommandPluginCommand {
 
     // construct embed for display
     const title = domain ? `Available Interviewers for ${availableDomains[domain]}` : 'Available Interviewers';
-    const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
+    const outEmbed = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(interviewersInfo.join());
     return message.channel.send({ embeds: [outEmbed] });
   }

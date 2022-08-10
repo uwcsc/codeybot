@@ -1,7 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import { getCoinBalanceByUserId } from '../../components/coin';
 import {
   configMaps,
@@ -32,7 +32,7 @@ export class ProfileCommand extends SubCommandPluginCommand {
     } else {
       // fields that are fetched that we do not want to display to the user, or want to display later (last_updated)
       const notDisplay = ['user_id', 'last_updated'];
-      const profileDisplay = new MessageEmbed().setTitle(`${user.username}'s profile`);
+      const profileDisplay = new EmbedBuilder().setTitle(`${user.username}'s profile`);
       // setting profile colour might not be useful, but we should leave it to a separate discussion/ticket
       profileDisplay.setColor(EMBED_COLOUR);
       if (user.avatar) {
@@ -42,20 +42,20 @@ export class ProfileCommand extends SubCommandPluginCommand {
         if (val && !notDisplay.includes(key)) {
           // iterate through each of the configurations, prettyProfileDetails making the configuration more readable
           // as opposed to snake case
-          // need to cast val to string since addField does not take in numbers
-          profileDisplay.addField(
-            prettyProfileDetails[key as keyof typeof prettyProfileDetails],
-            val.toString(),
-            key !== 'about_me' // since about_me can be long, we dont want to inline it
-          );
+          // need to cast val to string since addFields does not take in numbers
+          profileDisplay.addFields([{
+            name: prettyProfileDetails[key as keyof typeof prettyProfileDetails],
+            value: val.toString(),
+            inline: key !== 'about_me' // since about_me can be long, we dont want to inline it
+          }]);
         }
       }
       // add codeycoins onto the fields as well
       const userCoins = (await getCoinBalanceByUserId(user.id))!.toString();
-      profileDisplay.addField('Codey Coins', userCoins, true);
+      profileDisplay.addFields([{ name: 'Codey Coins', value: userCoins, inline: true}]);
       // display last updated last
       if (profileDetails['last_updated']) {
-        profileDisplay.addField(prettyProfileDetails.last_updated, profileDetails['last_updated'], true);
+        profileDisplay.addFields([{ name: prettyProfileDetails.last_updated, value: profileDetails['last_updated'], inline: true}]);
       }
       return message.channel.send({ embeds: [profileDisplay] });
     }

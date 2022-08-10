@@ -1,6 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { container, Listener } from '@sapphire/framework';
-import { Message } from 'discord.js';
+import { Message, PermissionsBitField } from 'discord.js';
+import { ChannelType } from 'discord-api-types/v10';
 import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
@@ -25,8 +26,8 @@ const detectSpammersAndTrolls = (message: Message): boolean => {
   return (
     pingWords.some((word) => message.content.includes(word)) &&
     punishableWords.some((word) => message.content.toLowerCase().includes(word)) &&
-    message.channel.type !== 'DM' &&
-    message.channel.permissionsFor(message.channel.guild.roles.everyone).has('VIEW_CHANNEL') &&
+    message.channel.type !== ChannelType.DM &&
+    message.channel.permissionsFor(message.channel.guild.roles.everyone).has(PermissionsBitField.Flags.ViewChannel) &&
     message.channel.id !== ANNOUNCEMENTS_CHANNEL_ID
   );
 };
@@ -81,7 +82,7 @@ export class MessageCreateListener extends Listener {
     }
 
     // Ignore DMs; include announcements, thread, and regular text channels
-    if (message.channel.type !== 'DM') {
+    if (message.channel.type !== ChannelType.DM) {
       await applyBonusByUserId(message.author.id);
     }
   }

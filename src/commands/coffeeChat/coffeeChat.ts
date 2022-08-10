@@ -1,7 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
-import { Message, MessageEmbed, User } from 'discord.js';
+import { Message, EmbedBuilder, PermissionsBitField, User } from 'discord.js';
 import { getMatch, testPerformance, writeHistoricMatches } from '../../components/coffeeChat';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
@@ -14,7 +14,7 @@ import { EMBED_COLOUR } from '../../utils/embeds';
 \`${container.botPrefix}coffeechat test 5\`
 \`${container.botPrefix}coffee test 10\``,
   subCommands: ['match', 'test'],
-  requiredUserPermissions: ['ADMINISTRATOR']
+  requiredUserPermissions: [PermissionsBitField.Flags.Administrator]
 })
 export class CoffeeChatCommand extends SubCommandPluginCommand {
   static async alertMatches(matches: string[][]): Promise<void> {
@@ -72,9 +72,9 @@ export class CoffeeChatCommand extends SubCommandPluginCommand {
     if (typeof size === 'string') return message.reply(size);
 
     const results = await testPerformance(size);
-    const output = new MessageEmbed().setColor(EMBED_COLOUR).setTitle('Matches Until Dupe');
+    const output = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle('Matches Until Dupe');
     results.forEach((value, key) => {
-      output.addField(key, value.toString());
+      output.addFields([{ name: key, value: value.toString() }]);
     });
     return message.channel.send({ embeds: [output] });
   }

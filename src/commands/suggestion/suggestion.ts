@@ -1,7 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder, PermissionsBitField } from 'discord.js';
 import _ from 'lodash';
 import {
   addSuggestion,
@@ -45,7 +45,7 @@ export class SuggestionCommand extends SubCommandPluginCommand {
   }
 
   async list(message: Message, args: Args): Promise<Message | void> {
-    if (!message.member?.permissions.has('ADMINISTRATOR')) return;
+    if (!message.member?.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
     const state = args.finished ? null : (await args.rest('string')).toLowerCase();
     //validate state
@@ -62,13 +62,13 @@ export class SuggestionCommand extends SubCommandPluginCommand {
 
     // construct embed for display
     const title = state ? `${suggestionStatesReadable[state]} Suggestions` : 'Suggestions';
-    const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
+    const outEmbed = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(suggestionsInfo.join(''));
     return message.channel.send({ embeds: [outEmbed] });
   }
 
   async update(message: Message, args: Args): Promise<Message | void> {
-    if (!message.member?.permissions.has('ADMINISTRATOR')) return;
+    if (!message.member?.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
     const state = (await args.pick('string').catch(() => `please enter a valid suggestion state.`)).toLowerCase();
     const ids = await args.rest('string').catch(() => `please enter valid suggestion IDs.`);
@@ -88,7 +88,7 @@ export class SuggestionCommand extends SubCommandPluginCommand {
 
     // construct embed for display
     const title = `Suggestions Updated To ${suggestionStatesReadable[state]} State`;
-    const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
+    const outEmbed = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(suggestionIds.join(', '));
     return message.channel.send({ embeds: [outEmbed] });
   }

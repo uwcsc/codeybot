@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, Command, CommandOptions, container } from '@sapphire/framework';
-import { Collection, ColorResolvable, Message, MessageEmbed, MessageReaction, Snowflake, User } from 'discord.js';
+import { Collection, Colors, Message, EmbedBuilder, MessageReaction, Snowflake, User } from 'discord.js';
 import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
 import { getEmojiByName } from '../../components/emojis';
 import {
@@ -110,21 +110,21 @@ export class BlackjackCommand extends Command {
   /*
     Returns a colour depending on the game's state
   */
-  private getEmbedColourFromGame(game: GameState): ColorResolvable {
+  private getEmbedColourFromGame(game: GameState): keyof typeof Colors {
     if (game.stage === BlackjackStage.DONE) {
       if (this.getBalanceChange(game) < 0) {
         // player lost coins
-        return 'RED';
+        return 'Red';
       }
       if (this.getBalanceChange(game) > 0) {
         // player won coins
-        return 'GREEN';
+        return 'Green';
       }
       // player didn't lose any coins
-      return 'ORANGE';
+      return 'Orange';
     }
     // game in progress
-    return 'YELLOW';
+    return 'Yellow';
   }
 
   /*
@@ -162,14 +162,14 @@ export class BlackjackCommand extends Command {
   /*
     Returns the game embed from the game's current state
   */
-  private getEmbedFromGame(game: GameState): MessageEmbed {
-    const embed = new MessageEmbed().setTitle('Blackjack');
+  private getEmbedFromGame(game: GameState): EmbedBuilder {
+    const embed = new EmbedBuilder().setTitle('Blackjack');
     embed.setColor(this.getEmbedColourFromGame(game));
     // show bet amount and game description
-    embed.addField(`Bet: ${game.bet} 🪙`, this.getDescriptionFromGame(game));
+    embed.addFields([{ name: `Bet: ${game.bet} 🪙`, value: this.getDescriptionFromGame(game)}]);
     // show player and dealer value and hands
-    embed.addField(`Player: ${game.playerValue.join(' or ')}`, this.getHandDisplayString(game.playerCards));
-    embed.addField(`Dealer: ${game.dealerValue.join(' or ')}`, this.getHandDisplayString(game.dealerCards));
+    embed.addFields([{ name: `Player: ${game.playerValue.join(' or ')}`, value: this.getHandDisplayString(game.playerCards)}]);
+    embed.addFields([{ name: `Dealer: ${game.dealerValue.join(' or ')}`, value: this.getHandDisplayString(game.dealerCards)}]);
 
     return embed;
   }

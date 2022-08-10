@@ -1,5 +1,5 @@
 import { container } from '@sapphire/framework';
-import { Permissions, User } from 'discord.js';
+import { PermissionsBitField, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -10,7 +10,7 @@ import { getCoinBalanceByUserId, updateCoinBalanceByUserId, UserCoinEvent } from
 
 // Update coin balance of a user
 const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
-  if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) {
+  if (!(<Readonly<PermissionsBitField>>messageFromUser.member?.permissions).has(PermissionsBitField.Flags.Administrator)) {
     return `You do not have permission to use this command.`;
   }
 

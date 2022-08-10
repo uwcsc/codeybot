@@ -8,7 +8,7 @@ import {
   RegisterBehavior,
   SapphireClient
 } from '@sapphire/framework';
-import { Message, MessageEmbed, MessagePayload, TextChannel, User, WebhookEditMessageOptions } from 'discord.js';
+import { ApplicationCommandOptionType, Message, EmbedBuilder, MessagePayload, TextChannel, User, WebhookEditMessageOptions } from 'discord.js';
 import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
@@ -18,7 +18,7 @@ import {
 } from '@discordjs/builders';
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
-export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions | MessageEmbed;
+export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions | EmbedBuilder;
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
@@ -38,15 +38,15 @@ export enum CodeyCommandResponseType {
 // Command options
 /** The type of the codey command option */
 export enum CodeyCommandOptionType {
-  STRING = 'string',
-  INTEGER = 'integer',
-  BOOLEAN = 'boolean',
-  USER = 'user',
-  CHANNEL = 'channel',
-  ROLE = 'role',
-  MENTIONABLE = 'mentionable',
-  NUMBER = 'number',
-  ATTACHMENT = 'attachment'
+  STRING = ApplicationCommandOptionType.String,
+  INTEGER = ApplicationCommandOptionType.Integer,
+  BOOLEAN = ApplicationCommandOptionType.Boolean,
+  USER = ApplicationCommandOptionType.User,
+  CHANNEL = ApplicationCommandOptionType.Channel,
+  ROLE = ApplicationCommandOptionType.Role,
+  MENTIONABLE = ApplicationCommandOptionType.Mentionable,
+  NUMBER = ApplicationCommandOptionType.Number,
+  ATTACHMENT = ApplicationCommandOptionType.Attachment
 }
 
 /** The codey command option */
@@ -250,7 +250,7 @@ export class CodeyCommand extends SapphireCommand {
     for (const commandOption of commandDetails.options!) {
       try {
         args[commandOption.name] = <CodeyCommandArgumentValueType>(
-          await commandArgs.pick(<keyof ArgType>commandOption.type)
+          await commandArgs.pick(<keyof ArgType>(ApplicationCommandOptionType[commandOption.type].toLowerCase()))
         );
       } catch (e) {}
     }
@@ -260,7 +260,7 @@ export class CodeyCommand extends SapphireCommand {
       if (!successResponse) return;
       switch (commandDetails.codeyCommandResponseType) {
         case CodeyCommandResponseType.EMBED:
-          return await message.reply({ embeds: [<MessageEmbed>successResponse] });
+          return await message.reply({ embeds: [<EmbedBuilder>successResponse] });
         case CodeyCommandResponseType.STRING:
           return await message.reply(<string>successResponse);
       }
@@ -279,7 +279,8 @@ export class CodeyCommand extends SapphireCommand {
     // Get subcommand name
     let subcommandName = '';
     try {
-      subcommandName = interaction.options.getSubcommand();
+      if (interaction.isChatInputCommand())
+        subcommandName = interaction.options.getSubcommand();
     } catch (e) {}
     /** The command details object to use */
     const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
@@ -300,7 +301,7 @@ export class CodeyCommand extends SapphireCommand {
           if (commandInteractionOption) {
             const type = commandInteractionOption.type;
             switch (type) {
-              case 'USER':
+              case ApplicationCommandOptionType.User:
                 return {
                   [commandOptionName]: commandInteractionOption.user
                 };
@@ -323,7 +324,7 @@ export class CodeyCommand extends SapphireCommand {
         switch (commandDetails.codeyCommandResponseType) {
           case CodeyCommandResponseType.EMBED:
             const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
-            return currentChannel.send({ embeds: [<MessageEmbed>successResponse] });
+            return currentChannel.send({ embeds: [<EmbedBuilder>successResponse] });
           case CodeyCommandResponseType.STRING:
             return interaction.editReply(<string>successResponse);
         }
