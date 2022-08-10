@@ -18,10 +18,12 @@ const DEFAULT_BET = 10;
 const MIN_BET = 10;
 const MAX_BET = 1000000;
 
-const validateBetAmount = (amount: number): string => {
-  if (amount < MIN_BET) return `minimum bet is ${MIN_BET} Codey coins.`;
-  if (amount > MAX_BET) return `maximum bet is ${MAX_BET} Codey coins.`;
-  return '';
+const validateBetAmount = (amount: number, isPercent: boolean): string => {
+  let res = '';
+  if (amount < MIN_BET) res = `minimum bet is ${MIN_BET} Codey coins.`;
+  if (amount > MAX_BET) res = `maximum bet is ${MAX_BET} Codey coins.`;
+  if (isPercent) res += ` (you bet ${amount})`;
+  return res;
 };
 
 @ApplyOptions<CommandOptions>({
@@ -203,7 +205,7 @@ export class BlackjackCommand extends Command {
       bet = parseInt(betString, 10);
     }
 
-    const validateRes = validateBetAmount(bet);
+    const validateRes = validateBetAmount(bet, betString.endsWith('%'));
     if (validateRes) {
       // if validation function returns an error message, then send it
       return message.reply(validateRes);
