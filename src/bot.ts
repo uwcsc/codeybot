@@ -39,6 +39,9 @@ container.botPrefix = client.options.defaultPrefix!;
 export const startBot = async (): Promise<void> => {
   try {
     client.on('error', client.logger.error);
+    client.on('ready', () => {
+      client.user!.setActivity("CSC | .help");
+    });
 
     client.login();
   } catch (e) {
