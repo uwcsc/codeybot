@@ -13,6 +13,7 @@ import {
   UserCoinEntry,
   getUserIdCurrentCoinPosition
 } from '../../components/coin';
+import { getEmojiByName } from '../../components/emojis';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 // How many people are shown on the leaderboard
@@ -33,7 +34,7 @@ const getCurrentCoinLeaderboardEmbed = async (
     const userCoinEntry = leaderboard[i];
     const user = await client.users.fetch(userCoinEntry.user_id);
     const userTag = user?.tag ?? '<unknown>';
-    const userCoinEntryText = `${i + 1}. ${userTag} - ${userCoinEntry.balance} 🪙\n`;
+    const userCoinEntryText = `${i + 1}. ${userTag} - ${userCoinEntry.balance} ${getEmojiByName('codeycoin')}\n`;
     currentLeaderboardText += userCoinEntryText;
   }
   const currentLeaderboardEmbed = new MessageEmbed()
@@ -43,7 +44,7 @@ const getCurrentCoinLeaderboardEmbed = async (
 
   currentLeaderboardEmbed.addFields({
     name: 'Your Position',
-    value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} 🪙.`
+    value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} ${getEmojiByName('codeycoin')}.`
   });
 
   return currentLeaderboardEmbed;

@@ -166,7 +166,7 @@ export class BlackjackCommand extends Command {
     const embed = new MessageEmbed().setTitle('Blackjack');
     embed.setColor(this.getEmbedColourFromGame(game));
     // show bet amount and game description
-    embed.addField(`Bet: ${game.bet} 🪙`, this.getDescriptionFromGame(game));
+    embed.addField(`Bet: ${game.bet} ${getEmojiByName('codeycoin')}`, this.getDescriptionFromGame(game));
     // show player and dealer value and hands
     embed.addField(`Player: ${game.playerValue.join(' or ')}`, this.getHandDisplayString(game.playerCards));
     embed.addField(`Dealer: ${game.dealerValue.join(' or ')}`, this.getHandDisplayString(game.dealerCards));

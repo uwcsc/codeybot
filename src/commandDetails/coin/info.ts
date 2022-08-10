@@ -6,17 +6,19 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
+import { getEmojiByName } from '../../components/emojis';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 // Get information about coin
+const COIN = getEmojiByName('codeycoin');
 const infoEmbed = new MessageEmbed()
   .setColor(EMBED_COLOUR)
-  .setTitle('🪙   About Codey Coin   🪙')
+  .setTitle(`${COIN}   About Codey Coin   ${COIN}`)
   .setThumbnail('https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/282/coin_1fa99.png') // Thumbnail, if needed?
   .setDescription(`Codey coins are rewarded for being active in CSC's events and discord!`)
   .addFields(
     {
-      name: '🪙   How Can I Obtain Codey Coins?',
+      name: `${COIN}   How Can I Obtain Codey Coins?`,
       value: `Earn Codey coins by:
       • Participating in CSC events
       • Being active on Discord
@@ -24,7 +26,7 @@ const infoEmbed = new MessageEmbed()
       ---Activity bonus - your first message of every 5 minutes on CSC's Discord will grant some Codey coins`
     },
     {
-      name: '🪙   What Can I Do With Codey Coins?',
+      name: `${COIN}   What Can I Do With Codey Coins?`,
       value: `Use Codey coins to:
       • Play Casino games such as Blackjack
       • Buy virtual CSC Swag in the server (more info to come!)`
