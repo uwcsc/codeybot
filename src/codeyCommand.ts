@@ -234,9 +234,12 @@ export class CodeyCommand extends SapphireCommand {
       }
       // If the subcommand is not an alias of another subcommand, use the default
       if (!commandDetails) {
-        if (this.details.subcommandDetails !== {}) {
+        // If subcommands exist, use the default subcommand
+        if (Object.keys(this.details.subcommandDetails).length !== 0) {
           commandDetails = this.details.defaultSubcommandDetails!;
-        } else {
+        }
+        // Otherwise, use the original command
+        else {
           commandDetails = this.details;
         }
       }
