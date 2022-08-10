@@ -4,8 +4,15 @@ import { Message } from 'discord.js';
 import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
+import { convertPdfToPic } from '../utils/pdfToPic';
+
+import { readFileSync } from 'fs';
+import { writeFile } from 'fs/promises';
+import axios from 'axios';
+import { PDFDocument } from 'pdf-lib';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
+const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;
 
 /*
  * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
@@ -60,6 +67,35 @@ const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
   return false;
 };
 
+/**
+ * Convert any pdfs sent in the #resumes channel to an image.
+ */
+const convertResumePdfsIntoImages = async (message: Message): Promise<Message<boolean> | undefined> => {
+  // If no resume pdf is provided, do nothing
+  const attachments = message.attachments;
+  if (attachments.size === 0) return;
+
+  // Get resume pdf from message and write locally to tmp
+  const pdfLink = Array.from(attachments.values()).map((file) => file.attachment)[0];
+  const pdfResponse = await axios.get(pdfLink, { responseType: 'stream' });
+  const pdfContent = pdfResponse.data;
+  await writeFile('tmp/resume.pdf', pdfContent);
+
+  // Get the size of the pdf
+  const pdfDocument = await PDFDocument.load(readFileSync('tmp/resume.pdf'));
+  const { width, height } = pdfDocument.getPage(0).getSize();
+  if (pdfDocument.getPageCount() > 10) {
+    return await message.channel.send('Resumes must be less than 10 pages.');
+  }
+
+  // Convert the resume pdf into image
+  const imgResponse = await convertPdfToPic('tmp/resume.pdf', 'resume', width * 2, height * 2);
+  // Send the image back to the channel
+  return await message.channel.send({
+    files: imgResponse.map((img) => img.path)
+  });
+};
+
 @ApplyOptions<Listener.Options>({
   event: 'messageCreate'
 })
@@ -78,6 +114,11 @@ export class MessageCreateListener extends Listener {
 
     if (await punishSpammersAndTrolls(message)) {
       return;
+    }
+
+    // If channel is in resumes, convert the message attachment to an image
+    if (message.channelId === RESUME_CHANNEL_ID) {
+      await convertResumePdfsIntoImages(message);
     }
 
     // Ignore DMs; include announcements, thread, and regular text channels
