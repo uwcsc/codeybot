@@ -46,7 +46,8 @@ const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
   // Get new balance
   const newBalance = await getCoinBalanceByUserId(user.id);
 
-  return `Adjusted ${user.username}'s balance by ${amount} ${getCoinEmoji()}.\n${user.username} now has ${newBalance} Codey coins ${getCoinEmoji()}.`;
+  const COIN = getCoinEmoji();
+  return `Adjusted ${user.username}'s balance by ${amount} ${COIN}.\n${user.username} now has ${newBalance} Codey coins ${COIN}.`;
 };
 
 export const coinAdjustCommandDetails: CodeyCommandDetails = {
