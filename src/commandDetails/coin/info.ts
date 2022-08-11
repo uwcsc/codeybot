@@ -14,7 +14,7 @@ const COIN = getCoinEmoji();
 const infoEmbed = new MessageEmbed()
   .setColor(EMBED_COLOUR)
   .setTitle(`${COIN}   About Codey Coin   ${COIN}`)
-  .setThumbnail('https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/282/coin_1fa99.png') // Thumbnail, if needed?
+  .setThumbnail('https://cdn.discordapp.com/emojis/937096777180516453.webp')
   .setDescription(`Codey coins are rewarded for being active in CSC's events and discord!`)
   .addFields(
     {
