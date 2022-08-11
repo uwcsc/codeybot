@@ -6,11 +6,11 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
-import { getEmojiByName } from '../../components/emojis';
+import { getCoinEmoji } from '../../components/emojis';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 // Get information about coin
-const COIN = getEmojiByName('codeycoin');
+const COIN = getCoinEmoji();
 const infoEmbed = new MessageEmbed()
   .setColor(EMBED_COLOUR)
   .setTitle(`${COIN}   About Codey Coin   ${COIN}`)
