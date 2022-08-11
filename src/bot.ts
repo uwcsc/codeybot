@@ -40,7 +40,7 @@ export const startBot = async (): Promise<void> => {
   try {
     client.on('error', client.logger.error);
     client.on('ready', () => {
-      client.user!.setActivity("CSC | .help");
+      client.user!.setActivity('CSC | .help');
     });
 
     client.login();
