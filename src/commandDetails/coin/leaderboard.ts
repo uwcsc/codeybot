@@ -28,15 +28,16 @@ const getCurrentCoinLeaderboardEmbed = async (
   const userBalance = await getCoinBalanceByUserId(currentUserId);
   const currentPosition = await getUserIdCurrentCoinPosition(currentUserId);
 
-  let currentLeaderboardText = '';
-  for (let i = 0; i < limit; i++) {
-    if (leaderboard.length <= i) break;
+  const leaderboardArray: string[] = [];
+  for (let i = 0; i < leaderboard.length && leaderboardArray.length < limit; i++) {
     const userCoinEntry = leaderboard[i];
     const user = await client.users.fetch(userCoinEntry.user_id);
+    if (user.bot) continue;
     const userTag = user?.tag ?? '<unknown>';
-    const userCoinEntryText = `${i + 1}. ${userTag} - ${userCoinEntry.balance} ${getCoinEmoji()}\n`;
-    currentLeaderboardText += userCoinEntryText;
+    const userCoinEntryText = `${leaderboardArray.length + 1}. ${userTag} - ${userCoinEntry.balance} ${getCoinEmoji()}`;
+    leaderboardArray.push(userCoinEntryText);
   }
+  const currentLeaderboardText = leaderboardArray.join('\n');
   const currentLeaderboardEmbed = new MessageEmbed()
     .setColor(EMBED_COLOUR)
     .setTitle('CodeyCoin Leaderboard')
