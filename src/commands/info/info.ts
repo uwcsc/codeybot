@@ -34,7 +34,7 @@ const executeCommand: SapphireMessageExecuteType = async (
   _initialMessageFromBot
 ): Promise<SapphireMessageResponse> => {
   const infoEmbed = await getInfoEmbed();
-  return infoEmbed;
+  return { embeds: [infoEmbed] };
 };
 
 const infoCommandDetails: CodeyCommandDetails = {

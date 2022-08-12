@@ -57,7 +57,7 @@ const coinCurrentLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
 ): Promise<SapphireMessageResponse> => {
   const userId = getUserIdFromMessage(messageFromUser);
   const leaderboard = await getCurrentCoinLeaderboard();
-  return getCurrentCoinLeaderboardEmbed(client, leaderboard, userId);
+  return { embeds: [await getCurrentCoinLeaderboardEmbed(client, leaderboard, userId)] };
 };
 
 export const coinCurrentLeaderboardCommandDetails: CodeyCommandDetails = {
