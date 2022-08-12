@@ -2,7 +2,7 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Args, Command, CommandOptions, container } from '@sapphire/framework';
 import { Collection, ColorResolvable, Message, MessageEmbed, MessageReaction, Snowflake, User } from 'discord.js';
 import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
-import { getEmojiByName } from '../../components/emojis';
+import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
 import {
   BlackjackAction,
   BlackjackHand,
@@ -166,7 +166,7 @@ export class BlackjackCommand extends Command {
     const embed = new MessageEmbed().setTitle('Blackjack');
     embed.setColor(this.getEmbedColourFromGame(game));
     // show bet amount and game description
-    embed.addField(`Bet: ${game.bet} 🪙`, this.getDescriptionFromGame(game));
+    embed.addField(`Bet: ${game.bet} ${getCoinEmoji()}`, this.getDescriptionFromGame(game));
     // show player and dealer value and hands
     embed.addField(`Player: ${game.playerValue.join(' or ')}`, this.getHandDisplayString(game.playerCards));
     embed.addField(`Dealer: ${game.dealerValue.join(' or ')}`, this.getHandDisplayString(game.dealerCards));

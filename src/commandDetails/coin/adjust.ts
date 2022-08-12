@@ -8,6 +8,7 @@ import {
   SapphireMessageResponse
 } from '../../codeyCommand';
 import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
+import { getCoinEmoji } from '../../components/emojis';
 
 // Adjust coin balance
 const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
@@ -45,7 +46,8 @@ const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
   // Get new balance
   const newBalance = await getCoinBalanceByUserId(user.id);
 
-  return `Adjusted ${user.username}'s balance by ${amount} 🪙.\n${user.username} now has ${newBalance} Codey coins 🪙.`;
+  const COIN = getCoinEmoji();
+  return `Adjusted ${user.username}'s balance by ${amount} ${COIN}.\n${user.username} now has ${newBalance} Codey coins ${COIN}.`;
 };
 
 export const coinAdjustCommandDetails: CodeyCommandDetails = {
