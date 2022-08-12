@@ -8,7 +8,7 @@ import {
   RegisterBehavior,
   SapphireClient
 } from '@sapphire/framework';
-import { Message, MessageEmbed, MessagePayload, TextChannel, User, WebhookEditMessageOptions } from 'discord.js';
+import { Message, MessagePayload, TextChannel, User, WebhookEditMessageOptions } from 'discord.js';
 import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
@@ -18,7 +18,7 @@ import {
 } from '@discordjs/builders';
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
-export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions | MessageEmbed;
+export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions;
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
@@ -261,12 +261,7 @@ export class CodeyCommand extends SapphireCommand {
     try {
       const successResponse = await commandDetails.executeCommand!(client, message, args);
       if (!successResponse) return;
-      switch (commandDetails.codeyCommandResponseType) {
-        case CodeyCommandResponseType.EMBED:
-          return await message.reply({ embeds: [<MessageEmbed>successResponse] });
-        case CodeyCommandResponseType.STRING:
-          return await message.reply(<string>successResponse);
-      }
+      return await message.reply(successResponse);
     } catch (e) {
       console.log(e);
       return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
@@ -324,11 +319,11 @@ export class CodeyCommand extends SapphireCommand {
       if (isMessageInstance(initialMessageFromBot)) {
         const successResponse = await commandDetails.executeCommand!(client, interaction, args, initialMessageFromBot);
         switch (commandDetails.codeyCommandResponseType) {
-          case CodeyCommandResponseType.EMBED:
-            const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
-            return currentChannel.send({ embeds: [<MessageEmbed>successResponse] });
           case CodeyCommandResponseType.STRING:
             return interaction.editReply(<string>successResponse);
+          default:
+            const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
+            return currentChannel.send(successResponse);
         }
       }
     } catch (e) {

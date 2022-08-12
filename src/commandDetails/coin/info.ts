@@ -16,7 +16,7 @@ const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
 ): Promise<SapphireMessageResponse> => {
   // Get information about coin
   const COIN = getCoinEmoji();
-  return new MessageEmbed()
+  const infoEmbed = new MessageEmbed()
     .setColor(EMBED_COLOUR)
     .setTitle(`${COIN}   About Codey Coin   ${COIN}`)
     .setThumbnail('https://cdn.discordapp.com/emojis/937096777180516453.webp')
@@ -37,6 +37,7 @@ const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
           • Buy virtual CSC Swag in the server (more info to come!)`
       }
     );
+  return { embeds: [infoEmbed] };
 };
 
 export const coinInfoCommandDetails: CodeyCommandDetails = {
