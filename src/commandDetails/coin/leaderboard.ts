@@ -57,7 +57,8 @@ const coinCurrentLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
   _args
 ): Promise<SapphireMessageResponse> => {
   const userId = getUserIdFromMessage(messageFromUser);
-  const leaderboard = await getCurrentCoinLeaderboard();
+  // Get extra users to filter bots later
+  const leaderboard = await getCurrentCoinLeaderboard(limit * 2);
   return { embeds: [await getCurrentCoinLeaderboardEmbed(client, leaderboard, userId)] };
 };
 
