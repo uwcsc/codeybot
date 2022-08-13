@@ -13,12 +13,11 @@ import { getCoinEmoji } from '../../components/emojis';
 // Check a user's balance
 const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
   _client,
-  _messageFromUser,
+  messageFromUser,
   args
 ): Promise<SapphireMessageResponse> => {
-  // Mandatory argument is user
-  const user = <User>args['user'];
-
+  // use the caller as a default user if no argument is provided
+  const user = <User>args['user'] ?? messageFromUser.member?.user;
   // Get coin balance
   const balance = await getCoinBalanceByUserId(user.id);
   // Show coin balance
@@ -43,7 +42,7 @@ export const coinCheckCommandDetails: CodeyCommandDetails = {
       name: 'user',
       description: 'The user to check the balance of,',
       type: CodeyCommandOptionType.USER,
-      required: true
+      required: false
     }
   ],
   subcommandDetails: {}
