@@ -9,3 +9,7 @@ yarn-error.log
 **/.DS_Store
 /config/dev
 /tmp
+
+# editor
+.devcontainer
+.vscode
