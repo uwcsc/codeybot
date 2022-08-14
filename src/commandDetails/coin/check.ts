@@ -42,7 +42,7 @@ const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
 
 export const coinCheckCommandDetails: CodeyCommandDetails = {
   name: 'check',
-  aliases: ['c'],
+  aliases: ['c', 'b', 'balance', 'bal'],
   description: "Check a user's coin balance.",
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coin check @Codey\`
