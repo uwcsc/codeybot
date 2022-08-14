@@ -13,6 +13,7 @@ import { PDFDocument } from 'pdf-lib';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;
+const IRC_USER_ID: string = vars.IRC_USER_ID;
 
 /*
  * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
@@ -107,8 +108,8 @@ export class MessageCreateListener extends Listener {
       return;
     }
 
-    // Ignore all messages created by the bot itself
-    if (message.author.id === client.user.id) {
+    // Ignore all bots including self but not IRC
+    if (message.author.bot && message.author.id !== IRC_USER_ID) {
       return;
     }
 
