@@ -26,6 +26,7 @@ Set these accordingly within the correct config folder. If you are testing local
 - `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
 - `ANNOUNCEMENTS_CHANNEL_ID`: the ID of the announcements channel.
 - `OFFICE_STATUS_CHANNEL_ID`: the ID of the office hours channel.
+- `IRC_USER_ID`: the ID of the irc-bridge user.
 
 ## Required environment variables
 
