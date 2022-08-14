@@ -108,12 +108,7 @@ export class MessageCreateListener extends Listener {
       return;
     }
 
-    // Ignore all messages created by the bot itself
-    if (message.author.id === client.user.id) {
-      return;
-    }
-
-    // Ignore all bots besides IRC
+    // Ignore all bots including self but not IRC
     if (message.author.bot && message.author.id !== IRC_USER_ID) {
       return;
     }
