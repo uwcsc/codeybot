@@ -18,9 +18,13 @@ const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
 ): Promise<SapphireMessageResponse> => {
   // Mandatory argument is user
   const user = <User>args['user'];
-
   // Get coin balance
-  const balance = await getCoinBalanceByUserId(user.id);
+  let balance: number;
+  try {
+    balance = await getCoinBalanceByUserId(user.id);
+  } catch (e) {
+    return `Could not fetch the user's balance, contact a mod for help`;
+  }
   // Show coin balance
   return `${user.username} has ${balance} Codey coins ${getCoinEmoji()}.`;
 };
