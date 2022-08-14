@@ -1,5 +1,5 @@
 import { container, SapphireClient } from '@sapphire/framework';
-import { MessageEmbed } from 'discord.js';
+import { MessageEmbed, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
@@ -28,15 +28,21 @@ const getCurrentCoinLeaderboardEmbed = async (
   const userBalance = await getCoinBalanceByUserId(currentUserId);
   const currentPosition = await getUserIdCurrentCoinPosition(currentUserId);
 
-  let currentLeaderboardText = '';
-  for (let i = 0; i < limit; i++) {
-    if (leaderboard.length <= i) break;
+  const leaderboardArray: string[] = [];
+  for (let i = 0; i < leaderboard.length && leaderboardArray.length < limit; i++) {
     const userCoinEntry = leaderboard[i];
-    const user = await client.users.fetch(userCoinEntry.user_id);
+    let user: User;
+    try {
+      user = await client.users.fetch(userCoinEntry.user_id);
+    } catch (e) {
+      continue;
+    }
+    if (user.bot) continue;
     const userTag = user?.tag ?? '<unknown>';
-    const userCoinEntryText = `${i + 1}. ${userTag} - ${userCoinEntry.balance} ${getCoinEmoji()}\n`;
-    currentLeaderboardText += userCoinEntryText;
+    const userCoinEntryText = `${leaderboardArray.length + 1}. ${userTag} - ${userCoinEntry.balance} ${getCoinEmoji()}`;
+    leaderboardArray.push(userCoinEntryText);
   }
+  const currentLeaderboardText = leaderboardArray.join('\n');
   const currentLeaderboardEmbed = new MessageEmbed()
     .setColor(EMBED_COLOUR)
     .setTitle('CodeyCoin Leaderboard')
@@ -56,7 +62,8 @@ const coinCurrentLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
   _args
 ): Promise<SapphireMessageResponse> => {
   const userId = getUserIdFromMessage(messageFromUser);
-  const leaderboard = await getCurrentCoinLeaderboard();
+  // Get extra users to filter bots later
+  const leaderboard = await getCurrentCoinLeaderboard(limit * 2);
   return { embeds: [await getCurrentCoinLeaderboardEmbed(client, leaderboard, userId)] };
 };
 
