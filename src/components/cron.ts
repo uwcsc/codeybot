@@ -42,6 +42,9 @@ export const createOfficeStatusCron = (): CronJob =>
         //discord channel names don't accept :emoji: so we have to use actual unicode
         (response['status'] == 1 ? '✅' : response['status'] == 0 ? '❌' : '❓');
       (messageChannel as TextChannel).setName(curName);
+      const time = Math.floor(response['time']);
+      const topic = `Last updated at <t:${time}:F> for you (<t:${time}:R>)`;
+      (messageChannel as TextChannel).setTopic(topic).catch(console.error);
     } else {
       throw 'Bad channel type';
     }
