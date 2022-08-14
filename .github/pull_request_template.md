@@ -8,8 +8,7 @@
 <!-- Issue(s) that this PR will resolve, e.g. "resolves <issue link here>". -->
 
 ## Steps to Reproduce
-<!-- List the steps needed for the reviewer to produce your PR changes.
-     If possible, also include screenshots to illustrate your new feature or fix. -->
+<!-- List the steps needed for the reviewer to produce your PR changes. If possible, also include screenshots to illustrate your new feature or fix. -->
 
 ## Further Information and Comments
 
