@@ -6,24 +6,24 @@ import {
 } from '../../codeyCommand';
 import { container, Command } from '@sapphire/framework';
 import { vars } from '../../config';
-import { Message } from 'discord.js';
+import { Message, Role } from 'discord.js';
 
-const executeCommand: SapphireMessageExecuteType = async (
-  client,
-  messageFromUser
-): Promise<SapphireMessageResponse> => {
+
+const executeCommand: SapphireMessageExecuteType = async (): Promise<SapphireMessageResponse> => {
+  console.log(vars)
+  const ALUMNI_ROLE_ID: string = vars.ALUMNI_ROLE_ID;
+  const { client } = container;
   const LAST_YEAR = (new Date().getFullYear() - 1).toString();
   const guild = await client.guilds.fetch(vars.TARGET_GUILD_ID);
-  const lastYearRole = guild.roles.cache.find((role) => role.name === LAST_YEAR);
-  if (!lastYearRole) return messageFromUser.reply('Last Years Role was not found');
-  const graduatingMembers = await (await guild.members.fetch())?.filter((member) =>
-    member.roles.cache.has(lastYearRole.id)
-  );
-  for (const member of graduatingMembers) {
-    member[1].roles.add(vars.ALUMNI_ROLE_ID);
-  }
-  guild.roles.delete(lastYearRole.id);
-  return Promise.resolve('');
+  const lastYearRole = guild.roles.cache.find((role: Role) => role.name === LAST_YEAR);
+  if (!lastYearRole) return 'Last years Role was not found';
+  const graduatingMembers = (await guild.members.fetch())?.filter((member) => member.roles.cache.has(lastYearRole.id));
+  graduatingMembers.each(async (member) => {
+    console.log(member.roles.add);
+    await member.roles.add(ALUMNI_ROLE_ID);
+  });
+  await guild.roles.delete(lastYearRole.id);
+  return "Year Roles Have been updated :)";
 };
 
 const commandDetails: CodeyCommandDetails = {
