@@ -17,7 +17,7 @@ const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
   args
 ): Promise<SapphireMessageResponse> => {
   // Mandatory argument is user
-  const user = <User>args['user'];
+  const user = <User>args['user'] ?? _messageFromUser.member!.user;
   // Get coin balance
   let balance: number;
   try {
@@ -47,7 +47,7 @@ export const coinCheckCommandDetails: CodeyCommandDetails = {
       name: 'user',
       description: 'The user to check the balance of,',
       type: CodeyCommandOptionType.USER,
-      required: true
+      required: false
     }
   ],
   subcommandDetails: {}
