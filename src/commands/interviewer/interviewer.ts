@@ -33,20 +33,6 @@ const RESULTS_PER_PAGE = 6;
   subCommands: ['clear', 'domain', 'pause', 'profile', 'resume', 'signup', { input: 'list', default: true }]
 })
 export class InterviewerCommand extends SubCommandPluginCommand {
-  public async clear(message: Message): Promise<Message> {
-    const { id } = message.author;
-
-    // check if user signed up to be interviewer
-    if (!(await getInterviewer(id))) {
-      return message.reply(
-        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`
-      );
-    }
-
-    // clear interviewer data
-    await clearProfile(id);
-    return message.reply('your interviewer profile has been cleared!');
-  }
 
   async domain(message: Message, args: Args): Promise<Message> {
     const domain = await args.rest('string').catch(() => `Err`);

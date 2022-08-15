@@ -1,24 +1,23 @@
 import { Command, container } from '@sapphire/framework';
 import { CodeyCommand, CodeyCommandDetails } from '../../codeyCommand';
-
+import { interviewerClearCommandDetails } from '../../commandDetails/interviewer/clear';
 
 const interviewerCommandDetails: CodeyCommandDetails = {
-    name: 'interviewer',
-    aliases: [],
-    description: 'Handles interviewer functions',
-    detailedDescription: `**Examples**
+  name: 'interviewer',
+  aliases: [],
+  description: 'Handles interviewer functions',
+  detailedDescription: `**Examples**
 TODO: this
 `,
-    options: [],
-    subcommandDetails: {
-
-    },
-    defaultSubcommandDetails: TODO,
-}
-
+  options: [],
+  subcommandDetails: {
+    clear: interviewerClearCommandDetails
+  },
+  defaultSubcommandDetails: TODO
+};
 
 export class InterviewerCommand extends CodeyCommand {
-    details = interviewerCommandDetails;
+  details = interviewerCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {
@@ -27,4 +26,5 @@ export class InterviewerCommand extends CodeyCommand {
       description: interviewerCommandDetails.description,
       detailedDescription: interviewerCommandDetails.detailedDescription
     });
+  }
 }
