@@ -5,6 +5,7 @@ import { interviewerDomainCommandDetails } from '../../commandDetails/interviewe
 import { interviewerListCommandDetails } from '../../commandDetails/interviewer/list';
 import { interviewerPauseCommandDetails } from '../../commandDetails/interviewer/pause';
 import { interviewerProfileCommandDetails } from '../../commandDetails/interviewer/profile';
+import { interviewerSignupCommandDetails } from '../../commandDetails/interviewer/profile';
 
 const interviewerCommandDetails: CodeyCommandDetails = {
   name: 'interviewer',
@@ -19,9 +20,10 @@ TODO: this
     domain: interviewerDomainCommandDetails,
     list: interviewerListCommandDetails,
     pause: interviewerPauseCommandDetails,
-    profile: interviewerProfileCommandDetails,
+    profile: interviewerProfileCommandDetails
+    signup: interviewerSignupCommandDetails
   },
-  defaultSubcommandDetails: 1,
+  defaultSubcommandDetails: 1
 };
 
 export class InterviewerCommand extends CodeyCommand {
