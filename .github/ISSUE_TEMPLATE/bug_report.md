@@ -4,22 +4,21 @@ about: Help us improve and fix existing issues
 title: '[BUG]'
 labels: bug
 ---
+## Description of bug / unexpected behavior
+<!-- Add a clear and concise description of the problem you encountered. -->
 
-**Describe the bug**
-A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
+## Expected behavior
+<!-- Add a clear and concise description of what you expected to happen. -->
 
-1. Go to channel '...'
-2. Type command '....'
-3. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## How to reproduce the issue
+<!-- Steps to reproduce the unwanted behaviour. -->
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
 
-**Additional context**
-Add any other context about the problem here.
+## Additional media files
+<!-- Paste in any relevant videos/images to provide context. -->
+
+
+## Additional comments
+<!-- Add further context that you think might be relevant for this issue here. -->
