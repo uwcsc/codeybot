@@ -1,31 +1,40 @@
-import { ApplyOptions } from '@sapphire/decorators';
-import { container } from '@sapphire/framework';
-import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
-import { Message } from 'discord.js';
-import _ from 'lodash';
-import { getInterviewer, resumeProfile } from '../../components/interviewer';
+import { Command, container } from '@sapphire/framework';
+import { CodeyCommand, CodeyCommandDetails } from '../../codeyCommand';
+import { interviewerClearCommandDetails } from '../../commandDetails/interviewer/clear';
+import { interviewerDomainCommandDetails } from '../../commandDetails/interviewer/domain';
+import { interviewerListCommandDetails } from '../../commandDetails/interviewer/list';
+import { interviewerPauseCommandDetails } from '../../commandDetails/interviewer/pause';
+import { interviewerProfileCommandDetails } from '../../commandDetails/interviewer/profile';
+import { interviewerSignupCommandDetails } from '../../commandDetails/interviewer/signup';
+import { interviewerResumeCommandDetails } from '../../commandDetails/interviewer/resume';
 
-@ApplyOptions<SubCommandPluginCommandOptions>({
-  aliases: ['interviewers', 'int'],
+const interviewerCommandDetails: CodeyCommandDetails = {
+  name: 'interviewer',
+  aliases: [],
   description: 'Handles interviewer functions',
-  detailedDescription: `**Examples:**
-\`${container.botPrefix}interviewer\`
-\`${container.botPrefix}interviewer frontend\``,
-  subCommands: ['clear', 'domain', 'pause', 'profile', 'resume', 'signup', { input: 'list', default: true }]
-})
-export class InterviewerCommand extends SubCommandPluginCommand {
-  async resume(message: Message): Promise<Message> {
-    const { id } = message.author;
+  detailedDescription: `TODO`,
+  options: [],
+  subcommandDetails: {
+    clear: interviewerClearCommandDetails,
+    domain: interviewerDomainCommandDetails,
+    list: interviewerListCommandDetails,
+    pause: interviewerPauseCommandDetails,
+    profile: interviewerProfileCommandDetails,
+    signup: interviewerSignupCommandDetails,
+    resume: interviewerResumeCommandDetails
+  },
+  defaultSubcommandDetails: interviewerListCommandDetails
+};
 
-    // check if user signed up to be interviewer
-    if (!(await getInterviewer(id))) {
-      return message.reply(
-        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`
-      );
-    }
+export class InterviewerCommand extends CodeyCommand {
+  details = interviewerCommandDetails;
 
-    // resume interviewer data
-    await resumeProfile(id);
-    return message.reply('your interviewer profile has been resumed!');
+  public constructor(context: Command.Context, options: Command.Options) {
+    super(context, {
+      ...options,
+      aliases: interviewerCommandDetails.aliases,
+      description: interviewerCommandDetails.description,
+      detailedDescription: interviewerCommandDetails.detailedDescription
+    });
   }
 }
