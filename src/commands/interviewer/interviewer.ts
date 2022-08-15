@@ -5,22 +5,15 @@ import { Message, MessageEmbed } from 'discord.js';
 import _ from 'lodash';
 import { getEmojiByName } from '../../components/emojis';
 import {
-  availableDomains,
-  getAvailableDomainsString,
   getDomains,
   getDomainsString,
   getInterviewer,
-  getInterviewerDomainsString,
-  getInterviewers,
-  Interviewer,
   parseLink,
   pauseProfile,
   resumeProfile,
   upsertInterviewer
 } from '../../components/interviewer';
 import { EMBED_COLOUR } from '../../utils/embeds';
-
-const RESULTS_PER_PAGE = 6;
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['interviewers', 'int'],
@@ -83,40 +76,6 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     await resumeProfile(id);
     return message.reply('your interviewer profile has been resumed!');
   }
-
-  private async getInterviewerDisplayInfo(interviewer: Interviewer) {
-    const { client } = container;
-    const user = await client.users.fetch(interviewer['user_id']);
-    const userDomainsAddIn = await getInterviewerDomainsString(interviewer['user_id']);
-    if (userDomainsAddIn === '') {
-      return `${user} | [Calendar](${interviewer['link']})\n\n`;
-    } else {
-      return `${user} | [Calendar](${interviewer['link']}) | ${userDomainsAddIn}\n\n`;
-    }
-  }
-
-  async list(message: Message, args: Args): Promise<Message> {
-    const domain = await args.pick('string').catch(() => '');
-    if (domain !== '' && !(domain.toLowerCase() in availableDomains))
-      return message.reply(`you entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`);
-    // query interviewers
-    const interviewers = await getInterviewers(domain);
-    // shuffles interviewers to load balance
-    const shuffledInterviewers = _.shuffle(interviewers);
-    // only show up to page limit
-    const interviewersToShow = shuffledInterviewers.slice(0, RESULTS_PER_PAGE);
-    // get information from each interviewer
-    const interviewersInfo = await Promise.all(
-      interviewersToShow.map((interviewer) => this.getInterviewerDisplayInfo(interviewer))
-    );
-
-    // construct embed for display
-    const title = domain ? `Available Interviewers for ${availableDomains[domain]}` : 'Available Interviewers';
-    const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
-    outEmbed.setDescription(interviewersInfo.join());
-    return message.channel.send({ embeds: [outEmbed] });
-  }
-
   async signup(message: Message, args: Args): Promise<Message> {
     // get calendar URL from the 1st capture group
     const calendarUrl = await args.pick('string').catch(() => '');
