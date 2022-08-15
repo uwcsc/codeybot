@@ -12,6 +12,8 @@ import { Message, MessagePayload, TextChannel, User, WebhookEditMessageOptions }
 import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
+  SlashCommandStringOption,
+  ApplicationCommandOptionBase,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder
@@ -66,61 +68,28 @@ const setCommandOption = (
   builder: SlashCommandBuilder | SlashCommandSubcommandBuilder,
   option: CodeyCommandOption
 ): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
+  function setupFunc<T extends ApplicationCommandOptionBase>(commandOption: T): T {
+    return commandOption.setName(option.name).setDescription(option.description).setRequired(option.required);
+  }
   switch (option.type) {
     case CodeyCommandOptionType.STRING:
-      return <SlashCommandBuilder>(
-        builder.addStringOption((commandOption) =>
-          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
-        )
-      );
+      return <SlashCommandBuilder>builder.addStringOption(setupFunc);
     case CodeyCommandOptionType.INTEGER:
-      return <SlashCommandBuilder>(
-        builder.addIntegerOption((commandOption) =>
-          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
-        )
-      );
+      return <SlashCommandBuilder>builder.addIntegerOption(setupFunc);
     case CodeyCommandOptionType.BOOLEAN:
-      return <SlashCommandBuilder>(
-        builder.addBooleanOption((commandOption) =>
-          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
-        )
-      );
+      return <SlashCommandBuilder>builder.addBooleanOption(setupFunc);
     case CodeyCommandOptionType.USER:
-      return <SlashCommandBuilder>(
-        builder.addUserOption((commandOption) =>
-          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
-        )
-      );
+      return <SlashCommandBuilder>builder.addUserOption(setupFunc);
     case CodeyCommandOptionType.CHANNEL:
-      return <SlashCommandBuilder>(
-        builder.addChannelOption((commandOption) =>
-          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
-        )
-      );
+      return <SlashCommandBuilder>builder.addChannelOption(setupFunc);
     case CodeyCommandOptionType.ROLE:
-      return <SlashCommandBuilder>(
-        builder.addRoleOption((commandOption) =>
-          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
-        )
-      );
+      return <SlashCommandBuilder>builder.addRoleOption(setupFunc);
     case CodeyCommandOptionType.MENTIONABLE:
-      return <SlashCommandBuilder>(
-        builder.addMentionableOption((commandOption) =>
-          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
-        )
-      );
+      return <SlashCommandBuilder>builder.addMentionableOption(setupFunc);
     case CodeyCommandOptionType.NUMBER:
-      return <SlashCommandBuilder>(
-        builder.addNumberOption((commandOption) =>
-          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
-        )
-      );
+      return <SlashCommandBuilder>builder.addNumberOption(setupFunc);
     case CodeyCommandOptionType.ATTACHMENT:
-      return <SlashCommandBuilder>(
-        builder.addAttachmentOption((commandOption) =>
-          commandOption.setName(option.name).setDescription(option.description).setRequired(option.required)
-        )
-      );
+      return <SlashCommandBuilder>builder.addAttachmentOption(setupFunc);
     default:
       throw new Error(`Unknown option type.`);
   }
