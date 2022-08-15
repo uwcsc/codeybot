@@ -28,7 +28,7 @@ const interviewerListExecuteCommand: SapphireMessageExecuteType = async (
   const domain = <string>args['string'];
 
   if (domain !== '' && !(domain.toLowerCase() in availableDomains))
-    return `you entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`;
+    return `You entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`;
   // query interviewers
   const interviewers = await getInterviewers(domain);
   // shuffles interviewers to load balance
@@ -61,8 +61,10 @@ const getInterviewerDisplayInfo = async (interviewer: Interviewer) => {
 export const interviewerListCommandDetails: CodeyCommandDetails = {
   name: 'list',
   aliases: ['list'],
-  description: 'List all interviewers',
-  detailedDescription: `TODO`,
+  description: 'List all interviewers or those under a specific domain',
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}interviewer list\`
+\`${container.botPrefix}interviewer list backend\``,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Listing interviewers',
   executeCommand: interviewerListExecuteCommand,

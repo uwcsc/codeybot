@@ -1,3 +1,4 @@
+import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
@@ -27,7 +28,8 @@ export const interviewerResumeCommandDetails: CodeyCommandDetails = {
   name: 'resume',
   aliases: ['resume'],
   description: 'Resume an interviewer profile',
-  detailedDescription: `TODO`,
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}interviewer resume\``,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Resuming',
   executeCommand: interviewerResumeExecuteCommand,

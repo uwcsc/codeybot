@@ -40,7 +40,8 @@ export const interviewerProfileCommandDetails: CodeyCommandDetails = {
   name: 'profile',
   aliases: ['profile'],
   description: 'Modify profile data',
-  detailedDescription: `TODO`,
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}interviewer profile\``,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Modifying profile',
   executeCommand: interviewerProfileExecuteCommand,

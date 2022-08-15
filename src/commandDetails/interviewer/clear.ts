@@ -1,3 +1,4 @@
+import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
@@ -29,7 +30,8 @@ export const interviewerClearCommandDetails: CodeyCommandDetails = {
   name: 'clear',
   aliases: ['clear'],
   description: 'clear interviewer data',
-  detailedDescription: TODO,
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}interviewer clear\``,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Clearing profile',
   executeCommand: interviewerClearExecuteCommand,

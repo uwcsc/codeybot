@@ -1,3 +1,4 @@
+import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
@@ -24,10 +25,10 @@ const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
     return `You don't seem to have signed up yet. Please sign up using the signup subcommand!`;
   }
 
-  const domain = <string>args['string'];
+  const domain = <string>args['domain'];
 
   if (!(domain.toLowerCase() in availableDomains))
-    return `you entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`;
+    return `You entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`;
 
   const inDomain = await toggleDomain(id, domain);
 
@@ -40,7 +41,8 @@ export const interviewerDomainCommandDetails: CodeyCommandDetails = {
   name: 'domain',
   aliases: ['domain'],
   description: 'Modify domain data',
-  detailedDescription: `TODO`,
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}interviewer domain backend\``,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Modifying domain',
   executeCommand: interviewerDomainExecuteCommand,

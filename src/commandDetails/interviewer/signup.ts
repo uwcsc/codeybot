@@ -1,3 +1,4 @@
+import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
@@ -15,7 +16,7 @@ const interviewerSignupExecuteCommand: SapphireMessageExecuteType = async (
   args
 ): Promise<SapphireMessageResponse> => {
   const id = getUserFromMessage(messageFromUser).id;
-  const calendarUrl = <string>args['string'];
+  const calendarUrl = <string>args['calendarUrl'];
   const parsedUrl = parseLink(calendarUrl);
   if (!parsedUrl) {
     return `I don't seem to recognize your meeting link. Be sure to use calendly or x.ai.`;
@@ -30,7 +31,8 @@ export const interviewerSignupCommandDetails: CodeyCommandDetails = {
   name: 'signup',
   aliases: ['signup'],
   description: 'Sign users up to be interviewers',
-  detailedDescription: `TODO`,
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}interviewer signup www.calendly.com\``,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Signing up',
   executeCommand: interviewerSignupExecuteCommand,

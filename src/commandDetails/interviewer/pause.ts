@@ -30,7 +30,8 @@ export const interviewerPauseCommandDetails: CodeyCommandDetails = {
   name: 'pause',
   aliases: ['pause'],
   description: 'Put a profile on pause',
-  detailedDescription: `TODO`,
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}interviewer pause\``,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Pausing profile',
   executeCommand: interviewerPauseExecuteCommand,
