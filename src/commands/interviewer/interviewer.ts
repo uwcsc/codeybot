@@ -1,18 +1,15 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message } from 'discord.js';
 import _ from 'lodash';
 import { getEmojiByName } from '../../components/emojis';
 import {
-  getDomains,
-  getDomainsString,
   getInterviewer,
   parseLink,
   resumeProfile,
   upsertInterviewer
 } from '../../components/interviewer';
-import { EMBED_COLOUR } from '../../utils/embeds';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['interviewers', 'int'],
@@ -23,27 +20,6 @@ import { EMBED_COLOUR } from '../../utils/embeds';
   subCommands: ['clear', 'domain', 'pause', 'profile', 'resume', 'signup', { input: 'list', default: true }]
 })
 export class InterviewerCommand extends SubCommandPluginCommand {
-  async profile(message: Message): Promise<Message> {
-    const { id } = message.author;
-
-    // check if user signed up to be interviewer
-    const interviewer = await getInterviewer(id);
-    if (!interviewer) {
-      return message.reply(
-        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`
-      );
-    }
-
-    // get domains
-    const domains = await getDomains(id);
-
-    //build output embed
-    const profileEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle('Interviewer Profile');
-    profileEmbed.addField('**Link**', interviewer.link);
-    profileEmbed.addField('**Domains**', _.isEmpty(domains) ? 'None' : getDomainsString(domains));
-    return message.channel.send({ embeds: [profileEmbed] });
-  }
-
   async resume(message: Message): Promise<Message> {
     const { id } = message.author;
 

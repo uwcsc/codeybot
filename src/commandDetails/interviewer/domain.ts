@@ -1,4 +1,3 @@
-import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -20,9 +19,9 @@ const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args
 ): Promise<SapphireMessageResponse> => {
-  const userID = getUserFromMessage(messageFromUser).id;
+  const id = getUserFromMessage(messageFromUser).id;
 
-  if (!(await getInterviewer(userID))) {
+  if (!(await getInterviewer(id))) {
     return `You don't seem to have signed up yet. Please sign up using the signup subcommand!`;
   }
 
@@ -31,7 +30,7 @@ const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
   if (!(domain.toLowerCase() in availableDomains))
     return `you entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`;
 
-  const inDomain = await toggleDomain(userID, domain);
+  const inDomain = await toggleDomain(id, domain);
 
   return inDomain
     ? `you have been successfully removed from ${availableDomains[domain]}`

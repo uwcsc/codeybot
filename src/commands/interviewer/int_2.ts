@@ -4,6 +4,7 @@ import { interviewerClearCommandDetails } from '../../commandDetails/interviewer
 import { interviewerDomainCommandDetails } from '../../commandDetails/interviewer/domain';
 import { interviewerListCommandDetails } from '../../commandDetails/interviewer/list';
 import { interviewerPauseCommandDetails } from '../../commandDetails/interviewer/pause';
+import { interviewerProfileCommandDetails } from '../../commandDetails/interviewer/profile';
 
 const interviewerCommandDetails: CodeyCommandDetails = {
   name: 'interviewer',
@@ -18,6 +19,7 @@ TODO: this
     domain: interviewerDomainCommandDetails,
     list: interviewerListCommandDetails,
     pause: interviewerPauseCommandDetails,
+    profile: interviewerProfileCommandDetails,
   },
   defaultSubcommandDetails: 1,
 };
