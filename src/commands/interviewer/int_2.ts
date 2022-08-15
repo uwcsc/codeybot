@@ -3,6 +3,7 @@ import { CodeyCommand, CodeyCommandDetails } from '../../codeyCommand';
 import { interviewerClearCommandDetails } from '../../commandDetails/interviewer/clear';
 import { interviewerDomainCommandDetails } from '../../commandDetails/interviewer/domain';
 import { interviewerListCommandDetails } from '../../commandDetails/interviewer/list';
+import { interviewerPauseCommandDetails } from '../../commandDetails/interviewer/pause';
 
 const interviewerCommandDetails: CodeyCommandDetails = {
   name: 'interviewer',
@@ -15,9 +16,10 @@ TODO: this
   subcommandDetails: {
     clear: interviewerClearCommandDetails,
     domain: interviewerDomainCommandDetails,
-    list: interviewerListCommandDetails
+    list: interviewerListCommandDetails,
+    pause: interviewerPauseCommandDetails,
   },
-  defaultSubcommandDetails: TODO
+  defaultSubcommandDetails: 1,
 };
 
 export class InterviewerCommand extends CodeyCommand {

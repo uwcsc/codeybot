@@ -9,7 +9,6 @@ import {
   getDomainsString,
   getInterviewer,
   parseLink,
-  pauseProfile,
   resumeProfile,
   upsertInterviewer
 } from '../../components/interviewer';
@@ -24,23 +23,6 @@ import { EMBED_COLOUR } from '../../utils/embeds';
   subCommands: ['clear', 'domain', 'pause', 'profile', 'resume', 'signup', { input: 'list', default: true }]
 })
 export class InterviewerCommand extends SubCommandPluginCommand {
-  async pause(message: Message): Promise<Message> {
-    const { id } = message.author;
-
-    // check if user signed up to be interviewer
-    if (!(await getInterviewer(id))) {
-      return message.reply(
-        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`
-      );
-    }
-
-    // pause interviewer data
-    await pauseProfile(id);
-    return message.reply(
-      `your interviewer profile has been paused! You will not appear in interviewer queries anymore, until you run \`${container.botPrefix}interviewer resume\`.`
-    );
-  }
-
   async profile(message: Message): Promise<Message> {
     const { id } = message.author;
 
