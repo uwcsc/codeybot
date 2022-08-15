@@ -6,7 +6,6 @@ import _ from 'lodash';
 import { getEmojiByName } from '../../components/emojis';
 import {
   availableDomains,
-  clearProfile,
   getAvailableDomainsString,
   getDomains,
   getDomainsString,
@@ -17,7 +16,6 @@ import {
   parseLink,
   pauseProfile,
   resumeProfile,
-  toggleDomain,
   upsertInterviewer
 } from '../../components/interviewer';
 import { EMBED_COLOUR } from '../../utils/embeds';
@@ -33,28 +31,6 @@ const RESULTS_PER_PAGE = 6;
   subCommands: ['clear', 'domain', 'pause', 'profile', 'resume', 'signup', { input: 'list', default: true }]
 })
 export class InterviewerCommand extends SubCommandPluginCommand {
-
-  async domain(message: Message, args: Args): Promise<Message> {
-    const domain = await args.rest('string').catch(() => `Err`);
-    if (!(domain.toLowerCase() in availableDomains))
-      return message.reply(`you entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`);
-    const { id } = message.author;
-    // check if user signed up to be interviewer
-    if (!(await getInterviewer(id))) {
-      return message.reply(
-        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`
-      );
-    }
-
-    // Add or remove domain to/from interviewer
-    const inDomain = await toggleDomain(id, domain);
-    return message.reply(
-      inDomain
-        ? `you have been successfully removed from ${availableDomains[domain]}`
-        : `you have been successfully added to ${availableDomains[domain]}`
-    );
-  }
-
   async pause(message: Message): Promise<Message> {
     const { id } = message.author;
 

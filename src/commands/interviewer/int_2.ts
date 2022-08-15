@@ -1,6 +1,7 @@
 import { Command, container } from '@sapphire/framework';
 import { CodeyCommand, CodeyCommandDetails } from '../../codeyCommand';
 import { interviewerClearCommandDetails } from '../../commandDetails/interviewer/clear';
+import { interviewerDomainCommandDetails } from '../../commandDetails/interviewer/domain';
 
 const interviewerCommandDetails: CodeyCommandDetails = {
   name: 'interviewer',
@@ -11,7 +12,8 @@ TODO: this
 `,
   options: [],
   subcommandDetails: {
-    clear: interviewerClearCommandDetails
+    clear: interviewerClearCommandDetails,
+    domain: interviewerDomainCommandDetails
   },
   defaultSubcommandDetails: TODO
 };
