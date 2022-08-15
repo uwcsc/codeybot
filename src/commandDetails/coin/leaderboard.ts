@@ -3,7 +3,7 @@ import { MessageEmbed, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
-  getUserIdFromMessage,
+  getUserFromMessage,
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
@@ -61,7 +61,7 @@ const coinCurrentLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   _args
 ): Promise<SapphireMessageResponse> => {
-  const userId = getUserIdFromMessage(messageFromUser);
+  const userId = getUserFromMessage(messageFromUser).id;
   // Get extra users to filter bots later
   const leaderboard = await getCurrentCoinLeaderboard(limit * 2);
   return { embeds: [await getCurrentCoinLeaderboardEmbed(client, leaderboard, userId)] };

@@ -178,12 +178,17 @@ const setCommandSubcommand = (
   });
 };
 
-/** Helper method to get user id from message */
-export const getUserIdFromMessage = (message: Message | SapphireCommand.ChatInputInteraction): string => {
+/**
+ * Gets the User object from a message response.
+ *
+ * Retrieving the `User` depends on whether slash commands were used or not.
+ * This method helps generalize this process.
+ * */
+export const getUserFromMessage = (message: Message | SapphireCommand.ChatInputInteraction): User => {
   if (message instanceof Message) {
-    return message.author.id;
+    return message.author;
   } else {
-    return message.user.id;
+    return message.user;
   }
 };
 

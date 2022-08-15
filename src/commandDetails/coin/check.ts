@@ -5,7 +5,8 @@ import {
   CodeyCommandOptionType,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
+  getUserFromMessage
 } from '../../codeyCommand';
 import { getCoinBalanceByUserId } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
@@ -13,11 +14,20 @@ import { getCoinEmoji } from '../../components/emojis';
 // Check a user's balance
 const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
   _client,
-  _messageFromUser,
+  messageFromUser,
   args
 ): Promise<SapphireMessageResponse> => {
-  // Mandatory argument is user
-  const user = <User>args['user'];
+  let user: User;
+  let displayMessage: string;
+
+  // use the caller as a default user if no argument is provided
+  if (args['user']) {
+    user = <User>args['user'];
+    displayMessage = `${user.username} has`;
+  } else {
+    user = getUserFromMessage(messageFromUser);
+    displayMessage = `You have`;
+  }
   // Get coin balance
   let balance: number;
   try {
@@ -25,13 +35,14 @@ const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
   } catch (e) {
     return `Could not fetch the user's balance, contact a mod for help`;
   }
+
   // Show coin balance
-  return `${user.username} has ${balance} Codey coins ${getCoinEmoji()}.`;
+  return `${displayMessage} ${balance} Codey coins ${getCoinEmoji()}.`;
 };
 
 export const coinCheckCommandDetails: CodeyCommandDetails = {
   name: 'check',
-  aliases: ['c'],
+  aliases: ['c', 'b', 'balance', 'bal'],
   description: "Check a user's coin balance.",
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coin check @Codey\`
@@ -47,7 +58,7 @@ export const coinCheckCommandDetails: CodeyCommandDetails = {
       name: 'user',
       description: 'The user to check the balance of,',
       type: CodeyCommandOptionType.USER,
-      required: true
+      required: false
     }
   ],
   subcommandDetails: {}
