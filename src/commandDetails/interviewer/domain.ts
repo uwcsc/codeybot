@@ -1,6 +1,5 @@
 import {
   CodeyCommandDetails,
-  CodeyCommandOptionType,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
@@ -41,7 +40,7 @@ export const interviewerDomainCommandDetails: CodeyCommandDetails = {
   name: 'domain',
   aliases: ['domain'],
   description: 'Modify domain data',
-  detailedDescription: TODO,
+  detailedDescription: `TODO`,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Modifying domain',
   executeCommand: interviewerDomainExecuteCommand,

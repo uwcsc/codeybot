@@ -65,7 +65,7 @@ export const interviewerListCommandDetails: CodeyCommandDetails = {
   name: 'list',
   aliases: ['list'],
   description: 'List all interviewers',
-  detailedDescription: TODO,
+  detailedDescription: `TODO`,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Listing interviewers',
   executeCommand: interviewerListExecuteCommand,

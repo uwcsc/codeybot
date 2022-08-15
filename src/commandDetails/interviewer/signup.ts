@@ -1,6 +1,5 @@
 import {
   CodeyCommandDetails,
-  CodeyCommandOptionType,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
@@ -31,7 +30,7 @@ export const interviewerSignupCommandDetails: CodeyCommandDetails = {
   name: 'signup',
   aliases: ['signup'],
   description: 'Sign users up to be interviewers',
-  detailedDescription: TODO,
+  detailedDescription: `TODO`,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Signing up',
   executeCommand: interviewerSignupExecuteCommand,
