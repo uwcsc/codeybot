@@ -4,15 +4,12 @@ import {
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
-  getUserFromMessage
 } from '../../codeyCommand';
 
 import _ from 'lodash';
 import {
   availableDomains,
-  getInterviewer,
   getAvailableDomainsString,
-  toggleDomain,
   Interviewer,
   getInterviewerDomainsString,
   getInterviewers

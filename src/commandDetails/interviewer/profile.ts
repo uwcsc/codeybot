@@ -16,7 +16,7 @@ import { getInterviewer, getDomains, getDomainsString } from '../../components/i
 const interviewerProfileExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
-  args
+  _args
 ): Promise<SapphireMessageResponse> => {
   const id = getUserFromMessage(messageFromUser).id;
 
@@ -40,7 +40,7 @@ export const interviewerProfileCommandDetails: CodeyCommandDetails = {
   name: 'profile',
   aliases: ['profile'],
   description: 'Modify profile data',
-  detailedDescription: TODO,
+  detailedDescription: `TODO`,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Modifying profile',
   executeCommand: interviewerProfileExecuteCommand,

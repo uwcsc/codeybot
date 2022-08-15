@@ -1,7 +1,6 @@
 import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
-  CodeyCommandOptionType,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
@@ -13,7 +12,7 @@ import { getInterviewer, pauseProfile } from '../../components/interviewer';
 const interviewerPauseExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
-  args
+  _args
 ): Promise<SapphireMessageResponse> => {
   const id = getUserFromMessage(messageFromUser).id;
   //

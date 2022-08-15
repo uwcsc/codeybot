@@ -1,4 +1,4 @@
-import { Command, container } from '@sapphire/framework';
+import { Command } from '@sapphire/framework';
 import { CodeyCommand, CodeyCommandDetails } from '../../codeyCommand';
 import { interviewerClearCommandDetails } from '../../commandDetails/interviewer/clear';
 import { interviewerDomainCommandDetails } from '../../commandDetails/interviewer/domain';
