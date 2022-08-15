@@ -6,7 +6,7 @@ import {
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
-  getUserFromMessage,
+  getUserFromMessage
 } from '../../codeyCommand';
 import { getCoinBalanceByUserId } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
