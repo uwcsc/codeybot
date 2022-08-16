@@ -8,10 +8,18 @@ import {
   RegisterBehavior,
   SapphireClient
 } from '@sapphire/framework';
-import { Message, MessagePayload, TextChannel, User, WebhookEditMessageOptions } from 'discord.js';
-import { APIMessage } from 'discord-api-types/v9';
+import {
+  ApplicationCommandChoicesOption,
+  Message,
+  MessagePayload,
+  TextChannel,
+  User,
+  WebhookEditMessageOptions
+} from 'discord.js';
+import { APIMessage, ApplicationCommandOptionType, APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
+  ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
   SlashCommandStringOption,
   ApplicationCommandOptionBase,
   SlashCommandBuilder,
@@ -68,28 +76,40 @@ const setCommandOption = (
   builder: SlashCommandBuilder | SlashCommandSubcommandBuilder,
   option: CodeyCommandOption
 ): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
-  function setupFunc<T extends ApplicationCommandOptionBase>(commandOption: T): T {
+  function setupCommand<T extends ApplicationCommandOptionBase>(commandOption: T): T {
+    commandOption.name
     return commandOption.setName(option.name).setDescription(option.description).setRequired(option.required);
   }
+
+  function setupChoices<
+    B extends string | number,
+    T extends ApplicationCommandOptionBase & ApplicationCommandOptionWithChoicesAndAutocompleteMixin<B>
+  >(commandOption: T): T {
+    return option.choices
+      ? commandOption.addChoices(...(option.choices as APIApplicationCommandOptionChoice<B>[]))
+      : commandOption;
+  }
+
+  console.log(setupCommand<SlashCommandStringOption>);
   switch (option.type) {
     case CodeyCommandOptionType.STRING:
-      return <SlashCommandBuilder>builder.addStringOption(setupFunc);
+      return <SlashCommandBuilder>builder.addStringOption((x) => setupCommand(setupChoices(x)));
     case CodeyCommandOptionType.INTEGER:
-      return <SlashCommandBuilder>builder.addIntegerOption(setupFunc);
+      return <SlashCommandBuilder>builder.addIntegerOption((x) => setupCommand(setupChoices(x)));
     case CodeyCommandOptionType.BOOLEAN:
-      return <SlashCommandBuilder>builder.addBooleanOption(setupFunc);
+      return <SlashCommandBuilder>builder.addBooleanOption(setupCommand);
     case CodeyCommandOptionType.USER:
-      return <SlashCommandBuilder>builder.addUserOption(setupFunc);
+      return <SlashCommandBuilder>builder.addUserOption(setupCommand);
     case CodeyCommandOptionType.CHANNEL:
-      return <SlashCommandBuilder>builder.addChannelOption(setupFunc);
+      return <SlashCommandBuilder>builder.addChannelOption(setupCommand);
     case CodeyCommandOptionType.ROLE:
-      return <SlashCommandBuilder>builder.addRoleOption(setupFunc);
+      return <SlashCommandBuilder>builder.addRoleOption(setupCommand);
     case CodeyCommandOptionType.MENTIONABLE:
-      return <SlashCommandBuilder>builder.addMentionableOption(setupFunc);
+      return <SlashCommandBuilder>builder.addMentionableOption(setupCommand);
     case CodeyCommandOptionType.NUMBER:
-      return <SlashCommandBuilder>builder.addNumberOption(setupFunc);
+      return <SlashCommandBuilder>builder.addNumberOption((x) => setupCommand(setupChoices(x)));
     case CodeyCommandOptionType.ATTACHMENT:
-      return <SlashCommandBuilder>builder.addAttachmentOption(setupFunc);
+      return <SlashCommandBuilder>builder.addAttachmentOption(setupCommand);
     default:
       throw new Error(`Unknown option type.`);
   }
