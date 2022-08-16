@@ -54,7 +54,7 @@ const infoCommandDetails: CodeyCommandDetails = {
   subcommandDetails: {}
 };
 
-export class MiscellaneousCommand extends CodeyCommand {
+export class MiscellaneousInfoCommand extends CodeyCommand {
   details = infoCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
