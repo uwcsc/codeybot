@@ -57,7 +57,7 @@ const pingCommandDetails: CodeyCommandDetails = {
   subcommandDetails: {}
 };
 
-export class PingCommand extends CodeyCommand {
+export class MiscellaneousPingCommand extends CodeyCommand {
   details = pingCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
