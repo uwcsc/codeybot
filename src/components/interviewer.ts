@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { openDB } from './db';
+import { Database } from 'sqlite';
 
 //maps from key to readable string
 export const availableDomains: { [key: string]: string } = {
@@ -157,5 +158,38 @@ export const toggleDomain = async (id: string, domain: string): Promise<boolean>
   }
 
   // cast to boolean
+  return !!inDomain;
+};
+
+export const leaveDomain = async (id: string, domain: string): Promise<boolean> => {
+  const db = await openDB();
+  const inDomain = await isInDomain(id, domain, db);
+
+  if (inDomain) {
+    await db.run('DELETE FROM domains WHERE user_id = ? AND domain = ?', id, domain);
+  }
+
+  return !!inDomain;
+};
+
+export const joinDomain = async (id: string, domain: string): Promise<boolean> => {
+  const db = await openDB();
+  const inDomain = await isInDomain(id, domain, db);
+
+  if (!inDomain) {
+    await db.run('INSERT INTO domains (user_id, domain) VALUES(?, ?)', id, domain);
+  }
+
+  return !inDomain;
+};
+
+export const isInDomain = async (id: string, domain: string, dbConnection?: Database): Promise<boolean> => {
+  const db = dbConnection ?? (await openDB());
+
+  if (!domain || !(domain in availableDomains)) {
+    throw 'Invalid domain.';
+  }
+
+  const inDomain = await db.get('SELECT * FROM domains WHERE user_id = ? AND domain = ?', id, domain);
   return !!inDomain;
 };
