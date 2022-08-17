@@ -7,7 +7,7 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
-import { getMemberEmbed, UWIdType } from '../../commandDetails/miscellaneous/member';
+import { getMemberEmbed, UwIdType } from '../../commandDetails/miscellaneous/member';
 import { getEmojiByName } from '../../components/emojis';
 import { Message } from 'discord.js';
 import fetch from 'node-fetch';
@@ -18,35 +18,35 @@ const executeCommand: SapphireMessageExecuteType = async (
   args,
   _initialMessageFromBot
 ): Promise<SapphireMessageResponse> => {
-  let uwid: UWIdType;
+  let uwId: UwIdType;
   if (messageFromUser instanceof Message) {
     const { content } = messageFromUser;
     const messageArgs = content.split(' ').filter((m) => m != '.member');
-    if (messageArgs.length == 1) uwid = messageArgs[0];
+    if (messageArgs.length == 1) uwId = messageArgs[0];
   } else if ('uwid' in args) {
-    uwid = args['uwid'] as string;
+    uwId = args['uwid'] as string;
   }
-  const memberEmbed = await getMemberEmbed(uwid);
+  const memberEmbed = await getMemberEmbed(uwId);
   return { embeds: [memberEmbed] };
 };
 
-const helpCommandDetails: CodeyCommandDetails = {
+const memberCommandDetails: CodeyCommandDetails = {
   name: 'member',
   aliases: [],
-  description: 'Get CSC Member information',
+  description: 'Gets CSC membership information',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}member [id]\``,
 
-  isCommandResponseEphemeral: false,
-  messageWhenExecutingCommand: 'Getting Member Info...',
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Getting CSC membership information...',
   executeCommand: executeCommand,
-  messageIfFailure: 'Could not retrieve URL to the wiki page.',
+  messageIfFailure: 'Could not retrieve CSC membership information.',
   codeyCommandResponseType: CodeyCommandResponseType.EMBED,
 
   options: [
     {
       name: 'uwid',
-      description: 'A UW alphanumerical ID',
+      description: 'Quest ID',
       type: CodeyCommandOptionType.STRING,
       required: true
     }
@@ -55,14 +55,14 @@ const helpCommandDetails: CodeyCommandDetails = {
 };
 
 export class MiscellaneousMemberCommand extends CodeyCommand {
-  details = helpCommandDetails;
+  details = memberCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {
       ...options,
-      aliases: helpCommandDetails.aliases,
-      description: helpCommandDetails.description,
-      detailedDescription: helpCommandDetails.detailedDescription
+      aliases: memberCommandDetails.aliases,
+      description: memberCommandDetails.description,
+      detailedDescription: memberCommandDetails.detailedDescription
     });
   }
 }

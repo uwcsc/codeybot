@@ -10,12 +10,12 @@ interface memberStatus {
   program: string;
 }
 
-export type UWIdType = string | undefined;
+export type UwIdType = string | undefined;
 
 /*
  * Get member embed
  */
-export const getMemberEmbed = async (uwid: UWIdType): Promise<MessageEmbed> => {
+export const getMemberEmbed = async (uwid: UwIdType): Promise<MessageEmbed> => {
   const title = 'CSC Membership Information';
   if (!uwid) {
     return new MessageEmbed().setColor('RED').setTitle(title).setDescription('Please provide a UW ID!');
@@ -33,7 +33,7 @@ export const getMemberEmbed = async (uwid: UWIdType): Promise<MessageEmbed> => {
 
   const NOT_MEMBER_DESCRIPTION = `You're not a CSC member! ${getEmojiByName('codeySad')}
 
-Being a CSC member comes with gaining access to CSC machines, cloud, email, web hosting, and more! Additional details can be found here https://csclub.uwaterloo.ca/resources/services/
+Being a CSC member comes with gaining access to CSC machines, cloud, email, web hosting, and more! Additional details can be found here! https://csclub.uwaterloo.ca/resources/services/
 
 To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/get-involved/`;
   return new MessageEmbed().setColor('RED').setTitle(title).setDescription(NOT_MEMBER_DESCRIPTION);
