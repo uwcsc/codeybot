@@ -11,7 +11,7 @@ import {
 import { EMBED_COLOUR } from '../../utils/embeds';
 import { MessageEmbed } from 'discord.js';
 
-import { getInterviewer, getDomains, getDomainsString } from '../../components/interviewer';
+import { getInterviewer, getUserDomains, getDomainsString } from '../../components/interviewer';
 
 const interviewerProfileExecuteCommand: SapphireMessageExecuteType = async (
   _client,
@@ -27,7 +27,7 @@ const interviewerProfileExecuteCommand: SapphireMessageExecuteType = async (
   }
 
   // get domains
-  const domains = await getDomains(id);
+  const domains = await getUserDomains(id);
 
   //build output embed
   const profileEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle('Interviewer Profile');

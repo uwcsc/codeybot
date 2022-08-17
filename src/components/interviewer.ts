@@ -96,7 +96,7 @@ export const getInterviewers = async (
 };
 
 export const getInterviewerDomainsString = async (id: string): Promise<string> => {
-  const userDomains = await getDomains(id);
+  const userDomains = await getUserDomains(id);
   if (userDomains.length === 0) {
     return ``;
   } else {
@@ -126,7 +126,10 @@ export const resumeProfile = async (id: string): Promise<void> => {
   await db.run('UPDATE interviewers SET status = ? WHERE user_id = ?', Status.Active, id);
 };
 
-export const getDomains = async (id: string): Promise<string[]> => {
+//*
+// Retreive the domains that the user belongs to
+// */
+export const getUserDomains = async (id: string): Promise<string[]> => {
   const db = await openDB();
 
   //get user's domains (if any)
@@ -161,6 +164,12 @@ export const toggleDomain = async (id: string, domain: string): Promise<boolean>
   return !!inDomain;
 };
 
+/**
+ * Leave the domain if a user belongs to it.
+ * @param   {string}  id     The user id, retreived from their message
+ * @param   {srtring} domain The domain to be left
+ * @returns {boolean}        `true` if a change was made (user left domain), false otherwise
+ */
 export const leaveDomain = async (id: string, domain: string): Promise<boolean> => {
   const db = await openDB();
   const inDomain = await isInDomain(id, domain, db);
@@ -172,6 +181,12 @@ export const leaveDomain = async (id: string, domain: string): Promise<boolean> 
   return !!inDomain;
 };
 
+/**
+ * Joins a domain.
+ * @param   {string}  id     The user id, retreived from their message
+ * @param   {srtring} domain The domain to be joined
+ * @returns {Promise<boolean>}        `true` if a change was made (user was not previously in domain), false otherwise
+ */
 export const joinDomain = async (id: string, domain: string): Promise<boolean> => {
   const db = await openDB();
   const inDomain = await isInDomain(id, domain, db);
@@ -183,6 +198,13 @@ export const joinDomain = async (id: string, domain: string): Promise<boolean> =
   return !inDomain;
 };
 
+/**
+ * Checks if a user belongs to a domain.
+ * @para  {string}  id     The user id, retreived from their message
+ * @param {srtring} domain The domain to be joined
+ * @param {Database} dbConnection Existing Databse connection, if applicable
+ * @returns {Promise<boolean>} true if the user belongs to the domain, false otherwise
+ */
 export const isInDomain = async (id: string, domain: string, dbConnection?: Database): Promise<boolean> => {
   const db = dbConnection ?? (await openDB());
 

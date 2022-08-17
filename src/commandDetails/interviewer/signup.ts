@@ -36,13 +36,13 @@ export const interviewerSignupCommandDetails: CodeyCommandDetails = {
   detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer signup www.calendly.com\``,
   isCommandResponseEphemeral: false,
-  messageWhenExecutingCommand: 'Signing up',
+  messageWhenExecutingCommand: 'Signing up for a profile',
   executeCommand: interviewerSignupExecuteCommand,
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
   options: [
     {
       name: 'calendar_url',
-      description: 'The user to check the balance of,',
+      description: 'A valid calendly.com or x.ai calendar link',
       type: CodeyCommandOptionType.STRING,
       required: true
     }
