@@ -27,9 +27,9 @@ const interviewerListExecuteCommand: SapphireMessageExecuteType = async (
   _messageFromUser,
   args
 ): Promise<SapphireMessageResponse> => {
-  const domain = <string>args['domain'];
+  const domain: string | undefined = <string>args['domain'];
 
-  if (domain !== '' && !(domain.toLowerCase() in availableDomains))
+  if (domain && !(domain.toLowerCase() in availableDomains))
     return `You entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`;
   // query interviewers
   const interviewers = await getInterviewers(domain);
@@ -51,12 +51,12 @@ const interviewerListExecuteCommand: SapphireMessageExecuteType = async (
 
 const getInterviewerDisplayInfo = async (interviewer: Interviewer) => {
   const { client } = container;
-  const user = await client.users.fetch(interviewer['user_id']);
-  const userDomainsAddIn = await getInterviewerDomainsString(interviewer['user_id']);
+  const user = await client.users.fetch(interviewer.user_id);
+  const userDomainsAddIn = await getInterviewerDomainsString(interviewer.user_id);
   if (userDomainsAddIn === '') {
-    return `${user} | [Calendar](${interviewer['link']})\n\n`;
+    return `${user} | [Calendar](${interviewer.link})\n\n`;
   } else {
-    return `${user} | [Calendar](${interviewer['link']}) | ${userDomainsAddIn}\n\n`;
+    return `${user} | [Calendar](${interviewer.link}) | ${userDomainsAddIn}\n\n`;
   }
 };
 

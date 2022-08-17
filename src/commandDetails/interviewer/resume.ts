@@ -31,7 +31,7 @@ export const interviewerResumeCommandDetails: CodeyCommandDetails = {
   detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer resume\``,
   isCommandResponseEphemeral: false,
-  messageWhenExecutingCommand: 'Resuming',
+  messageWhenExecutingCommand: 'Resuming profile',
   executeCommand: interviewerResumeExecuteCommand,
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
   options: [],
