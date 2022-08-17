@@ -4,6 +4,7 @@ import {
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
+  CodeyCommandOptionType,
   getUserFromMessage
 } from '../../codeyCommand';
 
@@ -16,7 +17,8 @@ const interviewerSignupExecuteCommand: SapphireMessageExecuteType = async (
   args
 ): Promise<SapphireMessageResponse> => {
   const id = getUserFromMessage(messageFromUser).id;
-  const calendarUrl = <string>args['calendarUrl'];
+
+  const calendarUrl = <string>args['calendar_url'];
   const parsedUrl = parseLink(calendarUrl);
   if (!parsedUrl) {
     return `I don't seem to recognize your meeting link. Be sure to use calendly or x.ai.`;
@@ -24,7 +26,7 @@ const interviewerSignupExecuteCommand: SapphireMessageExecuteType = async (
 
   // Add or update interviewer info
   await upsertInterviewer(id, parsedUrl);
-  return `your info has been updated. Thanks for helping out! ${getEmojiByName('codeyLove')?.toString()}`;
+  return `Your info has been updated. Thanks for helping out! ${getEmojiByName('codeyLove')?.toString()}`;
 };
 
 export const interviewerSignupCommandDetails: CodeyCommandDetails = {
@@ -37,6 +39,13 @@ export const interviewerSignupCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Signing up',
   executeCommand: interviewerSignupExecuteCommand,
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
-  options: [],
+  options: [
+    {
+      name: 'calendar_url',
+      description: 'The user to check the balance of,',
+      type: CodeyCommandOptionType.STRING,
+      required: true
+    }
+  ],
   subcommandDetails: {}
 };
