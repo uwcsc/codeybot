@@ -61,6 +61,8 @@ export interface CodeyCommandOption {
   type: CodeyCommandOptionType;
   /** Whether the option is required */
   required: boolean;
+  /** Choices that the command accepts */
+  choices?: APIApplicationCommandOptionChoice[];
 }
 
 /** Sets the command option in the slash command builder */
