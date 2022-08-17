@@ -1,6 +1,14 @@
-import { getEmojiByName } from '../../components/emojis';
-import { MessageEmbed } from 'discord.js';
+import { container } from '@sapphire/framework';
+import { Message, MessageEmbed } from 'discord.js';
 import fetch from 'node-fetch';
+import {
+  CodeyCommandDetails,
+  CodeyCommandOptionType,
+  CodeyCommandResponseType,
+  SapphireMessageExecuteType,
+  SapphireMessageResponse
+} from '../../codeyCommand';
+import { getEmojiByName } from '../../components/emojis';
 
 const MEMBER_API = 'https://csclub.uwaterloo.ca/~a3thakra/csc/adi-member-json-api/api/members.json';
 
@@ -10,12 +18,12 @@ interface memberStatus {
   program: string;
 }
 
-export type UwIdType = string | undefined;
+type UwIdType = string | undefined;
 
 /*
  * Get member embed
  */
-export const getMemberEmbed = async (uwid: UwIdType): Promise<MessageEmbed> => {
+const getMemberEmbed = async (uwid: UwIdType): Promise<MessageEmbed> => {
   const title = 'CSC Membership Information';
   if (!uwid) {
     return new MessageEmbed().setColor('RED').setTitle(title).setDescription('Please provide a UW ID!');
@@ -37,4 +45,46 @@ Being a CSC member comes with gaining access to CSC machines, cloud, email, web 
 
 To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/get-involved/`;
   return new MessageEmbed().setColor('RED').setTitle(title).setDescription(NOT_MEMBER_DESCRIPTION);
+};
+
+const executeCommand: SapphireMessageExecuteType = async (
+  _client,
+  messageFromUser,
+  args,
+  _initialMessageFromBot
+): Promise<SapphireMessageResponse> => {
+  let uwId: UwIdType;
+  if (messageFromUser instanceof Message) {
+    const { content } = messageFromUser;
+    const messageArgs = content.split(' ').filter((m) => m != '.member');
+    if (messageArgs.length == 1) uwId = messageArgs[0];
+  } else if ('uwid' in args) {
+    uwId = args['uwid'] as string;
+  }
+  const memberEmbed = await getMemberEmbed(uwId);
+  return { embeds: [memberEmbed] };
+};
+
+export const memberCommandDetails: CodeyCommandDetails = {
+  name: 'member',
+  aliases: [],
+  description: 'Gets CSC membership information',
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}member [id]\``,
+
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Getting CSC membership information...',
+  executeCommand: executeCommand,
+  messageIfFailure: 'Could not retrieve CSC membership information.',
+  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
+
+  options: [
+    {
+      name: 'uwid',
+      description: 'Quest ID',
+      type: CodeyCommandOptionType.STRING,
+      required: true
+    }
+  ],
+  subcommandDetails: {}
 };
