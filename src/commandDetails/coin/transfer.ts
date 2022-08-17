@@ -11,7 +11,7 @@ import { getCoinBalanceByUserId, changeDbCoinBalanceByUserId, UserCoinEvent } fr
 import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
 
 // Update coin balance of a user
-const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
+const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
   // First mandatory argument is user
   const user = <User>args['user'];
   if (!user) {
@@ -78,7 +78,7 @@ export const coinTransferCommandDetails: CodeyCommandDetails = {
 
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Transfering coins...',
-  executeCommand: coinUpdateExecuteCommand,
+  executeCommand: coinTransferExecuteCommand,
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
   options: [
