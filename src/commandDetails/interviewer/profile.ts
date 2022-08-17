@@ -23,7 +23,7 @@ const interviewerProfileExecuteCommand: SapphireMessageExecuteType = async (
   // check if user signed up to be interviewer
   const interviewer = await getInterviewer(id);
   if (!interviewer) {
-    return `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`;
+    return `You don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`;
   }
 
   // get domains

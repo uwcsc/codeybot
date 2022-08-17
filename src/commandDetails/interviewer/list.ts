@@ -3,7 +3,7 @@ import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
-  SapphireMessageResponse,
+  SapphireMessageResponse
 } from '../../codeyCommand';
 
 import _ from 'lodash';

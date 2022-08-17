@@ -23,7 +23,6 @@ import { APIMessage, APIApplicationCommandOptionChoice } from 'discord-api-types
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
   ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
-  SlashCommandStringOption,
   ApplicationCommandOptionBase,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
