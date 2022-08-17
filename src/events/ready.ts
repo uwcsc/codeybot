@@ -37,7 +37,7 @@ const sendReady = async (client: Client): Promise<void> => {
   notif.send(`Codey is up! App version: ${latestRelease.tag_name}`);
 };
 
-export const initAll = (client: Client): void => {
+export const initReady = (client: Client): void => {
   printBanner();
   client.user!.setActivity('CSC | .help');
   sendReady(client);
