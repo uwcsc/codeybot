@@ -10,7 +10,7 @@ import {
 } from '../../codeyCommand';
 import { getEmojiByName } from '../../components/emojis';
 
-const MEMBER_API = 'https://csclub.uwaterloo.ca/~a3thakra/csc/adi-member-json-api/api/members.json';
+const MEMBER_API = 'https://csclub.uwaterloo.ca/api/members.json';
 
 interface memberStatus {
   name: string;
