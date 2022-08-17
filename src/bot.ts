@@ -39,6 +39,9 @@ container.botPrefix = client.options.defaultPrefix!;
 
 export const startBot = async (): Promise<void> => {
   try {
+    client.logger.info({
+      event: 'init'
+    });
     client.on('error', client.logger.error);
     client.on('ready', initReady);
     client.login();
