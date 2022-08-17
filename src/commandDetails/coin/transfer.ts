@@ -4,7 +4,8 @@ import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
   CodeyCommandResponseType,
-  SapphireMessageExecuteType
+  SapphireMessageExecuteType,
+  getUserFromMessage
 } from '../../codeyCommand';
 import { getCoinBalanceByUserId, changeDbCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
 import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
@@ -14,42 +15,48 @@ const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (client, mess
   // First mandatory argument is user
   const user = <User>args['user'];
   if (!user) {
-    throw new Error('please enter a valid user mention or ID for balance adjustment.');
+    throw new Error('please enter a valid user mention or ID to transfer coins.');
   }
 
   // Second mandatory argument is amount
   const amount = args['amount'];
   if (typeof amount !== 'number') {
-    throw new Error('please enter a valid amount to adjust.');
+    throw new Error('please enter a valid amount to transfer.');
   }
 
   // Optional argument is reason
   const reason = args['reason'] ?? null;
 
   // Get balance
-  const senderBalance = await getCoinBalanceByUserId(messageFromUser.member!.user.id);
+  const senderBalance = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
   const recipientBalance = await getCoinBalanceByUserId(user.id);
 
   // Implement some basic checks
-  if (messageFromUser.member!.user.id === user.id)
+  if (messageFromUser.member!.user.id === user.id) {
     return `You can't transfer money to yourself ${getEmojiByName('codeyConfused')}.`;
-  if (senderBalance < amount)
+  }
+  if (senderBalance < amount) {
     return `You don't have enough coins to complete this transfer ${getEmojiByName('codeyConfused')}.`;
-  if (amount < 0) return `You can't steal from people ${getEmojiByName('codeyAngry')}.`;
-  if (amount === 0) return `What exactly are you trying to do there ${getEmojiByName('codeyStressed')}?`;
+  }
+  if (amount < 0) {
+    return `You can't steal from people ${getEmojiByName('codeyAngry')}.`;
+  }
+  if (amount === 0) {
+    return `What exactly are you trying to do there ${getEmojiByName('codeyStressed')}?`;
+  }
 
   // Transfer coins
   await changeDbCoinBalanceByUserId(
-    messageFromUser.member!.user.id,
+    getUserFromMessage(messageFromUser).id,
     senderBalance,
-    senderBalance - <number>amount,
+    senderBalance - amount,
     UserCoinEvent.CoinTransferSender,
     <string | null>reason
   );
   await changeDbCoinBalanceByUserId(
     user.id,
     recipientBalance,
-    recipientBalance + <number>amount,
+    recipientBalance + amount,
     UserCoinEvent.CoinTransferRecipient,
     <string | null>reason
   );
