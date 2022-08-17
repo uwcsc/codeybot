@@ -9,9 +9,11 @@ import {
   SapphireClient
 } from '@sapphire/framework';
 import { Message, MessagePayload, TextChannel, User, WebhookEditMessageOptions } from 'discord.js';
-import { APIMessage } from 'discord-api-types/v9';
+import { APIMessage, APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
+  ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
+  ApplicationCommandOptionBase,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder
