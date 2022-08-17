@@ -265,10 +265,11 @@ export class CodeyCommand extends SapphireCommand {
           content: commandDetails.messageWhenExecutingCommand,
           components: commandDetails.components
         });
+      } else {
+        const successResponse = await commandDetails.executeCommand!(client, message, args);
+        if (!successResponse) return;
+        return await message.reply(successResponse);
       }
-      const successResponse = await commandDetails.executeCommand!(client, message, args);
-      if (!successResponse) return;
-      return await message.reply(successResponse);
     } catch (e) {
       console.log(e);
       return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
