@@ -10,6 +10,8 @@ export enum BonusType {
 export enum UserCoinEvent {
   AdminCoinAdjust,
   AdminCoinUpdate,
+  CoinTransferSender,
+  CoinTransferRecipient,
   BonusDaily,
   BonusActivity,
   BonusInterviewerList,
@@ -125,7 +127,7 @@ export const changeDbCoinBalanceByUserId = async (
   newBalance: number,
   event: UserCoinEvent,
   reason: string | null,
-  adminId: string | null
+  adminId: string | null = null
 ): Promise<void> => {
   const db = await openDB();
   await db.run(
