@@ -31,11 +31,12 @@ import {
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
 export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions;
+export type UserMessageType = Message | SapphireCommand.ChatInputInteraction | SelectMenuInteraction;
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
   // Message is for normal commands, ChatInputInteraction is for slash commands
-  messageFromUser: Message | SapphireCommand.ChatInputInteraction | SelectMenuInteraction,
+  messageFromUser: UserMessageType,
   // Command arguments
   args: CodeyCommandArguments,
   initialMessageFromBot?: SapphireMessageRequest,
@@ -148,7 +149,6 @@ export class CodeyCommandDetails {
   isCommandResponseEphemeral? = true;
   /** Type of response the Codey command sends */
   codeyCommandResponseType?: CodeyCommandResponseType = CodeyCommandResponseType.STRING;
-
   /** Options for the Codey command */
   options: CodeyCommandOption[] = [];
   /** Subcommands under the CodeyCommand */
@@ -180,9 +180,7 @@ const setCommandSubcommand = (
  * Retrieving the `User` depends on whether slash commands were used or not.
  * This method helps generalize this process.
  * */
-export const getUserFromMessage = (
-  message: Message | SapphireCommand.ChatInputInteraction | SelectMenuInteraction
-): User => {
+export const getUserFromMessage = (message: UserMessageType): User => {
   if (message instanceof Message) {
     return message.author;
   } else {

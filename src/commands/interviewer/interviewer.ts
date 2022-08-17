@@ -5,14 +5,16 @@ import { interviewerDomainCommandDetails } from '../../commandDetails/interviewe
 import { interviewerListCommandDetails } from '../../commandDetails/interviewer/list';
 import { interviewerPauseCommandDetails } from '../../commandDetails/interviewer/pause';
 import { interviewerProfileCommandDetails } from '../../commandDetails/interviewer/profile';
-import { interviewerSignupCommandDetails } from '../../commandDetails/interviewer/signup';
 import { interviewerResumeCommandDetails } from '../../commandDetails/interviewer/resume';
+import { interviewerSignupCommandDetails } from '../../commandDetails/interviewer/signup';
 
 const interviewerCommandDetails: CodeyCommandDetails = {
   name: 'interviewer',
-  aliases: [],
+  aliases: ['int'],
   description: 'Handles interviewer functions',
-  detailedDescription: `TODO`,
+  detailedDescription: `**Examples**
+\`.interviewer list\`
+\`.interviewer domain\``,
   options: [],
   subcommandDetails: {
     clear: interviewerClearCommandDetails,

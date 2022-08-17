@@ -81,7 +81,7 @@ export const getInterviewers = async (
     res = await db.all('SELECT * FROM interviewers WHERE status = ?', status);
   } else if (!(domain in availableDomains)) {
     // domain not a valid key in availableDomains
-    throw 'Invalid domain.';
+    throw `Invalid domain: ${domain}`;
   } else {
     // query interviewers by domain
     res = await db.all(
@@ -144,7 +144,7 @@ export const toggleDomain = async (id: string, domain: string): Promise<boolean>
 
   //check if domain valid
   if (!domain || !(domain in availableDomains)) {
-    throw 'Invalid domain.';
+    throw `Invalid domain: ${domain}`;
   }
 
   //check if user already in domain
@@ -187,7 +187,7 @@ export const isInDomain = async (id: string, domain: string, dbConnection?: Data
   const db = dbConnection ?? (await openDB());
 
   if (!domain || !(domain in availableDomains)) {
-    throw 'Invalid domain.';
+    throw `Invalid domain: ${domain}`;
   }
 
   const inDomain = await db.get('SELECT * FROM domains WHERE user_id = ? AND domain = ?', id, domain);

@@ -41,6 +41,9 @@ const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
   return strang;
 };
 
+//*
+// Generates MessageSelectOptions based on `availableDomains` for the SelectMenu
+// */
 function generateOptions(): MessageSelectOptionData[] {
   const optionsList: MessageSelectOptionData[] = [];
   for (const [domainValue, domainName] of Object.entries(availableDomains)) {
