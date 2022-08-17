@@ -1,11 +1,13 @@
 import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
+  CodeyCommandOptionType,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
 
+import { APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import _ from 'lodash';
 import {
   availableDomains,
@@ -25,7 +27,7 @@ const interviewerListExecuteCommand: SapphireMessageExecuteType = async (
   _messageFromUser,
   args
 ): Promise<SapphireMessageResponse> => {
-  const domain = <string>args['string'];
+  const domain = <string>args['domain'];
 
   if (domain !== '' && !(domain.toLowerCase() in availableDomains))
     return `You entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`;
@@ -58,6 +60,17 @@ const getInterviewerDisplayInfo = async (interviewer: Interviewer) => {
   }
 };
 
+function generateChoices(): APIApplicationCommandOptionChoice[] {
+  const retObject: APIApplicationCommandOptionChoice[] = [];
+  for (const [domainValue, domainName] of Object.entries(availableDomains)) {
+    retObject.push({
+      name: domainName,
+      value: domainValue
+    });
+  }
+  return retObject;
+}
+
 export const interviewerListCommandDetails: CodeyCommandDetails = {
   name: 'list',
   aliases: ['list'],
@@ -69,6 +82,14 @@ export const interviewerListCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Listing interviewers',
   executeCommand: interviewerListExecuteCommand,
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
-  options: [],
+  options: [
+    {
+      name: 'domain',
+      description: 'The domain to be examined',
+      required: false,
+      type: CodeyCommandOptionType.STRING,
+      choices: generateChoices()
+    }
+  ],
   subcommandDetails: {}
 };
