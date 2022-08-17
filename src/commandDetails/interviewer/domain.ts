@@ -7,7 +7,7 @@ import {
   SapphireMessageResponse
 } from '../../codeyCommand';
 import { MessageActionRow, MessageSelectMenu, MessageSelectOptionData } from 'discord.js';
-import { availableDomains, getInterviewer, isInDomain, joinDomain, leaveDomain } from '../../components/interviewer';
+import { availableDomains, getInterviewer, joinDomain, leaveDomain } from '../../components/interviewer';
 
 const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
   _client,
@@ -21,24 +21,27 @@ const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
     return `You don't seem to have signed up yet. Please sign up using the signup subcommand!`;
   }
 
-  let strang: string;
-  strang = '';
+  let outputString: string;
+  outputString = '';
 
   for (const domain of Object.keys(availableDomains)) {
+    // Check if changes have been made to the user's domains since
+    // joinDomain/leaveDomain return true if the domain has been altered
+    //
+    // Don't inform the user of pointless changes (leaving domain that they never joined)
+    // Inform user if they've already joined a domain they're attempting to join.
     if (values!.includes(domain)) {
-      joinDomain(id, domain);
-      strang = !(await isInDomain(id, domain))
-        ? strang.concat(`**Added** to *${availableDomains[domain]}*\n`)
-        : strang.concat(`Already in *${availableDomains[domain]}*\n`);
+      outputString = (await joinDomain(id, domain))
+        ? outputString.concat(`**Added** to *${availableDomains[domain]}*\n`)
+        : outputString.concat(`Already in *${availableDomains[domain]}*\n`);
     } else {
-      leaveDomain(id, domain);
-      if (await isInDomain(id, domain)) {
-        strang = strang.concat(`**Removed** from ${availableDomains[domain]}\n`);
+      if (await leaveDomain(id, domain)) {
+        outputString = outputString.concat(`**Removed** from ${availableDomains[domain]}\n`);
       }
     }
   }
 
-  return strang;
+  return outputString;
 };
 
 //*
