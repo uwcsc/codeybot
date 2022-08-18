@@ -3,7 +3,6 @@ import { Command, container } from '@sapphire/framework';
 import {
   CodeyCommand,
   CodeyCommandDetails,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
@@ -11,8 +10,7 @@ import {
 const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
-  _args,
-  _initialMessageFromBot
+  _args
 ): Promise<SapphireMessageResponse> => {
   const onHeads = Math.random() < 0.5;
   const content = `The coin landed on **${onHeads ? 'heads' : 'tails'}**!`;
@@ -35,8 +33,6 @@ const flipcoinCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Flipping a coin...',
   executeCommand: executeCommand,
   messageIfFailure: 'Failed to flip a coin.',
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
   options: [],
   subcommandDetails: {}
 };

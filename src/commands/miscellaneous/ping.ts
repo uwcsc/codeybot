@@ -3,7 +3,6 @@ import { Message } from 'discord.js';
 import {
   CodeyCommand,
   CodeyCommandDetails,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageRequest,
   SapphireMessageResponse
@@ -22,17 +21,12 @@ const content = (botLatency: number, apiLatency: number) =>
 const executeCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
-  _args,
-  initialMessageFromBot
+  _args
 ): Promise<SapphireMessageResponse> => {
   // Assert message types are Message<boolean>
   // We have to do this because APIMessage does not have "createdTimestamp" property
   const messageFromUserAsMessage = <Message<boolean>>messageFromUser;
   const botLatency = client.ws.ping;
-  if (initialMessageFromBot) {
-    const apiLatency = getApiLatency(initialMessageFromBot, messageFromUserAsMessage);
-    return new Promise((resolve, _reject) => resolve(content(botLatency, apiLatency)));
-  }
   const initialPing = await messageFromUserAsMessage.channel.send(initialPingContent);
   const apiLatency = getApiLatency(initialPing, messageFromUserAsMessage);
   initialPing.edit(content(botLatency, apiLatency));
@@ -51,8 +45,6 @@ const pingCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Ping?',
   messageIfFailure: 'Failed to receive ping.',
   executeCommand: executeCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
   options: [],
   subcommandDetails: {}
 };

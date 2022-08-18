@@ -1,11 +1,6 @@
 import { container } from '@sapphire/framework';
 import { Permissions, User } from 'discord.js';
-import {
-  CodeyCommandDetails,
-  CodeyCommandOptionType,
-  CodeyCommandResponseType,
-  SapphireMessageExecuteType
-} from '../../codeyCommand';
+import { CodeyCommandDetails, CodeyCommandOptionType, SapphireMessageExecuteType } from '../../codeyCommand';
 import { getCoinBalanceByUserId, updateCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
 
@@ -54,8 +49,6 @@ export const coinUpdateCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Updating coin balance...',
   executeCommand: coinUpdateExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
   options: [
     {
       name: 'user',

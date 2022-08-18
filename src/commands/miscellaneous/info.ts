@@ -3,7 +3,6 @@ import { MessageEmbed } from 'discord.js';
 import {
   CodeyCommand,
   CodeyCommandDetails,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
@@ -30,8 +29,7 @@ export const getInfoEmbed = async (): Promise<MessageEmbed> => {
 const executeCommand: SapphireMessageExecuteType = async (
   _client,
   _messageFromUser,
-  _args,
-  _initialMessageFromBot
+  _args
 ): Promise<SapphireMessageResponse> => {
   const infoEmbed = await getInfoEmbed();
   return { embeds: [infoEmbed] };
@@ -48,8 +46,6 @@ const infoCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Getting Codey Info...',
   messageIfFailure: 'Could not get Codey info.',
   executeCommand: executeCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
-
   options: [],
   subcommandDetails: {}
 };

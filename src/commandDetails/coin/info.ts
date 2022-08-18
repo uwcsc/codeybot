@@ -1,11 +1,6 @@
 import { container } from '@sapphire/framework';
 import { MessageEmbed } from 'discord.js';
-import {
-  CodeyCommandDetails,
-  CodeyCommandResponseType,
-  SapphireMessageExecuteType,
-  SapphireMessageResponse
-} from '../../codeyCommand';
+import { CodeyCommandDetails, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 import { getCoinEmoji } from '../../components/emojis';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
@@ -52,8 +47,6 @@ export const coinInfoCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Getting information about coin:',
   executeCommand: coinInfoExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
-
   options: [],
   subcommandDetails: {}
 };

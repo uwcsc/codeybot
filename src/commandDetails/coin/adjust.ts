@@ -3,7 +3,6 @@ import { Permissions, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse
 } from '../../codeyCommand';
@@ -61,8 +60,6 @@ export const coinAdjustCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Adjusting coin balance...',
   executeCommand: coinAdjustExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
   options: [
     {
       name: 'user',
