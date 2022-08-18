@@ -1,5 +1,5 @@
 import { container } from '@sapphire/framework';
-import { User } from 'discord.js';
+import { User, MessageActionRow, MessageButton } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -7,10 +7,15 @@ import {
   SapphireMessageExecuteType,
   getUserFromMessage
 } from '../../codeyCommand';
-import { getCoinBalanceByUserId, changeDbCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
+import {
+  getCoinBalanceByUserId,
+  changeDbCoinBalanceByUserId,
+  UserCoinEvent,
+  transferRecipientActionType
+} from '../../components/coin';
 import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
 
-// Update coin balance of a user
+// Transfer coins to another user
 const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
   // First mandatory argument is user
   const user = <User>args['user'];
@@ -32,7 +37,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, me
   const recipientBalance = await getCoinBalanceByUserId(user.id);
 
   // Implement some basic checks
-  if (messageFromUser.member!.user.id === user.id) {
+  if (getUserFromMessage(messageFromUser).id === user.id) {
     return `You can't transfer money to yourself ${getEmojiByName('codeyConfused')}.`;
   }
   if (senderBalance < amount) {
@@ -44,6 +49,20 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, me
   if (amount === 0) {
     return `What exactly are you trying to do there ${getEmojiByName('codeyStressed')}?`;
   }
+
+  messageFromUser.reply({
+    content: 'hello',
+    components: [
+      new MessageActionRow().addComponents(
+        new MessageButton().setCustomId('accept').setLabel('Accept').setStyle('SUCCESS'),
+        new MessageButton().setCustomId('reject').setLabel('Reject').setStyle('DANGER')
+      )
+    ],
+    allowedMentions: {
+      users: [user.id],
+      repliedUser: true
+    }
+  });
 
   // Transfer coins
   await changeDbCoinBalanceByUserId(
@@ -63,8 +82,11 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, me
 
   // Get new balance
   const newRecipientBalance = await getCoinBalanceByUserId(user.id);
+  const newSenderBalance = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
 
-  return `${user.username} now has ${newRecipientBalance} Codey coins ${getCoinEmoji()} ${getEmojiByName(
+  return `${
+    user.username
+  } now has ${newRecipientBalance} (and you have ${newSenderBalance}) Codey coins ${getCoinEmoji()} ${getEmojiByName(
     'codeyPoggers'
   )}.`;
 };
@@ -72,12 +94,12 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, me
 export const coinTransferCommandDetails: CodeyCommandDetails = {
   name: 'transfer',
   aliases: ['t'],
-  description: 'Transfer money to another user.',
+  description: 'Transfer coins to another user.',
   detailedDescription: `**Examples:**
   \`${container.botPrefix}coin transfer @Codey 100 Gave me a cookie.\``,
 
   isCommandResponseEphemeral: false,
-  messageWhenExecutingCommand: 'Transfering coins...',
+  messageWhenExecutingCommand: 'Transferring coins...',
   executeCommand: coinTransferExecuteCommand,
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
@@ -96,7 +118,7 @@ export const coinTransferCommandDetails: CodeyCommandDetails = {
     },
     {
       name: 'reason',
-      description: 'The reason why we are transfering money,',
+      description: 'The reason why we are transferring money,',
       type: CodeyCommandOptionType.STRING,
       required: false
     }

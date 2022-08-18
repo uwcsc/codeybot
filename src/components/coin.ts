@@ -18,6 +18,11 @@ export enum UserCoinEvent {
   Blackjack
 }
 
+export enum transferRecipientActionType {
+  TransferAccepted,
+  TransferRejected
+}
+
 export type Bonus = {
   type: BonusType;
   event: UserCoinEvent;
