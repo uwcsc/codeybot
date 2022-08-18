@@ -22,7 +22,7 @@ const validateBetAmount = (amount: number, isPercent: boolean): string => {
   let res = '';
   if (amount < MIN_BET) res = `minimum bet is ${MIN_BET} Codey coins.`;
   if (amount > MAX_BET) res = `maximum bet is ${MAX_BET} Codey coins.`;
-  if (isPercent) res += ` (you bet ${amount})`;
+  if ((amount < MIN_BET || amount > MAX_BET) && isPercent) res += ` (you bet ${amount})`;
   return res;
 };
 
