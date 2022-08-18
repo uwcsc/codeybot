@@ -276,9 +276,16 @@ export class CodeyCommand extends SapphireCommand {
     }
 
     try {
-      const successResponse = await commandDetails.executeCommand!(client, message, args);
-      if (!successResponse) return;
-      return await message.reply(successResponse);
+      if (commandDetails.components) {
+        return await message.reply({
+          content: commandDetails.messageWhenExecutingCommand,
+          components: commandDetails.components
+        });
+      } else {
+        const successResponse = await commandDetails.executeCommand!(client, message, args);
+        if (!successResponse) return;
+        return await message.reply(successResponse);
+      }
     } catch (e) {
       console.log(e);
       return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
@@ -302,7 +309,8 @@ export class CodeyCommand extends SapphireCommand {
     const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
       content: commandDetails.messageWhenExecutingCommand,
       ephemeral: commandDetails.isCommandResponseEphemeral, // whether user sees message or not
-      fetchReply: true
+      fetchReply: true,
+      components: commandDetails.components
     });
     // Get command arguments
     const args: CodeyCommandArguments = Object.assign(
@@ -333,7 +341,7 @@ export class CodeyCommand extends SapphireCommand {
     );
 
     try {
-      if (isMessageInstance(initialMessageFromBot)) {
+      if (isMessageInstance(initialMessageFromBot) && !commandDetails.components) {
         const successResponse = await commandDetails.executeCommand!(client, interaction, args, initialMessageFromBot);
         switch (commandDetails.codeyCommandResponseType) {
           case CodeyCommandResponseType.STRING:
