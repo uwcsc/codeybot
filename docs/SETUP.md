@@ -3,7 +3,7 @@
 1. Make sure you have the following prerequisites installed:
   - Git
   - [Yarn](https://classic.yarnpkg.com/en/docs/install)
-  - [Docker](https://docs.docker.com/get-docker/) (tested up to v20.10.6)
+  - [Docker](https://docs.docker.com/get-docker/)
 
 2. Fork the repository and clone it into the directory of your choice.
 
@@ -11,19 +11,23 @@
 
 3. Set up your Discord testing server.
 
-> For CodeyBot Developers, we have our own dedicated testing server - ask your team lead for more details
+> For CodeyBot developers, we have our own dedicated testing server - ask your team lead for more details.
 
 4. Set up your Discord testing bot for Codey, and add your bot to the Discord testing server. Make sure it has the following perms:
 
-![botperms](../assets/botperms.png)
+![botperms](../assets/botPerms.png)
 
 5. In your cloned project, create a `dev` folder in `config`, and create a `vars.json` file in it. Fill the JSON file with the corresponding values for each of the variables as described in the main README.md.
 
-6. Make an `.env` file in the root folder of the project, and put your Discord bot's token. DO NOT REVEAL THIS: ANYONE WITH THIS HAS ACCESS TO YOUR BOT.
+6. Make an `.env` file in the root folder of the project, and put your Discord bot's token:
+```
+DISCORD_TOKEN=<insert token here>
+```
+DO NOT REVEAL THIS: ANYONE WITH THIS HAS ACCESS TO YOUR BOT.
 
 7. Run `yarn` in the root folder of your project to install all the dependencies required.
 
-### Running the Bot using Docker
+### Running the bot using Docker
 
 8. Run `yarn image:build` to create and build the Docker image for the bot.
 
@@ -50,7 +54,7 @@ You can choose to run the bot locally instead of using Docker. This is helpful i
 
 8. Install the dependencies `ghostscript` and `graphicsmagick` locally. This is required for the resume pdf->image converter functionality of Codey. 
 
-For example, on Linux/Mac, you can do:
+For example, on Mac and some Linux distros, you can do:
 ```
 sudo apt install ghostscript
 sudo apt install graphicsmagick

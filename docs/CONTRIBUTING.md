@@ -2,9 +2,9 @@
 
 Make sure you have set up your development environment first, as described [in this document](./SETUP.md).
 
-## Requesting Features for the bot
+## Requesting features for the bot
 
-We always welcome new feature requests for the bot :D
+We always welcome new feature requests for the bot! :D
 
 ### Through the Discord server
 
@@ -24,9 +24,9 @@ We always welcome new feature requests for the bot :D
 
 3. Fill in the details of your feature request.
 
-## Making Features for the Bot
+## Making features for the bot
 
-1. Before working on a feature, make an issue, as described in the previous section. We want to document what people are working on, and so we can avoid two people working on the same feature.
+1. Before working on a feature, make an issue, as described in the previous section. We want to document what people are working on - we can avoid two people working on the same feature.
 
 2. If you wish to work on the issue, ask one of the CodeyBot developers to assign you to the issue.
 
@@ -34,4 +34,4 @@ We always welcome new feature requests for the bot :D
 
 > Make sure to include screenshots/a demo of your feature request, if applicable.
 
-4. Before your PR can be merged, you need to pass the pipeline. Often, one of the most common reasons why the pipeline fails is because the linter fails. To solve this, you can run `yarn lint` to see any linting issues you might have, or `yarn format` to automatically fix any linting issues in your code.
+4. Before your PR can be merged, you need to pass the pipeline. The most common reasons why the pipeline fails are because the linter or formatter checks fail. To solve this, you can run `yarn lint` to see any linting issues you might have, or `yarn format` to format your code.
