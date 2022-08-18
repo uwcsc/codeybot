@@ -165,13 +165,14 @@ export class CodeyCommandDetails {
   isCommandResponseEphemeral? = true;
   /** Type of response the Codey command sends */
   codeyCommandResponseType?: CodeyCommandResponseType = CodeyCommandResponseType.STRING;
-
   /** Options for the Codey command */
   options: CodeyCommandOption[] = [];
   /** Subcommands under the CodeyCommand */
   subcommandDetails: { [name: string]: CodeyCommandDetails } = {};
   /** The default subcommand to execute if no subcommand is specified */
   defaultSubcommandDetails?: CodeyCommandDetails;
+  /** Components to be shown in the message, type stolen from discord.js */
+  components?: (MessageActionRow | (Required<BaseMessageComponentOptions> & MessageActionRowOptions))[] = [];
 }
 
 /** Sets the command subcommand in the slash command builder */
