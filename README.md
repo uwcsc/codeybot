@@ -34,20 +34,32 @@ Set these into your `.env` file. Make sure to not push these changes to git.
 
 - `DISCORD_TOKEN`: the bot's token, found in the Discord Developer Portal. DO NOT REVEAL THIS TOKEN; ANYONE WITH THIS TOKEN CAN CONTROL YOUR BOT.
 
-## Prerequisites
+### Prerequisites
 
 - [Yarn](https://classic.yarnpkg.com/en/docs/install)
 - [Docker](https://docs.docker.com/get-docker/) (tested up to v20.10.6)
 
-## Running the bot locally
+### Running the bot locally
 
-1. Build docker image: `yarn image:build`
-1. Start container in detached mode: `yarn start`
-1. View and follow console output: `yarn logs`
+You can follow the instructions outlined [in this document](docs/SETUP.md).
 
-## Other usage
+### Contributing
 
+You can follow the steps [in this document](docs/CONTRIBUTING.md).
+
+## Commands
+
+### Using Docker
+- Build the container: `yarn image:build`
+- Start the container: `yarn start`
 - Stop the container: `yarn stop`
 - Stop and remove the container: `yarn clean`
 - Restart the container: `yarn restart`
 - Fresh build and restart: `yarn image:build && yarn clean && yarn start`
+
+### Locally
+- Run the project: `yarn ts:build && yarn local:run`
+
+### Miscellaneous
+- Run linter: `yarn lint`
+- Fix auto-fixable linting errors: `yarn format`

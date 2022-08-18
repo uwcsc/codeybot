@@ -1,16 +1,17 @@
-# Onboarding
+# Setting up the bot locally
 
-This is mainly for external contributors.
-
-## Setting up your development environment
-
-1. Make sure you have Git, Yarn and Docker installed.
+1. Make sure you have the following prerequisites installed:
+  - Git
+  - [Yarn](https://classic.yarnpkg.com/en/docs/install)
+  - [Docker](https://docs.docker.com/get-docker/) (tested up to v20.10.6)
 
 2. Fork the repository and clone it into the directory of your choice.
 
+> This is not necessary for CodeyBot developers - you can work directly from the main repository.
+
 3. Set up your Discord testing server.
 
-> For CodeyBot Developers, we have our own testing server - ask your team lead for more details
+> For CodeyBot Developers, we have our own dedicated testing server - ask your team lead for more details
 
 4. Set up your Discord testing bot for Codey, and add your bot to the Discord testing server. Make sure it has the following perms:
 
@@ -41,7 +42,7 @@ Done in 1.07s.
 
 > Codey is up! App version: \<app version>
 
-13. To stop the bot, run `yarn stop`.
+13. To stop the bot, run `yarn stop`. To stop the bot and remove the container, run `yarn clean`.
 
 ### Running the bot locally
 
@@ -64,23 +65,3 @@ sudo apt install graphicsmagick
 > Codey is up! App version: \<app version>
 
 12. If you wish to stop the bot, just stop the command.
-
-## Requesting features for the bot
-
-We always welcome new feature requests for the bot :D
-
-1. You can view all the current feature requests [here](https://github.com/uwcsc/codeybot/issues).
-
-2. To request a new feature, click **New Issue**, and click the **Feature Request** template.
-
-3. Fill in the details of your feature request.
-
-## Making Features for the Bot
-
-1. Before working on a feature, make an issue, as described in the previous section. We want to document what people are working on, and so we can avoid two people working on the same feature.
-
-2. If you wish to work on the issue, ask one of the CodeyBot developers to assign you to the issue.
-
-3. When you're done, make a PR from your branch to `master`.
-
-4. Before your PR can be merged, you need to pass the pipeline. Often, one of the most common reasons why the pipeline fails is because the linter fails. To solve this, you can run `yarn lint` to see any linting issues you might have, or `yarn format` to automatically fix any linting issues in your code.
