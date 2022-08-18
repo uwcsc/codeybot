@@ -304,11 +304,21 @@ export class CodeyCommand extends SapphireCommand {
     );
 
     try {
-      const successResponse = await commandDetails.executeCommand!(client, interaction, args);
-      await interaction.reply({
-        content: <string>successResponse,
-        ephemeral: commandDetails.isCommandResponseEphemeral
-      });
+      let successResponse = await commandDetails.executeCommand!(client, interaction, args);
+      if (typeof successResponse === 'string') {
+        successResponse = {
+          content: successResponse
+        };
+      }
+
+      await interaction.reply(
+        Object.assign(
+          {
+            ephemeral: commandDetails.isCommandResponseEphemeral
+          },
+          successResponse
+        )
+      );
     } catch (e) {
       console.log(e);
       return await interaction.editReply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
