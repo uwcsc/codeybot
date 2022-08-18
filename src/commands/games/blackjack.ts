@@ -200,7 +200,7 @@ export class BlackjackCommand extends Command {
     let bet: number;
     if (betString.endsWith('%')) {
       const percentage = parseInt(betString, 10) / 100;
-      if (percentage >= 1) {
+      if (percentage > 1) {
         return message.reply(`You can only bet up to 100%. ${getEmojiByName('codeySad')}`);
       }
       bet = Math.round(playerBalance * percentage);
