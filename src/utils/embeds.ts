@@ -1,5 +1,4 @@
-import { container } from '@sapphire/framework';
-import { Message, MessageEmbed, TextChannel, User } from 'discord.js';
+import { Client, Message, MessageEmbed, TextChannel, User } from 'discord.js';
 import { vars } from '../config';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
@@ -9,8 +8,13 @@ export const EMBED_COLOUR = '#0099ff';
 /*
  * Send kick embed
  */
-export const sendKickEmbed = async (message: Message, user: User, reason = '', isSuccessful = true): Promise<void> => {
-  const { client } = container;
+export const sendKickEmbed = async (
+  client: Client,
+  message: Message,
+  user: User,
+  reason = '',
+  isSuccessful = true
+): Promise<void> => {
   const kickEmbed = new MessageEmbed()
     .setColor(EMBED_COLOUR)
     .addField('User', `${user.tag} (${user.id})`)
