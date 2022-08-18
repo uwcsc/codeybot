@@ -1,10 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { Message } from 'discord.js';
 import { container, LogLevel, SapphireClient, SapphirePrefix } from '@sapphire/framework';
 import '@sapphire/plugin-logger/register';
 import * as colorette from 'colorette';
 import { inspect } from 'util';
+import { initMessageCreate } from './events/messageCreate';
 import { initReady } from './events/ready';
 
 // Set default inspection depth
@@ -44,6 +46,9 @@ export const startBot = async (): Promise<void> => {
     });
     client.on('error', client.logger.error);
     client.on('ready', initReady);
+    client.on('messageCreate', (message: Message) => {
+      initMessageCreate(client, container.logger, message);
+    });
     client.login();
   } catch (e) {
     console.log('Bot failure');

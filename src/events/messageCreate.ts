@@ -1,6 +1,5 @@
-import { ApplyOptions } from '@sapphire/decorators';
-import { container, Listener } from '@sapphire/framework';
-import { Message } from 'discord.js';
+import { ILogger } from '@sapphire/framework';
+import { Client, Message } from 'discord.js';
 import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
@@ -43,8 +42,7 @@ const detectSpammersAndTrolls = (message: Message): boolean => {
  * Punish spammers/trolls/people who got hacked
  * Return true if someone of this kind is detected, false otherwise
  */
-const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
-  const { logger } = container;
+const punishSpammersAndTrolls = async (client: Client, logger: ILogger, message: Message): Promise<boolean> => {
   if (detectSpammersAndTrolls(message)) {
     // Delete the message, and if the user is still in the server, then kick them and log it
     await message.delete();
@@ -61,7 +59,7 @@ const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
           error: (err as Error).toString()
         });
       }
-      await sendKickEmbed(message, user, reason, isSuccessful);
+      await sendKickEmbed(client, message, user, reason, isSuccessful);
     }
     return true;
   }
@@ -97,34 +95,23 @@ const convertResumePdfsIntoImages = async (message: Message): Promise<Message<bo
   });
 };
 
-@ApplyOptions<Listener.Options>({
-  event: 'messageCreate'
-})
-export class MessageCreateListener extends Listener {
-  async run(message: Message): Promise<void> {
-    const { client } = container;
-
-    if (!client.user) {
-      return;
-    }
-
-    // Ignore all bots including self but not IRC
-    if (message.author.bot && message.author.id !== IRC_USER_ID) {
-      return;
-    }
-
-    if (await punishSpammersAndTrolls(message)) {
-      return;
-    }
-
-    // If channel is in resumes, convert the message attachment to an image
-    if (message.channelId === RESUME_CHANNEL_ID) {
-      await convertResumePdfsIntoImages(message);
-    }
-
-    // Ignore DMs; include announcements, thread, and regular text channels
-    if (message.channel.type !== 'DM') {
-      await applyBonusByUserId(message.author.id);
-    }
+export const initMessageCreate = async (client: Client, logger: ILogger, message: Message): Promise<void> => {
+  // Ignore all bots including self but not IRC
+  if (message.author.bot && message.author.id !== IRC_USER_ID) {
+    return;
   }
-}
+
+  if (await punishSpammersAndTrolls(client, logger, message)) {
+    return;
+  }
+
+  // If channel is in resumes, convert the message attachment to an image
+  if (message.channelId === RESUME_CHANNEL_ID) {
+    await convertResumePdfsIntoImages(message);
+  }
+
+  // Ignore DMs; include announcements, thread, and regular text channels
+  if (message.channel.type !== 'DM') {
+    await applyBonusByUserId(message.author.id);
+  }
+};
