@@ -1,19 +1,10 @@
 import { Command, container } from '@sapphire/framework';
-import { Message } from 'discord.js';
 import {
   CodeyCommand,
   CodeyCommandDetails,
   SapphireMessageExecuteType,
-  SapphireMessageRequest,
   SapphireMessageResponse
 } from '../../codeyCommand';
-
-const initialPingContent = 'Ping?';
-
-const getApiLatency = (initialPing: SapphireMessageRequest, messageFromUserAsMessage: Message<boolean>) => {
-  const initialPingAsMessage = <Message<boolean>>initialPing;
-  return initialPingAsMessage.createdTimestamp - messageFromUserAsMessage.createdTimestamp;
-};
 
 const content = (botLatency: number, apiLatency: number) =>
   `Pong from JavaScript! Bot Latency ${botLatency}ms. API Latency ${apiLatency}ms.`;
@@ -23,14 +14,9 @@ const executeCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   _args
 ): Promise<SapphireMessageResponse> => {
-  // Assert message types are Message<boolean>
-  // We have to do this because APIMessage does not have "createdTimestamp" property
-  const messageFromUserAsMessage = <Message<boolean>>messageFromUser;
   const botLatency = client.ws.ping;
-  const initialPing = await messageFromUserAsMessage.channel.send(initialPingContent);
-  const apiLatency = getApiLatency(initialPing, messageFromUserAsMessage);
-  initialPing.edit(content(botLatency, apiLatency));
-  return Promise.resolve('');
+  const apiLatency = Date.now() - messageFromUser.createdTimestamp;
+  return `${content(botLatency, apiLatency)}`;
 };
 
 const pingCommandDetails: CodeyCommandDetails = {
