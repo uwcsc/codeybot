@@ -47,7 +47,7 @@ export const startBot = async (): Promise<void> => {
     client.on('error', client.logger.error);
     client.on('ready', initReady);
     client.on('messageCreate', (message: Message) => {
-      if (client.user) initMessageCreate(client, container.logger, message);
+      initMessageCreate(client, container.logger, message);
     });
     client.login();
   } catch (e) {
