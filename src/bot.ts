@@ -5,6 +5,7 @@ import { container, LogLevel, SapphireClient, SapphirePrefix } from '@sapphire/f
 import '@sapphire/plugin-logger/register';
 import * as colorette from 'colorette';
 import { inspect } from 'util';
+import { initReady } from './events/ready';
 
 // Set default inspection depth
 inspect.defaultOptions.depth = 3;
@@ -38,11 +39,11 @@ container.botPrefix = client.options.defaultPrefix!;
 
 export const startBot = async (): Promise<void> => {
   try {
-    client.on('error', client.logger.error);
-    client.on('ready', () => {
-      client.user!.setActivity('CSC | .help');
+    client.logger.info({
+      event: 'init'
     });
-
+    client.on('error', client.logger.error);
+    client.on('ready', initReady);
     client.login();
   } catch (e) {
     console.log('Bot failure');

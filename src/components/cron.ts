@@ -1,4 +1,4 @@
-import { container } from '@sapphire/framework';
+import { Client } from 'discord.js';
 import { CronJob } from 'cron';
 import { MessageEmbed, TextChannel } from 'discord.js';
 import _ from 'lodash';
@@ -15,11 +15,11 @@ const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
 const OFFICE_HOURS_STATUS_API = 'https://csclub.uwaterloo.ca/~n3parikh/office-status.json';
 
-export const initCrons = async (): Promise<void> => {
-  createSuggestionCron().start();
+export const initCrons = async (client: Client): Promise<void> => {
+  createSuggestionCron(client).start();
   createBonusInterviewerListCron().start();
-  createCoffeeChatCron().start();
-  createOfficeStatusCron().start();
+  createCoffeeChatCron(client).start();
+  createOfficeStatusCron(client).start();
 };
 
 interface officeStatus {
@@ -27,9 +27,8 @@ interface officeStatus {
   time: number;
 }
 // Updates office status based on webcom API
-export const createOfficeStatusCron = (): CronJob =>
+export const createOfficeStatusCron = (client: Client): CronJob =>
   new CronJob('0 */1 * * * *', async function () {
-    const { client } = container;
     const response = (await (await fetch(OFFICE_HOURS_STATUS_API)).json()) as officeStatus;
     const messageChannel = client.channels.cache.get(OFFICE_STATUS_CHANNEL_ID);
     if (!messageChannel) {
@@ -51,9 +50,8 @@ export const createOfficeStatusCron = (): CronJob =>
   });
 
 // Checks for new suggestions every min
-export const createSuggestionCron = (): CronJob =>
+export const createSuggestionCron = (client: Client): CronJob =>
   new CronJob('0 */1 * * * *', async function () {
-    const { client } = container;
     const createdSuggestions = await getSuggestions(SuggestionState.Created);
     const createdSuggestionIds = createdSuggestions.map((a) => Number(a.id));
     if (!_.isEmpty(createdSuggestionIds)) {
@@ -89,10 +87,8 @@ export const createBonusInterviewerListCron = (): CronJob =>
   });
 
 // Match coffeechat users every week on Friday
-export const createCoffeeChatCron = (): CronJob =>
+export const createCoffeeChatCron = (client: Client): CronJob =>
   new CronJob('0 0 14 * * 5', async function () {
-    const { client } = container;
-
     const matches = await getMatch();
     await CoffeeChatCommand.alertMatches(matches);
     await writeHistoricMatches(matches);
