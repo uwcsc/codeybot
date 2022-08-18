@@ -15,6 +15,7 @@ import {
   validCustomizationsDisplay,
   validUserCustomization,
   prettyProfileDetails,
+  updateProfileRoles
 } from '../../components/profile';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
