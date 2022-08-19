@@ -81,12 +81,28 @@ export const getCoinBalanceByUserId = async (userId: string): Promise<number> =>
   return _.get(res, 'balance', 0);
 };
 
-export const getPrivateUserIdList = async (userId: string): Promise<number> => {
+/*
+  Returns 1 or 0 for whether user is private
+*/
+export const getUserPrivacy = async (userId: string): Promise<number> => {
   const db = await openDB();
   // Query user privacy from DB.
   const res = await db.get('SELECT is_private FROM user_coin WHERE user_id = ?', userId);
   // If user doesn't have a privacy value, default to false (public).
   return _.get(res, 'is_private', 0);
+};
+
+export const changeUserPrivacy = async (userId: string, privacy: number): Promise<void> => {
+  const db = await openDB();
+  await db.run(
+    `
+      INSERT INTO user_coin (user_id, is_private) VALUES (?, ?)
+      ON CONFLICT(user_id)
+      DO UPDATE SET is_private = ?`,
+    userId,
+    privacy,
+    privacy
+  );
 };
 
 /*

@@ -10,7 +10,7 @@ import {
 import {
   getCurrentCoinLeaderboard,
   getCoinBalanceByUserId,
-  getPrivateUserIdList,
+  getUserPrivacy,
   UserCoinEntry,
   getUserIdCurrentCoinPosition
 } from '../../components/coin';
@@ -28,7 +28,7 @@ const getCurrentCoinLeaderboardEmbed = async (
   // Initialise user's coin balance if they have not already
   const userBalance = await getCoinBalanceByUserId(currentUserId);
   const currentPosition = await getUserIdCurrentCoinPosition(currentUserId);
-  const isUserPrivate = await getPrivateUserIdList(currentUserId);
+  const isUserPrivate = await getUserPrivacy(currentUserId);
 
   const leaderboardArray: string[] = [];
   for (let i = 0; i < leaderboard.length && leaderboardArray.length < limit; i++) {

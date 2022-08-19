@@ -92,7 +92,8 @@ const initUserCoinTable = async (db: Database): Promise<void> => {
     `
     CREATE TABLE IF NOT EXISTS user_coin (
       user_id VARCHAR(255) PRIMARY KEY NOT NULL,
-      balance INTEGER NOT NULL CHECK(balance>=0)
+      balance INTEGER NOT NULL CHECK(balance>=0),
+      is_private INTEGER CHECK(is_private IN (0, 1))
     )
     `
   );
