@@ -39,7 +39,7 @@ const punishSpammersAndTrolls = async (message: Message): Promise<boolean> => {
     await message.delete();
     if (message.member) {
       const user = message.member.user;
-      const reason = 'Spammer/troll/got hacked'+'for appeal, please contact: '+APPEAL_MODERATOR_ID;
+      const reason = 'Spammer/troll/got hacked.'+' For appeal, please contact: '+APPEAL_MODERATOR_ID;
       let isSuccessful = true;
       try {
         await message.member.kick(reason);
