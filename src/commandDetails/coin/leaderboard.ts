@@ -10,6 +10,7 @@ import {
 import {
   getCurrentCoinLeaderboard,
   getCoinBalanceByUserId,
+  getPrivateUserIdList,
   UserCoinEntry,
   getUserIdCurrentCoinPosition
 } from '../../components/coin';
@@ -27,6 +28,7 @@ const getCurrentCoinLeaderboardEmbed = async (
   // Initialise user's coin balance if they have not already
   const userBalance = await getCoinBalanceByUserId(currentUserId);
   const currentPosition = await getUserIdCurrentCoinPosition(currentUserId);
+  const isUserPrivate = await getPrivateUserIdList(currentUserId);
 
   const leaderboardArray: string[] = [];
   for (let i = 0; i < leaderboard.length && leaderboardArray.length < limit; i++) {
@@ -38,8 +40,11 @@ const getCurrentCoinLeaderboardEmbed = async (
       continue;
     }
     if (user.bot) continue;
-    const userTag = user?.tag ?? '<unknown>';
-    const userCoinEntryText = `${leaderboardArray.length + 1}. ${userTag} - ${userCoinEntry.balance} ${getCoinEmoji()}`;
+    const userTag = user?.tag;
+    const displayTag = userTag && !isUserPrivate ? userTag : '<unknown>';
+    const userCoinEntryText = `${leaderboardArray.length + 1}. ${displayTag} - ${
+      userCoinEntry.balance
+    } ${getCoinEmoji()}`;
     leaderboardArray.push(userCoinEntryText);
   }
   const currentLeaderboardText = leaderboardArray.join('\n');
