@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/codeyProduction.png" width="250" height="250" align="left">
-<img src="assets/codeyStaging.png" width="250" height="250" align="center">
-<img src="assets/codeyDevelopment.png" width="250" height="250" align="right">
+<img src="assets/codeyGaming.png" width="250" height="250" align="left">
+<img src="assets/codeyDevil.png" width="250" height="250" align="center">
+<img src="assets/codeyCoding2.png" width="250" height="250" align="right">
 
 <br />
 
