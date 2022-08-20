@@ -26,9 +26,9 @@ const coinCommandDetails: CodeyCommandDetails = {
     check: coinCheckCommandDetails,
     info: coinInfoCommandDetails,
     update: coinUpdateCommandDetails,
-    leaderboard: coinCurrentLeaderboardCommandDetails
+    leaderboard: coinCurrentLeaderboardCommandDetails,
   },
-  defaultSubcommandDetails: coinCheckCommandDetails
+  defaultSubcommandDetails: coinCheckCommandDetails,
 };
 
 export class CoinCommand extends CodeyCommand {
@@ -39,7 +39,7 @@ export class CoinCommand extends CodeyCommand {
       ...options,
       aliases: coinCommandDetails.aliases,
       description: coinCommandDetails.description,
-      detailedDescription: coinCommandDetails.detailedDescription
+      detailedDescription: coinCommandDetails.detailedDescription,
     });
   }
 }

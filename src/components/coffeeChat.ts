@@ -52,7 +52,11 @@ const loadCoffeeChatUsers = async (): Promise<Map<string, number>> => {
 /*
  * Checks if a match happened more than once in the tally
  */
-const hasDupe = (matched: number[][], matches: string[][], userList: Map<string, number>): boolean => {
+const hasDupe = (
+  matched: number[][],
+  matches: string[][],
+  userList: Map<string, number>,
+): boolean => {
   for (const [personA, personB] of matches) {
     if (matched[userList.get(personA)!][userList.get(personB)!] > 1) return true;
   }
@@ -62,7 +66,11 @@ const hasDupe = (matched: number[][], matches: string[][], userList: Map<string,
 /*
  * Gets the largest duplicate count among the matches given
  */
-const getMaxDupe = (matched: number[][], matches: string[][], userList: Map<string, number>): number => {
+const getMaxDupe = (
+  matched: number[][],
+  matches: string[][],
+  userList: Map<string, number>,
+): number => {
   let maxDupe = 0;
   for (const [personA, personB] of matches) {
     maxDupe = Math.max(maxDupe, matched[userList.get(personA)!][userList.get(personB)!]);
@@ -76,7 +84,9 @@ const getMaxDupe = (matched: number[][], matches: string[][], userList: Map<stri
  */
 const loadMatched = async (notMatched: Map<string, number>): Promise<number[][]> => {
   const db = await openDB();
-  const matched: number[][] = Array.from(Array(notMatched.size), () => new Array(notMatched.size).fill(0));
+  const matched: number[][] = Array.from(Array(notMatched.size), () =>
+    new Array(notMatched.size).fill(0),
+  );
   const matches = (await db.all(`SELECT * FROM coffee_historic_matches`)) as historic_match[];
   for (const { first_user_id, second_user_id } of matches) {
     if (notMatched.has(first_user_id) && notMatched.has(second_user_id)) {
@@ -98,9 +108,9 @@ export const writeHistoricMatches = async (newMatches: string[][]): Promise<void
   await db.run(
     `INSERT INTO coffee_historic_matches (first_user_id, second_user_id, match_date) VALUES ${_.join(
       newMatches.map(() => `(?,?, CURRENT_TIMESTAMP)`),
-      ','
+      ',',
     )};`,
-    _.flatten(newMatches)
+    _.flatten(newMatches),
   );
 };
 
@@ -121,7 +131,9 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
   for (let i = 0; i < RANDOM_ITERATIONS; i++) {
     //shuffle users, then separate into 2 sections
     const notMatched = _.shuffle(Array.from(userList).map((name) => name[0]));
-    const A = notMatched.slice(0, Math.floor(notMatched.length / 2)).map((name) => new Person(name));
+    const A = notMatched
+      .slice(0, Math.floor(notMatched.length / 2))
+      .map((name) => new Person(name));
     const B = notMatched.slice(Math.floor(notMatched.length / 2)).map((name) => new Person(name));
     //if there is an imbalance between the "genders", we have an odd amount of people. Duplicate someone on the short end to give somebody 2 matches
     //by math, A should always be the one that's short in odd numbers
@@ -137,9 +149,9 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
           [...right].sort(
             (a, b) =>
               matched[userList.get(value.name)!][userList.get(a.name)!] -
-              matched[userList.get(value.name)!][userList.get(b.name)!]
-          )
-        )
+              matched[userList.get(value.name)!][userList.get(b.name)!],
+          ),
+        ),
       );
     };
     //attach preference list for each user with comparator
@@ -153,7 +165,10 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
       output.push([person.name, person.fiance.name]);
     }
     //compare with finalOutput's maxDupe count, overwrite if contender's is lower
-    if (!finalOutput || getMaxDupe(matched, finalOutput, userList) > getMaxDupe(matched, output, userList)) {
+    if (
+      !finalOutput ||
+      getMaxDupe(matched, finalOutput, userList) > getMaxDupe(matched, output, userList)
+    ) {
       i = 0;
       finalOutput = output;
     }
@@ -176,7 +191,10 @@ const randomMatch = (userList: Map<string, number>, matched: number[][]): string
     for (let i = 0; i + 1 < notMatched.length; i += 2) {
       output.push([notMatched[i], notMatched[i + 1]]);
     }
-    if (!finalOutput || getMaxDupe(matched, finalOutput, userList) > getMaxDupe(matched, output, userList)) {
+    if (
+      !finalOutput ||
+      getMaxDupe(matched, finalOutput, userList) > getMaxDupe(matched, output, userList)
+    ) {
       i = 0;
       finalOutput = output;
     }

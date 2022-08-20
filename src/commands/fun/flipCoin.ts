@@ -5,14 +5,14 @@ import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 
 const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
   _args,
-  _initialMessageFromBot
+  _initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
   const onHeads = Math.random() < 0.5;
   const content = `The coin landed on **${onHeads ? 'heads' : 'tails'}**!`;
@@ -38,7 +38,7 @@ const flipcoinCommandDetails: CodeyCommandDetails = {
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
   options: [],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };
 
 export class FunFlipCoinCommand extends CodeyCommand {
@@ -49,7 +49,7 @@ export class FunFlipCoinCommand extends CodeyCommand {
       ...options,
       aliases: flipcoinCommandDetails.aliases,
       description: flipcoinCommandDetails.description,
-      detailedDescription: flipcoinCommandDetails.detailedDescription
+      detailedDescription: flipcoinCommandDetails.detailedDescription,
     });
   }
 }

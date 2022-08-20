@@ -5,7 +5,7 @@ import {
   CodeyCommandOptionType,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 
 const getRandomInt = (max: number): number => {
@@ -16,7 +16,7 @@ const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
   args,
-  _initialMessageFromBot
+  _initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
   const SIDES_LOWER_BOUND = 0;
   const SIDES_UPPER_BOUND = 1000000;
@@ -56,10 +56,10 @@ const rollDiceCommandDetails: CodeyCommandDetails = {
       name: 'sides',
       description: 'The number of sides on the dice',
       required: true,
-      type: CodeyCommandOptionType.INTEGER
-    }
+      type: CodeyCommandOptionType.INTEGER,
+    },
   ],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };
 
 export class FunRollDiceCommand extends CodeyCommand {
@@ -70,7 +70,7 @@ export class FunRollDiceCommand extends CodeyCommand {
       ...options,
       aliases: rollDiceCommandDetails.aliases,
       description: rollDiceCommandDetails.description,
-      detailedDescription: rollDiceCommandDetails.detailedDescription
+      detailedDescription: rollDiceCommandDetails.detailedDescription,
     });
   }
 }
