@@ -2,6 +2,7 @@ import { Client, TextChannel } from 'discord.js';
 import { blue, green, magenta, magentaBright, white } from 'colorette';
 import { initCrons } from '../components/cron';
 import { initEmojis } from '../components/emojis';
+import { logger } from '../logger/default';
 import { vars } from '../config';
 import { getRepositoryReleases } from '../utils/github';
 
@@ -22,13 +23,14 @@ const printBanner = (): void => {
   // Offset Pad
   const pad = ' '.repeat(7);
 
-  console.log(
-    String.raw`
+  logger.info({
+    message: String.raw`
 ${line01} ${pad}${blc('1.0.0')}
 ${line02} ${pad}[${success}] Gateway
 ${line03}${dev ? ` ${pad}${blc('<')}${llc('/')}${blc('>')} ${llc('DEVELOPMENT MODE')}` : ''}
 		`.trim(),
-  );
+    where: 'printBanner',
+  });
 };
 
 const sendReady = async (client: Client): Promise<void> => {

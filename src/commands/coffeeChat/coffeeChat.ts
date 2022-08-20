@@ -6,6 +6,7 @@ import {
 } from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed, User } from 'discord.js';
 import { getMatch, testPerformance, writeHistoricMatches } from '../../components/coffeeChat';
+import { logger } from '../../logger/default';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
@@ -21,7 +22,7 @@ import { EMBED_COLOUR } from '../../utils/embeds';
 })
 export class CoffeeChatCommand extends SubCommandPluginCommand {
   static async alertMatches(matches: string[][]): Promise<void> {
-    const { client, logger } = container;
+    const { client } = container;
     const outputMap: Map<string, string[]> = new Map();
     const userMap: Map<string, User> = new Map();
     //map them to find what to send a specific person
@@ -55,8 +56,9 @@ export class CoffeeChatCommand extends SubCommandPluginCommand {
       } catch (err) {
         logger.error({
           event: 'client_error',
-          error: (err as Error).toString(),
+          where: 'coffeeChat alertMatches',
         });
+        logger.error(err);
       }
     });
   }
