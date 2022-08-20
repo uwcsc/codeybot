@@ -1,6 +1,9 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
-import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
+import {
+  SubCommandPluginCommand,
+  SubCommandPluginCommandOptions,
+} from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed, User } from 'discord.js';
 import { getMatch, testPerformance, writeHistoricMatches } from '../../components/coffeeChat';
 import { EMBED_COLOUR } from '../../utils/embeds';
@@ -14,7 +17,7 @@ import { EMBED_COLOUR } from '../../utils/embeds';
 \`${container.botPrefix}coffeechat test 5\`
 \`${container.botPrefix}coffee test 10\``,
   subCommands: ['match', 'test'],
-  requiredUserPermissions: ['ADMINISTRATOR']
+  requiredUserPermissions: ['ADMINISTRATOR'],
 })
 export class CoffeeChatCommand extends SubCommandPluginCommand {
   static async alertMatches(matches: string[][]): Promise<void> {
@@ -42,17 +45,17 @@ export class CoffeeChatCommand extends SubCommandPluginCommand {
       try {
         if (targets.length > 1) {
           await discordUser.send(
-            `Your coffee chat :coffee: matches for this week are... **${userTargets[0].tag}** and **${userTargets[1].tag}**! Feel free to contact ${userTargets[0]} and ${userTargets[1]} at your earliest convenience. :wink: If you have any suggestions, please use the suggestion feature to give us feedback!`
+            `Your coffee chat :coffee: matches for this week are... **${userTargets[0].tag}** and **${userTargets[1].tag}**! Feel free to contact ${userTargets[0]} and ${userTargets[1]} at your earliest convenience. :wink: If you have any suggestions, please use the suggestion feature to give us feedback!`,
           );
         } else {
           await discordUser.send(
-            `Your coffee chat :coffee: match for this week is... **${userTargets[0].tag}**! Feel free to contact ${userTargets[0]} at your earliest convenience. :wink: If you have any suggestions, please use the .suggestion feature to give us feedback!`
+            `Your coffee chat :coffee: match for this week is... **${userTargets[0].tag}**! Feel free to contact ${userTargets[0]} at your earliest convenience. :wink: If you have any suggestions, please use the .suggestion feature to give us feedback!`,
           );
         }
       } catch (err) {
         logger.error({
           event: 'client_error',
-          error: (err as Error).toString()
+          error: (err as Error).toString(),
         });
       }
     });
@@ -68,7 +71,9 @@ export class CoffeeChatCommand extends SubCommandPluginCommand {
 
   async test(message: Message, args: Args): Promise<Message> {
     // Mandatory argument is size
-    const size = await args.rest('integer').catch(() => 'please enter a valid number of test users.');
+    const size = await args
+      .rest('integer')
+      .catch(() => 'please enter a valid number of test users.');
     if (typeof size === 'string') return message.reply(size);
 
     const results = await testPerformance(size);
