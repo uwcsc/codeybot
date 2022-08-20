@@ -13,7 +13,7 @@ export const sendKickEmbed = async (
   message: Message,
   user: User,
   reason = '',
-  isSuccessful = true
+  isSuccessful = true,
 ): Promise<void> => {
   const kickEmbed = new MessageEmbed()
     .setColor(EMBED_COLOUR)
@@ -22,7 +22,10 @@ export const sendKickEmbed = async (
   if (isSuccessful) kickEmbed.setTitle('Kick');
   else kickEmbed.setTitle('Kick Unsuccessful');
   if (reason) kickEmbed.addField('Reason', `${reason}`);
-  kickEmbed.addField('Channel', `<#${message.channel.id}> (${(message.channel as TextChannel).name})`);
+  kickEmbed.addField(
+    'Channel',
+    `<#${message.channel.id}> (${(message.channel as TextChannel).name})`,
+  );
   if (message.content) kickEmbed.addField('Content', `${message.content}`);
   if (message.attachments) {
     message.attachments.forEach((attachment) => {

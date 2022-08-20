@@ -20,7 +20,7 @@ const client = new SapphireClient({
   caseInsensitiveCommands: true,
   loadMessageCommandListeners: true,
   logger: {
-    level: LogLevel.Debug
+    level: LogLevel.Debug,
   },
   shards: 'auto',
   intents: [
@@ -32,9 +32,9 @@ const client = new SapphireClient({
     'GUILD_MESSAGES',
     'GUILD_MESSAGE_REACTIONS',
     'DIRECT_MESSAGES',
-    'DIRECT_MESSAGE_REACTIONS'
+    'DIRECT_MESSAGE_REACTIONS',
   ],
-  partials: ['CHANNEL', 'GUILD_MEMBER', 'MESSAGE', 'REACTION', 'USER']
+  partials: ['CHANNEL', 'GUILD_MEMBER', 'MESSAGE', 'REACTION', 'USER'],
 });
 
 container.botPrefix = client.options.defaultPrefix!;
@@ -42,7 +42,7 @@ container.botPrefix = client.options.defaultPrefix!;
 export const startBot = async (): Promise<void> => {
   try {
     client.logger.info({
-      event: 'init'
+      event: 'init',
     });
     client.on('error', client.logger.error);
     client.on('ready', initReady);

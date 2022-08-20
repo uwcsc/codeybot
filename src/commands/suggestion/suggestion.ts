@@ -1,6 +1,9 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
-import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
+import {
+  SubCommandPluginCommand,
+  SubCommandPluginCommandOptions,
+} from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
 import _ from 'lodash';
 import {
@@ -10,7 +13,7 @@ import {
   Suggestion,
   SuggestionState,
   suggestionStatesReadable,
-  updateSuggestionState
+  updateSuggestionState,
 } from '../../components/suggestion';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
@@ -24,7 +27,7 @@ Please note that your suggestion is not anonymous, your Discord username and ID 
 If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
 **Examples:**
 \`${container.botPrefix}suggestion I want a new Discord channel named #hobbies.\``,
-  subCommands: [{ input: 'list', default: true }, 'update', 'create']
+  subCommands: [{ input: 'list', default: true }, 'update', 'create'],
 })
 export class SuggestionCommand extends SubCommandPluginCommand {
   public async create(message: Message, args: Args): Promise<Message> {
@@ -50,14 +53,16 @@ export class SuggestionCommand extends SubCommandPluginCommand {
     const state = args.finished ? null : (await args.rest('string')).toLowerCase();
     //validate state
     if (state !== null && !(state.toLowerCase() in suggestionStatesReadable))
-      return message.reply(`you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`);
+      return message.reply(
+        `you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`,
+      );
     // query suggestions
     const suggestions = await getSuggestions(state);
     // only show up to page limit
     const suggestionsToShow = suggestions.slice(0, RESULTS_PER_PAGE);
     // get information from each suggestion
     const suggestionsInfo = await Promise.all(
-      suggestionsToShow.map((suggestion) => this.getSuggestionDisplayInfo(suggestion))
+      suggestionsToShow.map((suggestion) => this.getSuggestionDisplayInfo(suggestion)),
     );
 
     // construct embed for display
@@ -70,12 +75,16 @@ export class SuggestionCommand extends SubCommandPluginCommand {
   async update(message: Message, args: Args): Promise<Message | void> {
     if (!message.member?.permissions.has('ADMINISTRATOR')) return;
 
-    const state = (await args.pick('string').catch(() => `please enter a valid suggestion state.`)).toLowerCase();
+    const state = (
+      await args.pick('string').catch(() => `please enter a valid suggestion state.`)
+    ).toLowerCase();
     const ids = await args.rest('string').catch(() => `please enter valid suggestion IDs.`);
     const suggestionIds = ids.split(' ').map((a) => Number(a));
     //validate state
     if (!(state in suggestionStatesReadable))
-      return message.reply(`you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`);
+      return message.reply(
+        `you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`,
+      );
     // validate each id after first word
     if (_.some(suggestionIds, isNaN)) {
       return message.reply(`you entered an invalid ID. Please enter numbers only.`);

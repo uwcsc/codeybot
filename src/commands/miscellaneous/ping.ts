@@ -6,12 +6,15 @@ import {
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageRequest,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 
 const initialPingContent = 'Ping?';
 
-const getApiLatency = (initialPing: SapphireMessageRequest, messageFromUserAsMessage: Message<boolean>) => {
+const getApiLatency = (
+  initialPing: SapphireMessageRequest,
+  messageFromUserAsMessage: Message<boolean>,
+) => {
   const initialPingAsMessage = <Message<boolean>>initialPing;
   return initialPingAsMessage.createdTimestamp - messageFromUserAsMessage.createdTimestamp;
 };
@@ -23,7 +26,7 @@ const executeCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
   _args,
-  initialMessageFromBot
+  initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
   // Assert message types are Message<boolean>
   // We have to do this because APIMessage does not have "createdTimestamp" property
@@ -54,7 +57,7 @@ const pingCommandDetails: CodeyCommandDetails = {
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
   options: [],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };
 
 export class MiscellaneousPingCommand extends CodeyCommand {
@@ -65,7 +68,7 @@ export class MiscellaneousPingCommand extends CodeyCommand {
       ...options,
       aliases: pingCommandDetails.aliases,
       description: pingCommandDetails.description,
-      detailedDescription: pingCommandDetails.detailedDescription
+      detailedDescription: pingCommandDetails.detailedDescription,
     });
   }
 }

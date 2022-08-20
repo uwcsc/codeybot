@@ -12,7 +12,7 @@ export const availableDomains: { [key: string]: string } = {
   infra: 'Infra',
   mobile: 'Mobile',
   pm: 'PM',
-  research: 'Research'
+  research: 'Research',
 };
 
 export interface Interviewer {
@@ -23,7 +23,7 @@ export interface Interviewer {
 
 export enum Status {
   Active,
-  Paused
+  Paused,
 }
 
 export const getInterviewer = async (id: string): Promise<Interviewer | undefined> => {
@@ -33,7 +33,8 @@ export const getInterviewer = async (id: string): Promise<Interviewer | undefine
 
 export const getDomainsString = (domains: string[]): string => `\`${_.join(domains, '`, `')}\``;
 
-export const getAvailableDomainsString = (): string => getDomainsString(Object.keys(availableDomains).sort());
+export const getAvailableDomainsString = (): string =>
+  getDomainsString(Object.keys(availableDomains).sort());
 
 export const parseLink = (link: string): string | null => {
   //checks if link is (roughly) one from calendly or x.ai
@@ -57,7 +58,12 @@ export const upsertInterviewer = async (id: string, calendarUrl: string): Promis
 
   //checks if user is already an interviewer, adds/updates info accordingly
   if (!(await getInterviewer(id))) {
-    await db.run('INSERT INTO interviewers (user_id, link, status) VALUES(?, ?, ?)', id, calendarUrl, Status.Active);
+    await db.run(
+      'INSERT INTO interviewers (user_id, link, status) VALUES(?, ?, ?)',
+      id,
+      calendarUrl,
+      Status.Active,
+    );
   } else {
     await db.run('UPDATE interviewers SET link = ? WHERE user_id = ?', calendarUrl, id);
   }
@@ -70,7 +76,7 @@ export const upsertInterviewer = async (id: string, calendarUrl: string): Promis
 */
 export const getInterviewers = async (
   domain: string | null,
-  status: number = Status.Active
+  status: number = Status.Active,
 ): Promise<Interviewer[]> => {
   const db = await openDB();
   let res: Interviewer[];
@@ -87,7 +93,7 @@ export const getInterviewers = async (
       `SELECT * FROM interviewers WHERE user_id IN (SELECT user_id FROM domains WHERE domain = ?)
       AND status = ?`,
       domain,
-      status
+      status,
     );
   }
 
@@ -147,7 +153,11 @@ export const toggleDomain = async (id: string, domain: string): Promise<boolean>
   }
 
   //check if user already in domain
-  const inDomain = await db.get('SELECT * FROM domains WHERE user_id = ? AND domain = ?', id, domain);
+  const inDomain = await db.get(
+    'SELECT * FROM domains WHERE user_id = ? AND domain = ?',
+    id,
+    domain,
+  );
 
   //toggles on/off user's domain
   if (!inDomain) {

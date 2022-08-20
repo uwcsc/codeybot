@@ -5,7 +5,7 @@ import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 import { getRepositoryInfo, getRepositoryReleases } from '../../utils/github';
 
@@ -22,7 +22,9 @@ export const getInfoEmbed = async (): Promise<MessageEmbed> => {
     .setTitle(githubRepositoryInfo.full_name)
     .setURL(githubRepositoryInfo.html_url)
     .setThumbnail(githubRepositoryInfo.owner.avatar_url)
-    .setDescription('Links to issue templates: https://github.com/uwcsc/codeybot/tree/master/.github/ISSUE_TEMPLATE')
+    .setDescription(
+      'Links to issue templates: https://github.com/uwcsc/codeybot/tree/master/.github/ISSUE_TEMPLATE',
+    )
     .setFooter(`App version: ${githubRepositoryReleases[0].tag_name}`);
   return infoEmbed;
 };
@@ -31,7 +33,7 @@ const executeCommand: SapphireMessageExecuteType = async (
   _client,
   _messageFromUser,
   _args,
-  _initialMessageFromBot
+  _initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
   const infoEmbed = await getInfoEmbed();
   return { embeds: [infoEmbed] };
@@ -51,7 +53,7 @@ const infoCommandDetails: CodeyCommandDetails = {
   codeyCommandResponseType: CodeyCommandResponseType.EMBED,
 
   options: [],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };
 
 export class MiscellaneousInfoCommand extends CodeyCommand {
@@ -62,7 +64,7 @@ export class MiscellaneousInfoCommand extends CodeyCommand {
       ...options,
       aliases: infoCommandDetails.aliases,
       description: infoCommandDetails.description,
-      detailedDescription: infoCommandDetails.detailedDescription
+      detailedDescription: infoCommandDetails.detailedDescription,
     });
   }
 }

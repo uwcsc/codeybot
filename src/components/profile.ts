@@ -14,7 +14,20 @@ export interface UserProfile {
 }
 
 const validFaculties = ['Mathematics', 'Engineering', 'Arts', 'Health', 'Science'];
-const validTerms: string[] = ['1A', '1B', '2A', '2B', '3A', '3B', '4A', '4B', 'MASc', 'PhD', 'Alumni', 'Professor'];
+const validTerms: string[] = [
+  '1A',
+  '1B',
+  '2A',
+  '2B',
+  '3A',
+  '3B',
+  '4A',
+  '4B',
+  'MASc',
+  'PhD',
+  'Alumni',
+  'Professor',
+];
 const yearStart = 1900;
 const yearEnd = new Date().getFullYear() + 7;
 
@@ -27,7 +40,7 @@ export enum configMaps {
   year = 'year',
   faculty = 'faculty',
   program = 'program',
-  specialization = 'specialization'
+  specialization = 'specialization',
 }
 
 export enum prettyProfileDetails {
@@ -40,7 +53,7 @@ export enum prettyProfileDetails {
   faculty = 'Faculty',
   program = 'Program',
   specialization = 'Specialization',
-  last_updated = 'Last Updated'
+  last_updated = 'Last Updated',
 }
 
 const validBirthdates = [
@@ -55,7 +68,7 @@ const validBirthdates = [
   'September',
   'October',
   'November',
-  'December'
+  'December',
 ];
 
 export const customizationLimits = {
@@ -70,7 +83,7 @@ export const customizationLimits = {
   year: `The year you will graduate. Must be between ${yearStart} and ${yearEnd}`,
   faculty: 'Your faculty. Must be one of ' + validFaculties.join(', '),
   program: 'Your program.',
-  specialization: 'Your specialization.'
+  specialization: 'Your specialization.',
 };
 
 interface userCustomization {
@@ -82,7 +95,7 @@ enum validatedFields {
   birthdate = 'birthdate',
   term = 'term',
   faculty = 'faculty',
-  year = 'year'
+  year = 'year',
 }
 
 export const validCustomizations = Object.keys(configMaps) as Array<keyof typeof configMaps>;
@@ -93,7 +106,7 @@ export const validCustomizationsDisplay = `${validCustomizations.map((key) => ' 
 // and also returns a formatted version of their description (proper capitalization)
 export const validUserCustomization = (
   customization: keyof typeof configMaps,
-  description: string
+  description: string,
 ): userCustomization => {
   let parsedDescription = description;
   if (customization !== validatedFields.term) {
@@ -104,7 +117,9 @@ export const validUserCustomization = (
   switch (customization) {
     case validatedFields.birthdate:
       if (!validBirthdates.includes(parsedDescription)) {
-        return { reason: 'Invalid birthdate. Must be one of : ' + validBirthdates.join(', ') + '.' };
+        return {
+          reason: 'Invalid birthdate. Must be one of : ' + validBirthdates.join(', ') + '.',
+        };
       }
       break;
     case validatedFields.term:
@@ -145,7 +160,10 @@ export const getUserProfileById = async (userId: string): Promise<UserProfile | 
 export const editUserProfileById = async (userId: string, data: UserProfile): Promise<void> => {
   const db = await openDB();
   // check if a user exists in the user_profile_table already
-  const res = await db.get(`SELECT COUNT(*) as found FROM user_profile_table where user_id = ?`, userId);
+  const res = await db.get(
+    `SELECT COUNT(*) as found FROM user_profile_table where user_id = ?`,
+    userId,
+  );
   const user = res;
   let query;
   if (user.found === 1) {

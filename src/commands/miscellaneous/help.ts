@@ -4,7 +4,7 @@ import {
   CodeyCommandDetails,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 
 const wikiLink = 'https://github.com/uwcsc/codeybot/wiki/Command-Help';
@@ -13,7 +13,7 @@ const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
   _args,
-  _initialMessageFromBot
+  _initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
   return new Promise((resolve, _reject) => resolve(`<${wikiLink}>`));
 };
@@ -33,7 +33,7 @@ const helpCommandDetails: CodeyCommandDetails = {
   codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
   options: [],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };
 
 export class MiscellaneousHelpCommand extends CodeyCommand {
@@ -44,7 +44,7 @@ export class MiscellaneousHelpCommand extends CodeyCommand {
       ...options,
       aliases: helpCommandDetails.aliases,
       description: helpCommandDetails.description,
-      detailedDescription: helpCommandDetails.detailedDescription
+      detailedDescription: helpCommandDetails.detailedDescription,
     });
   }
 }
