@@ -1,6 +1,5 @@
 import { openDB } from './db';
-import { ColorResolvable, Message } from 'discord.js';
-import { getUserFromMessage } from '../codeyCommand';
+import { ColorResolvable, GuildMember } from 'discord.js';
 
 export interface UserProfile {
   about_me?: string;
@@ -166,52 +165,50 @@ export const getUserProfileById = async (userId: string): Promise<UserProfile | 
 
 // NOTE: data will always be just one customization, but we do not know which one, meaning many of
 // the loops are just to extract an unknown key-val pair
-export const editUserProfileById = async (userId: string, data: UserProfile, message: Message): Promise<void> => {
-  // grab oldYear as that might be used later on when updating year roles
-  const oldProfileDetails: UserProfile | undefined = await getUserProfileById(userId);
-  const oldYear = oldProfileDetails?.year || null;
-
+export const editUserProfile = async (member: GuildMember, data: UserProfile): Promise<void> => {
   const db = await openDB();
   // check if a user exists in the user_profile_table already
+<<<<<<< HEAD
   const res = await db.get(
     `SELECT COUNT(*) as found FROM user_profile_table where user_id = ?`,
     userId,
   );
+=======
+  const res = await db.get(`SELECT COUNT(*) as found FROM user_profile_table where user_id = ?`, member.id);
+>>>>>>> 97e8d1b (addressed changes, added decade roles, refactor)
   const user = res;
   let query;
   let onlyCustomization; // declare on outerscope, we need to see if this is the year customization
   let onlyDescription;
+  for (const [customization, description] of Object.entries(data)) {
+    // grab the only customization and its corresponding description
+    onlyCustomization = customization;
+    onlyDescription = description;
+  }
 
   if (user.found === 1) {
-    for (const [customization, description] of Object.entries(data)) {
-      // grab the only customization and its corresponding description
-      onlyCustomization = customization;
-      onlyDescription = description;
+    // if customization is year, change year roles as well
+    if (onlyCustomization === 'year') {
+      // onlyDescription here would be the new year role
+      await updateProfileRoles(member, onlyDescription);
     }
     // escape any instances of ' character by placing another ' in front of it by sqlite specifications
     onlyDescription.replace(/'/g, "''");
     query = `UPDATE user_profile_table SET last_updated=CURRENT_DATE, ${onlyCustomization}=? WHERE user_id=?`;
-    await db.run(query, onlyDescription, userId);
+    await db.run(query, onlyDescription, member.id);
   } else {
+    if (onlyCustomization === 'year') {
+      // onlyDescription here would be the new year role
+      await updateProfileRoles(member, onlyDescription);
+    }
     query = `
             INSERT INTO user_profile_table
-            (user_id, last_updated,
+            (user_id, last_updated, ${onlyCustomization}) 
+            VALUES (?, CURRENT_DATE, ?)
             `;
-    // add on the one data value that will be set
-    for (const customization of Object.keys(data)) {
-      query = query.concat(`${customization})`);
-    }
-    query = query.concat(`VALUES (?, CURRENT_DATE, ?)`);
-    // there is only one element in object.values (which is the description)
-    const description = Object.values(data)[0];
     // escape any instances of ' character by placing another ' in front of it by sqlite specifications
-    description.replace(/'/g, "''");
-    await db.run(query, userId, description);
-  }
-  // if database manages to update, and customization is year change year roles roles as well
-  if (onlyCustomization && onlyCustomization === 'year') {
-    // onlyDescription here would be the new year role
-    updateProfileRoles(message, oldYear, onlyDescription);
+    onlyDescription.replace(/'/g, "''");
+    await db.run(query, member.id, onlyDescription);
   }
 };
 
@@ -220,42 +217,45 @@ const addOrRemove = {
   remove: false
 };
 
-const updateRoleByRoleName = async (message: Message, roleName: string, add: boolean): Promise<void> => {
-  const member = message.member;
-  const userId = getUserFromMessage(message).id;
-  const role = await message.guild?.roles.cache.find((role) => role?.name === roleName);
+const updateMemberRole = async (member: GuildMember, roleName: string, add: boolean): Promise<void> => {
+  const userId = member.id;
+  const role = member.guild?.roles.cache.find((role) => role?.name === roleName);
   if (!role) {
-    console.log(`Could not find the role ${roleName}`);
-    return;
+    throw new Error(`Could not find the role ${roleName}`);
   }
   try {
     // log success and failure if need to debug
     if (add) {
       await member?.roles.add(role);
-      console.log(`Added the year role ${roleName} to user ${userId}`);
     } else {
       await member?.roles.remove(role);
-      console.log(`Removed the year role ${roleName} to user ${userId}`);
     }
   } catch (err) {
-    console.log(`Failed to ${add ? 'add' : 'remove'} to user ${userId}`);
+    throw new Error(`Failed to ${add ? 'add to' : 'remove from'} to user ${userId}`);
   }
-  return;
 };
 
-export const updateProfileRoles = async (message: Message, oldYear: number | null, gradYear: number): Promise<void> => {
+const yearToDecade = (year: number) => {
+  return year - (year % 10);
+};
+
+export const updateProfileRoles = async (member: GuildMember, gradYear: number): Promise<void> => {
+  // no roles created if gradYear is < 1900 (impossible)
+  if (gradYear < 1900) {
+    return;
+  }
   if (gradYear < currentYear) {
     // assign alumni role to the user
-    updateRoleByRoleName(message, 'Alumni', addOrRemove.add);
+    updateMemberRole(member, 'Alumni', addOrRemove.add);
   } else {
     // remove alumni role to the user if they for some reason have the alumni role and are not graduated
-    updateRoleByRoleName(message, 'Alumni', addOrRemove.remove);
+    updateMemberRole(member, 'Alumni', addOrRemove.remove);
   }
-
+  let newYearRoleName: string;
   if (gradYear >= validRoleYears.validRoleYearStart && gradYear <= validRoleYears.validRoleYearEnd) {
+    newYearRoleName = gradYear.toString();
     // check if role for that year exists, if not add it
-    const newYearRoleName = gradYear.toString();
-    let findRole = message.guild?.roles.cache.find((role) => role?.name === newYearRoleName);
+    const findRole = member.guild?.roles.cache.find((role) => role?.name === newYearRoleName);
 
     if (!findRole) {
       try {
@@ -265,20 +265,49 @@ export const updateProfileRoles = async (message: Message, oldYear: number | nul
           color: 'GREY' as ColorResolvable,
           reason: `AUTOMATED: Creating new year role for ${newYearRoleName}`
         };
-        await message.guild?.roles.create(newRole);
-        findRole = await message.guild?.roles.cache.find((role) => role?.name === newYearRoleName);
-        console.log(`CREATED YEAR ROLE FOR ${newYearRoleName}`);
+        await member.guild?.roles.create(newRole);
       } catch (err) {
-        console.log(`FAILED TO CREATE YEAR ROLE FOR ${newYearRoleName}: REASON: ${err}`);
+        throw new Error(`Failed to create year role for ${newYearRoleName}: ${err}`);
       }
     }
     // assign that role to the user
-    updateRoleByRoleName(message, newYearRoleName, addOrRemove.add);
+    updateMemberRole(member, newYearRoleName, addOrRemove.add);
     // final step: remove their existing year role
-    if (oldYear && newYearRoleName !== oldYear.toString()) {
-      updateRoleByRoleName(message, oldYear.toString(), addOrRemove.remove);
+    // grab oldYear from database - as this call happens before db update
+  } else {
+    // otherwise, decade role. e.g: 1980s, 1990s, etc.
+    newYearRoleName = yearToDecade(gradYear) + 's';
+    const findRole = member.guild?.roles.cache.find((role) => role?.name === newYearRoleName);
+
+    if (!findRole) {
+      try {
+        // create role object
+        const newRole = {
+          name: newYearRoleName,
+          color: 'GREY' as ColorResolvable,
+          reason: `AUTOMATED: Creating new year role for ${newYearRoleName}`
+        };
+        await member.guild?.roles.create(newRole);
+      } catch (err) {
+        throw new Error(`Failed to create year role for ${newYearRoleName}: ${err}`);
+      }
     }
+    // assign that role to the user
+    updateMemberRole(member, newYearRoleName, addOrRemove.add);
   }
 
-  return;
+  // final step: remove their existing year role
+  // grab oldYear from database - as this call happens before db update
+  const oldProfileDetails: UserProfile | undefined = await getUserProfileById(member.id);
+  const oldYear = oldProfileDetails?.year || null;
+  if (oldYear) {
+    let roleToRemove = oldYear.toString();
+    if (oldYear < validRoleYears.validRoleYearStart || oldYear > validRoleYears.validRoleYearEnd) {
+      // while profile year may be something like 2008, the role itself is called 2000s so have to convert
+      roleToRemove = yearToDecade(oldYear).toString() + 's';
+    }
+    if (newYearRoleName !== roleToRemove) {
+      updateMemberRole(member, roleToRemove, addOrRemove.remove);
+    }
+  }
 };

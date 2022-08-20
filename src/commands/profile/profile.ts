@@ -8,7 +8,7 @@ import { Message, MessageEmbed } from 'discord.js';
 import { getCoinBalanceByUserId } from '../../components/coin';
 import {
   configMaps,
-  editUserProfileById,
+  editUserProfile,
   getUserProfileById,
   UserProfile,
   validCustomizations,
@@ -69,7 +69,6 @@ export class ProfileCommand extends SubCommandPluginCommand {
   }
 
   public async set(message: Message, args: Args): Promise<Message> {
-    const { author } = message;
     const customization = <keyof typeof configMaps>await args.pick('string').catch(() => false);
     // if no customization is supplied, or its not one of the customizations we provide, return
     if (typeof customization === 'boolean' || !validCustomizations.includes(customization)) {
@@ -82,10 +81,8 @@ export class ProfileCommand extends SubCommandPluginCommand {
       return message.reply('Please enter a description.');
     }
     const { reason, parsedDescription } = validUserCustomization(customization, description);
-    if (reason === 'valid') {
-      editUserProfileById(author.id, {
-        [configMaps[customization]]: parsedDescription,
-      } as UserProfile);
+    if (reason === 'valid' && message.member) {
+      editUserProfile(message.member, { [configMaps[customization]]: parsedDescription } as UserProfile);
       return message.reply(`${customization} has been set!`);
     }
     // if reason is not valid the reason will be returned by the validUserCustomization function
