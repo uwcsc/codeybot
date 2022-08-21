@@ -27,11 +27,12 @@ const executePingCommand: SapphireMessageExecuteType = async (
 
   const initialResponseTimestamp = initialResponse.createdTimestamp;
   const apiLatency = initialResponseTimestamp - messageFromUser.createdTimestamp;
+  const stringReply = content(botLatency, apiLatency);
 
   if (messageFromUser instanceof Message) {
-    await initialResponse.edit(`${content(botLatency, apiLatency)}`);
+    await initialResponse.edit(stringReply);
   } else {
-    await messageFromUser.editReply(`${content(botLatency, apiLatency)}`);
+    await messageFromUser.editReply(stringReply);
   }
 };
 
