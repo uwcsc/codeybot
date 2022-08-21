@@ -10,7 +10,7 @@ export class MiscellaneousMemberCommand extends CodeyCommand {
       ...options,
       aliases: memberCommandDetails.aliases,
       description: memberCommandDetails.description,
-      detailedDescription: memberCommandDetails.detailedDescription
+      detailedDescription: memberCommandDetails.detailedDescription,
     });
   }
 }

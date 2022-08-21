@@ -4,16 +4,20 @@ import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
-import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
+import {
+  adjustCoinBalanceByUserId,
+  getCoinBalanceByUserId,
+  UserCoinEvent,
+} from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
 
 // Adjust coin balance
 const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
-  args
+  args,
 ): Promise<SapphireMessageResponse> => {
   if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) {
     return `You do not have permission to use this command.`;
@@ -40,7 +44,7 @@ const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
     <number>amount,
     UserCoinEvent.AdminCoinAdjust,
     <string>(reason ? reason : ''),
-    client.user?.id
+    client.user?.id,
   );
   // Get new balance
   const newBalance = await getCoinBalanceByUserId(user.id);
@@ -65,20 +69,20 @@ export const coinAdjustCommandDetails: CodeyCommandDetails = {
       name: 'user',
       description: 'The user to adjust the balance of,',
       type: CodeyCommandOptionType.USER,
-      required: true
+      required: true,
     },
     {
       name: 'amount',
       description: 'The amount to adjust the balance of the specified user to,',
       type: CodeyCommandOptionType.NUMBER,
-      required: true
+      required: true,
     },
     {
       name: 'reason',
       description: 'The reason why we are adjusting the balance,',
       type: CodeyCommandOptionType.STRING,
-      required: false
-    }
+      required: false,
+    },
   ],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };

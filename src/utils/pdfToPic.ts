@@ -5,7 +5,7 @@ export const convertPdfToPic = async (
   filePath: string,
   saveFileName: string,
   width: number,
-  height: number
+  height: number,
 ): Promise<WriteImageResponse[]> => {
   const options = {
     density: 500,
@@ -13,7 +13,7 @@ export const convertPdfToPic = async (
     savePath: './tmp',
     format: 'png',
     width: width,
-    height: height
+    height: height,
   };
 
   const convert = fromPath(filePath, options);

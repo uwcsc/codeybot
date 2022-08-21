@@ -8,7 +8,12 @@ import { EMBED_COLOUR } from '../utils/embeds';
 import { getMatch, writeHistoricMatches } from './coffeeChat';
 import { adjustCoinBalanceByUserId, BonusType, coinBonusMap } from './coin';
 import { getInterviewers } from './interviewer';
-import { getSuggestionPrintout, getSuggestions, SuggestionState, updateSuggestionState } from './suggestion';
+import {
+  getSuggestionPrintout,
+  getSuggestions,
+  SuggestionState,
+  updateSuggestionState,
+} from './suggestion';
 import fetch from 'node-fetch';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
@@ -63,7 +68,10 @@ export const createSuggestionCron = (client: Client): CronJob =>
         // construct embed for display
         const output = await getSuggestionPrintout(createdSuggestions);
         const title = 'New Suggestions';
-        const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title).setDescription(output);
+        const outEmbed = new MessageEmbed()
+          .setColor(EMBED_COLOUR)
+          .setTitle(title)
+          .setDescription(output);
         (messageChannel as TextChannel).send({ embeds: [outEmbed] });
         // Update states
         await updateSuggestionState(createdSuggestionIds);

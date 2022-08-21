@@ -4,13 +4,13 @@ import {
   CodeyCommandDetails,
   getUserFromMessage,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 import {
   getCurrentCoinLeaderboard,
   getCoinBalanceByUserId,
   UserCoinEntry,
-  getUserIdCurrentCoinPosition
+  getUserIdCurrentCoinPosition,
 } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
 import { EMBED_COLOUR } from '../../utils/embeds';
@@ -21,7 +21,7 @@ const limit = 10;
 const getCurrentCoinLeaderboardEmbed = async (
   client: SapphireClient<boolean>,
   leaderboard: UserCoinEntry[],
-  currentUserId: string
+  currentUserId: string,
 ): Promise<MessageEmbed> => {
   // Initialise user's coin balance if they have not already
   const userBalance = await getCoinBalanceByUserId(currentUserId);
@@ -38,7 +38,9 @@ const getCurrentCoinLeaderboardEmbed = async (
     }
     if (user.bot) continue;
     const userTag = user?.tag ?? '<unknown>';
-    const userCoinEntryText = `${leaderboardArray.length + 1}. ${userTag} - ${userCoinEntry.balance} ${getCoinEmoji()}`;
+    const userCoinEntryText = `${leaderboardArray.length + 1}. ${userTag} - ${
+      userCoinEntry.balance
+    } ${getCoinEmoji()}`;
     leaderboardArray.push(userCoinEntryText);
   }
   const currentLeaderboardText = leaderboardArray.join('\n');
@@ -49,7 +51,7 @@ const getCurrentCoinLeaderboardEmbed = async (
 
   currentLeaderboardEmbed.addFields({
     name: 'Your Position',
-    value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} ${getCoinEmoji()}.`
+    value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} ${getCoinEmoji()}.`,
   });
 
   return currentLeaderboardEmbed;
@@ -58,7 +60,7 @@ const getCurrentCoinLeaderboardEmbed = async (
 const coinCurrentLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
-  _args
+  _args,
 ): Promise<SapphireMessageResponse> => {
   const userId = getUserFromMessage(messageFromUser).id;
   // Get extra users to filter bots later
@@ -78,5 +80,5 @@ export const coinCurrentLeaderboardCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Getting the current coin leaderboard...',
   executeCommand: coinCurrentLeaderboardExecuteCommand,
   options: [],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };
