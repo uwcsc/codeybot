@@ -148,6 +148,14 @@ export const changeDbCoinBalanceByUserId = async (
 };
 
 /*
+  Calculate the amount of money to charge for a transfer (tax)
+*/
+export const calculateTransferTax = (amount: number): number => {
+  const tax = 0.13;
+  return Math.round(amount * tax);
+};
+
+/*
   Get the leaderboard for the current coin amounts.
 */
 export const getCurrentCoinLeaderboard = async (limit = 10): Promise<UserCoinEntry[]> => {

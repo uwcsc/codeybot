@@ -11,7 +11,8 @@ import {
   getCoinBalanceByUserId,
   changeDbCoinBalanceByUserId,
   UserCoinEvent,
-  transferRecipientActionType
+  transferRecipientActionType,
+  calculateTransferTax
 } from '../../components/coin';
 import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
 
@@ -38,7 +39,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, me
 
   // Implement some basic checks
   if (getUserFromMessage(messageFromUser).id === user.id) {
-    return `You can't transfer money to yourself ${getEmojiByName('codeyConfused')}.`;
+    return `You can't transfer coins to yourself ${getEmojiByName('codeyConfused')}.`;
   }
   if (senderBalance < amount) {
     return `You don't have enough coins to complete this transfer ${getEmojiByName('codeyConfused')}.`;
@@ -51,7 +52,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, me
   }
 
   messageFromUser.reply({
-    content: 'hello',
+    content: `Hey ${user}, ${getUserFromMessage(messageFromUser)} wants to transfer ${amount} to you. What do you want to do?`,
     components: [
       new MessageActionRow().addComponents(
         new MessageButton().setCustomId('accept').setLabel('Accept').setStyle('SUCCESS'),
@@ -64,6 +65,9 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, me
     }
   });
 
+  // Calculate tax
+  const tax = calculateTransferTax(amount);
+
   // Transfer coins
   await changeDbCoinBalanceByUserId(
     getUserFromMessage(messageFromUser).id,
@@ -75,7 +79,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, me
   await changeDbCoinBalanceByUserId(
     user.id,
     recipientBalance,
-    recipientBalance + amount,
+    recipientBalance + amount - tax,
     UserCoinEvent.CoinTransferRecipient,
     <string | null>reason
   );
