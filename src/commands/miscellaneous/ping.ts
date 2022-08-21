@@ -12,12 +12,11 @@ const executePingCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   _args,
 ): Promise<SapphireMessageResponse> => {
-  console.log('hello');
   const botLatency = client.ws.ping;
 
   let initialResponse: Message<boolean>;
   if (messageFromUser instanceof Message) {
-    initialResponse = await messageFromUser.reply('Pong!');
+    initialResponse = await messageFromUser.reply('Pong?');
   } else {
     initialResponse = <Message<boolean>>await messageFromUser.reply({
       content: 'Pong?',
@@ -25,15 +24,15 @@ const executePingCommand: SapphireMessageExecuteType = async (
       fetchReply: true,
     });
   }
+
   const initialResponseTimestamp = initialResponse.createdTimestamp;
   const apiLatency = initialResponseTimestamp - messageFromUser.createdTimestamp;
+
   if (messageFromUser instanceof Message) {
     await initialResponse.edit(`${content(botLatency, apiLatency)}`);
   } else {
     await messageFromUser.editReply(`${content(botLatency, apiLatency)}`);
   }
-
-  return Promise.resolve('');
 };
 
 function content(botLatency: number, apiLatency: number): string {

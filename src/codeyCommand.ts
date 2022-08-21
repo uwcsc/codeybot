@@ -17,7 +17,12 @@ import {
 } from '@discordjs/builders';
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
-export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions;
+export type SapphireMessageResponse =
+  | string
+  | MessagePayload
+  | WebhookEditMessageOptions
+  // void when the command handles sending on its own
+  | void;
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
