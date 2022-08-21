@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
@@ -54,7 +53,6 @@ const executeCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
   args,
-  _initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
   let uwId: UwIdType;
   if (messageFromUser instanceof Message) {
@@ -79,8 +77,6 @@ export const memberCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Getting CSC membership information...',
   executeCommand: executeCommand,
   messageIfFailure: 'Could not retrieve CSC membership information.',
-  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
-
   options: [
     {
       name: 'uwid',
