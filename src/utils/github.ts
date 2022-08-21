@@ -40,7 +40,10 @@ let ReleaseRefreshDate = new Date(0);
 let ghRelease: GithubRepositoryRelease[] | null = null;
 
 // Get repository releases
-export const getRepositoryReleases = async (owner: string, repo: string): Promise<GithubRepositoryRelease[]> => {
+export const getRepositoryReleases = async (
+  owner: string,
+  repo: string,
+): Promise<GithubRepositoryRelease[]> => {
   const curTime = new Date();
   //8640000 is a day of delay
   if (ghRepo == null || curTime.getTime() - ReleaseRefreshDate.getTime() > 86400000) {
