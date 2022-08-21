@@ -26,9 +26,9 @@ const executePingCommand: SapphireMessageExecuteType = async (
 
   const apiLatency = initialResponse.createdTimestamp - messageFromUser.createdTimestamp;
   const stringReply = content(botLatency, apiLatency);
-
-  // have to modify the original interaction when using slash commands
-  // because you cannot edit ephemeral responses.
+  // have to use the original interaction to edit the reply
+  // when using slash commands because an ephemeral
+  // reply cannot be directly edited
   // fails at runtime, no type warning
   if (messageFromUser instanceof Message) {
     await initialResponse.edit(stringReply);
