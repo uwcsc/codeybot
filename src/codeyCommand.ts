@@ -8,17 +8,7 @@ import {
   RegisterBehavior,
   SapphireClient,
 } from '@sapphire/framework';
-import {
-  Message,
-  MessagePayload,
-  TextChannel,
-  User,
-  WebhookEditMessageOptions,
-  SelectMenuInteraction,
-  MessageActionRow,
-  BaseMessageComponentOptions,
-  MessageActionRowOptions,
-} from 'discord.js';
+import { Message, MessagePayload, TextChannel, User, WebhookEditMessageOptions } from 'discord.js';
 import { APIMessage } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
@@ -29,15 +19,11 @@ import {
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
 export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions;
-export type UserMessageType =
-  | Message
-  | SapphireCommand.ChatInputInteraction
-  | SelectMenuInteraction;
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
   // Message is for normal commands, ChatInputInteraction is for slash commands
-  messageFromUser: UserMessageType,
+  messageFromUser: Message | SapphireCommand.ChatInputInteraction,
   // Command arguments
   args: CodeyCommandArguments,
   initialMessageFromBot?: SapphireMessageRequest,
@@ -194,17 +180,13 @@ export class CodeyCommandDetails {
   isCommandResponseEphemeral? = true;
   /** Type of response the Codey command sends */
   codeyCommandResponseType?: CodeyCommandResponseType = CodeyCommandResponseType.STRING;
+
   /** Options for the Codey command */
   options: CodeyCommandOption[] = [];
   /** Subcommands under the CodeyCommand */
   subcommandDetails: { [name: string]: CodeyCommandDetails } = {};
   /** The default subcommand to execute if no subcommand is specified */
   defaultSubcommandDetails?: CodeyCommandDetails;
-  /** Components to be shown in the message, type stolen from discord.js */
-  components?: (
-    | MessageActionRow
-    | (Required<BaseMessageComponentOptions> & MessageActionRowOptions)
-  )[] = [];
 }
 
 /** Sets the command subcommand in the slash command builder */
@@ -228,7 +210,9 @@ const setCommandSubcommand = (
  * Retrieving the `User` depends on whether slash commands were used or not.
  * This method helps generalize this process.
  * */
-export const getUserFromMessage = (message: UserMessageType): User => {
+export const getUserFromMessage = (
+  message: Message | SapphireCommand.ChatInputInteraction,
+): User => {
   if (message instanceof Message) {
     return message.author;
   } else {
@@ -311,16 +295,9 @@ export class CodeyCommand extends SapphireCommand {
     }
 
     try {
-      if (commandDetails.components) {
-        return await message.reply({
-          content: commandDetails.messageWhenExecutingCommand,
-          components: commandDetails.components,
-        });
-      } else {
-        const successResponse = await commandDetails.executeCommand!(client, message, args);
-        if (!successResponse) return;
-        return await message.reply(successResponse);
-      }
+      const successResponse = await commandDetails.executeCommand!(client, message, args);
+      if (!successResponse) return;
+      return await message.reply(successResponse);
     } catch (e) {
       console.log(e);
       return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
@@ -345,7 +322,6 @@ export class CodeyCommand extends SapphireCommand {
       content: commandDetails.messageWhenExecutingCommand,
       ephemeral: commandDetails.isCommandResponseEphemeral, // whether user sees message or not
       fetchReply: true,
-      components: commandDetails.components,
     });
     // Get command arguments
     const args: CodeyCommandArguments = Object.assign(
@@ -376,7 +352,7 @@ export class CodeyCommand extends SapphireCommand {
     );
 
     try {
-      if (isMessageInstance(initialMessageFromBot) && !commandDetails.components) {
+      if (isMessageInstance(initialMessageFromBot)) {
         const successResponse = await commandDetails.executeCommand!(
           client,
           interaction,
