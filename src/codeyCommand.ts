@@ -342,15 +342,16 @@ export class CodeyCommand extends SapphireCommand {
           content: successResponse,
         };
       }
-
-      await interaction.reply(
-        Object.assign(
-          {
-            ephemeral: commandDetails.isCommandResponseEphemeral,
-          },
-          successResponse,
-        ),
-      );
+      if (!interaction.replied) {
+        await interaction.reply(
+          Object.assign(
+            {
+              ephemeral: commandDetails.isCommandResponseEphemeral,
+            },
+            successResponse,
+          ),
+        );
+      }
     } catch (e) {
       console.log(e);
       return await interaction.editReply(

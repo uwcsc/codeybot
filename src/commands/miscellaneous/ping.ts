@@ -1,4 +1,5 @@
 import { Command, container } from '@sapphire/framework';
+import { Message } from 'discord.js';
 import {
   CodeyCommand,
   CodeyCommandDetails,
@@ -6,18 +7,38 @@ import {
   SapphireMessageResponse,
 } from '../../codeyCommand';
 
-const content = (botLatency: number, apiLatency: number) =>
-  `Pong from JavaScript! Bot Latency ${botLatency}ms. API Latency ${apiLatency}ms.`;
-
-const executeCommand: SapphireMessageExecuteType = async (
+const executePingCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
   _args,
 ): Promise<SapphireMessageResponse> => {
+  console.log('hello');
   const botLatency = client.ws.ping;
-  const apiLatency = Date.now() - messageFromUser.createdTimestamp;
-  return `${content(botLatency, apiLatency)}`;
+
+  let initialResponse: Message<boolean>;
+  if (messageFromUser instanceof Message) {
+    initialResponse = await messageFromUser.reply('Pong!');
+  } else {
+    initialResponse = <Message<boolean>>await messageFromUser.reply({
+      content: 'Pong?',
+      ephemeral: pingCommandDetails.isCommandResponseEphemeral,
+      fetchReply: true,
+    });
+  }
+  const initialResponseTimestamp = initialResponse.createdTimestamp;
+  const apiLatency = initialResponseTimestamp - messageFromUser.createdTimestamp;
+  if (messageFromUser instanceof Message) {
+    await initialResponse.edit(`${content(botLatency, apiLatency)}`);
+  } else {
+    await messageFromUser.editReply(`${content(botLatency, apiLatency)}`);
+  }
+
+  return Promise.resolve('');
 };
+
+function content(botLatency: number, apiLatency: number): string {
+  return `Pong from JavaScript! Bot Latency ${botLatency}ms. API Latency ${apiLatency}ms.`;
+}
 
 const pingCommandDetails: CodeyCommandDetails = {
   name: 'ping',
@@ -30,7 +51,7 @@ const pingCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: true,
   messageWhenExecutingCommand: 'Ping?',
   messageIfFailure: 'Failed to receive ping.',
-  executeCommand: executeCommand,
+  executeCommand: executePingCommand,
   options: [],
   subcommandDetails: {},
 };
