@@ -8,6 +8,7 @@ import * as colorette from 'colorette';
 import { inspect } from 'util';
 import { initMessageCreate } from './events/messageCreate';
 import { initReady } from './events/ready';
+import { logger } from './logger/default';
 
 // Set default inspection depth
 inspect.defaultOptions.depth = 3;
@@ -41,13 +42,15 @@ container.botPrefix = client.options.defaultPrefix!;
 
 export const startBot = async (): Promise<void> => {
   try {
-    client.logger.info({
+    logger.info({
       event: 'init',
     });
     client.on('error', client.logger.error);
+    // Use this on the discord.js client after sapphire
+    // client.on('error', logger.error);
     client.on('ready', initReady);
     client.on('messageCreate', (message: Message) => {
-      initMessageCreate(client, container.logger, message);
+      initMessageCreate(client, logger, message);
     });
     client.login();
   } catch (e) {

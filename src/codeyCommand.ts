@@ -16,6 +16,7 @@ import {
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
 } from '@discordjs/builders';
+import { logger } from './logger/default';
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
 export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions;
@@ -300,7 +301,7 @@ export class CodeyCommand extends SapphireCommand {
       if (!successResponse) return;
       return await message.reply(successResponse);
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
     }
   }
@@ -371,7 +372,7 @@ export class CodeyCommand extends SapphireCommand {
         }
       }
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return await interaction.editReply(
         commandDetails.messageIfFailure ?? defaultBackendErrorMessage,
       );
