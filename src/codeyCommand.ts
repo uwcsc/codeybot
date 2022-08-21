@@ -16,7 +16,6 @@ import {
   SlashCommandSubcommandsOnlyBuilder,
 } from '@discordjs/builders';
 
-export type SapphireMessageRequest = APIMessage | Message<boolean>;
 export type SapphireMessageResponse =
   | string
   | MessagePayload
