@@ -1,5 +1,5 @@
-import { container } from '@sapphire/framework';
-import { User, MessageActionRow, MessageButton } from 'discord.js';
+import { container, Command } from '@sapphire/framework';
+import { User, MessageActionRow, MessageButton, Message, ButtonInteraction } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -7,17 +7,11 @@ import {
   SapphireMessageExecuteType,
   getUserFromMessage
 } from '../../codeyCommand';
-import {
-  getCoinBalanceByUserId,
-  changeDbCoinBalanceByUserId,
-  UserCoinEvent,
-  transferRecipientActionType,
-  calculateTransferTax
-} from '../../components/coin';
+import { getCoinBalanceByUserId, transferDbCoinsByUserIds } from '../../components/coin';
 import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
 
 // Transfer coins to another user
-const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
+const coinTransferExecuteCommand: SapphireMessageExecuteType = async (_client, messageFromUser, args) => {
   // First mandatory argument is user
   const user = <User>args['user'];
   if (!user) {
@@ -51,48 +45,34 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (client, me
     return `What exactly are you trying to do there ${getEmojiByName('codeyStressed')}?`;
   }
 
-  messageFromUser.reply({
-    content: `Hey ${user}, ${getUserFromMessage(messageFromUser)} wants to transfer ${amount} to you. What do you want to do?`,
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('accept').setLabel('Accept').setStyle('SUCCESS'),
-        new MessageButton().setCustomId('reject').setLabel('Reject').setStyle('DANGER')
-      )
-    ],
-    allowedMentions: {
-      users: [user.id],
-      repliedUser: true
-    }
-  });
+  switch ((messageFromUser as ButtonInteraction).customId) {
+    case 'accept':
+      // Transfer coins
+      await transferDbCoinsByUserIds(
+        getUserFromMessage(messageFromUser).id,
+        senderBalance,
+        user.id,
+        recipientBalance,
+        amount
+      );
 
-  // Calculate tax
-  const tax = calculateTransferTax(amount);
+      // Get new balance
+      const newRecipientBalance = await getCoinBalanceByUserId(user.id);
+      const newSenderBalance = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
 
-  // Transfer coins
-  await changeDbCoinBalanceByUserId(
-    getUserFromMessage(messageFromUser).id,
-    senderBalance,
-    senderBalance - amount,
-    UserCoinEvent.CoinTransferSender,
-    <string | null>reason
-  );
-  await changeDbCoinBalanceByUserId(
-    user.id,
-    recipientBalance,
-    recipientBalance + amount - tax,
-    UserCoinEvent.CoinTransferRecipient,
-    <string | null>reason
-  );
+      return `${
+        user.username
+      } now has ${newRecipientBalance} (and you have ${newSenderBalance}) Codey coins ${getCoinEmoji()} ${getEmojiByName(
+        'codeyPoggers'
+      )}.`;
+    case 'reject':
+      return 'The transfer has been canceled.';
+    default:
+  }
 
-  // Get new balance
-  const newRecipientBalance = await getCoinBalanceByUserId(user.id);
-  const newSenderBalance = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
-
-  return `${
-    user.username
-  } now has ${newRecipientBalance} (and you have ${newSenderBalance}) Codey coins ${getCoinEmoji()} ${getEmojiByName(
-    'codeyPoggers'
-  )}.`;
+  return `Hey ${user}, ${getUserFromMessage(
+    messageFromUser
+  )} wants to transfer ${amount} to you. What do you want to do?`;
 };
 
 export const coinTransferCommandDetails: CodeyCommandDetails = {
@@ -127,5 +107,11 @@ export const coinTransferCommandDetails: CodeyCommandDetails = {
       required: false
     }
   ],
-  subcommandDetails: {}
+  subcommandDetails: {},
+  components: [
+    new MessageActionRow().addComponents(
+      new MessageButton().setCustomId('accept').setLabel('Accept').setStyle('SUCCESS'),
+      new MessageButton().setCustomId('reject').setLabel('Reject').setStyle('DANGER')
+    )
+  ]
 };

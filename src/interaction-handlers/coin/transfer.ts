@@ -25,7 +25,8 @@ export class MenuHandler extends InteractionHandler {
   //  - Type hint taken from parent method
   // */
   public override parse(interaction: ButtonInteraction): Awaitable<Maybe<unknown>> {
-    if (!['approve', 'reject'].includes(interaction.customId)) return this.none();
+    if (!['accept', 'reject'].includes(interaction.customId)) return this.none();
+    console.log('we vibing');
 
     return this.some();
   }
@@ -35,12 +36,12 @@ export class MenuHandler extends InteractionHandler {
   // */
   public async run(interaction: ButtonInteraction): Promise<void> {
     const { client } = container;
-    const response = await coinTransferCommandDetails.executeCommand!(client, interaction, {}, undefined, interaction);
+    const response = await coinTransferCommandDetails.executeCommand!(client, interaction, {}, undefined);
 
     console.log('response', response);
     await interaction.reply({
       content: response.toString(),
-      ephemeral: true
+      ephemeral: false
     });
   }
 }

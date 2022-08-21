@@ -18,11 +18,6 @@ export enum UserCoinEvent {
   Blackjack,
 }
 
-export enum transferRecipientActionType {
-  TransferAccepted,
-  TransferRejected
-}
-
 export type Bonus = {
   type: BonusType;
   event: UserCoinEvent;
@@ -153,6 +148,56 @@ export const changeDbCoinBalanceByUserId = async (
 export const calculateTransferTax = (amount: number): number => {
   const tax = 0.13;
   return Math.round(amount * tax);
+};
+
+/*
+  Transfers coins between fromUserId and toUserId, and cumputing .
+*/
+export const transferDbCoinsByUserIds = async (
+  fromUserId: string,
+  fromUserBalance: number,
+  toUserId: string,
+  toUserBalance: number,
+  amount: number
+): Promise<void> => {
+  const db = await openDB();
+
+  const tax = calculateTransferTax(amount);
+  const fromUserNewBalance = fromUserBalance - amount;
+  const toUserNewBalance = toUserBalance + amount - tax;
+
+  await db.exec(
+    `
+    INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
+    ON CONFLICT(user_id)
+    DO UPDATE SET balance = ?
+
+    INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
+    ON CONFLICT(user_id)
+    DO UPDATE SET balance = ?`,
+    fromUserId,
+    fromUserNewBalance,
+    fromUserNewBalance,
+    toUserId,
+    toUserNewBalance,
+    toUserNewBalance
+  );
+  await createCoinLedgerEntry(
+    fromUserId,
+    fromUserBalance,
+    fromUserBalance,
+    UserCoinEvent.CoinTransferSender,
+    `Transfered ${amount} coins to ${toUserId}`,
+    null
+  );
+  await createCoinLedgerEntry(
+    toUserId,
+    toUserBalance,
+    toUserNewBalance,
+    UserCoinEvent.CoinTransferSender,
+    `Received ${amount - tax} coins from ${fromUserId} (without tax: ${amount})`,
+    null
+  );
 };
 
 /*

@@ -8,10 +8,23 @@ import {
   RegisterBehavior,
   SapphireClient,
 } from '@sapphire/framework';
-import { Message, MessagePayload, TextChannel, User, WebhookEditMessageOptions } from 'discord.js';
-import { APIMessage } from 'discord-api-types/v9';
+
+import {
+  Message,
+  MessagePayload,
+  TextChannel,
+  User,
+  WebhookEditMessageOptions,
+  MessageComponentInteraction,
+  MessageActionRow,
+  BaseMessageComponentOptions,
+  MessageActionRowOptions,
+} from 'discord.js';
+import { APIMessage, APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import {
+  ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
+  ApplicationCommandOptionBase,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
@@ -19,11 +32,15 @@ import {
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
 export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions;
+export type UserMessageType =
+  | Message
+  | SapphireCommand.ChatInputInteraction
+  | MessageComponentInteraction;
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
   // Message is for normal commands, ChatInputInteraction is for slash commands
-  messageFromUser: Message | SapphireCommand.ChatInputInteraction,
+  messageFromUser: UserMessageType,
   // Command arguments
   args: CodeyCommandArguments,
   initialMessageFromBot?: SapphireMessageRequest,
@@ -59,6 +76,8 @@ export interface CodeyCommandOption {
   type: CodeyCommandOptionType;
   /** Whether the option is required */
   required: boolean;
+  /** Choices that the command accepts */
+  choices?: APIApplicationCommandOptionChoice[];
 }
 
 /** Sets the command option in the slash command builder */
@@ -66,88 +85,43 @@ const setCommandOption = (
   builder: SlashCommandBuilder | SlashCommandSubcommandBuilder,
   option: CodeyCommandOption,
 ): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
+  console.log(option);
+  function setupCommand<T extends ApplicationCommandOptionBase>(commandOption: T): T {
+    return commandOption
+      .setName(option.name)
+      .setDescription(option.description)
+      .setRequired(option.required);
+  }
+
+  function setupChoices<
+    B extends string | number,
+    T extends ApplicationCommandOptionBase &
+      ApplicationCommandOptionWithChoicesAndAutocompleteMixin<B>,
+  >(commandOption: T): T {
+    return option.choices
+      ? commandOption.addChoices(...(option.choices as APIApplicationCommandOptionChoice<B>[]))
+      : commandOption;
+  }
+
   switch (option.type) {
     case CodeyCommandOptionType.STRING:
-      return <SlashCommandBuilder>(
-        builder.addStringOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addStringOption((x) => setupCommand(setupChoices(x)));
     case CodeyCommandOptionType.INTEGER:
-      return <SlashCommandBuilder>(
-        builder.addIntegerOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addIntegerOption((x) => setupCommand(setupChoices(x)));
     case CodeyCommandOptionType.BOOLEAN:
-      return <SlashCommandBuilder>(
-        builder.addBooleanOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addBooleanOption(setupCommand);
     case CodeyCommandOptionType.USER:
-      return <SlashCommandBuilder>(
-        builder.addUserOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addUserOption(setupCommand);
     case CodeyCommandOptionType.CHANNEL:
-      return <SlashCommandBuilder>(
-        builder.addChannelOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addChannelOption(setupCommand);
     case CodeyCommandOptionType.ROLE:
-      return <SlashCommandBuilder>(
-        builder.addRoleOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addRoleOption(setupCommand);
     case CodeyCommandOptionType.MENTIONABLE:
-      return <SlashCommandBuilder>(
-        builder.addMentionableOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addMentionableOption(setupCommand);
     case CodeyCommandOptionType.NUMBER:
-      return <SlashCommandBuilder>(
-        builder.addNumberOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addNumberOption((x) => setupCommand(setupChoices(x)));
     case CodeyCommandOptionType.ATTACHMENT:
-      return <SlashCommandBuilder>(
-        builder.addAttachmentOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addAttachmentOption(setupCommand);
     default:
       throw new Error(`Unknown option type.`);
   }
@@ -188,6 +162,11 @@ export class CodeyCommandDetails {
   subcommandDetails: { [name: string]: CodeyCommandDetails } = {};
   /** The default subcommand to execute if no subcommand is specified */
   defaultSubcommandDetails?: CodeyCommandDetails;
+  /** Components to be shown in the message, type stolen from discord.js */
+  components?: (
+    | MessageActionRow
+    | (Required<BaseMessageComponentOptions> & MessageActionRowOptions)
+  )[] = [];
 }
 
 /** Sets the command subcommand in the slash command builder */
@@ -211,9 +190,7 @@ const setCommandSubcommand = (
  * Retrieving the `User` depends on whether slash commands were used or not.
  * This method helps generalize this process.
  * */
-export const getUserFromMessage = (
-  message: Message | SapphireCommand.ChatInputInteraction,
-): User => {
+export const getUserFromMessage = (message: UserMessageType): User => {
   if (message instanceof Message) {
     return message.author;
   } else {
@@ -296,9 +273,16 @@ export class CodeyCommand extends SapphireCommand {
     }
 
     try {
-      const successResponse = await commandDetails.executeCommand!(client, message, args);
-      if (!successResponse) return;
-      return await message.reply(successResponse);
+      if (commandDetails.components) {
+        return await message.reply({
+          content: commandDetails.messageWhenExecutingCommand,
+          components: commandDetails.components,
+        });
+      } else {
+        const successResponse = await commandDetails.executeCommand!(client, message, args);
+        if (!successResponse) return;
+        return await message.reply(successResponse);
+      }
     } catch (e) {
       console.log(e);
       return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
@@ -312,10 +296,12 @@ export class CodeyCommand extends SapphireCommand {
     const { client } = container;
 
     // Get subcommand name
-    let subcommandName = '';
+    let subcommandName: string;
     try {
       subcommandName = interaction.options.getSubcommand();
-    } catch (e) {}
+    } catch (e) {
+      subcommandName = '';
+    }
     /** The command details object to use */
     const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
 
@@ -323,6 +309,7 @@ export class CodeyCommand extends SapphireCommand {
       content: commandDetails.messageWhenExecutingCommand,
       ephemeral: commandDetails.isCommandResponseEphemeral, // whether user sees message or not
       fetchReply: true,
+      components: commandDetails.components,
     });
     // Get command arguments
     const args: CodeyCommandArguments = Object.assign(
