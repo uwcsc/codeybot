@@ -174,7 +174,7 @@ export class CodeyCommandDetails {
   /** The message to display if the command fails */
   messageIfFailure?: string;
   /** A flag to indicate if the command response is ephemeral (ie visible to others) */
-  isCommandResponseEphemeral?= true;
+  isCommandResponseEphemeral? = true;
   /** Options for the Codey command */
   options: CodeyCommandOption[] = [];
   /** Subcommands under the CodeyCommand */
