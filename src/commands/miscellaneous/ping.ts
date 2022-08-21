@@ -3,7 +3,7 @@ import {
   CodeyCommand,
   CodeyCommandDetails,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 
 const content = (botLatency: number, apiLatency: number) =>
@@ -12,7 +12,7 @@ const content = (botLatency: number, apiLatency: number) =>
 const executeCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
-  _args
+  _args,
 ): Promise<SapphireMessageResponse> => {
   const botLatency = client.ws.ping;
   const apiLatency = Date.now() - messageFromUser.createdTimestamp;
@@ -32,7 +32,7 @@ const pingCommandDetails: CodeyCommandDetails = {
   messageIfFailure: 'Failed to receive ping.',
   executeCommand: executeCommand,
   options: [],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };
 
 export class MiscellaneousPingCommand extends CodeyCommand {
@@ -43,7 +43,7 @@ export class MiscellaneousPingCommand extends CodeyCommand {
       ...options,
       aliases: pingCommandDetails.aliases,
       description: pingCommandDetails.description,
-      detailedDescription: pingCommandDetails.detailedDescription
+      detailedDescription: pingCommandDetails.detailedDescription,
     });
   }
 }

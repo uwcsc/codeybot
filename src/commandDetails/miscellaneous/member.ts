@@ -5,7 +5,7 @@ import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 import { getEmojiByName } from '../../components/emojis';
 
@@ -25,7 +25,10 @@ type UwIdType = string | undefined;
 const getMemberEmbed = async (uwid: UwIdType): Promise<MessageEmbed> => {
   const title = 'CSC Membership Information';
   if (!uwid) {
-    return new MessageEmbed().setColor('RED').setTitle(title).setDescription('Please provide a UW ID!');
+    return new MessageEmbed()
+      .setColor('RED')
+      .setTitle(title)
+      .setDescription('Please provide a UW ID!');
   }
 
   const members = (await (await fetch(MEMBER_API)).json()).members as memberStatus[];
@@ -49,7 +52,7 @@ To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/ge
 const executeCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
-  args
+  args,
 ): Promise<SapphireMessageResponse> => {
   let uwId: UwIdType;
   if (messageFromUser instanceof Message) {
@@ -79,8 +82,8 @@ export const memberCommandDetails: CodeyCommandDetails = {
       name: 'uwid',
       description: 'Quest ID',
       type: CodeyCommandOptionType.STRING,
-      required: true
-    }
+      required: true,
+    },
   ],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };

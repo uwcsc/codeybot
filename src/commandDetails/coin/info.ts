@@ -1,13 +1,17 @@
 import { container } from '@sapphire/framework';
 import { MessageEmbed } from 'discord.js';
-import { CodeyCommandDetails, SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
+import {
+  CodeyCommandDetails,
+  SapphireMessageExecuteType,
+  SapphireMessageResponse,
+} from '../../codeyCommand';
 import { getCoinEmoji } from '../../components/emojis';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   _messageFromUser,
-  _args
+  _args,
 ): Promise<SapphireMessageResponse> => {
   // Get information about coin
   const COIN = getCoinEmoji();
@@ -23,14 +27,14 @@ const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
           • Participating in CSC events
           • Being active on Discord
           ---Daily bonus - your first message of the day on CSC's Discord will grant some Codey coins
-          ---Activity bonus - your first message of every 5 minutes on CSC's Discord will grant some Codey coins`
+          ---Activity bonus - your first message of every 5 minutes on CSC's Discord will grant some Codey coins`,
       },
       {
         name: `${COIN}   What Can I Do With Codey Coins?`,
         value: `Use Codey coins to:
           • Play Casino games such as Blackjack
-          • Buy virtual CSC Swag in the server (more info to come!)`
-      }
+          • Buy virtual CSC Swag in the server (more info to come!)`,
+      },
     );
   return { embeds: [infoEmbed] };
 };
@@ -48,5 +52,5 @@ export const coinInfoCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Getting information about coin:',
   executeCommand: coinInfoExecuteCommand,
   options: [],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };

@@ -3,7 +3,7 @@ import {
   CodeyCommand,
   CodeyCommandDetails,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 
 const wikiLink = 'https://github.com/uwcsc/codeybot/wiki/Command-Help';
@@ -11,7 +11,7 @@ const wikiLink = 'https://github.com/uwcsc/codeybot/wiki/Command-Help';
 const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
-  _args
+  _args,
 ): Promise<SapphireMessageResponse> => {
   return new Promise((resolve, _reject) => resolve(`<${wikiLink}>`));
 };
@@ -29,7 +29,7 @@ const helpCommandDetails: CodeyCommandDetails = {
   executeCommand: executeCommand,
   messageIfFailure: 'Could not retrieve URL to the wiki page.',
   options: [],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };
 
 export class MiscellaneousHelpCommand extends CodeyCommand {
@@ -40,7 +40,7 @@ export class MiscellaneousHelpCommand extends CodeyCommand {
       ...options,
       aliases: helpCommandDetails.aliases,
       description: helpCommandDetails.description,
-      detailedDescription: helpCommandDetails.detailedDescription
+      detailedDescription: helpCommandDetails.detailedDescription,
     });
   }
 }
