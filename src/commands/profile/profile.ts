@@ -14,7 +14,7 @@ import {
   validCustomizations,
   validCustomizationsDisplay,
   validUserCustomization,
-  prettyProfileDetails
+  prettyProfileDetails,
 } from '../../components/profile';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
@@ -82,7 +82,9 @@ export class ProfileCommand extends SubCommandPluginCommand {
     }
     const { reason, parsedDescription } = validUserCustomization(customization, description);
     if (reason === 'valid' && message.member) {
-      editUserProfile(message.member, { [configMaps[customization]]: parsedDescription } as UserProfile);
+      editUserProfile(message.member, {
+        [configMaps[customization]]: parsedDescription,
+      } as UserProfile);
       return message.reply(`${customization} has been set!`);
     }
     // if reason is not valid the reason will be returned by the validUserCustomization function
