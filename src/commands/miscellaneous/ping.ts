@@ -24,8 +24,7 @@ const executePingCommand: SapphireMessageExecuteType = async (
     fetchReply: true,
   });
 
-  const initialResponseTimestamp = initialResponse.createdTimestamp;
-  const apiLatency = initialResponseTimestamp - messageFromUser.createdTimestamp;
+  const apiLatency = initialResponse.createdTimestamp - messageFromUser.createdTimestamp;
   const stringReply = content(botLatency, apiLatency);
 
   // have to modify the original interaction when using slash commands
