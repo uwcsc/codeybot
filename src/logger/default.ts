@@ -1,7 +1,7 @@
 import { createLogger, transports, Logger, format } from 'winston';
 
 const logFormat = format.printf(({ level, message, timestamp, stack }) => {
-  let text : string;
+  let text: string;
   if (stack) text = stack;
   else if (typeof message === 'string') text = message;
   else text = JSON.stringify(message);
