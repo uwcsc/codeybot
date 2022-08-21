@@ -179,7 +179,7 @@ export const editUserProfile = async (member: GuildMember, data: UserProfile): P
   const [customization, description] = Object.entries(data)[0];
 
   if (customization === 'year') {
-    // onlyDescription here would be the new year role
+    // description here would be the new year role
     await updateMemberGradRoles(member, description);
   }
 
