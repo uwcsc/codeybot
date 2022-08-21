@@ -2,7 +2,6 @@ import { container } from '@sapphire/framework';
 import { MessageEmbed } from 'discord.js';
 import {
   CodeyCommandDetails,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
@@ -52,8 +51,6 @@ export const coinInfoCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Getting information about coin:',
   executeCommand: coinInfoExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
-
   options: [],
   subcommandDetails: {},
 };

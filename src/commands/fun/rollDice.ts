@@ -3,7 +3,6 @@ import {
   CodeyCommand,
   CodeyCommandDetails,
   CodeyCommandOptionType,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
@@ -16,7 +15,6 @@ const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
   args,
-  _initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
   const SIDES_LOWER_BOUND = 0;
   const SIDES_UPPER_BOUND = 1000000;
@@ -49,8 +47,6 @@ const rollDiceCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Rolling a die...',
   executeCommand: executeCommand,
   messageIfFailure: 'Failed to roll a dice.',
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
   options: [
     {
       name: 'sides',
