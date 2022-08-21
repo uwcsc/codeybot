@@ -6,7 +6,7 @@ import {
   Args,
   ArgType,
   RegisterBehavior,
-  SapphireClient
+  SapphireClient,
 } from '@sapphire/framework';
 import { Message, MessagePayload, TextChannel, User, WebhookEditMessageOptions } from 'discord.js';
 import { APIMessage, APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
@@ -16,8 +16,9 @@ import {
   ApplicationCommandOptionBase,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
-  SlashCommandSubcommandsOnlyBuilder
+  SlashCommandSubcommandsOnlyBuilder,
 } from '@discordjs/builders';
+import { logger } from './logger/default';
 
 export type SapphireMessageRequest = APIMessage | Message<boolean>;
 export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions;
@@ -28,13 +29,13 @@ export type SapphireMessageExecuteType = (
   messageFromUser: Message | SapphireCommand.ChatInputInteraction,
   // Command arguments
   args: CodeyCommandArguments,
-  initialMessageFromBot?: SapphireMessageRequest
+  initialMessageFromBot?: SapphireMessageRequest,
 ) => Promise<SapphireMessageResponse>;
 
 // Type of response the Codey command will send
 export enum CodeyCommandResponseType {
   STRING,
-  EMBED
+  EMBED,
 }
 
 // Command options
@@ -48,7 +49,7 @@ export enum CodeyCommandOptionType {
   ROLE = 'role',
   MENTIONABLE = 'mentionable',
   NUMBER = 'number',
-  ATTACHMENT = 'attachment'
+  ATTACHMENT = 'attachment',
 }
 
 /** The codey command option */
@@ -68,15 +69,19 @@ export interface CodeyCommandOption {
 /** Sets the command option in the slash command builder */
 const setCommandOption = (
   builder: SlashCommandBuilder | SlashCommandSubcommandBuilder,
-  option: CodeyCommandOption
+  option: CodeyCommandOption,
 ): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
   function setupCommand<T extends ApplicationCommandOptionBase>(commandOption: T): T {
-    return commandOption.setName(option.name).setDescription(option.description).setRequired(option.required);
+    return commandOption
+      .setName(option.name)
+      .setDescription(option.description)
+      .setRequired(option.required);
   }
 
   function setupChoices<
     B extends string | number,
-    T extends ApplicationCommandOptionBase & ApplicationCommandOptionWithChoicesAndAutocompleteMixin<B>
+    T extends ApplicationCommandOptionBase &
+      ApplicationCommandOptionWithChoicesAndAutocompleteMixin<B>,
   >(commandOption: T): T {
     return option.choices
       ? commandOption.addChoices(...(option.choices as APIApplicationCommandOptionChoice<B>[]))
@@ -147,7 +152,7 @@ export class CodeyCommandDetails {
 /** Sets the command subcommand in the slash command builder */
 const setCommandSubcommand = (
   builder: SlashCommandBuilder,
-  subcommandDetails: CodeyCommandDetails
+  subcommandDetails: CodeyCommandDetails,
 ): SlashCommandSubcommandsOnlyBuilder => {
   return builder.addSubcommand((subcommandBuilder) => {
     subcommandBuilder.setName(subcommandDetails.name);
@@ -165,7 +170,9 @@ const setCommandSubcommand = (
  * Retrieving the `User` depends on whether slash commands were used or not.
  * This method helps generalize this process.
  * */
-export const getUserFromMessage = (message: Message | SapphireCommand.ChatInputInteraction): User => {
+export const getUserFromMessage = (
+  message: Message | SapphireCommand.ChatInputInteraction,
+): User => {
   if (message instanceof Message) {
     return message.author;
   } else {
@@ -199,12 +206,15 @@ export class CodeyCommand extends SapphireCommand {
     ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.Overwrite);
     // We need to do this because TS is weird
     registry.registerChatInputCommand((builder) =>
-      this.configureSlashCommandBuilder(<SlashCommandBuilder>(<unknown>builder))
+      this.configureSlashCommandBuilder(<SlashCommandBuilder>(<unknown>builder)),
     );
   }
 
   // Regular command
-  public async messageRun(message: Message, commandArgs: Args): Promise<Message<boolean> | undefined> {
+  public async messageRun(
+    message: Message,
+    commandArgs: Args,
+  ): Promise<Message<boolean> | undefined> {
     const { client } = container;
 
     const subcommandName = message.content.split(' ')[1];
@@ -249,14 +259,14 @@ export class CodeyCommand extends SapphireCommand {
       if (!successResponse) return;
       return await message.reply(successResponse);
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
     }
   }
 
   // Slash command
   public async chatInputRun(
-    interaction: SapphireCommand.ChatInputInteraction
+    interaction: SapphireCommand.ChatInputInteraction,
   ): Promise<APIMessage | Message<boolean> | undefined> {
     const { client } = container;
 
@@ -271,7 +281,7 @@ export class CodeyCommand extends SapphireCommand {
     const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
       content: commandDetails.messageWhenExecutingCommand,
       ephemeral: commandDetails.isCommandResponseEphemeral, // whether user sees message or not
-      fetchReply: true
+      fetchReply: true,
     });
     // Get command arguments
     const args: CodeyCommandArguments = Object.assign(
@@ -286,35 +296,44 @@ export class CodeyCommand extends SapphireCommand {
             switch (type) {
               case 'USER':
                 return {
-                  [commandOptionName]: commandInteractionOption.user
+                  [commandOptionName]: commandInteractionOption.user,
                 };
               default:
                 return {
-                  [commandOptionName]: commandInteractionOption.value
+                  [commandOptionName]: commandInteractionOption.value,
                 };
             }
           }
 
           return {
-            [commandOptionName]: result
+            [commandOptionName]: result,
           };
-        })
+        }),
     );
 
     try {
       if (isMessageInstance(initialMessageFromBot)) {
-        const successResponse = await commandDetails.executeCommand!(client, interaction, args, initialMessageFromBot);
+        const successResponse = await commandDetails.executeCommand!(
+          client,
+          interaction,
+          args,
+          initialMessageFromBot,
+        );
         switch (commandDetails.codeyCommandResponseType) {
           case CodeyCommandResponseType.STRING:
             return interaction.editReply(<string>successResponse);
           default:
-            const currentChannel = (await client.channels.fetch(interaction.channelId)) as TextChannel;
+            const currentChannel = (await client.channels.fetch(
+              interaction.channelId,
+            )) as TextChannel;
             return currentChannel.send(successResponse);
         }
       }
     } catch (e) {
-      console.log(e);
-      return await interaction.editReply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
+      logger.error(e);
+      return await interaction.editReply(
+        commandDetails.messageIfFailure ?? defaultBackendErrorMessage,
+      );
     }
   }
 }

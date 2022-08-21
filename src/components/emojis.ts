@@ -1,10 +1,8 @@
-import { container } from '@sapphire/framework';
-import { Emoji } from 'discord.js';
+import { Client, Emoji } from 'discord.js';
 
 const emojiList: { [key: string]: Emoji } = {};
 
-export const initEmojis = (): void => {
-  const { client } = container;
+export const initEmojis = (client: Client): void => {
   client.emojis.cache.forEach((emoji) => {
     if (emoji.name) emojiList[emoji.name] = emoji;
   });
