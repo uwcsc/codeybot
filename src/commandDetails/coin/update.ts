@@ -30,7 +30,7 @@ const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (
 
   // Second mandatory argument is amount
   const amount = args['amount'];
-  if (!amount) {
+  if (typeof amount !== 'number') {
     throw new Error('please enter a valid amount to adjust.');
   }
 
