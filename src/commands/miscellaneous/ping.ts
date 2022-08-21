@@ -14,21 +14,23 @@ const executePingCommand: SapphireMessageExecuteType = async (
 ): Promise<SapphireMessageResponse> => {
   const botLatency = client.ws.ping;
 
-  let initialResponse: Message<boolean>;
-  if (messageFromUser instanceof Message) {
-    initialResponse = await messageFromUser.reply('Pong?');
-  } else {
-    initialResponse = <Message<boolean>>await messageFromUser.reply({
-      content: 'Pong?',
-      ephemeral: pingCommandDetails.isCommandResponseEphemeral,
-      fetchReply: true,
-    });
-  }
+  // we can freely coerce to a Message because the alternative type: APIMessage
+  // is only received:
+  // "when you receive an interaction from a guild that the client is not in."
+  // src: https://github.com/discordjs/discord.js/issues/7001#issuecomment-972422214
+  const initialResponse = <Message<boolean>>await messageFromUser.reply({
+    content: 'Pong?',
+    ephemeral: pingCommandDetails.isCommandResponseEphemeral,
+    fetchReply: true,
+  });
 
   const initialResponseTimestamp = initialResponse.createdTimestamp;
   const apiLatency = initialResponseTimestamp - messageFromUser.createdTimestamp;
   const stringReply = content(botLatency, apiLatency);
 
+  // have to modify the original interaction when using slash commands
+  // because you cannot edit ephemeral responses.
+  // fails at runtime, no type warning
   if (messageFromUser instanceof Message) {
     await initialResponse.edit(stringReply);
   } else {
