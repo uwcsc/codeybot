@@ -21,7 +21,7 @@ export type SapphireMessageResponse =
   | string
   | MessagePayload
   | WebhookEditMessageOptions
-  // void when the command handles sending on its own
+  // void when the command handles sending a response on its own
   | void;
 
 export type SapphireMessageExecuteType = (
@@ -174,7 +174,7 @@ export class CodeyCommandDetails {
   /** The message to display if the command fails */
   messageIfFailure?: string;
   /** A flag to indicate if the command response is ephemeral (ie visible to others) */
-  isCommandResponseEphemeral? = true;
+  isCommandResponseEphemeral?= true;
   /** Options for the Codey command */
   options: CodeyCommandOption[] = [];
   /** Subcommands under the CodeyCommand */
@@ -342,11 +342,13 @@ export class CodeyCommand extends SapphireCommand {
 
     try {
       let successResponse = await commandDetails.executeCommand!(client, interaction, args);
+      // convenience, allows returning `string` from executeCommand
       if (typeof successResponse === 'string') {
         successResponse = {
           content: successResponse,
         };
       }
+      // cannot double reply to a slash command (in case command replies on its own), runtime error
       if (!interaction.replied) {
         await interaction.reply(
           Object.assign(
