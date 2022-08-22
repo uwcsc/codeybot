@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/codeyProduction.png" width="250" height="250" align="left">
-<img src="assets/codeyStaging.png" width="250" height="250" align="center">
-<img src="assets/codeyDevelopment.png" width="250" height="250" align="right">
+<img src="assets/emojis/codeyGaming.png" width="250" height="250" align="left">
+<img src="assets/emojis/codeyDevil.png" width="250" height="250" align="center">
+<img src="assets/emojis/codeyCoding2.png" width="250" height="250" align="right">
 
 <br />
 
@@ -34,17 +34,14 @@ Set these into your `.env` file. Make sure to not push these changes to git.
 
 - `DISCORD_TOKEN`: the bot's token, found in the Discord Developer Portal. DO NOT REVEAL THIS TOKEN; ANYONE WITH THIS TOKEN CAN CONTROL YOUR BOT.
 
-### Setting up the bot
+## Setting up the bot
 
 You can follow the instructions outlined [in this document](docs/SETUP.md).
-
-### Contributing
-
-You can follow the steps [in this document](docs/CONTRIBUTING.md).
 
 ## Commands
 
 ### Using Docker
+
 - Build the container: `yarn image:build`
 - Start the container: `yarn start`
 - Stop the container: `yarn stop`
@@ -53,8 +50,18 @@ You can follow the steps [in this document](docs/CONTRIBUTING.md).
 - Fresh build and restart: `yarn image:build && yarn clean && yarn start`
 
 ### Locally
+
 - Run the project: `yarn ts:build && yarn local:run`
 
 ### Miscellaneous
+
 - Run linter: `yarn lint`
 - Format code: `yarn format`
+
+## Contributing
+
+You can follow the steps [in this document](docs/CONTRIBUTING.md).
+
+## License
+
+All rights reserved for images.

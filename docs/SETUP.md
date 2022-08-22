@@ -52,7 +52,7 @@ Done in 1.07s.
 
 You can choose to run the bot locally instead of using Docker. This is helpful if Docker is not working as intended.
 
-8. Install the dependencies `ghostscript` and `graphicsmagick` locally. This is required for the resume pdf->image converter functionality of Codey. 
+8. Install the dependencies `ghostscript` and `graphicsmagick` locally. This is required for the resume pdf->image converter functionality of Codey.
 
 For example, on Mac and some Linux distros, you can do:
 ```
