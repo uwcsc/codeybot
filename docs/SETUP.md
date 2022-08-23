@@ -1,9 +1,10 @@
 # Setting up the bot locally
 
 1. Make sure you have the following prerequisites installed:
-  - Git
-  - [Yarn](https://classic.yarnpkg.com/en/docs/install)
-  - [Docker](https://docs.docker.com/get-docker/)
+
+- Git
+- [Yarn](https://classic.yarnpkg.com/en/docs/install)
+- [Docker](https://docs.docker.com/get-docker/)
 
 2. Fork the repository and clone it into the directory of your choice.
 
@@ -17,13 +18,26 @@
 
 ![botperms](../assets/botPerms.png)
 
-5. In your cloned project, create a `dev` folder in `config`, and create a `vars.json` file in it. Fill the JSON file with the corresponding values for each of the variables as described in the main README.md.
+5. In your cloned project, navigate to `config/dev/`. Duplicate the `vars.template.json` file and rename it `vars.json`. Edit the values in `vars.json` as according to the following config variable descriptions.
 
-6. Make an `.env` file in the root folder of the project, and put your Discord bot's token:
+- `TARGET_GUILD_ID`: the ID of the guild (server) in which coffee chats are being held.
+- `COFFEE_ROLE_ID`: the ID of the role the bot will use to decide who is enrolled into coffee chats.
+- `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
+- `ANNOUNCEMENTS_CHANNEL_ID`: the ID of the announcements channel.
+- `OFFICE_STATUS_CHANNEL_ID`: the ID of the office hours channel.
+- `IRC_USER_ID`: the user ID of the irc-bridge bot.
+
+Note that this file will not be pushed to the remote.
+
+6. Make an `.env` file in the root folder of the project, and put your Discord bot's token, which can be found in the Discord Developer Portal. The format of the `.env` file should be as follows.
+
 ```
 DISCORD_TOKEN=<insert token here>
 ```
-DO NOT REVEAL THIS: ANYONE WITH THIS HAS ACCESS TO YOUR BOT.
+
+DO NOT REVEAL THIS TOKEN; ANYONE WITH THIS TOKEN CAN CONTROL YOUR BOT.
+
+Note that this file will also not be pushed to the remote.
 
 7. Run `yarn` in the root folder of your project to install all the dependencies required.
 
@@ -34,12 +48,14 @@ DO NOT REVEAL THIS: ANYONE WITH THIS HAS ACCESS TO YOUR BOT.
 9. If you run `docker image ls`, you should see `codey:latest` as one of the Docker images.
 
 10. Next, run `yarn start` to start the bot. If this is run successfully, you should see a similar output to the following:
+
 ```
 yarn run v1.22.18
 $ docker-compose up -d
 codey-bot is up-to-date
 Done in 1.07s.
 ```
+
 11. Run `yarn logs` to see the logs of the bot.
 
 12. If everything is set up correctly, you should see your bot send a message in the configured notification channel (the channel assigned to `NOTIF_CHANNEL_ID` in your `vars.json`):
@@ -55,6 +71,7 @@ You can choose to run the bot locally instead of using Docker. This is helpful i
 8. Install the dependencies `ghostscript` and `graphicsmagick` locally. This is required for the resume pdf->image converter functionality of Codey.
 
 For example, on Mac and some Linux distros, you can do:
+
 ```
 sudo apt install ghostscript
 sudo apt install graphicsmagick
