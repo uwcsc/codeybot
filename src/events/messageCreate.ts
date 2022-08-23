@@ -55,7 +55,6 @@ const punishSpammersAndTrolls = async (
       const reason = 'Spammer/troll/got hacked';
       let isSuccessful = true;
       try {
-        await user.send('Lol you suck');
         await message.member.kick(reason);
       } catch (err) {
         isSuccessful = false;
