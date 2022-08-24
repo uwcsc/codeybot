@@ -10,7 +10,7 @@ import { vars } from '../../config';
 
 // Ban a user
 const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
-  if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) {
+  if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('BAN_MEMBERS')) {
     return `You do not have permission to use this command.`;
   }
 
@@ -32,7 +32,9 @@ const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFrom
   const memberInGuild = await guild.members.fetch({ user });
 
   if (await banUser(memberInGuild, reason, days)) {
-    return `Successfully banned user ${user.tag}.`;
+    return `Successfully banned user ${user.tag} ${
+      days ? `for ${days} days ` : ``
+    }for the following reason: ${reason}`;
   } else {
     return `There was an error banning user ${user.tag} - check logs for more details.`;
   }
@@ -51,7 +53,7 @@ export const banCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'user',
-      description: 'The user to ban,',
+      description: 'The user to ban',
       type: CodeyCommandOptionType.USER,
       required: true,
     },
@@ -63,7 +65,7 @@ export const banCommandDetails: CodeyCommandDetails = {
     },
     {
       name: 'days',
-      description: 'How many days the ban will last. If omitted, the user will be banned forever',
+      description: 'How many days the ban will last. If omitted, the user will be banned indefinitely.',
       type: CodeyCommandOptionType.INTEGER,
       required: false,
     },
