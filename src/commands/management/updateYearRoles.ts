@@ -10,19 +10,21 @@ import { Message, Role } from 'discord.js';
 
 
 const executeCommand: SapphireMessageExecuteType = async (): Promise<SapphireMessageResponse> => {
-  console.log(vars)
   const ALUMNI_ROLE_ID: string = vars.ALUMNI_ROLE_ID;
   const { client } = container;
   const LAST_YEAR = (new Date().getFullYear() - 1).toString();
+  const MIN_YEAR = (new Date().getFullYear() - 3).toString();
   const guild = await client.guilds.fetch(vars.TARGET_GUILD_ID);
-  const lastYearRole = guild.roles.cache.find((role: Role) => role.name === LAST_YEAR);
-  if (!lastYearRole) return 'Last years Role was not found';
-  const graduatingMembers = (await guild.members.fetch())?.filter((member) => member.roles.cache.has(lastYearRole.id));
+  const graduatingRoles = guild.roles.cache.filter((role: Role) => role.name.isInteger() && role.name <= LAST_YEAR);
+  const rolesToBeDeleted = guild.roles.cache.filter((role: Role) => role.name.isInteger() && role.name <= MIN_YEAR);
+  if (!graduatingRoles) return 'Last years Role was not found';
+  const graduatingMembers = (await guild.members.fetch())?.filter((member) => member.roles.cache.filter(role => graduatingRoles.has(role)).length);
   graduatingMembers.each(async (member) => {
-    console.log(member.roles.add);
     await member.roles.add(ALUMNI_ROLE_ID);
   });
-  await guild.roles.delete(lastYearRole.id);
+  rolesToBeDeleted.each(async (role) => {
+    await guild.roles.delete(role.id);
+  });
   return "Year Roles Have been updated :)";
 };
 
