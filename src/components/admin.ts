@@ -1,4 +1,4 @@
-import { GuildMember, Message } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import { logger } from '../logger/default';
 import { vars } from '../config';
 
@@ -8,7 +8,7 @@ const MOD_USER_ID_FOR_BAN_APPEAL: string = vars.MOD_USER_ID_FOR_BAN_APPEAL;
 const makeBanMessage = (reason: string, days?: number): string =>
   `
 Uh oh, you have been banned from the UW Computer Science Club server ${
-    days ? `for ${days} days` : ``
+    days ? `and deleted their messages in the past ${days} days ` : ``
   }for the following reason:
 
 > ${reason}

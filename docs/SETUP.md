@@ -20,7 +20,7 @@
 
 5. In your cloned project, navigate to `config/dev/`. Duplicate the `vars.template.json` file and rename it `vars.json`. Edit the values in `vars.json` as according to the following config variable descriptions.
 
-- `TARGET_GUILD_ID`: the ID of the guild (server) which coffee chats are held and the bot is in.
+- `TARGET_GUILD_ID`: the ID of the guild (server) that the bot is in.
 - `COFFEE_ROLE_ID`: the ID of the role the bot will use to decide who is enrolled into coffee chats.
 - `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
 - `ANNOUNCEMENTS_CHANNEL_ID`: the ID of the announcements channel.

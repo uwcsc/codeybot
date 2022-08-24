@@ -1,5 +1,5 @@
 import { container } from '@sapphire/framework';
-import { Permissions, User, Message } from 'discord.js';
+import { Permissions, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -32,11 +32,11 @@ const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFrom
   const memberInGuild = await guild.members.fetch({ user });
 
   if (await banUser(memberInGuild, reason, days)) {
-    return `Successfully banned user ${user.tag} ${
-      days ? `for ${days} days ` : ``
+    return `Successfully banned user ${user.tag} (id: ${user.id}) ${
+      days ? `and deleted their messages in the past ${days} days ` : ``
     }for the following reason: ${reason}`;
   } else {
-    return `There was an error banning user ${user.tag} - check logs for more details.`;
+    return `There was an error banning user ${user.tag} (id: ${user.id}) - check logs for more details.`;
   }
 };
 
@@ -53,20 +53,19 @@ export const banCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'user',
-      description: 'The user to ban',
+      description: 'The user to ban.',
       type: CodeyCommandOptionType.USER,
       required: true,
     },
     {
       name: 'reason',
-      description: 'The reason why we are banning the user',
+      description: 'The reason why we are banning the user.',
       type: CodeyCommandOptionType.STRING,
       required: true,
     },
     {
       name: 'days',
-      description:
-        'If specified, this command will delete messages in the last `days` days from the user.',
+      description: "Messages in last 'days' days from user are deleted. Default is 0 days.",
       type: CodeyCommandOptionType.INTEGER,
       required: false,
     },
