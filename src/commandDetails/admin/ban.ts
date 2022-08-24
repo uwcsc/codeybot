@@ -65,7 +65,8 @@ export const banCommandDetails: CodeyCommandDetails = {
     },
     {
       name: 'days',
-      description: 'How many days the ban will last. If omitted, the user will be banned indefinitely.',
+      description:
+        'If specified, this command will delete messages in the last `days` days from the user.',
       type: CodeyCommandOptionType.INTEGER,
       required: false,
     },
