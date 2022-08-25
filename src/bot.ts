@@ -56,8 +56,7 @@ export const startBot = async (): Promise<void> => {
     });
     client.login();
   } catch (e: unknown) {
-    logger.error('Uh oh, something went wrong when initializing the bot!');
-    logger.error(e);
+    logger.error(`Uh oh, something went wrong when initializing the bot!\n${e}`);
   }
 };
 
