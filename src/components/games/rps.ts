@@ -57,7 +57,7 @@ export const startGame = async (
   );
   // get last inserted ID
   const id = result.lastID;
-  if (!id) {
+  if (id) {
     const state: RpsGameState = {
       player1Id,
       player2Id,
