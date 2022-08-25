@@ -49,7 +49,7 @@ To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/ge
   return new MessageEmbed().setColor('RED').setTitle(title).setDescription(NOT_MEMBER_DESCRIPTION);
 };
 
-const executeCommand: SapphireMessageExecuteType = async (
+const memberExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
   args,
@@ -69,13 +69,13 @@ const executeCommand: SapphireMessageExecuteType = async (
 export const memberCommandDetails: CodeyCommandDetails = {
   name: 'member',
   aliases: [],
-  description: 'Gets CSC membership information',
+  description: 'Gets CSC membership information.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}member [id]\``,
 
   isCommandResponseEphemeral: true,
   messageWhenExecutingCommand: 'Getting CSC membership information...',
-  executeCommand: executeCommand,
+  executeCommand: memberExecuteCommand,
   messageIfFailure: 'Could not retrieve CSC membership information.',
   options: [
     {
