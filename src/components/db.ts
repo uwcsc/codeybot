@@ -121,6 +121,7 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
 };
 
 const initRpsGameInfo = async (db: Database): Promise<void> => {
+  // If player 2 ID is null, the game was against Codey
   await db.run(
     `
       CREATE TABLE IF NOT EXISTS rps_game_info (
