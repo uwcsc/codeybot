@@ -5,7 +5,7 @@ import {
   getUserFromMessage,
   SapphireMessageExecuteType,
 } from '../../codeyCommand';
-import { startGame } from '../../components/games/rps';
+import { RpsGameSign, startGame } from '../../components/games/rps';
 
 const rpsExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
   const bet = (args['bet'] ?? 10) as number;
@@ -14,7 +14,7 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (client, messageFrom
     getUserFromMessage(messageFromUser).id,
     messageFromUser.channelId,
   );
-  console.log(game);
+  game.runGame(RpsGameSign.Rock, RpsGameSign.Scissors);
   return 'rps';
 };
 

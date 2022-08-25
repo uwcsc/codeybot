@@ -11,6 +11,67 @@ export class RpsGame {
     this.channelId = channelId;
     this.state = state;
   }
+
+  private determineWinner(
+    player1Sign: RpsGameSign,
+    player2Sign: RpsGameSign,
+  ): 'player1' | 'player2' | 'tie' {
+    if (player1Sign === player2Sign) {
+      return 'tie';
+    }
+    if (
+      (player1Sign === RpsGameSign.Paper && player2Sign === RpsGameSign.Rock) ||
+      (player1Sign === RpsGameSign.Scissors && player2Sign === RpsGameSign.Paper) ||
+      (player1Sign === RpsGameSign.Rock && player2Sign === RpsGameSign.Scissors)
+    ) {
+      return 'player1';
+    }
+    return 'player2';
+  }
+
+  private getStatus(timeout: 'player1' | 'player2' | null): RpsGameStatus {
+    // Both players submitted a sign
+    if (timeout === null) {
+      /*
+        If one of the players' signs is still pending, something went wrong
+      */
+      if (
+        this.state.player1Sign === RpsGameSign.Pending ||
+        this.state.player2Sign === RpsGameSign.Pending
+      ) {
+        return RpsGameStatus.Unknown;
+      } else {
+        const winner = this.determineWinner(this.state.player1Sign, this.state.player2Sign);
+        switch (winner) {
+          case 'player1':
+            return RpsGameStatus.Player1Win;
+          case 'player2':
+            return RpsGameStatus.Player2Win;
+          case 'tie':
+            return RpsGameStatus.Draw;
+          default:
+            return RpsGameStatus.Unknown;
+        }
+      }
+    } else if (timeout === 'player1') {
+      return RpsGameStatus.Player1TimeOut;
+    } else if (timeout === 'player2') {
+      return RpsGameStatus.Player2TimeOut;
+    } else {
+      return RpsGameStatus.Unknown;
+    }
+  }
+
+  runGame(player1Sign: RpsGameSign, player2Sign: RpsGameSign) {
+    /*
+      Time out can be implemented later on or in a later issue
+    */
+    const timeout = null;
+
+    this.state.player1Sign = player1Sign;
+    this.state.player2Sign = player2Sign;
+    this.state.status = this.getStatus(timeout);
+  }
 }
 
 export enum RpsGameStatus {
@@ -20,6 +81,7 @@ export enum RpsGameStatus {
   Player2Win = 3,
   Player1TimeOut = 4,
   Player2TimeOut = 5,
+  Unknown = 6,
 }
 
 export enum RpsGameSign {
