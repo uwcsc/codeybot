@@ -7,23 +7,25 @@ import {
 import { Message, MessageEmbed } from 'discord.js';
 import { getCoinBalanceByUserId } from '../../components/coin';
 import {
+  assignAlumniRole,
+  assignDecadeAndPruneYearRoles,
   configMaps,
   editUserProfile,
   getUserProfileById,
+  prettyProfileDetails,
   UserProfile,
   validCustomizations,
   validCustomizationsDisplay,
   validUserCustomization,
-  prettyProfileDetails,
 } from '../../components/profile';
 import { EMBED_COLOUR } from '../../utils/embeds';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
-  aliases: ['profile', 'userprofile', 'aboutme'],
+  aliases: ['userprofile', 'aboutme'],
   description: 'Handles user profile functions',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}profile @Codey\``,
-  subCommands: [{ input: 'about', default: true }, 'set'],
+  subCommands: [{ input: 'about', default: true }, 'grad', 'set'],
 })
 export class ProfileCommand extends SubCommandPluginCommand {
   public async about(message: Message, args: Args): Promise<Message> {
@@ -66,6 +68,14 @@ export class ProfileCommand extends SubCommandPluginCommand {
       }
       return message.channel.send({ embeds: [profileDisplay] });
     }
+  }
+
+  // refreshes all grad roles and is to be used in early January
+  public async grad(message: Message): Promise<Message | void> {
+    if (!message.member?.permissions.has('ADMINISTRATOR')) return;
+    await assignDecadeAndPruneYearRoles();
+    assignAlumniRole();
+    return message.reply('Grad roles have been updated.');
   }
 
   public async set(message: Message, args: Args): Promise<Message> {

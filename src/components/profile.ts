@@ -1,5 +1,10 @@
+import { container } from '@sapphire/framework';
+import { GuildMember } from 'discord.js';
+import { vars } from '../config';
+import { addOrRemove, updateMemberRole } from '../utils/roles';
 import { openDB } from './db';
-import { ColorResolvable, GuildMember, RoleManager } from 'discord.js';
+
+const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 
 export interface UserProfile {
   about_me?: string;
@@ -33,7 +38,7 @@ const yearStart = 1900;
 const currentYear = new Date().getFullYear();
 // the last valid year of graduation in the future. while most people graduate in <5 years, +2 years just to be safe
 const yearEnd = currentYear + 7;
-// range of years that can be assigned as a role.
+// range of years that can be assigned as a role
 enum validRoleYears {
   validRoleYearStart = currentYear - 2,
   validRoleYearEnd = yearEnd,
@@ -118,7 +123,7 @@ export const validUserCustomization = (
 ): userCustomization => {
   let parsedDescription = description;
   if (customization !== validatedFields.term) {
-    // convert first letter to capital in case the user doesnt use proper capitalization
+    // convert to lowercase then first letter to capital, in case the user doesn't use proper capitalization
     parsedDescription = description.toLowerCase();
     parsedDescription = parsedDescription[0].toUpperCase() + parsedDescription.slice(1);
   }
@@ -163,8 +168,6 @@ export const getUserProfileById = async (userId: string): Promise<UserProfile | 
   return await db.get('SELECT * FROM user_profile_table WHERE user_id = ?', userId);
 };
 
-// NOTE: data will always be just one customization, but we do not know which one, meaning many of
-// the loops are just to extract an unknown key-val pair
 export const editUserProfile = async (member: GuildMember, data: UserProfile): Promise<void> => {
   const db = await openDB();
   // check if a user exists in the user_profile_table already
@@ -178,13 +181,13 @@ export const editUserProfile = async (member: GuildMember, data: UserProfile): P
   // grab the only customization and its corresponding description
   const [customization, description] = Object.entries(data)[0];
 
+  // if customization is year, then update grad roles as well
   if (customization === 'year') {
     // description here would be the new year role
     await updateMemberGradRoles(member, description);
   }
 
   if (user.found === 1) {
-    // if customization is year, change year roles as well
     // escape any instances of ' character by placing another ' in front of it by sqlite specifications
     description.replace(/'/g, "''");
     query = `UPDATE user_profile_table SET last_updated=CURRENT_DATE, ${customization}=? WHERE user_id=?`;
@@ -192,7 +195,7 @@ export const editUserProfile = async (member: GuildMember, data: UserProfile): P
   } else {
     query = `
             INSERT INTO user_profile_table
-            (user_id, last_updated, ${customization}) 
+            (user_id, last_updated, ${customization})
             VALUES (?, CURRENT_DATE, ?)
             `;
     // escape any instances of ' character by placing another ' in front of it by sqlite specifications
@@ -201,48 +204,8 @@ export const editUserProfile = async (member: GuildMember, data: UserProfile): P
   }
 };
 
-const addOrRemove = {
-  add: true,
-  remove: false,
-};
-
-const updateMemberRole = async (
-  member: GuildMember,
-  roleName: string,
-  add: boolean,
-): Promise<void> => {
-  const userId = member.id;
-  const role = member.guild?.roles.cache.find((role) => role?.name === roleName);
-  if (!role) {
-    throw new Error(`Could not find the role ${roleName}`);
-  }
-  try {
-    if (add) {
-      await member?.roles.add(role);
-    } else {
-      await member?.roles.remove(role);
-    }
-  } catch (err) {
-    throw new Error(`Failed to ${add ? 'add to' : 'remove from'} user ${userId}`);
-  }
-};
-
-const yearToDecade = (year: number) => {
+const yearToDecade = (year: number): number => {
   return year - (year % 10);
-};
-
-const createNewRole = async (roleName: string, roles: RoleManager): Promise<void> => {
-  try {
-    // create role object
-    const newRole = {
-      name: roleName,
-      color: 'GREY' as ColorResolvable,
-      reason: `AUTOMATED: Creating new role for ${roleName}`,
-    };
-    await roles.create(newRole);
-  } catch (err) {
-    throw new Error(`Failed to create new role for ${roleName}: ${err}`);
-  }
 };
 
 const updateMemberGradRoles = async (member: GuildMember, gradYear: number): Promise<void> => {
@@ -250,35 +213,16 @@ const updateMemberGradRoles = async (member: GuildMember, gradYear: number): Pro
   if (gradYear < 1900) {
     return;
   }
-  if (gradYear < currentYear) {
-    // assign alumni role to the user
-    updateMemberRole(member, 'Alumni', addOrRemove.add);
-  } else {
-    // remove alumni role to the user if they for some reason have the alumni role and are not graduated
-    updateMemberRole(member, 'Alumni', addOrRemove.remove);
-  }
-  let newYearRoleName: string;
-  if (gradYear >= validRoleYears.validRoleYearStart) {
-    newYearRoleName = gradYear.toString();
-    // check if role for that year exists, if not add it
-    const findRole = member.guild?.roles.cache.find((role) => role?.name === newYearRoleName);
 
-    if (!findRole && member.guild?.roles) {
-      await createNewRole(newYearRoleName, member.guild.roles);
-    }
-    // assign that role to the user
-    updateMemberRole(member, newYearRoleName, addOrRemove.add);
-  } else {
-    // otherwise, decade role. e.g: 1980s, 1990s, etc.
-    newYearRoleName = yearToDecade(gradYear) + 's';
-    const findRole = member.guild?.roles.cache.find((role) => role?.name === newYearRoleName);
+  // user should have Alumni role iff they have graduated
+  updateMemberRole(member, 'Alumni', gradYear < currentYear ? addOrRemove.add : addOrRemove.remove);
 
-    if (!findRole && member.guild?.roles) {
-      await createNewRole(newYearRoleName, member.guild.roles);
-    }
-    // assign that role to the user
-    updateMemberRole(member, newYearRoleName, addOrRemove.add);
-  }
+  const newYearRoleName =
+    gradYear >= validRoleYears.validRoleYearStart
+      ? gradYear.toString()
+      : // otherwise, decade role. e.g: 1980s, 1990s, etc.
+        yearToDecade(gradYear) + 's';
+  updateMemberRole(member, newYearRoleName, addOrRemove.add);
 
   // final step: remove their existing year role
   // grab oldYear from database - as this call happens before db update
@@ -288,10 +232,41 @@ const updateMemberGradRoles = async (member: GuildMember, gradYear: number): Pro
     let roleToRemove = oldYear.toString();
     if (oldYear < validRoleYears.validRoleYearStart) {
       // while profile year may be something like 2008, the role itself is called 2000s so have to convert
-      roleToRemove = yearToDecade(oldYear).toString() + 's';
+      roleToRemove = yearToDecade(oldYear) + 's';
     }
     if (newYearRoleName !== roleToRemove) {
       updateMemberRole(member, roleToRemove, addOrRemove.remove);
     }
   }
+};
+
+export const assignDecadeAndPruneYearRoles = async (): Promise<void> => {
+  const guild = await container.client.guilds.fetch(TARGET_GUILD_ID);
+  guild.roles.cache
+    .filter((role) => {
+      const roleNameNum = Number(role.name);
+      return Number.isInteger(roleNameNum) && roleNameNum < validRoleYears.validRoleYearStart;
+    })
+    .forEach((role) => {
+      const roleMembers = role.members;
+      const decadeRoleName = yearToDecade(Number(role.name)) + 's';
+      roleMembers.forEach((member) => updateMemberRole(member, decadeRoleName, addOrRemove.add));
+      guild.roles.delete(role);
+    });
+};
+
+export const assignAlumniRole = async (): Promise<void> => {
+  (await container.client.guilds.fetch(TARGET_GUILD_ID)).roles.cache
+    .filter((role) => {
+      const roleNameNum = Number(role.name);
+      if (Number.isInteger(roleNameNum)) {
+        // individual year role
+        return roleNameNum < new Date().getFullYear();
+      }
+      // decade role
+      return Number.isInteger(Number(role.name.slice(0, -1))) && role.name.slice(-1) === 's';
+    })
+    .forEach((role) =>
+      role.members.forEach((member) => updateMemberRole(member, 'Alumni', addOrRemove.add)),
+    );
 };
