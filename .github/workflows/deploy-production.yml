@@ -44,7 +44,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd /codey/production
-            curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codeybot/master/docker/production/docker-compose.yml
+            curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codeybot/main/docker/production/docker-compose.yml
             docker pull uwcsclub/codey-bot:${{ env.RELEASE_TAG }}
             echo "TAG=${{ env.RELEASE_TAG }}" > docker.env
             docker-compose down

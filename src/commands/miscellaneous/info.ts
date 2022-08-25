@@ -22,7 +22,7 @@ export const getInfoEmbed = async (): Promise<MessageEmbed> => {
     .setURL(githubRepositoryInfo.html_url)
     .setThumbnail(githubRepositoryInfo.owner.avatar_url)
     .setDescription(
-      'Links to issue templates: https://github.com/uwcsc/codeybot/tree/master/.github/ISSUE_TEMPLATE',
+      'Links to issue templates: https://github.com/uwcsc/codeybot/tree/main/.github/ISSUE_TEMPLATE',
     )
     .setFooter(`App version: ${githubRepositoryReleases[0].tag_name}`);
   return infoEmbed;
