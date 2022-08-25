@@ -10,7 +10,7 @@
 
 **The Discord Bot of University of Waterloo's Computer Science Club**
 
-[![Build](https://github.com/uwcsc/codeybot/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/uwcsc/codeybot/actions/workflows/build.yml?query=branch%3Amaster)
+[![Build](https://github.com/uwcsc/codeybot/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/uwcsc/codeybot/actions/workflows/build.yml?query=branch%3Amain)
 [![Discord Server](https://discord.com/api/guilds/667823274201448469/widget.png)](https://discord.gg/pHfYBCg)
 
 </div>

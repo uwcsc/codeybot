@@ -30,7 +30,7 @@ We always welcome new feature requests for the bot! :D
 
 2. If you wish to work on the issue, ask one of the CodeyBot developers to assign you to the issue.
 
-3. When you're done, make a PR from your branch to `master`. Make sure to link/reference the issue which contains your feature request in your PR. 
+3. When you're done, make a PR from your branch to `main`. Make sure to link/reference the issue which contains your feature request in your PR.
 
 > Make sure to include screenshots/a demo of your feature request, if applicable.
 
