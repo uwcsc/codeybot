@@ -242,7 +242,7 @@ const updateMemberGradRoles = async (member: GuildMember, gradYear: number): Pro
 
 export const assignDecadeAndPruneYearRoles = async (): Promise<void> => {
   const guild = await container.client.guilds.fetch(TARGET_GUILD_ID);
-  guild.roles.cache
+  (await guild.roles.fetch())
     .filter((role) => {
       const roleNameNum = Number(role.name);
       return Number.isInteger(roleNameNum) && roleNameNum < validRoleYears.validRoleYearStart;
@@ -256,7 +256,7 @@ export const assignDecadeAndPruneYearRoles = async (): Promise<void> => {
 };
 
 export const assignAlumniRole = async (): Promise<void> => {
-  (await container.client.guilds.fetch(TARGET_GUILD_ID)).roles.cache
+  (await (await container.client.guilds.fetch(TARGET_GUILD_ID)).roles.fetch())
     .filter((role) => {
       const roleNameNum = Number(role.name);
       if (Number.isInteger(roleNameNum)) {

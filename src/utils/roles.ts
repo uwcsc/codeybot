@@ -24,7 +24,7 @@ export const updateMemberRole = async (
   roleName: string,
   add: boolean,
 ): Promise<void> => {
-  let role = member.guild.roles.cache.find((role) => role.name === roleName);
+  let role = (await member.guild.roles.fetch()).find((role) => role.name === roleName);
   try {
     if (add) {
       // check if role exists, if not, then create it
