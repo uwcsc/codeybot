@@ -18,7 +18,7 @@
 
 ![botperms](../assets/botPerms.png)
 
-5. In your cloned project, navigate to `config/dev/`. Duplicate the `vars.template.json` file and rename it `vars.json`. Edit the values in `vars.json` as according to the following config variable descriptions.
+5. In your cloned project, navigate to `config/`. Duplicate the `vars.template.json` file, move your copy to the `dev` folder, and rename your file `vars.json`. This will be the config file for your local bot. Edit the values in `vars.json` as according to the following config variable descriptions:
 
 - `TARGET_GUILD_ID`: the ID of the guild (server) that the bot is in.
 - `COFFEE_ROLE_ID`: the ID of the role the bot will use to decide who is enrolled into coffee chats.
@@ -26,6 +26,7 @@
 - `ANNOUNCEMENTS_CHANNEL_ID`: the ID of the announcements channel.
 - `OFFICE_STATUS_CHANNEL_ID`: the ID of the office hours channel.
 - `IRC_USER_ID`: the user ID of the irc-bridge bot.
+- `MOD_USER_ID_FOR_BAN_APPEAL`: the user ID of the mod tagged in the appeal messages for bans.
 
 Note that this file will not be pushed to the remote.
 

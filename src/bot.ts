@@ -9,6 +9,7 @@ import { inspect } from 'util';
 import { initMessageCreate } from './events/messageCreate';
 import { initReady } from './events/ready';
 import { logger } from './logger/default';
+import { validateEnvironmentVariables } from './validateEnvVars';
 
 // Set default inspection depth
 inspect.defaultOptions.depth = 3;
@@ -42,6 +43,7 @@ container.botPrefix = client.options.defaultPrefix!;
 
 export const startBot = async (): Promise<void> => {
   try {
+    validateEnvironmentVariables();
     logger.info({
       event: 'init',
     });
@@ -53,9 +55,8 @@ export const startBot = async (): Promise<void> => {
       initMessageCreate(client, logger, message);
     });
     client.login();
-  } catch (e) {
-    console.log('Bot failure');
-    console.log(e);
+  } catch (e: unknown) {
+    logger.error(`Uh oh, something went wrong when initializing the bot!\n${e}`);
   }
 };
 
