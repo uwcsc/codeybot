@@ -5,13 +5,17 @@ import {
   CodeyCommandOptionType,
   CodeyCommandResponseType,
   SapphireMessageExecuteType,
-  getUserFromMessage
+  getUserFromMessage,
 } from '../../codeyCommand';
 import { getCoinBalanceByUserId, transferDbCoinsByUserIds } from '../../components/coin';
 import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
 
 // Transfer coins to another user
-const coinTransferExecuteCommand: SapphireMessageExecuteType = async (_client, messageFromUser, args) => {
+const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
+  _client,
+  messageFromUser,
+  args,
+) => {
   // First mandatory argument is user
   const user = <User>args['user'];
   if (!user) {
@@ -36,7 +40,9 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (_client, m
     return `You can't transfer coins to yourself ${getEmojiByName('codeyConfused')}.`;
   }
   if (senderBalance < amount) {
-    return `You don't have enough coins to complete this transfer ${getEmojiByName('codeyConfused')}.`;
+    return `You don't have enough coins to complete this transfer ${getEmojiByName(
+      'codeyConfused',
+    )}.`;
   }
   if (amount < 0) {
     return `You can't steal from people ${getEmojiByName('codeyAngry')}.`;
@@ -53,7 +59,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (_client, m
         senderBalance,
         user.id,
         recipientBalance,
-        amount
+        amount,
       );
 
       // Get new balance
@@ -63,7 +69,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (_client, m
       return `${
         user.username
       } now has ${newRecipientBalance} (and you have ${newSenderBalance}) Codey coins ${getCoinEmoji()} ${getEmojiByName(
-        'codeyPoggers'
+        'codeyPoggers',
       )}.`;
     case 'reject':
       return 'The transfer has been canceled.';
@@ -71,7 +77,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (_client, m
   }
 
   return `Hey ${user}, ${getUserFromMessage(
-    messageFromUser
+    messageFromUser,
   )} wants to transfer ${amount} to you. What do you want to do?`;
 };
 
@@ -92,26 +98,26 @@ export const coinTransferCommandDetails: CodeyCommandDetails = {
       name: 'user',
       description: 'The user to transfer the amount to,',
       type: CodeyCommandOptionType.USER,
-      required: true
+      required: true,
     },
     {
       name: 'amount',
       description: 'The amount to transfer,',
       type: CodeyCommandOptionType.NUMBER,
-      required: true
+      required: true,
     },
     {
       name: 'reason',
       description: 'The reason why we are transferring money,',
       type: CodeyCommandOptionType.STRING,
-      required: false
-    }
+      required: false,
+    },
   ],
   subcommandDetails: {},
   components: [
     new MessageActionRow().addComponents(
       new MessageButton().setCustomId('accept').setLabel('Accept').setStyle('SUCCESS'),
-      new MessageButton().setCustomId('reject').setLabel('Reject').setStyle('DANGER')
-    )
-  ]
+      new MessageButton().setCustomId('reject').setLabel('Reject').setStyle('DANGER'),
+    ),
+  ],
 };

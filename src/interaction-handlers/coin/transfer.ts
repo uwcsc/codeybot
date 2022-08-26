@@ -5,7 +5,7 @@ import {
   PieceContext,
   container,
   Maybe,
-  Awaitable
+  Awaitable,
 } from '@sapphire/framework';
 import type { ButtonInteraction } from 'discord.js';
 
@@ -16,7 +16,7 @@ export class MenuHandler extends InteractionHandler {
   public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
     super(ctx, {
       ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
+      interactionHandlerType: InteractionHandlerTypes.Button,
     });
   }
 
@@ -36,12 +36,17 @@ export class MenuHandler extends InteractionHandler {
   // */
   public async run(interaction: ButtonInteraction): Promise<void> {
     const { client } = container;
-    const response = await coinTransferCommandDetails.executeCommand!(client, interaction, {}, undefined);
+    const response = await coinTransferCommandDetails.executeCommand!(
+      client,
+      interaction,
+      {},
+      undefined,
+    );
 
     console.log('response', response);
     await interaction.reply({
       content: response.toString(),
-      ephemeral: false
+      ephemeral: false,
     });
   }
 }

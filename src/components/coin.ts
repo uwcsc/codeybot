@@ -127,7 +127,7 @@ export const changeDbCoinBalanceByUserId = async (
   newBalance: number,
   event: UserCoinEvent,
   reason: string | null,
-  adminId: string | null = null
+  adminId: string | null = null,
 ): Promise<void> => {
   const db = await openDB();
   await db.run(
@@ -158,7 +158,7 @@ export const transferDbCoinsByUserIds = async (
   fromUserBalance: number,
   toUserId: string,
   toUserBalance: number,
-  amount: number
+  amount: number,
 ): Promise<void> => {
   const db = await openDB();
 
@@ -180,7 +180,7 @@ export const transferDbCoinsByUserIds = async (
     fromUserNewBalance,
     toUserId,
     toUserNewBalance,
-    toUserNewBalance
+    toUserNewBalance,
   );
   await createCoinLedgerEntry(
     fromUserId,
@@ -188,7 +188,7 @@ export const transferDbCoinsByUserIds = async (
     fromUserBalance,
     UserCoinEvent.CoinTransferSender,
     `Transfered ${amount} coins to ${toUserId}`,
-    null
+    null,
   );
   await createCoinLedgerEntry(
     toUserId,
@@ -196,7 +196,7 @@ export const transferDbCoinsByUserIds = async (
     toUserNewBalance,
     UserCoinEvent.CoinTransferSender,
     `Received ${amount - tax} coins from ${fromUserId} (without tax: ${amount})`,
-    null
+    null,
   );
 };
 
