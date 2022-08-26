@@ -1,21 +1,29 @@
 import { container } from '@sapphire/framework';
+import { MessageEmbed } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
   getUserFromMessage,
   SapphireMessageExecuteType,
 } from '../../codeyCommand';
-import { RpsGameSign, startGame } from '../../components/games/rps';
+import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
+import { RpsGameSign, RpsGameStatus, startGame } from '../../components/games/rps';
 
-const rpsExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
+const rpsExecuteCommand: SapphireMessageExecuteType = async (_client, messageFromUser, args) => {
+  /* 
+    executeCommand sends the initial RPS embed; 
+    the subsequent interactionHandlers handle the rest of the logic
+  */
   const bet = (args['bet'] ?? 10) as number;
   const game = await startGame(
     bet,
-    getUserFromMessage(messageFromUser).id,
     messageFromUser.channelId,
+    getUserFromMessage(messageFromUser),
+    undefined, // We should change this when we implement 2 players
   );
-  game.runGame(RpsGameSign.Rock, RpsGameSign.Scissors);
-  return 'rps';
+
+  // Return initial response
+  return game.getGameResponse();
 };
 
 export const rpsCommandDetails: CodeyCommandDetails = {

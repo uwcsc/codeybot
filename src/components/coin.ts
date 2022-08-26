@@ -14,6 +14,9 @@ export enum UserCoinEvent {
   BonusActivity,
   BonusInterviewerList,
   Blackjack,
+  RpsLoss,
+  RpsDrawAgainstCodey,
+  RpsWin,
 }
 
 export type Bonus = {

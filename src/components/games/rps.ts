@@ -1,5 +1,8 @@
 import { openDB } from '../db';
 import { logger } from '../../logger/default';
+import { MessageActionRow, MessageButton, MessageEmbed, MessagePayload, User } from 'discord.js';
+import { getCoinEmoji, getEmojiByName } from '../emojis';
+import { SapphireMessageResponse } from '../../codeyCommand';
 
 export class RpsGame {
   id: number;
@@ -29,7 +32,7 @@ export class RpsGame {
     return 'player2';
   }
 
-  private getStatus(timeout: 'player1' | 'player2' | null): RpsGameStatus {
+  public getStatus(timeout: 'player1' | 'player2' | null): RpsGameStatus {
     // Both players submitted a sign
     if (timeout === null) {
       /*
@@ -62,15 +65,52 @@ export class RpsGame {
     }
   }
 
-  runGame(player1Sign: RpsGameSign, player2Sign: RpsGameSign) {
-    /*
-      Time out can be implemented later on or in a later issue
-    */
-    const timeout = null;
+  // Prints embed and buttons for the game
+  public getGameResponse(): SapphireMessageResponse {
+    const embed = new MessageEmbed()
+      .setColor('YELLOW')
+      .setTitle('Rock, Paper, Scissors!')
+      .setDescription(
+        `
+Bet: ${this.state.bet} ${getCoinEmoji()}
+Players: ${this.state.player1Username} vs. ${this.state.player2Username}
 
-    this.state.player1Sign = player1Sign;
-    this.state.player2Sign = player2Sign;
-    this.state.status = this.getStatus(timeout);
+If you win, you win your bet.
+If you lose, you lose your entire bet to Codey.
+If you draw, Codey takes 50% of your bet.
+  `,
+      )
+      .addFields([
+        {
+          name: 'Game Info',
+          value: `
+Game in progress...
+
+${this.state.player1Username} picked: ${getEmojiFromSign(this.state.player1Sign)}
+${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)}
+      `,
+        },
+      ]);
+    // Buttons
+    const row = new MessageActionRow().addComponents(
+      new MessageButton()
+        .setCustomId(`rock-${this.id}`)
+        .setLabel(getEmojiFromSign(RpsGameSign.Rock))
+        .setStyle('SECONDARY'),
+      new MessageButton()
+        .setCustomId(`paper-${this.id}`)
+        .setLabel(getEmojiFromSign(RpsGameSign.Paper))
+        .setStyle('SECONDARY'),
+      new MessageButton()
+        .setCustomId(`scissors-${this.id}`)
+        .setLabel(getEmojiFromSign(RpsGameSign.Scissors))
+        .setStyle('SECONDARY'),
+    );
+
+    return {
+      embeds: [embed],
+      components: [row],
+    };
   }
 }
 
@@ -91,9 +131,24 @@ export enum RpsGameSign {
   Scissors = 3,
 }
 
+const getEmojiFromSign = (sign: RpsGameSign): string => {
+  switch (sign) {
+    case RpsGameSign.Pending:
+      return '❓';
+    case RpsGameSign.Rock:
+      return '🪨';
+    case RpsGameSign.Paper:
+      return '📰';
+    case RpsGameSign.Scissors:
+      return '✂️';
+  }
+};
+
 export type RpsGameState = {
   player1Id: string;
+  player1Username: string;
   player2Id?: string;
+  player2Username: string;
   bet: number;
   status: RpsGameStatus;
   player1Sign: RpsGameSign;
@@ -106,8 +161,8 @@ export type RpsGameState = {
 export const startGame = async (
   bet: number,
   channelId: string,
-  player1Id: string,
-  player2Id?: string,
+  player1User: User,
+  player2User?: User,
 ): Promise<RpsGame> => {
   const db = await openDB();
   const result = await db.run(
@@ -115,14 +170,16 @@ export const startGame = async (
     INSERT INTO rps_game_info (player1_id, player2_id, bet)
     VALUES (?, ?, ?)
   `,
-    [player1Id, player2Id, bet],
+    [player1User.id, player2User?.id, bet],
   );
   // get last inserted ID
   const id = result.lastID;
   if (id) {
     const state: RpsGameState = {
-      player1Id,
-      player2Id,
+      player1Id: player1User.id,
+      player1Username: player1User.username,
+      player2Id: player2User?.id,
+      player2Username: player2User?.username ?? `Codey ${getEmojiByName('codeyLove')}`,
       bet,
       status: 0,
       player1Sign: 0,
