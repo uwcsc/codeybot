@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
@@ -50,11 +49,10 @@ To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/ge
   return new MessageEmbed().setColor('RED').setTitle(title).setDescription(NOT_MEMBER_DESCRIPTION);
 };
 
-const executeCommand: SapphireMessageExecuteType = async (
+const memberExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
   args,
-  _initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
   let uwId: UwIdType;
   if (messageFromUser instanceof Message) {
@@ -71,16 +69,14 @@ const executeCommand: SapphireMessageExecuteType = async (
 export const memberCommandDetails: CodeyCommandDetails = {
   name: 'member',
   aliases: [],
-  description: 'Gets CSC membership information',
+  description: 'Gets CSC membership information.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}member [id]\``,
 
   isCommandResponseEphemeral: true,
   messageWhenExecutingCommand: 'Getting CSC membership information...',
-  executeCommand: executeCommand,
+  executeCommand: memberExecuteCommand,
   messageIfFailure: 'Could not retrieve CSC membership information.',
-  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
-
   options: [
     {
       name: 'uwid',

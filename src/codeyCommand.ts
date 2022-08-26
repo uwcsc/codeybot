@@ -8,20 +8,8 @@ import {
   RegisterBehavior,
   SapphireClient,
 } from '@sapphire/framework';
-
-import {
-  Message,
-  MessagePayload,
-  TextChannel,
-  User,
-  WebhookEditMessageOptions,
-  MessageComponentInteraction,
-  MessageActionRow,
-  BaseMessageComponentOptions,
-  MessageActionRowOptions,
-} from 'discord.js';
-import { APIMessage, APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
-import { isMessageInstance } from '@sapphire/discord.js-utilities';
+import { Message, MessagePayload, User, WebhookEditMessageOptions } from 'discord.js';
+import { APIMessage } from 'discord-api-types/v9';
 import {
   ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
   ApplicationCommandOptionBase,
@@ -29,13 +17,14 @@ import {
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
 } from '@discordjs/builders';
+import { logger } from './logger/default';
 
-export type SapphireMessageRequest = APIMessage | Message<boolean>;
-export type SapphireMessageResponse = string | MessagePayload | WebhookEditMessageOptions;
-export type UserMessageType =
-  | Message
-  | SapphireCommand.ChatInputInteraction
-  | MessageComponentInteraction;
+export type SapphireMessageResponse =
+  | string
+  | MessagePayload
+  | WebhookEditMessageOptions
+  // void when the command handles sending a response on its own
+  | void;
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
@@ -43,14 +32,7 @@ export type SapphireMessageExecuteType = (
   messageFromUser: UserMessageType,
   // Command arguments
   args: CodeyCommandArguments,
-  initialMessageFromBot?: SapphireMessageRequest,
 ) => Promise<SapphireMessageResponse>;
-
-// Type of response the Codey command will send
-export enum CodeyCommandResponseType {
-  STRING,
-  EMBED,
-}
 
 // Command options
 /** The type of the codey command option */
@@ -142,7 +124,6 @@ export class CodeyCommandDetails {
   description = `Codey command for ${this.name}`;
   /** A longer description of the command (shown in the help menu for the command) */
   detailedDescription: string = this.description;
-
   // The following can all technically be nullable, because the actual command might not be used
   // Rather, the command might just be a "folder" for subcommands.
   /** The message to display when the command is executing (for slash commands) */
@@ -153,9 +134,6 @@ export class CodeyCommandDetails {
   messageIfFailure?: string;
   /** A flag to indicate if the command response is ephemeral (ie visible to others) */
   isCommandResponseEphemeral? = true;
-  /** Type of response the Codey command sends */
-  codeyCommandResponseType?: CodeyCommandResponseType = CodeyCommandResponseType.STRING;
-
   /** Options for the Codey command */
   options: CodeyCommandOption[] = [];
   /** Subcommands under the CodeyCommand */
@@ -284,7 +262,7 @@ export class CodeyCommand extends SapphireCommand {
         return await message.reply(successResponse);
       }
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
     }
   }
@@ -305,12 +283,6 @@ export class CodeyCommand extends SapphireCommand {
     /** The command details object to use */
     const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
 
-    const initialMessageFromBot: SapphireMessageRequest = await interaction.reply({
-      content: commandDetails.messageWhenExecutingCommand,
-      ephemeral: commandDetails.isCommandResponseEphemeral, // whether user sees message or not
-      fetchReply: true,
-      components: commandDetails.components,
-    });
     // Get command arguments
     const args: CodeyCommandArguments = Object.assign(
       {},
@@ -340,25 +312,26 @@ export class CodeyCommand extends SapphireCommand {
     );
 
     try {
-      if (isMessageInstance(initialMessageFromBot)) {
-        const successResponse = await commandDetails.executeCommand!(
-          client,
-          interaction,
-          args,
-          initialMessageFromBot,
+      let successResponse = await commandDetails.executeCommand!(client, interaction, args);
+      // convenience, allows returning `string` from executeCommand
+      if (typeof successResponse === 'string') {
+        successResponse = {
+          content: successResponse,
+        };
+      }
+      // cannot double reply to a slash command (in case command replies on its own), runtime error
+      if (!interaction.replied) {
+        await interaction.reply(
+          Object.assign(
+            {
+              ephemeral: commandDetails.isCommandResponseEphemeral,
+            },
+            successResponse,
+          ),
         );
-        switch (commandDetails.codeyCommandResponseType) {
-          case CodeyCommandResponseType.STRING:
-            return interaction.editReply(<string>successResponse);
-          default:
-            const currentChannel = (await client.channels.fetch(
-              interaction.channelId,
-            )) as TextChannel;
-            return currentChannel.send(successResponse);
-        }
       }
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return await interaction.editReply(
         commandDetails.messageIfFailure ?? defaultBackendErrorMessage,
       );

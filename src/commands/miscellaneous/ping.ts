@@ -3,44 +3,44 @@ import { Message } from 'discord.js';
 import {
   CodeyCommand,
   CodeyCommandDetails,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
-  SapphireMessageRequest,
   SapphireMessageResponse,
 } from '../../codeyCommand';
 
-const initialPingContent = 'Ping?';
-
-const getApiLatency = (
-  initialPing: SapphireMessageRequest,
-  messageFromUserAsMessage: Message<boolean>,
-) => {
-  const initialPingAsMessage = <Message<boolean>>initialPing;
-  return initialPingAsMessage.createdTimestamp - messageFromUserAsMessage.createdTimestamp;
-};
-
-const content = (botLatency: number, apiLatency: number) =>
-  `Pong from JavaScript! Bot Latency ${botLatency}ms. API Latency ${apiLatency}ms.`;
-
-const executeCommand: SapphireMessageExecuteType = async (
+const executePingCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
   _args,
-  initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
-  // Assert message types are Message<boolean>
-  // We have to do this because APIMessage does not have "createdTimestamp" property
-  const messageFromUserAsMessage = <Message<boolean>>messageFromUser;
   const botLatency = client.ws.ping;
-  if (initialMessageFromBot) {
-    const apiLatency = getApiLatency(initialMessageFromBot, messageFromUserAsMessage);
-    return new Promise((resolve, _reject) => resolve(content(botLatency, apiLatency)));
+
+  // we can freely coerce to a Message because the alternative type: APIMessage
+  // is only received:
+  // "when you receive an interaction from a guild that the client is not in."
+  // src: https://github.com/discordjs/discord.js/issues/7001#issuecomment-972422214
+  const initialResponse = <Message<boolean>>await messageFromUser.reply({
+    content: 'Pong?',
+    ephemeral: pingCommandDetails.isCommandResponseEphemeral,
+    fetchReply: true,
+  });
+
+  const apiLatency = initialResponse.createdTimestamp - messageFromUser.createdTimestamp;
+  const stringReply = content(botLatency, apiLatency);
+
+  // have to use the original interaction to edit the reply
+  // when using slash commands because an ephemeral
+  // reply cannot be directly edited
+  // fails at runtime, no type warning
+  if (messageFromUser instanceof Message) {
+    await initialResponse.edit(stringReply);
+  } else {
+    await messageFromUser.editReply(stringReply);
   }
-  const initialPing = await messageFromUserAsMessage.channel.send(initialPingContent);
-  const apiLatency = getApiLatency(initialPing, messageFromUserAsMessage);
-  initialPing.edit(content(botLatency, apiLatency));
-  return Promise.resolve('');
 };
+
+function content(botLatency: number, apiLatency: number): string {
+  return `Pong from JavaScript! Bot Latency ${botLatency}ms. API Latency ${apiLatency}ms.`;
+}
 
 const pingCommandDetails: CodeyCommandDetails = {
   name: 'ping',
@@ -53,9 +53,7 @@ const pingCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: true,
   messageWhenExecutingCommand: 'Ping?',
   messageIfFailure: 'Failed to receive ping.',
-  executeCommand: executeCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
+  executeCommand: executePingCommand,
   options: [],
   subcommandDetails: {},
 };

@@ -2,7 +2,6 @@ import { Command, container } from '@sapphire/framework';
 import {
   CodeyCommand,
   CodeyCommandDetails,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
@@ -13,7 +12,6 @@ const executeCommand: SapphireMessageExecuteType = (
   _client,
   _messageFromUser,
   _args,
-  _initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
   return new Promise((resolve, _reject) => resolve(`<${wikiLink}>`));
 };
@@ -30,8 +28,6 @@ const helpCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Retrieving URL to the wiki page...',
   executeCommand: executeCommand,
   messageIfFailure: 'Could not retrieve URL to the wiki page.',
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
   options: [],
   subcommandDetails: {},
 };

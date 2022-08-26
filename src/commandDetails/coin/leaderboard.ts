@@ -2,7 +2,6 @@ import { container, SapphireClient } from '@sapphire/framework';
 import { MessageEmbed, User } from 'discord.js';
 import {
   CodeyCommandDetails,
-  CodeyCommandResponseType,
   getUserFromMessage,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
@@ -80,8 +79,6 @@ export const coinCurrentLeaderboardCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Getting the current coin leaderboard...',
   executeCommand: coinCurrentLeaderboardExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
-
   options: [],
   subcommandDetails: {},
 };

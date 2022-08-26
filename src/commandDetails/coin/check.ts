@@ -3,7 +3,6 @@ import { User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
   getUserFromMessage,
@@ -51,8 +50,6 @@ export const coinCheckCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: "Getting user's coin balance...",
   executeCommand: coinCheckExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
   options: [
     {
       name: 'user',

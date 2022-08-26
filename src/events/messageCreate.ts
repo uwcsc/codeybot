@@ -1,4 +1,4 @@
-import { ILogger } from '@sapphire/framework';
+import { Logger } from 'winston';
 import { Client, Message } from 'discord.js';
 import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
@@ -44,7 +44,7 @@ const detectSpammersAndTrolls = (message: Message): boolean => {
  */
 const punishSpammersAndTrolls = async (
   client: Client,
-  logger: ILogger,
+  logger: Logger,
   message: Message,
 ): Promise<boolean> => {
   if (detectSpammersAndTrolls(message)) {
@@ -103,7 +103,7 @@ const convertResumePdfsIntoImages = async (
 
 export const initMessageCreate = async (
   client: Client,
-  logger: ILogger,
+  logger: Logger,
   message: Message,
 ): Promise<void> => {
   // Ignore all bots including self but not IRC

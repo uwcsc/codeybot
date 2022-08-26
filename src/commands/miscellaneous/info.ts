@@ -3,7 +3,6 @@ import { MessageEmbed } from 'discord.js';
 import {
   CodeyCommand,
   CodeyCommandDetails,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
@@ -23,7 +22,7 @@ export const getInfoEmbed = async (): Promise<MessageEmbed> => {
     .setURL(githubRepositoryInfo.html_url)
     .setThumbnail(githubRepositoryInfo.owner.avatar_url)
     .setDescription(
-      'Links to issue templates: https://github.com/uwcsc/codeybot/tree/master/.github/ISSUE_TEMPLATE',
+      'Links to issue templates: https://github.com/uwcsc/codeybot/tree/main/.github/ISSUE_TEMPLATE',
     )
     .setFooter(`App version: ${githubRepositoryReleases[0].tag_name}`);
   return infoEmbed;
@@ -33,7 +32,6 @@ const executeCommand: SapphireMessageExecuteType = async (
   _client,
   _messageFromUser,
   _args,
-  _initialMessageFromBot,
 ): Promise<SapphireMessageResponse> => {
   const infoEmbed = await getInfoEmbed();
   return { embeds: [infoEmbed] };
@@ -50,8 +48,6 @@ const infoCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Getting Codey Info...',
   messageIfFailure: 'Could not get Codey info.',
   executeCommand: executeCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
-
   options: [],
   subcommandDetails: {},
 };
