@@ -36,7 +36,10 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
 };
 
 const rpsAfterMessageReply: SapphireAfterReplyType = async (result, sentMessage) => {
-  
+  // Store the message which the game takes place in the game object
+  rpsGameTracker.runFuncOnGame(<number>result.metadata.gameId, (game) => {
+    game.gameMessage = sentMessage;
+  });
 };
 
 export const rpsCommandDetails: CodeyCommandDetails = {

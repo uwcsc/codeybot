@@ -16,6 +16,10 @@ class RpsGameTracker {
     return this.games.get(id);
   }
 
+  runFuncOnGame(gameId: number, func: (game: RpsGame) => void): void {
+    func(this.getGameFromId(gameId)!);
+  }
+
   /*
     Starts a RPS game
   */
