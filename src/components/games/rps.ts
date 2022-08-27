@@ -146,15 +146,15 @@ ${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)
     // Buttons
     const row = new MessageActionRow().addComponents(
       new MessageButton()
-        .setCustomId(`rock-${this.id}`)
+        .setCustomId(`rps-rock-${this.id}`)
         .setLabel(getEmojiFromSign(RpsGameSign.Rock))
         .setStyle('SECONDARY'),
       new MessageButton()
-        .setCustomId(`paper-${this.id}`)
+        .setCustomId(`rps-paper-${this.id}`)
         .setLabel(getEmojiFromSign(RpsGameSign.Paper))
         .setStyle('SECONDARY'),
       new MessageButton()
-        .setCustomId(`scissors-${this.id}`)
+        .setCustomId(`rps-scissors-${this.id}`)
         .setLabel(getEmojiFromSign(RpsGameSign.Scissors))
         .setStyle('SECONDARY'),
     );
