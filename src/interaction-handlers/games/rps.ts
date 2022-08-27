@@ -53,7 +53,7 @@ export class RpsHandler extends InteractionHandler {
       // If single player, get Codey's sign
       if (!game.state.player2Id) {
         game.state.player2Sign = getCodeyRpsSign();
-        game.state.status = game.getStatus(null);
+        game.setStatus(null);
       }
       if (game.gameMessage instanceof Message) {
         game.gameMessage.edit(<MessagePayload>game.getGameResponse());
@@ -61,6 +61,8 @@ export class RpsHandler extends InteractionHandler {
         game.gameMessage.editReply(<MessagePayload>game.getGameResponse());
       }
     });
+    // If game has ended, call endGame
+    rpsGameTracker.endGame(result.gameId);
     // We need to do this to avoid "failed interaction" after selecting our option
     await interaction.reply({
       content: `You selected ${getEmojiFromSign(result.sign)}.`,
