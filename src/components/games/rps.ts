@@ -1,6 +1,6 @@
 import { openDB } from '../db';
 import { logger } from '../../logger/default';
-import { MessageActionRow, MessageButton, MessageEmbed, MessagePayload, User } from 'discord.js';
+import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, MessagePayload, User } from 'discord.js';
 import { getCoinEmoji, getEmojiByName } from '../emojis';
 import { SapphireMessageResponse, SapphireSentMessageType } from '../../codeyCommand';
 
@@ -122,10 +122,23 @@ export class RpsGame {
     }
   }
 
+  public getEmbedColor(): ColorResolvable {
+    switch (this.state.status) {
+      case RpsGameStatus.Player1Win:
+        return 'GREEN';
+      case RpsGameStatus.Player2Win:
+        return this.state.player2Id ? 'GREEN' : 'RED';
+      case RpsGameStatus.Draw:
+        return 'ORANGE';
+      default:
+        return 'YELLOW';
+    }
+  }
+
   // Prints embed and buttons for the game
   public getGameResponse(): SapphireMessageResponse {
     const embed = new MessageEmbed()
-      .setColor('YELLOW')
+      .setColor(this.getEmbedColor())
       .setTitle('Rock, Paper, Scissors!')
       .setDescription(
         `
@@ -188,7 +201,7 @@ export enum RpsGameSign {
   Scissors = 3,
 }
 
-const getEmojiFromSign = (sign: RpsGameSign): string => {
+export const getEmojiFromSign = (sign: RpsGameSign): string => {
   switch (sign) {
     case RpsGameSign.Pending:
       return '❓';
@@ -211,3 +224,8 @@ export type RpsGameState = {
   player1Sign: RpsGameSign;
   player2Sign: RpsGameSign;
 };
+
+// Algorithm to get RPS game sign for Codey
+export const getCodeyRpsSign = (): RpsGameSign => {
+  return RpsGameSign.Rock;
+}

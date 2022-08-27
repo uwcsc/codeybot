@@ -1,6 +1,12 @@
 import { InteractionHandler, InteractionHandlerTypes, PieceContext } from '@sapphire/framework';
 import { ButtonInteraction, CommandInteraction, Message, MessagePayload } from 'discord.js';
-import { RpsGame, RpsGameSign, rpsGameTracker } from '../../components/games/rps';
+import {
+  getCodeyRpsSign,
+  getEmojiFromSign,
+  RpsGame,
+  RpsGameSign,
+  rpsGameTracker,
+} from '../../components/games/rps';
 
 export class RpsHandler extends InteractionHandler {
   public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -40,14 +46,24 @@ export class RpsHandler extends InteractionHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  public async run(_interaction: ButtonInteraction, result: { gameId: number; sign: RpsGameSign }) {
+  public async run(interaction: ButtonInteraction, result: { gameId: number; sign: RpsGameSign }) {
     rpsGameTracker.runFuncOnGame(result.gameId, (game) => {
       game.state.player1Sign = result.sign;
+      // If single player, get Codey's sign
+      if (!game.state.player2Id) {
+        game.state.player2Sign = getCodeyRpsSign();
+        game.state.status = game.getStatus(null);
+      }
       if (game.gameMessage instanceof Message) {
         game.gameMessage.edit(<MessagePayload>game.getGameResponse());
       } else if (game.gameMessage instanceof CommandInteraction) {
         game.gameMessage.editReply(<MessagePayload>game.getGameResponse());
       }
+    });
+    // We need to do this to avoid "failed interaction" after selecting our option
+    await interaction.reply({
+      content: `You selected ${getEmojiFromSign(result.sign)}.`,
+      ephemeral: true,
     });
   }
 }
