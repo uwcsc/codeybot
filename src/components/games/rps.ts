@@ -1,6 +1,13 @@
 import { openDB } from '../db';
 import { logger } from '../../logger/default';
-import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, MessagePayload, User } from 'discord.js';
+import {
+  ColorResolvable,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  MessagePayload,
+  User,
+} from 'discord.js';
 import { getCoinEmoji, getEmojiByName } from '../emojis';
 import { SapphireMessageResponse, SapphireSentMessageType } from '../../codeyCommand';
 
@@ -135,6 +142,32 @@ export class RpsGame {
     }
   }
 
+  public getStatusAsString(): string {
+    switch (this.state.status) {
+      case RpsGameStatus.Pending:
+        return 'Game in progress...';
+      case RpsGameStatus.Player1Win:
+        return `${this.state.player1Username} has won, and wins ${
+          this.state.bet
+        } ${getCoinEmoji()} from ${this.state.player2Username}!`;
+      case RpsGameStatus.Player2Win:
+        return `${this.state.player2Username} has won, and wins ${
+          this.state.bet
+        } ${getCoinEmoji()} from ${this.state.player1Username}!`;
+      case RpsGameStatus.Draw:
+        if (!this.state.player2Id) {
+          return `The match ended in a draw, so ${this.state.player2Username} has taken ${
+            this.state.bet / 2
+          } ${getCoinEmoji()} from ${this.state.player1Username}!`;
+        } else {
+          return `The match ended in a draw!`;
+        }
+      // Timeout can be implemented later
+      default:
+        return `Something went wrong! ${getEmojiByName('codeySad')}`;
+    }
+  }
+
   // Prints embed and buttons for the game
   public getGameResponse(): SapphireMessageResponse {
     const embed = new MessageEmbed()
@@ -154,7 +187,7 @@ If you draw, Codey takes 50% of your bet.
         {
           name: 'Game Info',
           value: `
-Game in progress...
+${this.getStatusAsString()}
 
 ${this.state.player1Username} picked: ${getEmojiFromSign(this.state.player1Sign)}
 ${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)}
@@ -177,10 +210,17 @@ ${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)
         .setStyle('SECONDARY'),
     );
 
-    return {
-      embeds: [embed],
-      components: [row],
-    };
+    if (this.state.status === RpsGameStatus.Pending) {
+      return {
+        embeds: [embed],
+        components: [row],
+      };
+    } else {
+      return {
+        embeds: [embed],
+        components: [],
+      };
+    }
   }
 }
 
@@ -228,4 +268,4 @@ export type RpsGameState = {
 // Algorithm to get RPS game sign for Codey
 export const getCodeyRpsSign = (): RpsGameSign => {
   return RpsGameSign.Rock;
-}
+};

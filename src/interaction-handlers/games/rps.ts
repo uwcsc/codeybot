@@ -5,6 +5,7 @@ import {
   getEmojiFromSign,
   RpsGame,
   RpsGameSign,
+  RpsGameStatus,
   rpsGameTracker,
 } from '../../components/games/rps';
 
