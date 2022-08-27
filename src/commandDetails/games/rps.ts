@@ -9,6 +9,8 @@ import {
   SapphireMessageResponseWithMetadata,
   SapphireSentMessageType,
 } from '../../codeyCommand';
+import { getCoinBalanceByUserId } from '../../components/coin';
+import { getCoinEmoji } from '../../components/emojis';
 import { rpsGameTracker } from '../../components/games/rps';
 
 const rpsExecuteCommand: SapphireMessageExecuteType = async (
@@ -21,6 +23,13 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
     the subsequent interactionHandlers handle the rest of the logic
   */
   const bet = (args['bet'] ?? 10) as number;
+  const balance = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
+  if (bet > balance) {
+    return new SapphireMessageResponseWithMetadata(
+      `You don't have enough ${getCoinEmoji()} to place that bet.`,
+      {},
+    );
+  }
 
   const game = await rpsGameTracker.startGame(
     bet,
@@ -36,6 +45,7 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
 };
 
 const rpsAfterMessageReply: SapphireAfterReplyType = async (result, sentMessage) => {
+  if (typeof result.metadata.gameId === 'undefined') return;
   // Store the message which the game takes place in the game object
   rpsGameTracker.runFuncOnGame(<number>result.metadata.gameId, (game) => {
     game.gameMessage = sentMessage;

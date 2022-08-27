@@ -61,7 +61,6 @@ export class RpsHandler extends InteractionHandler {
         game.gameMessage.editReply(<MessagePayload>game.getGameResponse());
       }
     });
-    // If game has ended, call endGame
     rpsGameTracker.endGame(result.gameId);
     // We need to do this to avoid "failed interaction" after selecting our option
     await interaction.reply({

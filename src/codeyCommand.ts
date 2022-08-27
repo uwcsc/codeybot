@@ -388,8 +388,15 @@ export class CodeyCommand extends SapphireCommand {
           content: successResponse,
         };
       }
-      // cannot double reply to a slash command (in case command replies on its own), runtime error
+      if (
+        successResponse instanceof SapphireMessageResponseWithMetadata &&
+        typeof successResponse.response === 'string'
+      ) {
+        successResponse.response = { content: successResponse.response };
+      }
+
       if (!interaction.replied) {
+        // cannot double reply to a slash command (in case command replies on its own), runtime error
         await interaction.reply(
           Object.assign(
             {

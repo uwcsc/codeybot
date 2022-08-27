@@ -115,6 +115,7 @@ class RpsGameTracker {
       `,
       [game?.state.player1Sign, game?.state.player2Sign, game?.state.status],
     );
+    rpsGameTracker.games.delete(gameId);
   }
 }
 
