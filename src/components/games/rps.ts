@@ -323,7 +323,11 @@ export type RpsGameState = {
   player2Sign: RpsGameSign;
 };
 
+function getRandomInt(max: number) {
+  return Math.floor(Math.random() * max);
+}
+
 // Algorithm to get RPS game sign for Codey
 export const getCodeyRpsSign = (): RpsGameSign => {
-  return RpsGameSign.Rock;
+  return 1 + getRandomInt(3);
 };
