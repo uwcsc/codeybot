@@ -1,5 +1,5 @@
 import { InteractionHandler, InteractionHandlerTypes, PieceContext } from '@sapphire/framework';
-import type { ButtonInteraction } from 'discord.js';
+import { ButtonInteraction, CommandInteraction, Message, MessagePayload } from 'discord.js';
 import { RpsGame, RpsGameSign, rpsGameTracker } from '../../components/games/rps';
 
 export class RpsHandler extends InteractionHandler {
@@ -14,9 +14,9 @@ export class RpsHandler extends InteractionHandler {
   // Get the game info and the interaction type
   public override parse(interaction: ButtonInteraction) {
     if (!interaction.customId.startsWith('rps')) return this.none();
-    const parsedCustomId = interaction.customId.split('_');
+    const parsedCustomId = interaction.customId.split('-');
     const sign = parsedCustomId[1];
-    const gameId = <number>(<unknown>parsedCustomId[2]);
+    const gameId = parseInt(parsedCustomId[2]);
 
     let gameSign: RpsGameSign;
     switch (sign) {
@@ -34,17 +34,20 @@ export class RpsHandler extends InteractionHandler {
         break;
     }
     return this.some({
-      game: rpsGameTracker.getGameFromId(gameId),
+      gameId,
       sign: gameSign,
     });
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  public async run(interaction: ButtonInteraction, result: { game: RpsGame; sign: RpsGameSign }) {
-    await interaction.reply({
-      content: 'Hello from a button interaction handler!',
-      // Let's make it so only the person who pressed the button can see this message!
-      ephemeral: true,
+  public async run(_interaction: ButtonInteraction, result: { gameId: number; sign: RpsGameSign }) {
+    rpsGameTracker.runFuncOnGame(result.gameId, (game) => {
+      game.state.player1Sign = result.sign;
+      if (game.gameMessage instanceof Message) {
+        game.gameMessage.edit(<MessagePayload>game.getGameResponse());
+      } else if (game.gameMessage instanceof CommandInteraction) {
+        game.gameMessage.editReply(<MessagePayload>game.getGameResponse());
+      }
     });
   }
 }
