@@ -1,13 +1,21 @@
 import { container } from '@sapphire/framework';
+import { CommandInteraction } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
   getUserFromMessage,
+  SapphireAfterReplyType,
   SapphireMessageExecuteType,
+  SapphireMessageResponseWithMetadata,
+  SapphireSentMessageType,
 } from '../../codeyCommand';
 import { rpsGameTracker } from '../../components/games/rps';
 
-const rpsExecuteCommand: SapphireMessageExecuteType = async (_client, messageFromUser, args) => {
+const rpsExecuteCommand: SapphireMessageExecuteType = async (
+  _client,
+  messageFromUser,
+  args,
+): Promise<SapphireMessageResponseWithMetadata> => {
   /* 
     executeCommand sends the initial RPS embed; 
     the subsequent interactionHandlers handle the rest of the logic
@@ -22,7 +30,13 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (_client, messageFro
   );
 
   // Return initial response
-  return game.getGameResponse();
+  return new SapphireMessageResponseWithMetadata(game.getGameResponse(), {
+    gameId: game.id,
+  });
+};
+
+const rpsAfterMessageReply: SapphireAfterReplyType = async (result, sentMessage) => {
+  
 };
 
 export const rpsCommandDetails: CodeyCommandDetails = {
@@ -36,6 +50,7 @@ export const rpsCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Setting up your RPS game...',
   executeCommand: rpsExecuteCommand,
+  afterMessageReply: rpsAfterMessageReply,
   options: [
     {
       name: 'bet',

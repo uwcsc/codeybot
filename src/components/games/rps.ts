@@ -2,7 +2,7 @@ import { openDB } from '../db';
 import { logger } from '../../logger/default';
 import { MessageActionRow, MessageButton, MessageEmbed, MessagePayload, User } from 'discord.js';
 import { getCoinEmoji, getEmojiByName } from '../emojis';
-import { SapphireMessageResponse } from '../../codeyCommand';
+import { SapphireMessageResponse, SapphireSentMessageType } from '../../codeyCommand';
 
 class RpsGameTracker {
   // Key = id, Value = game
@@ -59,6 +59,7 @@ export const rpsGameTracker = new RpsGameTracker();
 export class RpsGame {
   id: number;
   channelId: string;
+  gameMessage!: SapphireSentMessageType;
   state: RpsGameState;
 
   constructor(id: number, channelId: string, state: RpsGameState) {

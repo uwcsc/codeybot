@@ -8,7 +8,13 @@ import {
   RegisterBehavior,
   SapphireClient,
 } from '@sapphire/framework';
-import { Message, MessagePayload, User, WebhookEditMessageOptions } from 'discord.js';
+import {
+  CommandInteraction,
+  Message,
+  MessagePayload,
+  User,
+  WebhookEditMessageOptions,
+} from 'discord.js';
 import { APIMessage } from 'discord-api-types/v9';
 import {
   SlashCommandBuilder,
@@ -17,12 +23,22 @@ import {
 } from '@discordjs/builders';
 import { logger } from './logger/default';
 
+export type SapphireSentMessageType = Message | CommandInteraction;
 export type SapphireMessageResponse =
   | string
   | MessagePayload
   | WebhookEditMessageOptions
   // void when the command handles sending a response on its own
   | void;
+export class SapphireMessageResponseWithMetadata {
+  response: SapphireMessageResponse;
+  metadata: Record<string, unknown>;
+
+  constructor(response: SapphireMessageResponse, metadata: Record<string, unknown>) {
+    this.response = response;
+    this.metadata = metadata;
+  }
+}
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
@@ -30,7 +46,14 @@ export type SapphireMessageExecuteType = (
   messageFromUser: Message | SapphireCommand.ChatInputInteraction,
   // Command arguments
   args: CodeyCommandArguments,
-) => Promise<SapphireMessageResponse>;
+) => Promise<SapphireMessageResponse | SapphireMessageResponseWithMetadata>;
+
+export type SapphireAfterReplyType = (
+  /** The result from executeCommand, that contains the original message content and the metadata */
+  result: SapphireMessageResponseWithMetadata,
+  /** The message that is sent */
+  sentMessage: SapphireSentMessageType,
+) => Promise<unknown>;
 
 // Command options
 /** The type of the codey command option */
@@ -171,6 +194,8 @@ export class CodeyCommandDetails {
   messageWhenExecutingCommand?: string;
   /** The function to be called to execute the command */
   executeCommand?: SapphireMessageExecuteType;
+  /** A callback that takes in the *sent* message */
+  afterMessageReply?: SapphireAfterReplyType;
   /** The message to display if the command fails */
   messageIfFailure?: string;
   /** A flag to indicate if the command response is ephemeral (ie visible to others) */
@@ -291,7 +316,22 @@ export class CodeyCommand extends SapphireCommand {
     try {
       const successResponse = await commandDetails.executeCommand!(client, message, args);
       if (!successResponse) return;
-      return await message.reply(successResponse);
+      // If response contains metadata
+      if (successResponse instanceof SapphireMessageResponseWithMetadata) {
+        const response = (<SapphireMessageResponseWithMetadata>successResponse).response;
+        // If response is not void, reply to the original message with the response
+        if (typeof response !== 'undefined') {
+          const msg = await message.reply(<string | MessagePayload>response);
+          if (commandDetails.afterMessageReply) {
+            commandDetails.afterMessageReply(successResponse, msg);
+          }
+          return msg;
+        }
+      }
+      // If it does not
+      else {
+        return await message.reply(<string | MessagePayload>successResponse);
+      }
     } catch (e) {
       logger.error(e);
       return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
@@ -355,9 +395,19 @@ export class CodeyCommand extends SapphireCommand {
             {
               ephemeral: commandDetails.isCommandResponseEphemeral,
             },
-            successResponse,
+            successResponse instanceof SapphireMessageResponseWithMetadata
+              ? successResponse.response
+              : successResponse,
           ),
         );
+        // If after message reply is defined and the response contains metadata,
+        // run the function
+        if (
+          successResponse instanceof SapphireMessageResponseWithMetadata &&
+          commandDetails.afterMessageReply
+        ) {
+          commandDetails.afterMessageReply(successResponse, interaction);
+        }
       }
     } catch (e) {
       logger.error(e);
