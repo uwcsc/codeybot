@@ -4,6 +4,58 @@ import { MessageActionRow, MessageButton, MessageEmbed, MessagePayload, User } f
 import { getCoinEmoji, getEmojiByName } from '../emojis';
 import { SapphireMessageResponse } from '../../codeyCommand';
 
+class RpsGameTracker {
+  // Key = id, Value = game
+  games: Map<number, RpsGame>;
+
+  constructor() {
+    this.games = new Map<number, RpsGame>();
+  }
+
+  getGameFromId(id: number): RpsGame | undefined {
+    return this.games.get(id);
+  }
+
+  /*
+    Starts a RPS game
+  */
+  async startGame(
+    bet: number,
+    channelId: string,
+    player1User: User,
+    player2User?: User,
+  ): Promise<RpsGame> {
+    const db = await openDB();
+    const result = await db.run(
+      `
+    INSERT INTO rps_game_info (player1_id, player2_id, bet)
+    VALUES (?, ?, ?)
+  `,
+      [player1User.id, player2User?.id, bet],
+    );
+    // get last inserted ID
+    const id = result.lastID;
+    if (id) {
+      const state: RpsGameState = {
+        player1Id: player1User.id,
+        player1Username: player1User.username,
+        player2Id: player2User?.id,
+        player2Username: player2User?.username ?? `Codey ${getEmojiByName('codeyLove')}`,
+        bet,
+        status: 0,
+        player1Sign: 0,
+        player2Sign: 0,
+      };
+      const game = new RpsGame(id!, channelId, state);
+      this.games.set(id, game);
+      return game;
+    }
+    throw new Error('Something went wrong when starting the RPS game');
+  }
+}
+
+export const rpsGameTracker = new RpsGameTracker();
+
 export class RpsGame {
   id: number;
   channelId: string;
@@ -153,40 +205,4 @@ export type RpsGameState = {
   status: RpsGameStatus;
   player1Sign: RpsGameSign;
   player2Sign: RpsGameSign;
-};
-
-/*
-  Starts a RPS game
-*/
-export const startGame = async (
-  bet: number,
-  channelId: string,
-  player1User: User,
-  player2User?: User,
-): Promise<RpsGame> => {
-  const db = await openDB();
-  const result = await db.run(
-    `
-    INSERT INTO rps_game_info (player1_id, player2_id, bet)
-    VALUES (?, ?, ?)
-  `,
-    [player1User.id, player2User?.id, bet],
-  );
-  // get last inserted ID
-  const id = result.lastID;
-  if (id) {
-    const state: RpsGameState = {
-      player1Id: player1User.id,
-      player1Username: player1User.username,
-      player2Id: player2User?.id,
-      player2Username: player2User?.username ?? `Codey ${getEmojiByName('codeyLove')}`,
-      bet,
-      status: 0,
-      player1Sign: 0,
-      player2Sign: 0,
-    };
-    const game = new RpsGame(id!, channelId, state);
-    return game;
-  }
-  throw new Error('Something went wrong when starting the RPS game');
 };

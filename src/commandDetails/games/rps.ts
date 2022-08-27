@@ -1,13 +1,11 @@
 import { container } from '@sapphire/framework';
-import { MessageEmbed } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
   getUserFromMessage,
   SapphireMessageExecuteType,
 } from '../../codeyCommand';
-import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
-import { RpsGameSign, RpsGameStatus, startGame } from '../../components/games/rps';
+import { rpsGameTracker } from '../../components/games/rps';
 
 const rpsExecuteCommand: SapphireMessageExecuteType = async (_client, messageFromUser, args) => {
   /* 
@@ -15,7 +13,8 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (_client, messageFro
     the subsequent interactionHandlers handle the rest of the logic
   */
   const bet = (args['bet'] ?? 10) as number;
-  const game = await startGame(
+
+  const game = await rpsGameTracker.startGame(
     bet,
     messageFromUser.channelId,
     getUserFromMessage(messageFromUser),
