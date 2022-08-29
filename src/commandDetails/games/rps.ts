@@ -1,5 +1,4 @@
 import { container } from '@sapphire/framework';
-import { CommandInteraction } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -7,7 +6,6 @@ import {
   SapphireAfterReplyType,
   SapphireMessageExecuteType,
   SapphireMessageResponseWithMetadata,
-  SapphireSentMessageType,
 } from '../../codeyCommand';
 import { getCoinBalanceByUserId } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
@@ -29,6 +27,9 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
       `You don't have enough ${getCoinEmoji()} to place that bet.`,
       {},
     );
+  }
+  if (bet < 10) {
+    return new SapphireMessageResponseWithMetadata(`Minimum bet is 10 ${getCoinEmoji()}.`, {});
   }
 
   const game = await rpsGameTracker.startGame(

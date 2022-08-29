@@ -318,8 +318,8 @@ export class CodeyCommand extends SapphireCommand {
       if (!successResponse) return;
       // If response contains metadata
       if (successResponse instanceof SapphireMessageResponseWithMetadata) {
-        const response = (<SapphireMessageResponseWithMetadata>successResponse).response;
-        // If response is not void, reply to the original message with the response
+        const response = successResponse.response;
+        // If response is not undefined, reply to the original message with the response
         if (typeof response !== 'undefined') {
           const msg = await message.reply(<string | MessagePayload>response);
           if (commandDetails.afterMessageReply) {
@@ -328,13 +328,13 @@ export class CodeyCommand extends SapphireCommand {
           return msg;
         }
       }
-      // If it does not
+      // If response does not contain metadata
       else {
         return await message.reply(<string | MessagePayload>successResponse);
       }
     } catch (e) {
       logger.error(e);
-      return await message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
+      message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
     }
   }
 
@@ -395,8 +395,8 @@ export class CodeyCommand extends SapphireCommand {
         successResponse.response = { content: successResponse.response };
       }
 
+      // cannot double reply to a slash command (in case command replies on its own), runtime error
       if (!interaction.replied) {
-        // cannot double reply to a slash command (in case command replies on its own), runtime error
         await interaction.reply(
           Object.assign(
             {

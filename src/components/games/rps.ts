@@ -1,13 +1,5 @@
 import { openDB } from '../db';
-import { logger } from '../../logger/default';
-import {
-  ColorResolvable,
-  MessageActionRow,
-  MessageButton,
-  MessageEmbed,
-  MessagePayload,
-  User,
-} from 'discord.js';
+import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
 import { getCoinEmoji, getEmojiByName } from '../emojis';
 import { SapphireMessageResponse, SapphireSentMessageType } from '../../codeyCommand';
 import { adjustCoinBalanceByUserId, UserCoinEvent } from '../coin';
@@ -43,7 +35,9 @@ class RpsGameTracker {
     INSERT INTO rps_game_info (player1_id, player2_id, bet)
     VALUES (?, ?, ?)
   `,
-      [player1User.id, player2User?.id, bet],
+      player1User.id,
+      player2User?.id,
+      bet,
     );
     // get last inserted ID
     const id = result.lastID;
@@ -53,25 +47,28 @@ class RpsGameTracker {
         player1Username: player1User.username,
         player2Id: player2User?.id,
         player2Username: player2User?.username ?? `Codey ${getEmojiByName('codeyLove')}`,
-        bet,
-        status: 0,
-        player1Sign: 0,
-        player2Sign: 0,
+        bet: bet,
+        status: RpsGameStatus.Pending,
+        player1Sign: RpsGameSign.Pending,
+        player2Sign: RpsGameSign.Pending,
       };
       const game = new RpsGame(id!, channelId, state);
       this.games.set(id, game);
       return game;
     }
-    throw new Error('Something went wrong when starting the RPS game');
+    throw new Error('Something went wrong with starting the RPS game');
   }
 
   async endGame(gameId: number): Promise<void> {
     const db = await openDB();
     const game = this.getGameFromId(gameId);
+    if (!game) {
+      throw new Error(`No game with game ID ${gameId} found`);
+    }
     // Don't do anything if game status is still pending
-    if (game?.state.status === RpsGameStatus.Pending) return;
+    if (game.state.status === RpsGameStatus.Pending) return;
     // Update winnings
-    switch (game?.state.status) {
+    switch (game.state.status) {
       case RpsGameStatus.Player1Win:
         await adjustCoinBalanceByUserId(game.state.player1Id, game.state.bet, UserCoinEvent.RpsWin);
         if (game.state.player2Id) {
@@ -105,7 +102,6 @@ class RpsGameTracker {
           );
         }
         break;
-      default:
     }
     await db.run(
       `
@@ -113,13 +109,27 @@ class RpsGameTracker {
       SET player1_sign = ?, player2_sign = ?, status = ?
       WHERE id=?
       `,
-      [game?.state.player1Sign, game?.state.player2Sign, game?.state.status, game?.id],
+      game.state.player1Sign,
+      game.state.player2Sign,
+      game.state.status,
+      game.id,
     );
     rpsGameTracker.games.delete(gameId);
   }
 }
 
 export const rpsGameTracker = new RpsGameTracker();
+
+export enum RpsWinner {
+  Player1,
+  Player2,
+  Tie,
+}
+
+export enum RpsTimeout {
+  Player1,
+  Player2,
+}
 
 export class RpsGame {
   id: number;
@@ -133,26 +143,23 @@ export class RpsGame {
     this.state = state;
   }
 
-  private determineWinner(
-    player1Sign: RpsGameSign,
-    player2Sign: RpsGameSign,
-  ): 'player1' | 'player2' | 'tie' {
+  private determineWinner(player1Sign: RpsGameSign, player2Sign: RpsGameSign): RpsWinner {
     if (player1Sign === player2Sign) {
-      return 'tie';
+      return RpsWinner.Tie;
     }
     if (
       (player1Sign === RpsGameSign.Paper && player2Sign === RpsGameSign.Rock) ||
       (player1Sign === RpsGameSign.Scissors && player2Sign === RpsGameSign.Paper) ||
       (player1Sign === RpsGameSign.Rock && player2Sign === RpsGameSign.Scissors)
     ) {
-      return 'player1';
+      return RpsWinner.Player1;
     }
-    return 'player2';
+    return RpsWinner.Player2;
   }
 
-  public setStatus(timeout: 'player1' | 'player2' | null): void {
+  public setStatus(timeout?: RpsTimeout): void {
     // Both players submitted a sign
-    if (timeout === null) {
+    if (typeof timeout === 'undefined') {
       /*
         If one of the players' signs is still pending, something went wrong
       */
@@ -164,13 +171,13 @@ export class RpsGame {
       } else {
         const winner = this.determineWinner(this.state.player1Sign, this.state.player2Sign);
         switch (winner) {
-          case 'player1':
+          case RpsWinner.Player1:
             this.state.status = RpsGameStatus.Player1Win;
             break;
-          case 'player2':
+          case RpsWinner.Player2:
             this.state.status = RpsGameStatus.Player2Win;
             break;
-          case 'tie':
+          case RpsWinner.Tie:
             this.state.status = RpsGameStatus.Draw;
             break;
           default:
@@ -178,9 +185,9 @@ export class RpsGame {
             break;
         }
       }
-    } else if (timeout === 'player1') {
+    } else if (timeout === RpsTimeout.Player1) {
       this.state.status = RpsGameStatus.Player1TimeOut;
-    } else if (timeout === 'player2') {
+    } else if (timeout === RpsTimeout.Player2) {
       this.state.status = RpsGameStatus.Player2TimeOut;
     } else {
       this.state.status = RpsGameStatus.Unknown;
@@ -226,7 +233,7 @@ export class RpsGame {
     }
   }
 
-  // Prints embed and buttons for the game
+  // Prints embed and adds buttons for the game
   public getGameResponse(): SapphireMessageResponse {
     const embed = new MessageEmbed()
       .setColor(this.getEmbedColor())
@@ -239,7 +246,7 @@ Players: ${this.state.player1Username} vs. ${this.state.player2Username}
 If you win, you win your bet.
 If you lose, you lose your entire bet to Codey.
 If you draw, Codey takes 50% of your bet.
-  `,
+`,
       )
       .addFields([
         {
@@ -249,7 +256,7 @@ ${this.getStatusAsString()}
 
 ${this.state.player1Username} picked: ${getEmojiFromSign(this.state.player1Sign)}
 ${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)}
-      `,
+`,
         },
       ]);
     // Buttons
@@ -268,17 +275,10 @@ ${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)
         .setStyle('SECONDARY'),
     );
 
-    if (this.state.status === RpsGameStatus.Pending) {
-      return {
-        embeds: [embed],
-        components: [row],
-      };
-    } else {
-      return {
-        embeds: [embed],
-        components: [],
-      };
-    }
+    return {
+      embeds: [embed],
+      components: this.state.status === RpsGameStatus.Pending ? [row] : [],
+    };
   }
 }
 

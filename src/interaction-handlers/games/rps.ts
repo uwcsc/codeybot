@@ -1,13 +1,12 @@
-import { InteractionHandler, InteractionHandlerTypes, PieceContext } from '@sapphire/framework';
-import { ButtonInteraction, CommandInteraction, Message, MessagePayload } from 'discord.js';
 import {
-  getCodeyRpsSign,
-  getEmojiFromSign,
-  RpsGame,
-  RpsGameSign,
-  RpsGameStatus,
-  rpsGameTracker,
-} from '../../components/games/rps';
+  InteractionHandler,
+  InteractionHandlerTypes,
+  Maybe,
+  PieceContext,
+} from '@sapphire/framework';
+import { ButtonInteraction, CommandInteraction, Message, MessagePayload } from 'discord.js';
+import { getEmojiByName } from '../../components/emojis';
+import { getCodeyRpsSign, RpsGameSign, rpsGameTracker } from '../../components/games/rps';
 
 export class RpsHandler extends InteractionHandler {
   public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -17,9 +16,11 @@ export class RpsHandler extends InteractionHandler {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   // Get the game info and the interaction type
-  public override parse(interaction: ButtonInteraction) {
+  public override parse(interaction: ButtonInteraction): Maybe<{
+    gameId: number;
+    sign: RpsGameSign;
+  }> {
     if (!interaction.customId.startsWith('rps')) return this.none();
     const parsedCustomId = interaction.customId.split('-');
     const sign = parsedCustomId[1];
@@ -41,19 +42,27 @@ export class RpsHandler extends InteractionHandler {
         break;
     }
     return this.some({
-      gameId,
+      gameId: gameId,
       sign: gameSign,
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  public async run(interaction: ButtonInteraction, result: { gameId: number; sign: RpsGameSign }) {
+  public async run(
+    interaction: ButtonInteraction,
+    result: { gameId: number; sign: RpsGameSign },
+  ): Promise<void> {
+    if (interaction.user.id !== rpsGameTracker.getGameFromId(result.gameId)!.state.player1Id) {
+      return await interaction.reply({
+        content: `This isn't your game! ${getEmojiByName('codeyAngry')}`,
+        ephemeral: true,
+      });
+    }
     rpsGameTracker.runFuncOnGame(result.gameId, (game) => {
       game.state.player1Sign = result.sign;
       // If single player, get Codey's sign
       if (!game.state.player2Id) {
         game.state.player2Sign = getCodeyRpsSign();
-        game.setStatus(null);
+        game.setStatus(undefined);
       }
       if (game.gameMessage instanceof Message) {
         game.gameMessage.edit(<MessagePayload>game.getGameResponse());
@@ -62,10 +71,5 @@ export class RpsHandler extends InteractionHandler {
       }
     });
     rpsGameTracker.endGame(result.gameId);
-    // We need to do this to avoid "failed interaction" after selecting our option
-    await interaction.reply({
-      content: `You selected ${getEmojiFromSign(result.sign)}.`,
-      ephemeral: true,
-    });
   }
 }
