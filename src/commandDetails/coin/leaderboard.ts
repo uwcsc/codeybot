@@ -38,7 +38,7 @@ const getCurrentCoinLeaderboardEmbed = async (
     }
     if (user.bot) continue;
     const userTag = user?.tag ?? '<unknown>';
-    const userCoinEntryText = `${leaderboardArray.length + 1}. ${"\`\`"}S{userTag}${"\`\`"} - ${
+    const userCoinEntryText = `${leaderboardArray.length + 1}. ${'``'}S{userTag}${'``'} - ${
       userCoinEntry.balance
     } ${getCoinEmoji()}`;
     leaderboardArray.push(userCoinEntryText);
