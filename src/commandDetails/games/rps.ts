@@ -16,8 +16,8 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponseWithMetadata> => {
-  /* 
-    executeCommand sends the initial RPS embed; 
+  /*
+    executeCommand sends the initial RPS embed;
     the subsequent interactionHandlers handle the rest of the logic
   */
   const bet = (args['bet'] ?? 10) as number;
@@ -68,7 +68,7 @@ export const rpsCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'bet',
-      description: 'How much to bet - default is 10',
+      description: 'How much to bet - default is 10.',
       type: CodeyCommandOptionType.INTEGER,
       required: false,
     },

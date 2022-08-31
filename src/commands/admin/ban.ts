@@ -2,7 +2,7 @@ import { Command } from '@sapphire/framework';
 import { CodeyCommand } from '../../codeyCommand';
 import { banCommandDetails } from '../../commandDetails/admin/ban';
 
-export class BanCommand extends CodeyCommand {
+export class AdminBanCommand extends CodeyCommand {
   details = banCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {

@@ -53,7 +53,10 @@ export const addSuggestion = async (
     INSERT INTO suggestions (author_id, author_username, suggestion, state)
     VALUES(?,?,?,?);
     `,
-    [authorId, authorUsername, suggestion, state],
+    authorId,
+    authorUsername,
+    suggestion,
+    state,
   );
 };
 
@@ -69,7 +72,8 @@ export const updateSuggestionState = async (
       SET state = ?
       WHERE id = ?;
       `,
-      [state, id],
+      state,
+      id,
     );
   });
 };

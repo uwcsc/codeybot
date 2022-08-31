@@ -64,19 +64,19 @@ export const coinUpdateCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'user',
-      description: 'The user to adjust the balance of,',
+      description: 'The user to update the balance of.',
       type: CodeyCommandOptionType.USER,
       required: true,
     },
     {
       name: 'amount',
-      description: 'The amount to adjust the balance of the specified user to,',
+      description: 'The amount to update the balance of the specified user to.',
       type: CodeyCommandOptionType.NUMBER,
       required: true,
     },
     {
       name: 'reason',
-      description: 'The reason why we are adjusting the balance,',
+      description: 'The reason why we are updating the balance.',
       type: CodeyCommandOptionType.STRING,
       required: false,
     },

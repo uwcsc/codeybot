@@ -7,11 +7,11 @@ import {
 import { Message, MessageEmbed, User } from 'discord.js';
 import { getMatch, testPerformance, writeHistoricMatches } from '../../components/coffeeChat';
 import { logger } from '../../logger/default';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['coffee'],
-  description: 'Handles coffee chat functions',
+  description: 'Handle coffee chat functions.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coffeechat match\`
 \`${container.botPrefix}coffee match\`
@@ -79,7 +79,7 @@ export class CoffeeChatCommand extends SubCommandPluginCommand {
     if (typeof size === 'string') return message.reply(size);
 
     const results = await testPerformance(size);
-    const output = new MessageEmbed().setColor(EMBED_COLOUR).setTitle('Matches Until Dupe');
+    const output = new MessageEmbed().setColor(DEFAULT_EMBED_COLOUR).setTitle('Matches Until Dupe');
     results.forEach((value, key) => {
       output.addField(key, value.toString());
     });

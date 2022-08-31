@@ -23,13 +23,13 @@ import {
   toggleDomain,
   upsertInterviewer,
 } from '../../components/interviewer';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 const RESULTS_PER_PAGE = 6;
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['interviewers', 'int'],
-  description: 'Handles interviewer functions',
+  description: 'Handle interviewer functions.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer\`
 \`${container.botPrefix}interviewer frontend\``,
@@ -114,7 +114,9 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     const domains = await getDomains(id);
 
     //build output embed
-    const profileEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle('Interviewer Profile');
+    const profileEmbed = new MessageEmbed()
+      .setColor(DEFAULT_EMBED_COLOUR)
+      .setTitle('Interviewer Profile');
     profileEmbed.addField('**Link**', interviewer.link);
     profileEmbed.addField('**Domains**', _.isEmpty(domains) ? 'None' : getDomainsString(domains));
     return message.channel.send({ embeds: [profileEmbed] });
@@ -167,7 +169,7 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     const title = domain
       ? `Available Interviewers for ${availableDomains[domain]}`
       : 'Available Interviewers';
-    const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
+    const outEmbed = new MessageEmbed().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(interviewersInfo.join());
     return message.channel.send({ embeds: [outEmbed] });
   }

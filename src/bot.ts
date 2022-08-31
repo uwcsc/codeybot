@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { Message } from 'discord.js';
 import { container, LogLevel, SapphireClient, SapphirePrefix } from '@sapphire/framework';
 import '@sapphire/plugin-logger/register';
 import * as colorette from 'colorette';
+import { Message } from 'discord.js';
 import { inspect } from 'util';
 import { initMessageCreate } from './events/messageCreate';
 import { initReady } from './events/ready';
