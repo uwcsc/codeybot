@@ -69,7 +69,7 @@ const memberExecuteCommand: SapphireMessageExecuteType = async (
 export const memberCommandDetails: CodeyCommandDetails = {
   name: 'member',
   aliases: [],
-  description: 'Get CSC membership information.',
+  description: 'Get CSC membership information of a user.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}member [id]\``,
 
@@ -80,7 +80,7 @@ export const memberCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'uwid',
-      description: 'Quest ID.',
+      description: 'The Quest ID of the user.',
       type: CodeyCommandOptionType.STRING,
       required: true,
     },

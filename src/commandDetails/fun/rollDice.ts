@@ -5,7 +5,7 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
-import { getRandomInt } from '../../utils/num';
+import { getRandomIntFrom1 } from '../../utils/num';
 
 const rollDiceExecuteCommand: SapphireMessageExecuteType = (
   _client,
@@ -22,7 +22,7 @@ const rollDiceExecuteCommand: SapphireMessageExecuteType = (
   if (sides > SIDES_UPPER_BOUND) {
     return new Promise((resolve, _reject) => resolve("that's too many sides!"));
   }
-  const diceFace = getRandomInt(sides);
+  const diceFace = getRandomIntFrom1(sides);
   return new Promise((resolve, _reject) => resolve(`you rolled a ${diceFace}!`));
 };
 

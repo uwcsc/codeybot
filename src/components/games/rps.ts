@@ -1,6 +1,6 @@
 import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
 import { SapphireMessageResponse, SapphireSentMessageType } from '../../codeyCommand';
-import { getRandomInt } from '../../utils/num';
+import { getRandomIntFrom1 } from '../../utils/num';
 import { adjustCoinBalanceByUserId, UserCoinEvent } from '../coin';
 import { openDB } from '../db';
 import { getCoinEmoji, getEmojiByName } from '../emojis';
@@ -326,5 +326,5 @@ export type RpsGameState = {
 
 // Algorithm to get RPS game sign for Codey
 export const getCodeyRpsSign = (): RpsGameSign => {
-  return getRandomInt(3);
+  return getRandomIntFrom1(3);
 };
