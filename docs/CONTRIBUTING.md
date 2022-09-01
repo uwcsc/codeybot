@@ -30,8 +30,10 @@ We always welcome new feature requests for the bot! :D
 
 2. If you wish to work on the issue, ask one of the CodeyBot developers to assign you to the issue.
 
-3. When you're done, make a PR from your branch to `main`. Make sure to link/reference the issue which contains your feature request in your PR.
+3. Your branch name should be prefixed with `<issue #>-`. For example, if your issue # is 100, then instead of the branch name being something like `new-feature`, it should be `100-new-feature`.
+
+4. When you're done, make a PR from your branch to `main`. Make sure to link/reference the issue which contains your feature request in your PR.
 
 > Make sure to include screenshots/a demo of your feature request, if applicable.
 
-4. Before your PR can be merged, you need to pass the pipeline. The most common reasons why the pipeline fails are because the linter or formatter checks fail. To solve this, you can run `yarn lint` to see any linting issues you might have, or `yarn format` to format your code.
+5. Before your PR can be merged, you need to pass the pipeline. The most common reasons why the pipeline fails are because the linter or formatter checks fail. To solve this, you can run `yarn lint` to see any linting issues you might have, or `yarn format` to format your code.
