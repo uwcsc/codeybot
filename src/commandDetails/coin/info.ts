@@ -6,7 +6,7 @@ import {
   SapphireMessageResponse,
 } from '../../codeyCommand';
 import { getCoinEmoji } from '../../components/emojis';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
   _client,
@@ -16,7 +16,7 @@ const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
   // Get information about coin
   const COIN = getCoinEmoji();
   const infoEmbed = new MessageEmbed()
-    .setColor(EMBED_COLOUR)
+    .setColor(DEFAULT_EMBED_COLOUR)
     .setTitle(`${COIN}   About Codey Coin   ${COIN}`)
     .setThumbnail('https://cdn.discordapp.com/emojis/937096777180516453.webp')
     .setDescription(`Codey coins are rewarded for being active in CSC's events and discord!`)

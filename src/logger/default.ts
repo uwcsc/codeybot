@@ -1,4 +1,4 @@
-import { createLogger, transports, Logger, format } from 'winston';
+import { createLogger, format, Logger, transports } from 'winston';
 
 const logFormat = format.printf(({ level, message, timestamp, stack }) => {
   let text: string;

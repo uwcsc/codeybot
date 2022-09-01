@@ -3,9 +3,9 @@ import { User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
+  getUserFromMessage,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
-  getUserFromMessage,
 } from '../../codeyCommand';
 import { getCoinBalanceByUserId } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
@@ -53,7 +53,7 @@ export const coinCheckCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'user',
-      description: 'The user to check the balance of,',
+      description: 'The user to check the balance of.',
       type: CodeyCommandOptionType.USER,
       required: false,
     },

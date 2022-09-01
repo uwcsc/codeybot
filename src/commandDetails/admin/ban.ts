@@ -43,7 +43,7 @@ const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFrom
 export const banCommandDetails: CodeyCommandDetails = {
   name: 'ban',
   aliases: [],
-  description: 'Ban a user',
+  description: 'Ban a user.',
   detailedDescription: `**Examples:**
   \`${container.botPrefix}ban @jeff spam\``,
 

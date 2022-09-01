@@ -1,6 +1,6 @@
 import { GuildMember } from 'discord.js';
-import { logger } from '../logger/default';
 import { vars } from '../config';
+import { logger } from '../logger/default';
 
 const MOD_USER_ID_FOR_BAN_APPEAL: string = vars.MOD_USER_ID_FOR_BAN_APPEAL;
 

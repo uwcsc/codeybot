@@ -1,9 +1,9 @@
-import { Client, TextChannel } from 'discord.js';
 import { blue, green, magenta, magentaBright, white } from 'colorette';
+import { Client, TextChannel } from 'discord.js';
 import { initCrons } from '../components/cron';
 import { initEmojis } from '../components/emojis';
-import { logger } from '../logger/default';
 import { vars } from '../config';
+import { logger } from '../logger/default';
 import { getRepositoryReleases } from '../utils/github';
 
 const dev = process.env.NODE_ENV !== 'production';

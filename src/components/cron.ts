@@ -1,10 +1,10 @@
-import { Client } from 'discord.js';
 import { CronJob } from 'cron';
-import { MessageEmbed, TextChannel } from 'discord.js';
+import { Client, MessageEmbed, TextChannel } from 'discord.js';
 import _ from 'lodash';
+import fetch from 'node-fetch';
 import { CoffeeChatCommand } from '../commands/coffeeChat/coffeeChat';
 import { vars } from '../config';
-import { EMBED_COLOUR } from '../utils/embeds';
+import { DEFAULT_EMBED_COLOUR } from '../utils/embeds';
 import { getMatch, writeHistoricMatches } from './coffeeChat';
 import { adjustCoinBalanceByUserId, BonusType, coinBonusMap } from './coin';
 import { getInterviewers } from './interviewer';
@@ -14,7 +14,6 @@ import {
   SuggestionState,
   updateSuggestionState,
 } from './suggestion';
-import fetch from 'node-fetch';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
@@ -69,7 +68,7 @@ export const createSuggestionCron = (client: Client): CronJob =>
         const output = await getSuggestionPrintout(createdSuggestions);
         const title = 'New Suggestions';
         const outEmbed = new MessageEmbed()
-          .setColor(EMBED_COLOUR)
+          .setColor(DEFAULT_EMBED_COLOUR)
           .setTitle(title)
           .setDescription(output);
         (messageChannel as TextChannel).send({ embeds: [outEmbed] });
