@@ -3,7 +3,8 @@ import { vars } from '../config';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 
-export const EMBED_COLOUR = '#0099ff';
+export const DEFAULT_EMBED_COLOUR = '#0099ff';
+export const INFO_EMBED_COLOUR = '#4287f5';
 
 /*
  * Send kick embed
@@ -16,7 +17,7 @@ export const sendKickEmbed = async (
   isSuccessful = true,
 ): Promise<void> => {
   const kickEmbed = new MessageEmbed()
-    .setColor(EMBED_COLOUR)
+    .setColor(DEFAULT_EMBED_COLOUR)
     .addField('User', `${user.tag} (${user.id})`)
     .setFooter({ text: `Message ID: ${message.id} • ${new Date().toUTCString()}` });
   if (isSuccessful) kickEmbed.setTitle('Kick');

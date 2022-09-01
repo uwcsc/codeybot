@@ -7,13 +7,13 @@ import {
   SapphireMessageResponse,
 } from '../../codeyCommand';
 import {
-  getCurrentCoinLeaderboard,
   getCoinBalanceByUserId,
-  UserCoinEntry,
+  getCurrentCoinLeaderboard,
   getUserIdCurrentCoinPosition,
+  UserCoinEntry,
 } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 // How many people are shown on the leaderboard
 const limit = 10;
@@ -45,7 +45,7 @@ const getCurrentCoinLeaderboardEmbed = async (
   }
   const currentLeaderboardText = leaderboardArray.join('\n');
   const currentLeaderboardEmbed = new MessageEmbed()
-    .setColor(EMBED_COLOUR)
+    .setColor(DEFAULT_EMBED_COLOUR)
     .setTitle('CodeyCoin Leaderboard')
     .setDescription(currentLeaderboardText);
 

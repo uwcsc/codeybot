@@ -15,13 +15,13 @@ import {
   suggestionStatesReadable,
   updateSuggestionState,
 } from '../../components/suggestion';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 const RESULTS_PER_PAGE = 15;
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['suggestions', 'suggest'],
-  description: 'Handles suggestion functions',
+  description: 'Handle suggestion functions.',
   detailedDescription: `This command will forward a suggestion to the CSC Discord Mods. \
 Please note that your suggestion is not anonymous, your Discord username and ID will be recorded. \
 If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
@@ -67,7 +67,7 @@ export class SuggestionCommand extends SubCommandPluginCommand {
 
     // construct embed for display
     const title = state ? `${suggestionStatesReadable[state]} Suggestions` : 'Suggestions';
-    const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
+    const outEmbed = new MessageEmbed().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(suggestionsInfo.join(''));
     return message.channel.send({ embeds: [outEmbed] });
   }
@@ -97,7 +97,7 @@ export class SuggestionCommand extends SubCommandPluginCommand {
 
     // construct embed for display
     const title = `Suggestions Updated To ${suggestionStatesReadable[state]} State`;
-    const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
+    const outEmbed = new MessageEmbed().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(suggestionIds.join(', '));
     return message.channel.send({ embeds: [outEmbed] });
   }

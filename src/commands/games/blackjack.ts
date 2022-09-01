@@ -43,7 +43,7 @@ const validateBetAmount = (amount: number): string => {
 \`${container.botPrefix}blackjack 100\`
 \`${container.botPrefix}blj 100\``,
 })
-export class BlackjackCommand extends Command {
+export class GamesBlackjackCommand extends Command {
   /*
     Returns the corresponding emoji given the card's suit
   */

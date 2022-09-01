@@ -1,51 +1,16 @@
-import { Command, container } from '@sapphire/framework';
-
-import {
-  CodeyCommand,
-  CodeyCommandDetails,
-  SapphireMessageExecuteType,
-  SapphireMessageResponse,
-} from '../../codeyCommand';
-
-const executeCommand: SapphireMessageExecuteType = (
-  _client,
-  _messageFromUser,
-  _args,
-): Promise<SapphireMessageResponse> => {
-  const onHeads = Math.random() < 0.5;
-  const content = `The coin landed on **${onHeads ? 'heads' : 'tails'}**!`;
-  return new Promise((resolve, _reject) => resolve(content));
-};
-
-const flipcoinCommandDetails: CodeyCommandDetails = {
-  name: 'flipcoin',
-  aliases: ['fc', 'flip', 'flip-coin', 'coin-flip', 'coinflip'],
-  description: 'Flip a coin! In making decisions, if it is not great, at least it is fair!',
-  detailedDescription: `**Examples:**
-\`${container.botPrefix}flip-coin\`
-\`${container.botPrefix}fc\`
-\`${container.botPrefix}flip\`
-\`${container.botPrefix}coin-flip\`
-\`${container.botPrefix}coinflip\`
-\`${container.botPrefix}flipcoin\``,
-
-  isCommandResponseEphemeral: true,
-  messageWhenExecutingCommand: 'Flipping a coin...',
-  executeCommand: executeCommand,
-  messageIfFailure: 'Failed to flip a coin.',
-  options: [],
-  subcommandDetails: {},
-};
+import { Command } from '@sapphire/framework';
+import { CodeyCommand } from '../../codeyCommand';
+import { flipCoinCommandDetails } from '../../commandDetails/fun/flipCoin';
 
 export class FunFlipCoinCommand extends CodeyCommand {
-  details = flipcoinCommandDetails;
+  details = flipCoinCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
     super(context, {
       ...options,
-      aliases: flipcoinCommandDetails.aliases,
-      description: flipcoinCommandDetails.description,
-      detailedDescription: flipcoinCommandDetails.detailedDescription,
+      aliases: flipCoinCommandDetails.aliases,
+      description: flipCoinCommandDetails.description,
+      detailedDescription: flipCoinCommandDetails.detailedDescription,
     });
   }
 }

@@ -1,13 +1,19 @@
 import {
+  SlashCommandBuilder,
+  SlashCommandSubcommandBuilder,
+  SlashCommandSubcommandsOnlyBuilder,
+} from '@discordjs/builders';
+import {
   ApplicationCommandRegistries,
+  Args,
+  ArgType,
   ChatInputCommand,
   Command as SapphireCommand,
   container,
-  Args,
-  ArgType,
   RegisterBehavior,
   SapphireClient,
 } from '@sapphire/framework';
+import { APIMessage } from 'discord-api-types/v9';
 import {
   CommandInteraction,
   Message,
@@ -15,12 +21,6 @@ import {
   User,
   WebhookEditMessageOptions,
 } from 'discord.js';
-import { APIMessage } from 'discord-api-types/v9';
-import {
-  SlashCommandBuilder,
-  SlashCommandSubcommandBuilder,
-  SlashCommandSubcommandsOnlyBuilder,
-} from '@discordjs/builders';
 import { logger } from './logger/default';
 
 export type SapphireSentMessageType = Message | CommandInteraction;
