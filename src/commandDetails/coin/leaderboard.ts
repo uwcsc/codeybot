@@ -42,7 +42,7 @@ const getCurrentCoinLeaderboardEmbed = async (
       .split('~')
       .join('\\~')
       .split('*')
-      .join('*')
+      .join('\\*')
       .split('_')
       .join('\\_')
       .split('`')
