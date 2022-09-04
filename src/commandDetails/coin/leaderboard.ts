@@ -38,7 +38,16 @@ const getCurrentCoinLeaderboardEmbed = async (
     }
     if (user.bot) continue;
     const userTag = user?.tag ?? '<unknown>';
-    const userCoinEntryText = `${leaderboardArray.length + 1}. ${userTag} - ${
+    const cleanUserTag = userTag
+      .split('~')
+      .join('\\~')
+      .split('*')
+      .join('\\*')
+      .split('_')
+      .join('\\_')
+      .split('`')
+      .join('\\`');
+    const userCoinEntryText = `${leaderboardArray.length + 1}. ${cleanUserTag} - ${
       userCoinEntry.balance
     } ${getCoinEmoji()}`;
     leaderboardArray.push(userCoinEntryText);
