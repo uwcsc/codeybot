@@ -32,7 +32,7 @@ interface officeStatus {
 }
 // Updates office status based on webcom API
 export const createOfficeStatusCron = (client: Client): CronJob =>
-  new CronJob('0 */1 * * * *', async function () {
+  new CronJob('0 */10 * * * *', async function () {
     const response = (await (await fetch(OFFICE_HOURS_STATUS_API)).json()) as officeStatus;
     const messageChannel = client.channels.cache.get(OFFICE_STATUS_CHANNEL_ID);
     if (!messageChannel) {
@@ -41,13 +41,12 @@ export const createOfficeStatusCron = (client: Client): CronJob =>
       // if there is an emoji, prune it, otherwise leave name as is
       const curName =
         (messageChannel as TextChannel).name.replace(/\p{Extended_Pictographic}+/gu, '') +
-        // add no status if office is in unknown status
         //discord channel names don't accept :emoji: so we have to use actual unicode
         (response['status'] == 1 ? '✅' : response['status'] == 0 ? '❌' : '❓');
-      (messageChannel as TextChannel).setName(curName);
+      await (messageChannel as TextChannel).setName(curName);
       const time = Math.floor(response['time']);
       const topic = `Last updated at <t:${time}:F> for you (<t:${time}:R>)`;
-      (messageChannel as TextChannel).setTopic(topic).catch(console.error);
+      await (messageChannel as TextChannel).setTopic(topic).catch(console.error);
     } else {
       throw 'Bad channel type';
     }
