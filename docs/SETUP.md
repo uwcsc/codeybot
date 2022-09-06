@@ -14,9 +14,15 @@
 
 > For CodeyBot developers, we have our own dedicated testing server - ask your team lead for more details.
 
-4. Set up your Discord testing bot for Codey, and add your bot to the Discord testing server. Make sure it has the following perms:
+4. Set up your Discord testing bot for Codey. In the Discord Developer Portal, make sure to turn on all intents:
 
-![botperms](../assets/botPerms.png)
+![Intents](../assets/intents.png)
+
+Also, give the following permissions to your bot:
+
+![Bot Permissions](../assets/botPermissions.png)
+
+Then, add your bot to the Discord testing server.
 
 5. In your cloned project, navigate to `config/`. Duplicate the `vars.template.json` file, move your copy to the `dev` folder, and rename your file `vars.json`. This will be the config file for your local bot. Edit the values in `vars.json` as according to the following config variable descriptions:
 
