@@ -14,9 +14,13 @@
 
 > For CodeyBot developers, we have our own dedicated testing server - ask your team lead for more details.
 
-4. Set up your Discord testing bot for Codey. In the Discord Developer Portal, make sure to turn on all intents and add the following permissions to the bot:
+4. Set up your Discord testing bot for Codey. In the Discord Developer Portal, make sure to turn on all intents:
 
-![botperms](../assets/botPerms.png)
+![Intents](../assets/intents.png)
+
+Also, give the following permissions to your bot:
+
+![Bot Permissions](../assets/botPermissions.png)
 
 Then, add your bot to the Discord testing server.
 
