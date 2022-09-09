@@ -1,4 +1,4 @@
-name: Add created issue to backlog
+name: Add created issue to Project Board
 
 on:
   issues:
