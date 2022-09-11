@@ -17,7 +17,7 @@ import {
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
-const OFFICE_HOURS_STATUS_API = 'https://csclub.uwaterloo.ca/~n3parikh/office-status.json';
+const OFFICE_HOURS_STATUS_API = 'https://csclub.ca/office-status/json';
 
 export const initCrons = async (client: Client): Promise<void> => {
   createSuggestionCron(client).start();
