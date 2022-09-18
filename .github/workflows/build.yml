@@ -75,7 +75,7 @@ jobs:
           cache-from: uwcsclub/codey-bot:cache
           file: docker/${{env.DEPLOYMENT_TARGET}}/Dockerfile
           push: true
-          tags: ${{ github.event_name == 'release' && format('uwcsclub/codey-bot:{0},uwcsclub/codey-bot:{1}' , env.RELEASE_TAG, github.sha) || format('uwcsclub/codey-bot:{0}', github.sha)}}
+          tags: uwcsclub/codey-bot:${{ github.sha }}${{ github.event_name == 'release' && format('uwcsclub/codey-bot:{0}' , env.RELEASE_TAG, github.sha) || '' }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -89,7 +89,7 @@ jobs:
           script: |
             cd /codey/${{env.DEPLOYMENT_TARGET}}
             curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codeybot/main/docker/${{env.DEPLOYMENT_TARGET}}/docker-compose.yml
-            docker pull uwcsclub/codey-bot:${{ env.RELEASE_TAG }}
-            echo "TAG=${{ env.RELEASE_TAG }}" > docker.env
+            docker pull uwcsclub/codey-bot:${{ github.event_name == 'push' && github.sha || env.RELEASE_TAG }}
+            echo "TAG=${{ github.event_name == 'push' && github.sha || env.RELEASE_TAG }}" > docker.env
             docker-compose down
             docker-compose --env-file docker.env up -d
