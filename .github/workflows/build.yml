@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [73-optimize-build-files]
+    branches: [main]
   pull_request:
     branches: [main]
   release:
