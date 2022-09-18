@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [main]
+    branches: [73-optimize-build-files]
   pull_request:
     branches: [main]
   release:
@@ -39,7 +39,7 @@ jobs:
   deploy:
     needs: build
     # only run deploy on pushes and releases
-    if: ${{ github.event_name == push || github.event_name == release }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'release' }}
 
     runs-on: ubuntu-latest
 
@@ -48,14 +48,14 @@ jobs:
 
       # set target deployment to production on release and get release tag
       - name: Configuration for releases
-        if: ${{ github.event_name == release }}
+        if: ${{ github.event_name == 'release' }}
         run: |
-          echo "DEPLOYMENT_TARGET=production" >> $GITHUB_ENV
+          echo "DEPLOYMENT_TARGET=noplz" >> $GITHUB_ENV
           echo "RELEASE_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       # set target deployment to staging on push
       - name: Configuration for pushes
-        if: ${{ github.event_name == push }}
+        if: ${{ github.event_name == 'push' }}
         run: echo "DEPLOYMENT_TARGET=staging" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
