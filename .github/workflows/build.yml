@@ -75,7 +75,7 @@ jobs:
           cache-from: uwcsclub/codey-bot:cache
           file: docker/${{env.DEPLOYMENT_TARGET}}/Dockerfile
           push: true
-          tags: ${{ github.event_name == release && format('uwcsclub/codey-bot:{0},uwcsclub/codey-bot:{1}' , env.RELEASE_TAG, github.sha) || format('uwcsclub/codey-bot:{0}', github.sha)}}
+          tags: ${{ github.event_name == 'release' && format('uwcsclub/codey-bot:{0},uwcsclub/codey-bot:{1}' , env.RELEASE_TAG, github.sha) || format('uwcsclub/codey-bot:{0}', github.sha)}}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
