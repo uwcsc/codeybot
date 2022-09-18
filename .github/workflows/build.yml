@@ -50,7 +50,7 @@ jobs:
       - name: Configuration for releases
         if: ${{ github.event_name == 'push' }}
         run: |
-          echo "DEPLOYMENT_TARGET=noplz" >> $GITHUB_ENV
+          echo "DEPLOYMENT_TARGET=staging" >> $GITHUB_ENV
           echo "RELEASE_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       # set target deployment to staging on push
