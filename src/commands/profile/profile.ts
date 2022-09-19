@@ -45,7 +45,7 @@ export class ProfileCommand extends SubCommandPluginCommand {
           user.displayAvatarURL({
             dynamic: true,
             format: 'png',
-            size: 4096
+            size: 4096,
           }),
         );
       }
