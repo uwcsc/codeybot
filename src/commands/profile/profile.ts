@@ -41,7 +41,13 @@ export class ProfileCommand extends SubCommandPluginCommand {
       // setting profile colour might not be useful, but we should leave it to a separate discussion/ticket
       profileDisplay.setColor(DEFAULT_EMBED_COLOUR);
       if (user.avatar) {
-        profileDisplay.setImage(user.displayAvatarURL());
+        profileDisplay.setImage(
+          user.displayAvatarURL({
+            dynamic: true,
+            format: 'png',
+            size: 4096,
+          }),
+        );
       }
       for (const [key, val] of Object.entries(profileDetails)) {
         if (val && !notDisplay.includes(key)) {
