@@ -8,7 +8,7 @@
  * @returns Either the singular or plural form, dependent on the count
  */
 export const pluralize = (singularWord: string, count: number): string => {
-  if (count > 1) {
+  if (count > 1 || count == 0) {
     return singularWord + 's';
   }
   return singularWord;
