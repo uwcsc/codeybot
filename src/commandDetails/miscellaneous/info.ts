@@ -20,7 +20,7 @@ const getInfoEmbed = async (): Promise<MessageEmbed> => {
     .setURL(githubRepositoryInfo.html_url)
     .setThumbnail(githubRepositoryInfo.owner.avatar_url)
     .setDescription(
-      'Links to issue templates: https://github.com/uwcsc/codeybot/tree/main/.github/ISSUE_TEMPLATE',
+      'Make a feature request: https://github.com/uwcsc/codeybot/issues/new?assignees=&labels=request&template=feature_request.md&title=%5BFEATURE%5D',
     )
     .setFooter({ text: `App version: ${githubRepositoryReleases[0].tag_name}` });
   return infoEmbed;
