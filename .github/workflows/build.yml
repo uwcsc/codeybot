@@ -52,11 +52,14 @@ jobs:
         run: |
           echo "DEPLOYMENT_TARGET=production" >> $GITHUB_ENV
           echo "RELEASE_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+          echo "DEPLOYMENT_HOST=${{secrets.DEPLOY_HOST}}" >> $GITHUB_ENV
 
       # set target deployment to staging on push
       - name: Configuration for pushes
         if: ${{ github.event_name == 'push' }}
-        run: echo "DEPLOYMENT_TARGET=staging" >> $GITHUB_ENV
+        run: |
+          echo "DEPLOYMENT_TARGET=staging" >> $GITHUB_ENV
+          echo "DEPLOYMENT_HOST=${{secrets.STAGING_DEPLOY_HOST}}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -83,7 +86,7 @@ jobs:
       - name: Pull image and start container in deploy host
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DEPLOY_HOST }}
+          host: ${{ env.DEPLOYMENT_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
