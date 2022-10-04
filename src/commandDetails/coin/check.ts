@@ -9,6 +9,7 @@ import {
 } from '../../codeyCommand';
 import { getCoinBalanceByUserId } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
+import { pluralize } from '../../utils/pluralize';
 
 // Check a user's balance
 const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
@@ -36,7 +37,7 @@ const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
   }
 
   // Show coin balance
-  return `${displayMessage} ${balance} Codey coins ${getCoinEmoji()}.`;
+  return `${displayMessage} ${balance} Codey ${pluralize('coin', balance)} ${getCoinEmoji()}.`;
 };
 
 export const coinCheckCommandDetails: CodeyCommandDetails = {

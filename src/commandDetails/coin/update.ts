@@ -11,6 +11,7 @@ import {
   UserCoinEvent,
 } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
+import { pluralize } from '../../utils/pluralize';
 
 // Update coin balance of a user
 const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (
@@ -48,7 +49,10 @@ const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (
   // Get new balance
   const newBalance = await getCoinBalanceByUserId(user.id);
 
-  return `${user.username} now has ${newBalance} Codey coins ${getCoinEmoji()}.`;
+  return `${user.username} now has ${newBalance} Codey ${pluralize(
+    'coin',
+    newBalance,
+  )} ${getCoinEmoji()}.`;
 };
 
 export const coinUpdateCommandDetails: CodeyCommandDetails = {

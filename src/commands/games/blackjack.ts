@@ -25,6 +25,7 @@ import {
   performGameAction,
   startGame,
 } from '../../components/games/blackjack';
+import { pluralize } from '../../utils/pluralize';
 
 const DEFAULT_BET = 10;
 const MIN_BET = 10;
@@ -159,24 +160,25 @@ export class GamesBlackjackCommand extends Command {
     if (game.stage === BlackjackStage.DONE) {
       if (game.surrendered) {
         // player surrendered
-        return `You surrendered and lost **${amountDiff}** Codey coin(s) ${getEmojiByName(
-          'codeySad',
-        )}.`;
+        return `You surrendered and lost **${amountDiff}** Codey ${pluralize(
+          'coin',
+          amountDiff,
+        )} ${getEmojiByName('codeySad')}.`;
       }
       if (game.amountWon < game.bet) {
         // player lost
-        return `You lost **${amountDiff}** Codey coin(s) ${getEmojiByName(
+        return `You lost **${amountDiff}** Codey ${pluralize('coin', amountDiff)} ${getEmojiByName(
           'codeySad',
         )}, better luck next time!`;
       }
       if (game.amountWon > game.bet) {
         // player won
-        return `You won **${amountDiff}** Codey coin(s) ${getEmojiByName(
+        return `You won **${amountDiff}** Codey ${pluralize('coin', amountDiff)} ${getEmojiByName(
           'codeyLove',
         )}, keep your win streak going!`;
       }
       // player tied with dealer
-      return `Tied! You didn't win nor lose any Codey coin(s), try again!`;
+      return `Tied! You didn't win nor lose any Codey ${pluralize('coin', amountDiff)}, try again!`;
     }
     // game instruction
     return 'Press 🇭 to hit, 🇸 to stand, or 🇶 to quit.';
