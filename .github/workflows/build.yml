@@ -88,7 +88,7 @@ jobs:
         with:
           host: ${{ env.DEPLOYMENT_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_KEY }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd /codey/${{env.DEPLOYMENT_TARGET}}
             curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codeybot/main/docker/${{env.DEPLOYMENT_TARGET}}/docker-compose.yml
