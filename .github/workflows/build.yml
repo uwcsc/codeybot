@@ -59,7 +59,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         run: |
           echo "DEPLOYMENT_TARGET=staging" >> $GITHUB_ENV
-          echo "DEPLOYMENT_HOST=${{secrets.DEPLOY_HOST}}" >> $GITHUB_ENV
+          echo "DEPLOYMENT_HOST=${{secrets.STAGING_DEPLOY_HOST}}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -87,8 +87,8 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.DEPLOYMENT_HOST }}
-          username: ${{ secrets.STAGING_DEPLOY_USER }}
-          key: ${{ secrets.STAGING_DEPLOY_KEY }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
           script: |
             cd /codey/${{env.DEPLOYMENT_TARGET}}
             curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codeybot/main/docker/${{env.DEPLOYMENT_TARGET}}/docker-compose.yml
