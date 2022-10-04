@@ -87,8 +87,8 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.DEPLOYMENT_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          username: ${{ secrets.STAGING_DEPLOY_USER }}
+          key: ${{ secrets.STAGING_DEPLOY_KEY }}
           script: |
             cd /codey/${{env.DEPLOYMENT_TARGET}}
             curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codeybot/main/docker/${{env.DEPLOYMENT_TARGET}}/docker-compose.yml
