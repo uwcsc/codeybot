@@ -169,11 +169,12 @@ export const getUserIdCurrentCoinPosition = async (userId: string): Promise<numb
   const db = await openDB();
   const res = await db.get(
     `
-      SELECT Rank() OVER (ORDER BY balance DESC) AS count
-      FROM user_coin
-      WHERE balance >= ?
+    SELECT count 
+    FROM (SELECT user_id, Rank() OVER (ORDER BY balance DESC) AS count
+      FROM user_coin)
+    WHERE user_id = ?
     `,
-    await getCoinBalanceByUserId(userId),
+    userId,
   );
   return _.get(res, 'count', 0);
 };
