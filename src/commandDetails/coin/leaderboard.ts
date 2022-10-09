@@ -47,7 +47,7 @@ const getCurrentCoinLeaderboardEmbed = async (
       .join('\\_')
       .split('`')
       .join('\\`');
-    const userCoinEntryText = `${leaderboardArray.length + 1}. ${cleanUserTag} - ${
+    const userCoinEntryText = `${userCoinEntry.rank}. ${cleanUserTag} - ${
       userCoinEntry.balance
     } ${getCoinEmoji()}`;
     leaderboardArray.push(userCoinEntryText);
