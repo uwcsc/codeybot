@@ -8,6 +8,5 @@
     "experimentalDecorators": true,
     "sourceMap": true,
   },
-  "include": ["**/*.ts"],
-  "exclude": ["src/oldCode"]
+  "include": ["**/*.ts"]
 }
