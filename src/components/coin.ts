@@ -163,23 +163,6 @@ export const getCurrentCoinLeaderboard = async (limit = 10): Promise<UserCoinEnt
 };
 
 /*
-  Get the position for a user id's balance
-*/
-export const getUserIdCurrentCoinPosition = async (userId: string): Promise<number> => {
-  const db = await openDB();
-  const res = await db.get(
-    `
-    SELECT count 
-    FROM (SELECT user_id, Rank() OVER (ORDER BY balance DESC) AS count
-      FROM user_coin)
-    WHERE user_id = ?
-    `,
-    userId,
-  );
-  return _.get(res, 'count', 0);
-};
-
-/*
   Adds an entry to the Codey coin ledger due to a change in a user's coin balance.
   reason is only applicable for admin commands and is optional.
   adminId is only applicable for admin commands and is mandatory.

@@ -9,7 +9,6 @@ import {
 import {
   getCoinBalanceByUserId,
   getCurrentCoinLeaderboard,
-  getUserIdCurrentCoinPosition,
   UserCoinEntry,
 } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
@@ -25,9 +24,11 @@ const getCurrentCoinLeaderboardEmbed = async (
 ): Promise<MessageEmbed> => {
   // Initialise user's coin balance if they have not already
   const userBalance = await getCoinBalanceByUserId(currentUserId);
-  const currentPosition = await getUserIdCurrentCoinPosition(currentUserId);
+  let currentPosition = 0;
 
   const leaderboardArray: string[] = [];
+  let rank = 1;
+  let previousBalance = -1;
   for (let i = 0; i < leaderboard.length && leaderboardArray.length < limit; i++) {
     const userCoinEntry = leaderboard[i];
     let user: User;
@@ -47,9 +48,16 @@ const getCurrentCoinLeaderboardEmbed = async (
       .join('\\_')
       .split('`')
       .join('\\`');
-    const userCoinEntryText = `${userCoinEntry.rank}. ${cleanUserTag} - ${
+    const userCoinEntryText = `${rank}. ${cleanUserTag} - ${
       userCoinEntry.balance
     } ${getCoinEmoji()}`;
+    if (userCoinEntry.user_id === currentUserId) {
+      currentPosition = rank;
+    }
+    if (previousBalance !== userCoinEntry.balance) {
+      previousBalance = userCoinEntry.balance;
+      rank = rank + 1;
+    }
     leaderboardArray.push(userCoinEntryText);
   }
   const currentLeaderboardText = leaderboardArray.join('\n');
