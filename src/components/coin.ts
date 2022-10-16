@@ -67,7 +67,6 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
 export interface UserCoinEntry {
   user_id: string;
   balance: number;
-  rank: number;
 }
 
 export interface UserCoinBonus {
@@ -151,10 +150,9 @@ export const getCurrentCoinLeaderboard = async (limit = 10): Promise<UserCoinEnt
   const db = await openDB();
   const res = await db.all(
     `
-      SELECT user_id, balance,
-      Rank() OVER (ORDER BY balance DESC) AS rank
+      SELECT user_id, balance
       FROM user_coin
-      ORDER BY rank ASC
+      ORDER BY balance DESC
       LIMIT ?
     `,
     limit,

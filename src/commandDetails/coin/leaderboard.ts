@@ -51,12 +51,12 @@ const getCurrentCoinLeaderboardEmbed = async (
     const userCoinEntryText = `${rank}. ${cleanUserTag} - ${
       userCoinEntry.balance
     } ${getCoinEmoji()}`;
-    if (userCoinEntry.user_id === currentUserId) {
-      currentPosition = rank;
-    }
     if (previousBalance !== userCoinEntry.balance) {
       previousBalance = userCoinEntry.balance;
       rank = rank + 1;
+    }
+    if (userCoinEntry.user_id === currentUserId) {
+      currentPosition = rank;
     }
     leaderboardArray.push(userCoinEntryText);
   }
