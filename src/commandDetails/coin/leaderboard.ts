@@ -27,7 +27,7 @@ const getCurrentCoinLeaderboardEmbed = async (
   let currentPosition = 0;
 
   const leaderboardArray: string[] = [];
-  let rank = 1;
+  let rank = 0;
   let previousBalance = -1;
   for (let i = 0; i < leaderboard.length && leaderboardArray.length < limit; i++) {
     const userCoinEntry = leaderboard[i];
