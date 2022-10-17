@@ -6,12 +6,12 @@ import {
 } from '../../codeyCommand';
 
 const uptimeExecuteCommand: SapphireMessageExecuteType = (
-  _client,
+  client,
   _messageFromUser,
   _args,
 ): Promise<SapphireMessageResponse> => {
   // In the case where _client.uptime is null we return 0
-  let totalSeconds = (_client.uptime ? _client.uptime : 0) / 1000;
+  let totalSeconds = (client.uptime ? client.uptime : 0) / 1000;
   const days = Math.floor(totalSeconds / 86400);
   totalSeconds %= 86400;
   const hours = Math.floor(totalSeconds / 3600);
@@ -35,7 +35,7 @@ export const uptimeCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: true,
   messageWhenExecutingCommand: 'Getting uptime...',
   executeCommand: uptimeExecuteCommand,
-  messageIfFailure: "Failed to get Codey's uptime",
+  messageIfFailure: "Failed to get Codey's uptime.",
   options: [],
   subcommandDetails: {},
 };
