@@ -27,7 +27,7 @@ const getCurrentCoinLeaderboardEmbed = async (
   let currentPosition = 0;
 
   const leaderboardArray: string[] = [];
-  let rank = 1;
+  let rank = 0;
   let previousBalance = -1;
   for (let i = 0; i < leaderboard.length && leaderboardArray.length < limit; i++) {
     const userCoinEntry = leaderboard[i];
@@ -48,13 +48,13 @@ const getCurrentCoinLeaderboardEmbed = async (
       .join('\\_')
       .split('`')
       .join('\\`');
-    const userCoinEntryText = `${rank}. ${cleanUserTag} - ${
-      userCoinEntry.balance
-    } ${getCoinEmoji()}`;
     if (previousBalance !== userCoinEntry.balance) {
       previousBalance = userCoinEntry.balance;
       rank = rank + 1;
     }
+    const userCoinEntryText = `${rank}. ${cleanUserTag} - ${
+      userCoinEntry.balance
+    } ${getCoinEmoji()}`;
     if (userCoinEntry.user_id === currentUserId) {
       currentPosition = rank;
     }
