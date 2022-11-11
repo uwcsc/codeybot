@@ -3,6 +3,8 @@ import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
 import { vars } from '../config';
 import { openDB } from './db';
+import { loadRoleUsers } from '../utils/roles';
+import { User } from 'discord.js';
 
 const COFFEE_ROLE_ID: string = vars.COFFEE_ROLE_ID;
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
@@ -22,31 +24,22 @@ interface historic_match {
  * Returns a potential single chatter in the single field, null otherwise
  */
 export const getMatch = async (): Promise<string[][]> => {
-  //get list of users and their historic chat history
-  const userList = await loadCoffeeChatUsers();
-  const matched = await loadMatched(userList);
-  //generate one week of matches, and updates match freq tables accordingly
-  const matches = stableMatch(userList, matched);
-  return matches;
-};
+  // Gets the list of users that are currently "enrolled" in role
+  const userList = await loadRoleUsers(COFFEE_ROLE_ID);
 
-/*
- * Gets the list of users that are currently "enrolled" in coffee chat
- * Returns a mapping of string -> int, where string is their ID, while int is an index assigned to the ID
- * The index is used in place of the ID for match tallying
- */
-const loadCoffeeChatUsers = async (): Promise<Map<string, number>> => {
-  const { client } = container;
-  //gets list of users with the coffee chat role
-  const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
-    ?.filter((member) => member.roles.cache.has(COFFEE_ROLE_ID))
-    .map((member) => member.user.id);
   //assigns each user ID a unique index
   const notMatched: Map<string, number> = new Map();
-  userList.forEach((val: string, index: number) => {
-    notMatched.set(val, index);
+
+  // Returns a mapping of string -> int, where string is their ID, while int is an index assigned to the ID
+  // The index is used in place of the ID for match tallying
+  userList.forEach((val: User, index: number) => {
+    notMatched.set(val.id, index);
   });
-  return notMatched;
+
+  const matched = await loadMatched(notMatched);
+  //generate one week of matches, and updates match freq tables accordingly
+  const matches = stableMatch(notMatched, matched);
+  return matches;
 };
 
 /*

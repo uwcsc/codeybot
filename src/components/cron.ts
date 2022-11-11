@@ -2,10 +2,12 @@ import { CronJob } from 'cron';
 import { Client, MessageEmbed, TextChannel } from 'discord.js';
 import _ from 'lodash';
 import fetch from 'node-fetch';
-import { CoffeeChatCommand } from '../commands/coffeeChat/coffeeChat';
+import { alertMatches } from '../commands/coffeeChat/coffeeChat';
+import { alertUsers } from '../commands/officeOpenDM/officeOpenDM';
 import { vars } from '../config';
 import { DEFAULT_EMBED_COLOUR } from '../utils/embeds';
-import { getMatch, writeHistoricMatches } from './coffeeChat';
+import { getMatch, writeHistoricMatches } from '../components/coffeeChat';
+import { loadRoleUsers } from '../utils/getUsersWithRole';
 import { adjustCoinBalanceByUserId, BonusType, coinBonusMap } from './coin';
 import { getInterviewers } from './interviewer';
 import {
@@ -50,6 +52,10 @@ export const createOfficeStatusCron = (client: Client): CronJob =>
     } else {
       throw 'Bad channel type';
     }
+
+    // Send all the users with the "Office Ping" role a DM:
+    // Get all users with "Office Ping" role
+    await alertUsers();
   });
 
 // Checks for new suggestions every min
@@ -96,7 +102,7 @@ export const createBonusInterviewerListCron = (): CronJob =>
 export const createCoffeeChatCron = (client: Client): CronJob =>
   new CronJob('0 0 14 * * 5', async function () {
     const matches = await getMatch();
-    await CoffeeChatCommand.alertMatches(matches);
+    await alertMatches(matches);
     await writeHistoricMatches(matches);
 
     const messageChannel = client.channels.cache.get(NOTIF_CHANNEL_ID);

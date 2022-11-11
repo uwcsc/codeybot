@@ -1,4 +1,6 @@
-import { ColorResolvable, GuildMember, Role, RoleManager } from 'discord.js';
+import { ColorResolvable, GuildMember, Role, RoleManager, User } from 'discord.js';
+import { container } from '@sapphire/framework';
+import { vars } from '../config';
 
 export const addOrRemove = {
   add: true,
@@ -44,4 +46,19 @@ export const updateMemberRole = async (
       } (${member.id}).`,
     );
   }
+};
+
+const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
+
+/*
+ * Given a role id, returns a list of users that have that role
+ */
+export const loadRoleUsers = async (role_id: string): Promise<User[]> => {
+  const { client } = container;
+  //gets list of users with the role
+  const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
+    ?.filter((member) => member.roles.cache.has(role_id))
+    .map((member) => member.user);
+
+  return userList;
 };
