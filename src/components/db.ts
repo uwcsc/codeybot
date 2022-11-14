@@ -138,6 +138,17 @@ const initRpsGameInfo = async (db: Database): Promise<void> => {
   );
 };
 
+const initResumePreview = async (db: Database): Promise<void> => {
+  await db.run(
+    `
+      CREATE TABLE IF NOT EXISTS resume_preview_info (
+        initial_pdf_id VARCHAR(255) PRIMARY KEY NOT NULL,
+        preview_id VARCHAR(255) NOT NULL
+      )
+    `
+  )
+}
+
 const initTables = async (db: Database): Promise<void> => {
   //initialize all relevant tables
   await initCoffeeChatTables(db);
@@ -148,6 +159,7 @@ const initTables = async (db: Database): Promise<void> => {
   await initUserCoinTable(db);
   await initUserProfileTable(db);
   await initRpsGameInfo(db);
+  await initResumePreview(db);
 };
 
 export const openDB = async (): Promise<Database> => {

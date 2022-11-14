@@ -8,6 +8,7 @@ import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
 import { convertPdfToPic } from '../utils/pdfToPic';
+import { openDB } from '../components/db';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;
@@ -78,6 +79,7 @@ const convertResumePdfsIntoImages = async (
   // If no resume pdf is provided, do nothing
   const attachments = message.attachments;
   if (attachments.size !== 1) return;
+  const db = await openDB();
 
   // Get resume pdf from message and write locally to tmp
   const pdfLink = Array.from(attachments.values()).map((file) => file.attachment)[0];
@@ -95,9 +97,16 @@ const convertResumePdfsIntoImages = async (
   // Convert the resume pdf into image
   const imgResponse = await convertPdfToPic('tmp/resume.pdf', 'resume', width * 2, height * 2);
   // Send the image back to the channel
-  return await message.channel.send({
+  const preview_message = await message.channel.send({
     files: imgResponse.map((img) => img.path),
-  });
+  })
+  // Inserting the pdf and preview message IDs into the DB
+  await db.run(
+    'INSERT INTO resume_preview_info (initial_pdf_id, preview_id) VALUES(?, ?)',
+    message.id,
+    preview_message.id,
+  );
+  return preview_message;
 };
 
 export const initMessageCreate = async (
