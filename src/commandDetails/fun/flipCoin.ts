@@ -18,7 +18,7 @@ const flipCoinExecuteCommand: SapphireMessageExecuteType = (
 export const flipCoinCommandDetails: CodeyCommandDetails = {
   name: 'flipcoin',
   aliases: ['fc', 'flip', 'flip-coin', 'coin-flip', 'coinflip'],
-  description: 'Flip a coin! In making decisions, if it is not great, at least it is fair!',
+  description: 'Flip a coin! :coin: In making decisions, if it is not great, at least it is fair! :scales:',
   detailedDescription: `**Examples:**
   \`${container.botPrefix}flip-coin\`
   \`${container.botPrefix}fc\`

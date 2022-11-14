@@ -29,7 +29,7 @@ const rollDiceExecuteCommand: SapphireMessageExecuteType = (
 export const rollDiceCommandDetails: CodeyCommandDetails = {
   name: 'rolldice',
   aliases: ['rd', 'roll', 'roll-dice', 'dice-roll', 'diceroll', 'dice'],
-  description: 'Roll a dice!',
+  description: 'Roll a dice! :game_die:',
   detailedDescription: `**Examples:**
   \`${container.botPrefix}roll-dice 6\`
   \`${container.botPrefix}dice-roll 30\`
