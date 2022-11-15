@@ -44,7 +44,7 @@ function content(botLatency: number, apiLatency: number): string {
 export const pingCommandDetails: CodeyCommandDetails = {
   name: 'ping',
   aliases: ['pong'],
-  description: 'Ping the bot to see if it is alive. :insert_ping_emoji:',
+  description: 'Ping the bot to see if it is alive. :ping_pong:',
   detailedDescription: `**Examples:**
       \`${container.botPrefix}ping\`
       \`${container.botPrefix}pong\``,
