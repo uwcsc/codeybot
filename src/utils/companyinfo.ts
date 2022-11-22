@@ -2,6 +2,7 @@ import { vars } from '../config';
 import { isValidUrl } from './validateUrl';
 import fetch from 'node-fetch';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getCompanyInfo = async (companyCrunchbaseLink: string) => {
   // check if url contains crunchbase.com/organization
   // if not, return null
