@@ -17,12 +17,11 @@ const getCompanyInfo = async (companyCrunchbaseLink: string) => {
   }
 
   let companyName;
-  // check if urlPattern matches companyCrunchbaseLink
   if (companyCrunchbaseLink.includes(CRUNCHBASE_ORGANIZATION_URL)) {
     // grab everything after the last / character
     companyName = companyCrunchbaseLink.split('/').pop();
   } else {
-    // assume they just supplied the id
+    // assume they just supplied the id if we can't find the CRUNCHBASE_ORGANIZATION_URL
     companyName = companyCrunchbaseLink;
   }
 
