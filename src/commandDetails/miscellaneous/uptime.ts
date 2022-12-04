@@ -10,7 +10,7 @@ const uptimeExecuteCommand: SapphireMessageExecuteType = (
   _messageFromUser,
   _args,
 ): Promise<SapphireMessageResponse> => {
-  // In the case where _client.uptime is null we return 0
+  // In the case where client.uptime is null we return 0
   let totalSeconds = (client.uptime ? client.uptime : 0) / 1000;
   const days = Math.floor(totalSeconds / 86400);
   totalSeconds %= 86400;
