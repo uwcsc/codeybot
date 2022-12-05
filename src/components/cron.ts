@@ -2,10 +2,11 @@ import { CronJob } from 'cron';
 import { Client, MessageEmbed, TextChannel } from 'discord.js';
 import _ from 'lodash';
 import fetch from 'node-fetch';
-import { CoffeeChatCommand } from '../commands/coffeeChat/coffeeChat';
+import { alertMatches } from '../components/coffeeChat';
+import { alertUsers } from './officeOpenDM';
 import { vars } from '../config';
 import { DEFAULT_EMBED_COLOUR } from '../utils/embeds';
-import { getMatch, writeHistoricMatches } from './coffeeChat';
+import { getMatch, writeHistoricMatches } from '../components/coffeeChat';
 import { adjustCoinBalanceByUserId, BonusType, coinBonusMap } from './coin';
 import { getInterviewers } from './interviewer';
 import {
@@ -18,6 +19,11 @@ import {
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
 const OFFICE_HOURS_STATUS_API = 'https://csclub.ca/office-status/json';
+
+// The last known status of the office
+//  false if closed
+//  true if open
+let office_last_status = false;
 
 export const initCrons = async (client: Client): Promise<void> => {
   createSuggestionCron(client).start();
@@ -35,6 +41,7 @@ export const createOfficeStatusCron = (client: Client): CronJob =>
   new CronJob('0 */10 * * * *', async function () {
     const response = (await (await fetch(OFFICE_HOURS_STATUS_API)).json()) as officeStatus;
     const messageChannel = client.channels.cache.get(OFFICE_STATUS_CHANNEL_ID);
+
     if (!messageChannel) {
       throw 'Bad channel ID';
     } else if (messageChannel.type === 'GUILD_TEXT') {
@@ -49,6 +56,17 @@ export const createOfficeStatusCron = (client: Client): CronJob =>
       await (messageChannel as TextChannel).setTopic(topic).catch(console.error);
     } else {
       throw 'Bad channel type';
+    }
+
+    if (office_last_status == false && response['status'] == 1) {
+      // The office was closed and is now open
+      // Send all the users with the "Office Ping" role a DM:
+      // Get all users with "Office Ping" role
+      await alertUsers();
+      office_last_status = true;
+    } else if (office_last_status == true && response['status'] == 0) {
+      // the office was open and is now closed
+      office_last_status = false;
     }
   });
 
@@ -96,7 +114,7 @@ export const createBonusInterviewerListCron = (): CronJob =>
 export const createCoffeeChatCron = (client: Client): CronJob =>
   new CronJob('0 0 14 * * 5', async function () {
     const matches = await getMatch();
-    await CoffeeChatCommand.alertMatches(matches);
+    await alertMatches(matches);
     await writeHistoricMatches(matches);
 
     const messageChannel = client.channels.cache.get(NOTIF_CHANNEL_ID);
