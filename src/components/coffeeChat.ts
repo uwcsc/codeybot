@@ -5,9 +5,9 @@ import { vars } from '../config';
 import { openDB } from './db';
 import { loadRoleUsers } from '../utils/roles';
 import { User } from 'discord.js';
+import { sendMessage } from '../utils/dm';
 
 const COFFEE_ROLE_ID: string = vars.COFFEE_ROLE_ID;
-const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 //since we might fully hit hundreds of people if we release this into the wider server, set iterations at around 100-200 to keep time at a reasonable number
 //averages around 90% for test sizes 10-20, 75% for test sizes 100-200 people
 const RANDOM_ITERATIONS = 100;
@@ -240,6 +240,41 @@ export const testPerformance = async (testSize: number): Promise<Map<string, num
   }
   output.set('RANDOM', tally);
   return output;
+};
+
+export const alertMatches = async (matches: string[][]): Promise<void> => {
+  const { client } = container;
+  const outputMap: Map<string, string[]> = new Map();
+  const userMap: Map<string, User> = new Map();
+  //map them to find what to send a specific person
+  for (const pair of matches) {
+    if (!outputMap.get(pair[0])) {
+      outputMap.set(pair[0], []);
+      userMap.set(pair[0], await client.users.fetch(pair[0]));
+    }
+    if (!outputMap.get(pair[1])) {
+      outputMap.set(pair[1], []);
+      userMap.set(pair[1], await client.users.fetch(pair[1]));
+    }
+    outputMap.get(pair[0])!.push(pair[1]);
+    outputMap.get(pair[1])!.push(pair[0]);
+  }
+  //send out messages
+  outputMap.forEach(async (targets, user) => {
+    const discordUser = userMap.get(user)!;
+    //we use raw discord id ping format to minimize fetch numbers on our end
+    const userTargets = targets.map((value) => userMap.get(value)!);
+
+    let message: string;
+
+    if (targets.length > 1) {
+      message = `Your coffee chat :coffee: matches for this week are... **${userTargets[0].tag}** and **${userTargets[1].tag}**! Feel free to contact ${userTargets[0]} and ${userTargets[1]} at your earliest convenience. :wink: If you have any suggestions, please use the suggestion feature to give us feedback!`;
+    } else {
+      message = `Your coffee chat :coffee: match for this week is... **${userTargets[0].tag}**! Feel free to contact ${userTargets[0]} at your earliest convenience. :wink: If you have any suggestions, please use the .suggestion feature to give us feedback!`;
+    }
+
+    await sendMessage(discordUser, message);
+  });
 };
 
 /*setting random iteration count to 1000 allows stable marriage to find the optimized matching for most cases, despite

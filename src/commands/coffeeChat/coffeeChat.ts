@@ -4,45 +4,10 @@ import {
   SubCommandPluginCommand,
   SubCommandPluginCommandOptions,
 } from '@sapphire/plugin-subcommands';
-import { Message, MessageEmbed, User } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { getMatch, testPerformance, writeHistoricMatches } from '../../components/coffeeChat';
 import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
-import { sendMessage } from '../../utils/dm';
-
-export const alertMatches = async (matches: string[][]): Promise<void> => {
-  const { client } = container;
-  const outputMap: Map<string, string[]> = new Map();
-  const userMap: Map<string, User> = new Map();
-  //map them to find what to send a specific person
-  for (const pair of matches) {
-    if (!outputMap.get(pair[0])) {
-      outputMap.set(pair[0], []);
-      userMap.set(pair[0], await client.users.fetch(pair[0]));
-    }
-    if (!outputMap.get(pair[1])) {
-      outputMap.set(pair[1], []);
-      userMap.set(pair[1], await client.users.fetch(pair[1]));
-    }
-    outputMap.get(pair[0])!.push(pair[1]);
-    outputMap.get(pair[1])!.push(pair[0]);
-  }
-  //send out messages
-  outputMap.forEach(async (targets, user) => {
-    const discordUser = userMap.get(user)!;
-    //we use raw discord id ping format to minimize fetch numbers on our end
-    const userTargets = targets.map((value) => userMap.get(value)!);
-
-    let message: string;
-
-    if (targets.length > 1) {
-      message = `Your coffee chat :coffee: matches for this week are... **${userTargets[0].tag}** and **${userTargets[1].tag}**! Feel free to contact ${userTargets[0]} and ${userTargets[1]} at your earliest convenience. :wink: If you have any suggestions, please use the suggestion feature to give us feedback!`;
-    } else {
-      message = `Your coffee chat :coffee: match for this week is... **${userTargets[0].tag}**! Feel free to contact ${userTargets[0]} at your earliest convenience. :wink: If you have any suggestions, please use the .suggestion feature to give us feedback!`;
-    }
-
-    await sendMessage(discordUser, message);
-  });
-};
+import { alertMatches } from '../../components/coffeeChat';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['coffee'],

@@ -2,6 +2,8 @@ import { ColorResolvable, GuildMember, Role, RoleManager, User } from 'discord.j
 import { container } from '@sapphire/framework';
 import { vars } from '../config';
 
+const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
+
 export const addOrRemove = {
   add: true,
   remove: false,
@@ -47,8 +49,6 @@ export const updateMemberRole = async (
     );
   }
 };
-
-const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 
 /*
  * Given a role id, returns a list of users that have that role

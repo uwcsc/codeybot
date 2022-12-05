@@ -1,7 +1,7 @@
 import { User } from 'discord.js';
-import { loadRoleUsers } from '../../utils/roles';
-import { vars } from '../../config';
-import { sendMessage } from '../../utils/dm';
+import { loadRoleUsers } from '../utils/roles';
+import { vars } from '../config';
+import { sendMessage } from '../utils/dm';
 
 const OFFICE_PING_ROLE_ID: string = vars.OFFICE_PING_ROLE_ID;
 
