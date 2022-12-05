@@ -138,6 +138,29 @@ const initRpsGameInfo = async (db: Database): Promise<void> => {
   );
 };
 
+const initCompaniesTable = async (db: Database): Promise<void> => {
+  // the company_id will match the crunchbase entity_id, which is a unique identifier for each company
+  // see https://app.swaggerhub.com/apis-docs/Crunchbase/crunchbase-enterprise_api/1.0.3#/Entity/get_entities_organizations__entity_id_
+  await db.run(
+    `
+    CREATE TABLE IF NOT EXISTS companies (
+      company_id VARCHAR(30) PRIMARY KEY NOT NULL,
+      description TEXT
+      categories TEXT
+      `,
+  );
+};
+
+const initPeopleCompaniesTable = async (db: Database): Promise<void> => {
+  await db.run(
+    `
+    CREATE TABLE IF NOT EXISTS people_companies (
+      user_id VARCHAR(255) TEXT NOT NULL,
+      FOREIGNKEY(company_id) REFERENCES companies(company_id) NOT NULL
+      )`,
+  );
+};
+
 const initTables = async (db: Database): Promise<void> => {
   //initialize all relevant tables
   await initCoffeeChatTables(db);
@@ -148,6 +171,8 @@ const initTables = async (db: Database): Promise<void> => {
   await initUserCoinTable(db);
   await initUserProfileTable(db);
   await initRpsGameInfo(db);
+  await initCompaniesTable(db);
+  await initPeopleCompaniesTable(db);
 };
 
 export const openDB = async (): Promise<Database> => {
