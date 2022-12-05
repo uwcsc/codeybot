@@ -55,7 +55,8 @@ const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
  */
 export const loadRoleUsers = async (role_id: string): Promise<User[]> => {
   const { client } = container;
-  //gets list of users with the role
+
+  // fetches all the users in the server and then filters based on the role
   const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
     ?.filter((member) => member.roles.cache.has(role_id))
     .map((member) => member.user);

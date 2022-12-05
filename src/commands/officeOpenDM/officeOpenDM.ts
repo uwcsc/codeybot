@@ -1,19 +1,17 @@
-import { container } from '@sapphire/framework';
-import { GuildMember, User } from 'discord.js';
-import { logger } from '../../logger/default';
+import { User } from 'discord.js';
 import { loadRoleUsers } from '../../utils/roles';
 import { vars } from '../../config';
 import { sendMessage } from '../../utils/dm';
 
 const OFFICE_PING_ROLE_ID: string = vars.OFFICE_PING_ROLE_ID;
-const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 
+/* alertUsers
+ *  loads all the users that have the "Office Ping" role using roles.ts in utils
+ *  and sends them a message using sendMessage from dm.ts
+ */
 export const alertUsers = async (): Promise<void> => {
-  const { client } = container;
-
   const users: User[] = await loadRoleUsers(OFFICE_PING_ROLE_ID);
 
-  //send out messages
   users.forEach(async (user) => {
     await sendMessage(user, 'The office is now open!');
   });
