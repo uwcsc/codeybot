@@ -7,7 +7,6 @@ import { alertUsers } from '../commands/officeOpenDM/officeOpenDM';
 import { vars } from '../config';
 import { DEFAULT_EMBED_COLOUR } from '../utils/embeds';
 import { getMatch, writeHistoricMatches } from '../components/coffeeChat';
-import { loadRoleUsers } from '../utils/getUsersWithRole';
 import { adjustCoinBalanceByUserId, BonusType, coinBonusMap } from './coin';
 import { getInterviewers } from './interviewer';
 import {
@@ -37,6 +36,7 @@ export const createOfficeStatusCron = (client: Client): CronJob =>
   new CronJob('0 */10 * * * *', async function () {
     const response = (await (await fetch(OFFICE_HOURS_STATUS_API)).json()) as officeStatus;
     const messageChannel = client.channels.cache.get(OFFICE_STATUS_CHANNEL_ID);
+
     if (!messageChannel) {
       throw 'Bad channel ID';
     } else if (messageChannel.type === 'GUILD_TEXT') {
@@ -53,9 +53,11 @@ export const createOfficeStatusCron = (client: Client): CronJob =>
       throw 'Bad channel type';
     }
 
-    // Send all the users with the "Office Ping" role a DM:
-    // Get all users with "Office Ping" role
-    await alertUsers();
+    if (response['status'] == 1) {
+      // Send all the users with the "Office Ping" role a DM:
+      // Get all users with "Office Ping" role
+      await alertUsers();
+    }
   });
 
 // Checks for new suggestions every min
