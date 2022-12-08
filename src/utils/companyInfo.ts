@@ -1,4 +1,3 @@
-import { vars } from '../config';
 import { isValidUrl } from './validateUrl';
 import fetch from 'node-fetch';
 
@@ -26,7 +25,7 @@ const getCompanyInfo = async (companyCrunchbaseLink: string) => {
   }
 
   const response = await fetch(
-    `${CRUNCHBASE_ORGANIZATION_API_URL}${companyName}?user_key=${vars.CRUNCHBASE_API_KEY}&field_ids=categories,short_description`,
+    `${CRUNCHBASE_ORGANIZATION_API_URL}${companyName}?user_key=${process.env.CRUNCHBASE_API_KEY}&field_ids=categories,short_description`,
   );
   const data = await response.json();
   if (data.error) {

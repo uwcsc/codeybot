@@ -33,16 +33,18 @@ Then, add your bot to the Discord testing server.
 - `OFFICE_STATUS_CHANNEL_ID`: the ID of the office hours channel.
 - `IRC_USER_ID`: the user ID of the irc-bridge bot.
 - `MOD_USER_ID_FOR_BAN_APPEAL`: the user ID of the mod tagged in the appeal messages for bans.
-- `CRUNCHBASE_API_KEY`: API key if you wish to use the upcoming enroll company feature. (Create an account here)[https://www.crunchbase.com/home]. NOTE: feature is still under construction.
   Note that this file will not be pushed to the remote.
 
 6. Make an `.env` file in the root folder of the project, and put your Discord bot's token, which can be found in the Discord Developer Portal. The format of the `.env` file should be as follows.
 
 ```
 DISCORD_TOKEN=<insert token here>
+CRUNCHBASE_API_KEY=<insert crunchbase key here>
 ```
 
-DO NOT REVEAL THIS TOKEN; ANYONE WITH THIS TOKEN CAN CONTROL YOUR BOT.
+DO NOT REVEAL THE DISCORD_TOKEN; ANYONE WITH THIS TOKEN CAN CONTROL YOUR BOT.
+
+For the `CRUNCHBASE_API_KEY`: This is the API key if you wish to use the upcoming enroll company feature. (Create an account here)[https://www.crunchbase.com/home]. NOTE: feature is still under construction.
 
 Note that this file will also not be pushed to the remote.
 
