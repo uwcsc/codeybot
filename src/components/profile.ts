@@ -1,4 +1,5 @@
 import { container } from '@sapphire/framework';
+import emojiRegex from 'emoji-regex';
 import { GuildMember } from 'discord.js';
 import { vars } from '../config';
 import { addOrRemove, updateMemberRole } from '../utils/roles';
@@ -56,7 +57,7 @@ export enum configMaps {
   faculty = 'faculty',
   program = 'program',
   specialization = 'specialization',
-  profile_emoji = 'Profile Emoji',
+  profile_emoji = 'profile_emoji',
 }
 
 export enum prettyProfileDetails {
@@ -128,7 +129,7 @@ export const validUserCustomization = (
   description: string,
 ): userCustomization => {
   let parsedDescription = description;
-  if (customization !== validatedFields.term) {
+  if (customization !== validatedFields.term && customization != validatedFields.profile_emoji) {
     // convert to lowercase then first letter to capital, in case the user doesn't use proper capitalization
     parsedDescription = description.toLowerCase();
     parsedDescription = parsedDescription[0].toUpperCase() + parsedDescription.slice(1);
@@ -163,8 +164,12 @@ export const validUserCustomization = (
       }
       break;
     case validatedFields.profile_emoji:
+      console.log('profile emoji: ' + parsedDescription);
       if (getEmojiByName(parsedDescription) === undefined) {
-        return { reason: 'Invalid profile emoji given ' + parsedDescription + '.' };
+        const emojiRegexToCheck = emojiRegex();
+        if (!parsedDescription.match(emojiRegexToCheck)) {
+          return { reason: 'Invalid profile emoji given ' + parsedDescription + '.' };
+        }
       }
       break;
     default:
@@ -200,7 +205,9 @@ export const editUserProfile = async (member: GuildMember, data: UserProfile): P
 
   if (user.found === 1) {
     // escape any instances of ' character by placing another ' in front of it by sqlite specifications
-    description.replace(/'/g, "''");
+    if (customization != 'profile_emoji') {
+      description.replace(/'/g, "''");
+    }
     query = `UPDATE user_profile_table SET last_updated=CURRENT_DATE, ${customization}=? WHERE user_id=?`;
     await db.run(query, description, member.id);
   } else {

@@ -6,7 +6,6 @@ import {
 } from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
 import { getCoinBalanceByUserId } from '../../components/coin';
-import { getEmojiByName } from '../../components/emojis';
 import {
   assignAlumniRole,
   assignDecadeAndPruneYearRoles,
@@ -55,22 +54,11 @@ export class ProfileCommand extends SubCommandPluginCommand {
           // iterate through each of the configurations, prettyProfileDetails making the configuration more readable
           // as opposed to snake case
           // need to cast val to string since addField does not take in numbers
-          if (key != 'profile_emoji') {
-            profileDisplay.addField(
-              prettyProfileDetails[key as keyof typeof prettyProfileDetails],
-              val.toString(),
-              key !== 'about_me', // since about_me can be long, we dont want to inline it
-            );
-          } else {
-            const emoji = getEmojiByName(val.toString());
-            if (emoji) {
-              profileDisplay.addField(
-                prettyProfileDetails[key as keyof typeof prettyProfileDetails],
-                emoji.toString(),
-                true,
-              );
-            }
-          }
+          profileDisplay.addField(
+            prettyProfileDetails[key as keyof typeof prettyProfileDetails],
+            val.toString(),
+            key !== 'about_me', // since about_me can be long, we dont want to inline it
+          );
         }
       }
       // add codeycoins onto the fields as well
