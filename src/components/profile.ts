@@ -164,7 +164,6 @@ export const validUserCustomization = (
       }
       break;
     case validatedFields.profile_emoji:
-      console.log('profile emoji: ' + parsedDescription);
       if (getEmojiByName(parsedDescription) === undefined) {
         const emojiRegexToCheck = emojiRegex();
         if (!parsedDescription.match(emojiRegexToCheck)) {

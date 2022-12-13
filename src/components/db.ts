@@ -119,6 +119,15 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
         )
         `,
   );
+  const columns = await db.all(
+    `SELECT count(*) > 0
+      FROM pragma_table_info('user_profile_table')
+      WHERE name='profile_emoji'
+    `,
+  );
+  if (columns.length == 0) {
+    await db.run(`ALTER TABLE user_profile_table ADD COLUMN profile_emoji VARCHAR(32)`);
+  }
 };
 
 const initRpsGameInfo = async (db: Database): Promise<void> => {
