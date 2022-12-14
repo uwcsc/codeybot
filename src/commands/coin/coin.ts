@@ -6,7 +6,6 @@ import { coinInfoCommandDetails } from '../../commandDetails/coin/info';
 import { coinUpdateCommandDetails } from '../../commandDetails/coin/update';
 import { coinTransferCommandDetails } from '../../commandDetails/coin/transfer';
 import { coinCurrentLeaderboardCommandDetails } from '../../commandDetails/coin/leaderboard';
-import { coinUpdateCommandDetails } from '../../commandDetails/coin/update';
 
 const coinCommandDetails: CodeyCommandDetails = {
   name: 'coin',

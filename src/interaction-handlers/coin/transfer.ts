@@ -26,7 +26,6 @@ export class MenuHandler extends InteractionHandler {
   // */
   public override parse(interaction: ButtonInteraction): Awaitable<Maybe<unknown>> {
     if (!['accept', 'reject'].includes(interaction.customId)) return this.none();
-    console.log('we vibing');
 
     return this.some();
   }
@@ -36,14 +35,8 @@ export class MenuHandler extends InteractionHandler {
   // */
   public async run(interaction: ButtonInteraction): Promise<void> {
     const { client } = container;
-    const response = await coinTransferCommandDetails.executeCommand!(
-      client,
-      interaction,
-      {},
-      undefined,
-    );
+    const response = await coinTransferCommandDetails.executeCommand!(client, interaction, {});
 
-    console.log('response', response);
     await interaction.reply({
       content: response.toString(),
       ephemeral: false,

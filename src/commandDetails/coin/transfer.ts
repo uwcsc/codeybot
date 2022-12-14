@@ -1,9 +1,8 @@
-import { container, Command } from '@sapphire/framework';
-import { User, MessageActionRow, MessageButton, Message, ButtonInteraction } from 'discord.js';
+import { container } from '@sapphire/framework';
+import { User, MessageActionRow, MessageButton, ButtonInteraction } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
   getUserFromMessage,
 } from '../../codeyCommand';
@@ -19,7 +18,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
   // First mandatory argument is user
   const user = <User>args['user'];
   if (!user) {
-    throw new Error('please enter a valid user mention or ID to transfer coins.');
+    throw new Error('please enter a valid user mention or ID to transfer coins to.');
   }
 
   // Second mandatory argument is amount
@@ -27,9 +26,6 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
   if (typeof amount !== 'number') {
     throw new Error('please enter a valid amount to transfer.');
   }
-
-  // Optional argument is reason
-  const reason = args['reason'] ?? null;
 
   // Get balance
   const senderBalance = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
@@ -86,12 +82,11 @@ export const coinTransferCommandDetails: CodeyCommandDetails = {
   aliases: ['t'],
   description: 'Transfer coins to another user.',
   detailedDescription: `**Examples:**
-  \`${container.botPrefix}coin transfer @Codey 100 Gave me a cookie.\``,
+  \`${container.botPrefix}coin transfer @Codey 100\``,
 
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Transferring coins...',
   executeCommand: coinTransferExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
 
   options: [
     {
@@ -105,12 +100,6 @@ export const coinTransferCommandDetails: CodeyCommandDetails = {
       description: 'The amount to transfer,',
       type: CodeyCommandOptionType.NUMBER,
       required: true,
-    },
-    {
-      name: 'reason',
-      description: 'The reason why we are transferring money,',
-      type: CodeyCommandOptionType.STRING,
-      required: false,
     },
   ],
   subcommandDetails: {},
