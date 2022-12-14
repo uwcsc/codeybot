@@ -99,42 +99,88 @@ const setCommandOption = (
   builder: SlashCommandBuilder | SlashCommandSubcommandBuilder,
   option: CodeyCommandOption,
 ): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
-  function setupCommand<T extends ApplicationCommandOptionBase>(commandOption: T): T {
-    return commandOption
-      .setName(option.name)
-      .setDescription(option.description)
-      .setRequired(option.required);
-  }
-
-  function setupChoices<
-    B extends string | number,
-    T extends ApplicationCommandOptionBase &
-      ApplicationCommandOptionWithChoicesAndAutocompleteMixin<B>,
-  >(commandOption: T): T {
-    return option.choices
-      ? commandOption.addChoices(...(option.choices as APIApplicationCommandOptionChoice<B>[]))
-      : commandOption;
-  }
-
   switch (option.type) {
     case CodeyCommandOptionType.STRING:
-      return <SlashCommandBuilder>builder.addStringOption((x) => setupCommand(setupChoices(x)));
+      return <SlashCommandBuilder>(
+        builder.addStringOption((commandOption) =>
+          commandOption
+            .setName(option.name)
+            .setDescription(option.description)
+            .setRequired(option.required),
+        )
+      );
     case CodeyCommandOptionType.INTEGER:
-      return <SlashCommandBuilder>builder.addIntegerOption((x) => setupCommand(setupChoices(x)));
+      return <SlashCommandBuilder>(
+        builder.addIntegerOption((commandOption) =>
+          commandOption
+            .setName(option.name)
+            .setDescription(option.description)
+            .setRequired(option.required),
+        )
+      );
     case CodeyCommandOptionType.BOOLEAN:
-      return <SlashCommandBuilder>builder.addBooleanOption(setupCommand);
+      return <SlashCommandBuilder>(
+        builder.addBooleanOption((commandOption) =>
+          commandOption
+            .setName(option.name)
+            .setDescription(option.description)
+            .setRequired(option.required),
+        )
+      );
     case CodeyCommandOptionType.USER:
-      return <SlashCommandBuilder>builder.addUserOption(setupCommand);
+      return <SlashCommandBuilder>(
+        builder.addUserOption((commandOption) =>
+          commandOption
+            .setName(option.name)
+            .setDescription(option.description)
+            .setRequired(option.required),
+        )
+      );
     case CodeyCommandOptionType.CHANNEL:
-      return <SlashCommandBuilder>builder.addChannelOption(setupCommand);
+      return <SlashCommandBuilder>(
+        builder.addChannelOption((commandOption) =>
+          commandOption
+            .setName(option.name)
+            .setDescription(option.description)
+            .setRequired(option.required),
+        )
+      );
     case CodeyCommandOptionType.ROLE:
-      return <SlashCommandBuilder>builder.addRoleOption(setupCommand);
+      return <SlashCommandBuilder>(
+        builder.addRoleOption((commandOption) =>
+          commandOption
+            .setName(option.name)
+            .setDescription(option.description)
+            .setRequired(option.required),
+        )
+      );
     case CodeyCommandOptionType.MENTIONABLE:
-      return <SlashCommandBuilder>builder.addMentionableOption(setupCommand);
+      return <SlashCommandBuilder>(
+        builder.addMentionableOption((commandOption) =>
+          commandOption
+            .setName(option.name)
+            .setDescription(option.description)
+            .setRequired(option.required),
+        )
+      );
     case CodeyCommandOptionType.NUMBER:
-      return <SlashCommandBuilder>builder.addNumberOption((x) => setupCommand(setupChoices(x)));
+      return <SlashCommandBuilder>(
+        builder.addNumberOption((commandOption) =>
+          commandOption
+            .setName(option.name)
+            .setDescription(option.description)
+            .setRequired(option.required),
+        )
+      );
     case CodeyCommandOptionType.ATTACHMENT:
-      return <SlashCommandBuilder>builder.addAttachmentOption(setupCommand);
+      return <SlashCommandBuilder>(
+        builder.addAttachmentOption((commandOption) =>
+          commandOption
+            .setName(option.name)
+            .setDescription(option.description)
+            .setRequired(option.required),
+        )
+      );
     default:
       throw new Error(`Unknown option type.`);
   }
@@ -292,7 +338,22 @@ export class CodeyCommand extends SapphireCommand {
       } else {
         const successResponse = await commandDetails.executeCommand!(client, message, args);
         if (!successResponse) return;
-        return await message.reply(successResponse);
+        // If response contains metadata
+        if (successResponse instanceof SapphireMessageResponseWithMetadata) {
+          const response = successResponse.response;
+          // If response is not undefined, reply to the original message with the response
+          if (typeof response !== 'undefined') {
+            const msg = await message.reply(<string | MessagePayload>response);
+            if (commandDetails.afterMessageReply) {
+              commandDetails.afterMessageReply(successResponse, msg);
+            }
+            return msg;
+          }
+        }
+        // If response does not contain metadata
+        else {
+          return await message.reply(<string | MessagePayload>successResponse);
+        }
       }
     } catch (e) {
       logger.error(e);
@@ -307,12 +368,10 @@ export class CodeyCommand extends SapphireCommand {
     const { client } = container;
 
     // Get subcommand name
-    let subcommandName: string;
+    let subcommandName = '';
     try {
       subcommandName = interaction.options.getSubcommand();
-    } catch (e) {
-      subcommandName = '';
-    }
+    } catch (e) {}
     /** The command details object to use */
     const commandDetails = this.details.subcommandDetails[subcommandName] ?? this.details;
 
