@@ -7,7 +7,7 @@ export const suggestionStatesReadable: { [key: string]: string } = {
   pending: 'Pending',
   rejected: 'Rejected',
   actionable: 'Actionable',
-  accepted: 'Accepted'
+  accepted: 'Accepted',
 };
 
 export enum SuggestionState {
@@ -15,12 +15,13 @@ export enum SuggestionState {
   Pending = 'pending',
   Rejected = 'rejected',
   Actionable = 'actionable',
-  Accepted = 'accepted'
+  Accepted = 'accepted',
 }
 
 export const getListsString = (List: string[]): string => _.join(List, ', ');
 
-export const getAvailableStatesString = (): string => getListsString(Object.values(suggestionStatesReadable));
+export const getAvailableStatesString = (): string =>
+  getListsString(Object.values(suggestionStatesReadable));
 
 export interface Suggestion {
   id: string;
@@ -33,14 +34,16 @@ export interface Suggestion {
 
 // Get id and suggestion from a list of Suggestions
 export const getSuggestionPrintout = async (suggestions: Suggestion[]): Promise<string> => {
-  return suggestions.map((suggestion) => '**' + suggestion['id'] + '** | ' + suggestion['suggestion']).join('\n');
+  return suggestions
+    .map((suggestion) => '**' + suggestion['id'] + '** | ' + suggestion['suggestion'])
+    .join('\n');
 };
 
 export const addSuggestion = async (
   authorId: string,
   authorUsername: string,
   suggestion: string,
-  state: string = SuggestionState.Created
+  state: string = SuggestionState.Created,
 ): Promise<void> => {
   const db = await openDB();
 
@@ -50,11 +53,17 @@ export const addSuggestion = async (
     INSERT INTO suggestions (author_id, author_username, suggestion, state)
     VALUES(?,?,?,?);
     `,
-    [authorId, authorUsername, suggestion, state]
+    authorId,
+    authorUsername,
+    suggestion,
+    state,
   );
 };
 
-export const updateSuggestionState = async (ids: number[], state = SuggestionState.Pending): Promise<void> => {
+export const updateSuggestionState = async (
+  ids: number[],
+  state = SuggestionState.Pending,
+): Promise<void> => {
   const db = await openDB();
   ids.map(async function (id) {
     await db.run(
@@ -63,7 +72,8 @@ export const updateSuggestionState = async (ids: number[], state = SuggestionSta
       SET state = ?
       WHERE id = ?;
       `,
-      [state, id]
+      state,
+      id,
     );
   });
 };

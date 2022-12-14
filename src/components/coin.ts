@@ -4,7 +4,7 @@ import { openDB } from './db';
 export enum BonusType {
   Daily = 0,
   Activity,
-  InterviewerList
+  InterviewerList,
 }
 
 export enum UserCoinEvent {
@@ -13,7 +13,10 @@ export enum UserCoinEvent {
   BonusDaily,
   BonusActivity,
   BonusInterviewerList,
-  Blackjack
+  Blackjack,
+  RpsLoss,
+  RpsDrawAgainstCodey,
+  RpsWin,
 }
 
 export type Bonus = {
@@ -36,8 +39,8 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
       event: UserCoinEvent.BonusDaily,
       amount: 50,
       cooldown: 24 * 60 * 60 * 1000, // one day in milliseconds
-      isMessageBonus: true
-    }
+      isMessageBonus: true,
+    },
   ],
   [
     BonusType.Activity,
@@ -46,8 +49,8 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
       event: UserCoinEvent.BonusActivity,
       amount: 1,
       cooldown: 5 * 60 * 1000, // 5 minutes in milliseconds
-      isMessageBonus: true
-    }
+      isMessageBonus: true,
+    },
   ],
   [
     BonusType.InterviewerList,
@@ -56,9 +59,9 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
       event: UserCoinEvent.BonusInterviewerList,
       amount: 10,
       cooldown: null,
-      isMessageBonus: false
-    }
-  ]
+      isMessageBonus: false,
+    },
+  ],
 ]);
 
 export interface UserCoinEntry {
@@ -91,7 +94,7 @@ export const updateCoinBalanceByUserId = async (
   newBalance: number,
   event: UserCoinEvent,
   reason: string | null = null,
-  adminId: string | null = null
+  adminId: string | null = null,
 ): Promise<void> => {
   const oldBalance = await getCoinBalanceByUserId(userId);
   const actualNewBalance = Math.max(newBalance, 0);
@@ -108,7 +111,7 @@ export const adjustCoinBalanceByUserId = async (
   amount: number,
   event: UserCoinEvent,
   reason: string | null = null,
-  adminId: string | null = null
+  adminId: string | null = null,
 ): Promise<void> => {
   const oldBalance = await getCoinBalanceByUserId(userId);
   const newBalance = Math.max(oldBalance! + amount, 0);
@@ -125,7 +128,7 @@ export const changeDbCoinBalanceByUserId = async (
   newBalance: number,
   event: UserCoinEvent,
   reason: string | null,
-  adminId: string | null
+  adminId: string | null,
 ): Promise<void> => {
   const db = await openDB();
   await db.run(
@@ -135,7 +138,7 @@ export const changeDbCoinBalanceByUserId = async (
       DO UPDATE SET balance = ?`,
     userId,
     newBalance,
-    newBalance
+    newBalance,
   );
   await createCoinLedgerEntry(userId, oldBalance, newBalance, event, reason, adminId);
 };
@@ -152,25 +155,9 @@ export const getCurrentCoinLeaderboard = async (limit = 10): Promise<UserCoinEnt
       ORDER BY balance DESC
       LIMIT ?
     `,
-    limit
+    limit,
   );
   return res;
-};
-
-/*
-  Get the position for a user id's balance
-*/
-export const getUserIdCurrentCoinPosition = async (userId: string): Promise<number> => {
-  const db = await openDB();
-  const res = await db.get(
-    `
-      SELECT COUNT(user_id) AS count
-      FROM user_coin
-      WHERE balance >= ?
-    `,
-    await getCoinBalanceByUserId(userId)
-  );
-  return _.get(res, 'count', 0);
 };
 
 /*
@@ -184,7 +171,7 @@ export const createCoinLedgerEntry = async (
   newBalance: number,
   event: UserCoinEvent,
   reason: string | null,
-  adminId: string | null
+  adminId: string | null,
 ): Promise<void> => {
   const db = await openDB();
   await db.run(
@@ -194,7 +181,7 @@ export const createCoinLedgerEntry = async (
     newBalance,
     event,
     reason,
-    adminId
+    adminId,
   );
 };
 
@@ -202,7 +189,10 @@ export const createCoinLedgerEntry = async (
   If (user, bonusType) doesn't exist, create row with current time as this bonusType log.
   Otherwise, update last_granted to CURRENT_TIMESTAMP.
 */
-export const updateUserBonusTableByUserId = async (userId: string, bonusType: BonusType): Promise<void> => {
+export const updateUserBonusTableByUserId = async (
+  userId: string,
+  bonusType: BonusType,
+): Promise<void> => {
   const db = await openDB();
   await db.run(
     `
@@ -210,19 +200,22 @@ export const updateUserBonusTableByUserId = async (userId: string, bonusType: Bo
       ON CONFLICT(user_id, bonus_type)
       DO UPDATE SET last_granted = CURRENT_TIMESTAMP`,
     userId,
-    bonusType
+    bonusType,
   );
 };
 
 /*
   Get the time of the latest bonus applied to a user based on type
 */
-export const latestBonusByUserId = async (userId: string, type: BonusType): Promise<UserCoinBonus | undefined> => {
+export const latestBonusByUserId = async (
+  userId: string,
+  type: BonusType,
+): Promise<UserCoinBonus | undefined> => {
   const db = await openDB();
   const res: UserCoinBonus | undefined = await db.get(
     `SELECT last_granted FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`,
     userId,
-    type
+    type,
   );
   return res;
 };

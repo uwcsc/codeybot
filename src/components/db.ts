@@ -1,6 +1,6 @@
-import { container } from '@sapphire/framework';
 import { Database, open } from 'sqlite';
 import sqlite3 from 'sqlite3';
+import { logger } from '../logger/default';
 
 let db: Database | null = null;
 
@@ -16,7 +16,7 @@ const initCoffeeChatTables = async (db: Database): Promise<void> => {
       second_user_id TEXT NOT NULL,
       match_date TIMESTAMP NOT NULL
     )
-    `
+    `,
   );
 };
 
@@ -28,7 +28,7 @@ const initInterviewTables = async (db: Database): Promise<void> => {
       link TEXT NOT NULL,
       status INTEGER NOT NULL DEFAULT 0
     )
-    `
+    `,
   );
   await db.run(
     `
@@ -36,7 +36,7 @@ const initInterviewTables = async (db: Database): Promise<void> => {
       user_id TEXT NOT NULL,
       domain TEXT NOT NULL
     )
-    `
+    `,
   );
   await db.run('CREATE INDEX IF NOT EXISTS ix_domains_domain ON domains (domain)');
 };
@@ -52,7 +52,7 @@ const initSuggestionsTable = async (db: Database): Promise<void> => {
       suggestion TEXT NOT NULL,
       state VARCHAR(255) NOT NULL
     )
-    `
+    `,
   );
 };
 
@@ -65,7 +65,7 @@ const initUserCoinBonusTable = async (db: Database): Promise<void> => {
       last_granted TIMESTAMP NOT NULL,
       PRIMARY KEY (user_id, bonus_type)
     )
-    `
+    `,
   );
 };
 
@@ -82,9 +82,11 @@ const initUserCoinLedgerTable = async (db: Database): Promise<void> => {
       admin_id VARCHAR(255),
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
-    `
+    `,
   );
-  await db.run('CREATE INDEX IF NOT EXISTS ix_user_coin_ledger_user_id ON user_coin_ledger (user_id)');
+  await db.run(
+    'CREATE INDEX IF NOT EXISTS ix_user_coin_ledger_user_id ON user_coin_ledger (user_id)',
+  );
 };
 
 const initUserCoinTable = async (db: Database): Promise<void> => {
@@ -94,7 +96,7 @@ const initUserCoinTable = async (db: Database): Promise<void> => {
       user_id VARCHAR(255) PRIMARY KEY NOT NULL,
       balance INTEGER NOT NULL CHECK(balance>=0)
     )
-    `
+    `,
   );
 };
 
@@ -114,7 +116,25 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
             program VARCHAR(32),
             specialization VARCHAR(32)
         )
-        `
+        `,
+  );
+};
+
+const initRpsGameInfo = async (db: Database): Promise<void> => {
+  // If player 2 ID is null, the game was against Codey
+  await db.run(
+    `
+      CREATE TABLE IF NOT EXISTS rps_game_info (
+        id INTEGER PRIMARY KEY NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        player1_id VARCHAR(30) NOT NULL,
+        player2_id VARCHAR(30),
+        bet INTEGER NOT NULL,
+        player1_sign INTEGER NOT NULL DEFAULT 0,
+        player2_sign INTEGER NOT NULL DEFAULT 0,
+        status INTEGER NOT NULL DEFAULT 0
+      )
+    `,
   );
 };
 
@@ -127,17 +147,17 @@ const initTables = async (db: Database): Promise<void> => {
   await initUserCoinLedgerTable(db);
   await initUserCoinTable(db);
   await initUserProfileTable(db);
+  await initRpsGameInfo(db);
 };
 
 export const openDB = async (): Promise<Database> => {
-  const { logger } = container;
   if (db == null) {
     db = await open({
       filename: 'db/bot.db',
-      driver: sqlite3.Database
+      driver: sqlite3.Database,
     });
     await initTables(db);
-    logger.info('Initialized database and tables.');
+    logger.info({ message: 'Initialized database and tables.', where: 'openDB' });
   }
   return db;
 };

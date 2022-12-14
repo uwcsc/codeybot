@@ -1,26 +1,31 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
-import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
+import {
+  SubCommandPluginCommand,
+  SubCommandPluginCommandOptions,
+} from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
 import { getCoinBalanceByUserId } from '../../components/coin';
 import {
+  assignAlumniRole,
+  assignDecadeAndPruneYearRoles,
   configMaps,
-  editUserProfileById,
+  editUserProfile,
   getUserProfileById,
+  prettyProfileDetails,
   UserProfile,
   validCustomizations,
   validCustomizationsDisplay,
   validUserCustomization,
-  prettyProfileDetails
 } from '../../components/profile';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
-  aliases: ['profile', 'userprofile', 'aboutme'],
-  description: 'Handles user profile functions',
+  aliases: ['userprofile', 'aboutme'],
+  description: 'Handle user profile functions.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}profile @Codey\``,
-  subCommands: [{ input: 'about', default: true }, 'set']
+  subCommands: [{ input: 'about', default: true }, 'grad', 'set'],
 })
 export class ProfileCommand extends SubCommandPluginCommand {
   public async about(message: Message, args: Args): Promise<Message> {
@@ -34,9 +39,15 @@ export class ProfileCommand extends SubCommandPluginCommand {
       const notDisplay = ['user_id', 'last_updated'];
       const profileDisplay = new MessageEmbed().setTitle(`${user.username}'s profile`);
       // setting profile colour might not be useful, but we should leave it to a separate discussion/ticket
-      profileDisplay.setColor(EMBED_COLOUR);
+      profileDisplay.setColor(DEFAULT_EMBED_COLOUR);
       if (user.avatar) {
-        profileDisplay.setImage(user.displayAvatarURL());
+        profileDisplay.setImage(
+          user.displayAvatarURL({
+            dynamic: true,
+            format: 'png',
+            size: 4096,
+          }),
+        );
       }
       for (const [key, val] of Object.entries(profileDetails)) {
         if (val && !notDisplay.includes(key)) {
@@ -46,7 +57,7 @@ export class ProfileCommand extends SubCommandPluginCommand {
           profileDisplay.addField(
             prettyProfileDetails[key as keyof typeof prettyProfileDetails],
             val.toString(),
-            key !== 'about_me' // since about_me can be long, we dont want to inline it
+            key !== 'about_me', // since about_me can be long, we dont want to inline it
           );
         }
       }
@@ -55,26 +66,41 @@ export class ProfileCommand extends SubCommandPluginCommand {
       profileDisplay.addField('Codey Coins', userCoins, true);
       // display last updated last
       if (profileDetails['last_updated']) {
-        profileDisplay.addField(prettyProfileDetails.last_updated, profileDetails['last_updated'], true);
+        profileDisplay.addField(
+          prettyProfileDetails.last_updated,
+          profileDetails['last_updated'],
+          true,
+        );
       }
       return message.channel.send({ embeds: [profileDisplay] });
     }
   }
 
+  // refreshes all grad roles and is to be used in early January
+  public async grad(message: Message): Promise<Message | void> {
+    if (!message.member?.permissions.has('ADMINISTRATOR')) return;
+    await assignDecadeAndPruneYearRoles();
+    assignAlumniRole();
+    return message.reply('Grad roles have been updated.');
+  }
+
   public async set(message: Message, args: Args): Promise<Message> {
-    const { author } = message;
     const customization = <keyof typeof configMaps>await args.pick('string').catch(() => false);
     // if no customization is supplied, or its not one of the customizations we provide, return
     if (typeof customization === 'boolean' || !validCustomizations.includes(customization)) {
-      return message.reply(`Please enter a customization. Must be one of**${validCustomizationsDisplay}**`);
+      return message.reply(
+        `Please enter a customization. Must be one of**${validCustomizationsDisplay}**`,
+      );
     }
     const description = await args.rest('string').catch(() => false);
     if (typeof description === 'boolean') {
       return message.reply('Please enter a description.');
     }
     const { reason, parsedDescription } = validUserCustomization(customization, description);
-    if (reason === 'valid') {
-      editUserProfileById(author.id, { [configMaps[customization]]: parsedDescription } as UserProfile);
+    if (reason === 'valid' && message.member) {
+      editUserProfile(message.member, {
+        [configMaps[customization]]: parsedDescription,
+      } as UserProfile);
       return message.reply(`${customization} has been set!`);
     }
     // if reason is not valid the reason will be returned by the validUserCustomization function

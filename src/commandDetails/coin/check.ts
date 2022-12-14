@@ -3,30 +3,46 @@ import { User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
-  CodeyCommandResponseType,
+  getUserFromMessage,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 import { getCoinBalanceByUserId } from '../../components/coin';
+import { getCoinEmoji } from '../../components/emojis';
+import { pluralize } from '../../utils/pluralize';
 
 // Check a user's balance
 const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
   _client,
-  _messageFromUser,
-  args
+  messageFromUser,
+  args,
 ): Promise<SapphireMessageResponse> => {
-  // Mandatory argument is user
-  const user = <User>args['user'];
+  let user: User;
+  let displayMessage: string;
 
+  // use the caller as a default user if no argument is provided
+  if (args['user']) {
+    user = <User>args['user'];
+    displayMessage = `${user.username} has`;
+  } else {
+    user = getUserFromMessage(messageFromUser);
+    displayMessage = `You have`;
+  }
   // Get coin balance
-  const balance = await getCoinBalanceByUserId(user.id);
+  let balance: number;
+  try {
+    balance = await getCoinBalanceByUserId(user.id);
+  } catch (e) {
+    return `Could not fetch the user's balance, contact a mod for help`;
+  }
+
   // Show coin balance
-  return `${user.username} has ${balance} Codey coins 🪙.`;
+  return `${displayMessage} ${balance} Codey ${pluralize('coin', balance)} ${getCoinEmoji()}.`;
 };
 
 export const coinCheckCommandDetails: CodeyCommandDetails = {
   name: 'check',
-  aliases: ['c'],
+  aliases: ['c', 'b', 'balance', 'bal'],
   description: "Check a user's coin balance.",
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coin check @Codey\`
@@ -35,15 +51,13 @@ export const coinCheckCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: "Getting user's coin balance...",
   executeCommand: coinCheckExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
   options: [
     {
       name: 'user',
-      description: 'The user to check the balance of,',
+      description: 'The user to check the balance of.',
       type: CodeyCommandOptionType.USER,
-      required: true
-    }
+      required: false,
+    },
   ],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };

@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/src/bot.js",
   "scripts": {
-    "local:run": "NODE_ENV=dev tsc-watch --onSuccess \"node dist/index.js\"",
+    "local:run": "mkdir -p tmp && NODE_ENV=dev tsc-watch --onSuccess \"node dist/index.js\"",
     "ts:build": "tsc",
     "image:build": "docker build . -t codey",
     "clean": "docker-compose down",
@@ -35,10 +35,13 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "node-fetch": "^2.6.2",
+    "pdf-lib": "^1.17.1",
+    "pdf2pic": "^2.1.4",
     "sqlite": "^4.0.22",
     "sqlite3": "^5.0.2",
     "stable-marriage": "^1.0.2",
-    "typescript": "^4.6.3"
+    "typescript": "^4.6.3",
+    "winston": "^3.8.1"
   },
   "devDependencies": {
     "@tsconfig/node14": "^1.0.0",

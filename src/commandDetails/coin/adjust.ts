@@ -3,17 +3,22 @@ import { Permissions, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
-  CodeyCommandResponseType,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
-import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
+import {
+  adjustCoinBalanceByUserId,
+  getCoinBalanceByUserId,
+  UserCoinEvent,
+} from '../../components/coin';
+import { getCoinEmoji } from '../../components/emojis';
+import { pluralize } from '../../utils/pluralize';
 
 // Adjust coin balance
 const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
-  args
+  args,
 ): Promise<SapphireMessageResponse> => {
   if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) {
     return `You do not have permission to use this command.`;
@@ -40,12 +45,14 @@ const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
     <number>amount,
     UserCoinEvent.AdminCoinAdjust,
     <string>(reason ? reason : ''),
-    client.user?.id
+    client.user?.id,
   );
   // Get new balance
   const newBalance = await getCoinBalanceByUserId(user.id);
 
-  return `Adjusted ${user.username}'s balance by ${amount} 🪙.\n${user.username} now has ${newBalance} Codey coins 🪙.`;
+  const COIN = getCoinEmoji();
+  return `Adjusted ${user.username}'s balance by ${amount} ${COIN}.\n
+  ${user.username} now has ${newBalance} Codey ${pluralize('coin', newBalance)} ${COIN}.`;
 };
 
 export const coinAdjustCommandDetails: CodeyCommandDetails = {
@@ -59,27 +66,25 @@ export const coinAdjustCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Adjusting coin balance...',
   executeCommand: coinAdjustExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
   options: [
     {
       name: 'user',
-      description: 'The user to adjust the balance of,',
+      description: 'The user to adjust the balance of.',
       type: CodeyCommandOptionType.USER,
-      required: true
+      required: true,
     },
     {
       name: 'amount',
-      description: 'The amount to adjust the balance of the specified user to,',
+      description: 'The amount to adjust the balance of the specified user by.',
       type: CodeyCommandOptionType.NUMBER,
-      required: true
+      required: true,
     },
     {
       name: 'reason',
-      description: 'The reason why we are adjusting the balance,',
+      description: 'The reason why we are adjusting the balance.',
       type: CodeyCommandOptionType.STRING,
-      required: false
-    }
+      required: false,
+    },
   ],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };

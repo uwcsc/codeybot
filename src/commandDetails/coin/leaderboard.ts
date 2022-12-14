@@ -1,19 +1,18 @@
 import { container, SapphireClient } from '@sapphire/framework';
-import { MessageEmbed } from 'discord.js';
+import { MessageEmbed, User } from 'discord.js';
 import {
   CodeyCommandDetails,
-  CodeyCommandResponseType,
-  getUserIdFromMessage,
+  getUserFromMessage,
   SapphireMessageExecuteType,
-  SapphireMessageResponse
+  SapphireMessageResponse,
 } from '../../codeyCommand';
 import {
-  getCurrentCoinLeaderboard,
   getCoinBalanceByUserId,
+  getCurrentCoinLeaderboard,
   UserCoinEntry,
-  getUserIdCurrentCoinPosition
 } from '../../components/coin';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import { getCoinEmoji } from '../../components/emojis';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 // How many people are shown on the leaderboard
 const limit = 10;
@@ -21,29 +20,55 @@ const limit = 10;
 const getCurrentCoinLeaderboardEmbed = async (
   client: SapphireClient<boolean>,
   leaderboard: UserCoinEntry[],
-  currentUserId: string
+  currentUserId: string,
 ): Promise<MessageEmbed> => {
   // Initialise user's coin balance if they have not already
   const userBalance = await getCoinBalanceByUserId(currentUserId);
-  const currentPosition = await getUserIdCurrentCoinPosition(currentUserId);
+  let currentPosition = 0;
 
-  let currentLeaderboardText = '';
-  for (let i = 0; i < limit; i++) {
-    if (leaderboard.length <= i) break;
+  const leaderboardArray: string[] = [];
+  let rank = 0;
+  let previousBalance = -1;
+  for (let i = 0; i < leaderboard.length && leaderboardArray.length < limit; i++) {
     const userCoinEntry = leaderboard[i];
-    const user = await client.users.fetch(userCoinEntry.user_id);
+    let user: User;
+    try {
+      user = await client.users.fetch(userCoinEntry.user_id);
+    } catch (e) {
+      continue;
+    }
+    if (user.bot) continue;
     const userTag = user?.tag ?? '<unknown>';
-    const userCoinEntryText = `${i + 1}. ${userTag} - ${userCoinEntry.balance} 🪙\n`;
-    currentLeaderboardText += userCoinEntryText;
+    const cleanUserTag = userTag
+      .split('~')
+      .join('\\~')
+      .split('*')
+      .join('\\*')
+      .split('_')
+      .join('\\_')
+      .split('`')
+      .join('\\`');
+    if (previousBalance !== userCoinEntry.balance) {
+      previousBalance = userCoinEntry.balance;
+      rank = rank + 1;
+    }
+    const userCoinEntryText = `${rank}. ${cleanUserTag} - ${
+      userCoinEntry.balance
+    } ${getCoinEmoji()}`;
+    if (userCoinEntry.user_id === currentUserId) {
+      currentPosition = rank;
+    }
+    leaderboardArray.push(userCoinEntryText);
   }
+  const currentLeaderboardText = leaderboardArray.join('\n');
   const currentLeaderboardEmbed = new MessageEmbed()
-    .setColor(EMBED_COLOUR)
+    .setColor(DEFAULT_EMBED_COLOUR)
     .setTitle('CodeyCoin Leaderboard')
     .setDescription(currentLeaderboardText);
 
   currentLeaderboardEmbed.addFields({
     name: 'Your Position',
-    value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} 🪙.`
+    value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} ${getCoinEmoji()}.`,
   });
 
   return currentLeaderboardEmbed;
@@ -52,11 +77,12 @@ const getCurrentCoinLeaderboardEmbed = async (
 const coinCurrentLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
-  _args
+  _args,
 ): Promise<SapphireMessageResponse> => {
-  const userId = getUserIdFromMessage(messageFromUser);
-  const leaderboard = await getCurrentCoinLeaderboard();
-  return getCurrentCoinLeaderboardEmbed(client, leaderboard, userId);
+  const userId = getUserFromMessage(messageFromUser).id;
+  // Get extra users to filter bots later
+  const leaderboard = await getCurrentCoinLeaderboard(limit * 2);
+  return { embeds: [await getCurrentCoinLeaderboardEmbed(client, leaderboard, userId)] };
 };
 
 export const coinCurrentLeaderboardCommandDetails: CodeyCommandDetails = {
@@ -70,8 +96,6 @@ export const coinCurrentLeaderboardCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Getting the current coin leaderboard...',
   executeCommand: coinCurrentLeaderboardExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.EMBED,
-
   options: [],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };

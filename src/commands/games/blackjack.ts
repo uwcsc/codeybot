@@ -1,8 +1,20 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, Command, CommandOptions, container } from '@sapphire/framework';
-import { Collection, ColorResolvable, Message, MessageEmbed, MessageReaction, Snowflake, User } from 'discord.js';
-import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
-import { getEmojiByName } from '../../components/emojis';
+import {
+  Collection,
+  ColorResolvable,
+  Message,
+  MessageEmbed,
+  MessageReaction,
+  Snowflake,
+  User,
+} from 'discord.js';
+import {
+  adjustCoinBalanceByUserId,
+  getCoinBalanceByUserId,
+  UserCoinEvent,
+} from '../../components/coin';
+import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
 import {
   BlackjackAction,
   BlackjackHand,
@@ -11,8 +23,9 @@ import {
   endGame,
   GameState,
   performGameAction,
-  startGame
+  startGame,
 } from '../../components/games/blackjack';
+import { pluralize } from '../../utils/pluralize';
 
 const DEFAULT_BET = 10;
 const MIN_BET = 10;
@@ -39,9 +52,9 @@ const isPercentage = (amount: string): boolean => {
   description: 'Start a Blackjack game to win some Codey coins!',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}blackjack 100\`
-\`${container.botPrefix}blj 100\``
+\`${container.botPrefix}blj 100\``,
 })
-export class BlackjackCommand extends Command {
+export class GamesBlackjackCommand extends Command {
   /*
     Returns the corresponding emoji given the card's suit
   */
@@ -72,7 +85,11 @@ export class BlackjackCommand extends Command {
     Returns true if the reaction corresponds to a valid action and is from the player
   */
   private reactFilter(reaction: MessageReaction, user: User, authorId: string): boolean {
-    return reaction.emoji.name !== null && ['🇸', '🇭', '🇶'].includes(reaction.emoji.name) && user.id === authorId;
+    return (
+      reaction.emoji.name !== null &&
+      ['🇸', '🇭', '🇶'].includes(reaction.emoji.name) &&
+      user.id === authorId
+    );
   }
 
   /*
@@ -82,7 +99,7 @@ export class BlackjackCommand extends Command {
   private async performActionFromReaction(
     collected: Collection<string | Snowflake, MessageReaction>,
     gameMessage: Message,
-    playerId: string
+    playerId: string,
   ): Promise<GameState | null> {
     // Collect the first reaction
     const reaction = collected.first();
@@ -105,13 +122,14 @@ export class BlackjackCommand extends Command {
     Waits for player's reaction and handle any corresponding actions.
   */
   private async handlePlayerAction(gameMessage: Message, playerId: string) {
-    const reactFilter = (reaction: MessageReaction, user: User) => this.reactFilter(reaction, user, playerId);
+    const reactFilter = (reaction: MessageReaction, user: User) =>
+      this.reactFilter(reaction, user, playerId);
     // only waits for 1 valid reaction from the player, with a time limit of 1 minute.
     const reactCollector = await gameMessage.awaitReactions({
       filter: reactFilter,
       max: 1,
       time: 60000,
-      errors: ['time']
+      errors: ['time'],
     });
     // perform action corresponding to reaction
     return await this.performActionFromReaction(reactCollector, gameMessage, playerId);
@@ -152,18 +170,25 @@ export class BlackjackCommand extends Command {
     if (game.stage === BlackjackStage.DONE) {
       if (game.surrendered) {
         // player surrendered
-        return `You surrendered and lost **${amountDiff}** Codey coin(s) ${getEmojiByName('codeySad')}.`;
+        return `You surrendered and lost **${amountDiff}** Codey ${pluralize(
+          'coin',
+          amountDiff,
+        )} ${getEmojiByName('codeySad')}.`;
       }
       if (game.amountWon < game.bet) {
         // player lost
-        return `You lost **${amountDiff}** Codey coin(s) ${getEmojiByName('codeySad')}, better luck next time!`;
+        return `You lost **${amountDiff}** Codey ${pluralize('coin', amountDiff)} ${getEmojiByName(
+          'codeySad',
+        )}, better luck next time!`;
       }
       if (game.amountWon > game.bet) {
         // player won
-        return `You won **${amountDiff}** Codey coin(s) ${getEmojiByName('codeyLove')}, keep your win streak going!`;
+        return `You won **${amountDiff}** Codey ${pluralize('coin', amountDiff)} ${getEmojiByName(
+          'codeyLove',
+        )}, keep your win streak going!`;
       }
       // player tied with dealer
-      return `Tied! You didn't win nor lose any Codey coin(s), try again!`;
+      return `Tied! You didn't win nor lose any Codey ${pluralize('coin', amountDiff)}, try again!`;
     }
     // game instruction
     return 'Press 🇭 to hit, 🇸 to stand, or 🇶 to quit.';
@@ -176,10 +201,16 @@ export class BlackjackCommand extends Command {
     const embed = new MessageEmbed().setTitle('Blackjack');
     embed.setColor(this.getEmbedColourFromGame(game));
     // show bet amount and game description
-    embed.addField(`Bet: ${game.bet} 🪙`, this.getDescriptionFromGame(game));
+    embed.addField(`Bet: ${game.bet} ${getCoinEmoji()}`, this.getDescriptionFromGame(game));
     // show player and dealer value and hands
-    embed.addField(`Player: ${game.playerValue.join(' or ')}`, this.getHandDisplayString(game.playerCards));
-    embed.addField(`Dealer: ${game.dealerValue.join(' or ')}`, this.getHandDisplayString(game.dealerCards));
+    embed.addField(
+      `Player: ${game.playerValue.join(' or ')}`,
+      this.getHandDisplayString(game.playerCards),
+    );
+    embed.addField(
+      `Dealer: ${game.dealerValue.join(' or ')}`,
+      this.getHandDisplayString(game.dealerCards),
+    );
 
     return embed;
   }
@@ -221,8 +252,9 @@ export class BlackjackCommand extends Command {
     // check player balance and see if it can cover the bet amount
     const playerBalance = await getCoinBalanceByUserId(author.id);
     if (playerBalance! < bet)
-      return message.reply(`you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`);
-    
+      return message.reply(
+        `you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`,
+      );
 
     // initialize the game
     let game = startGame(bet, author.id, channel.id);
@@ -250,7 +282,9 @@ export class BlackjackCommand extends Command {
       if (!game) {
         // no game state is returned from action, either invalid action or non-existent game
         this.endGame(msg, author.id);
-        return message.reply("something went wrong, please try again later! Don't worry, you didn't lose any coins.");
+        return message.reply(
+          "something went wrong, please try again later! Don't worry, you didn't lose any coins.",
+        );
       }
 
       // update game embed

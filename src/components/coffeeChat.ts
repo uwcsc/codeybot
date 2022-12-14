@@ -3,9 +3,11 @@ import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
 import { vars } from '../config';
 import { openDB } from './db';
+import { loadRoleUsers } from '../utils/roles';
+import { User } from 'discord.js';
+import { sendMessage } from '../utils/dm';
 
 const COFFEE_ROLE_ID: string = vars.COFFEE_ROLE_ID;
-const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 //since we might fully hit hundreds of people if we release this into the wider server, set iterations at around 100-200 to keep time at a reasonable number
 //averages around 90% for test sizes 10-20, 75% for test sizes 100-200 people
 const RANDOM_ITERATIONS = 100;
@@ -22,37 +24,32 @@ interface historic_match {
  * Returns a potential single chatter in the single field, null otherwise
  */
 export const getMatch = async (): Promise<string[][]> => {
-  //get list of users and their historic chat history
-  const userList = await loadCoffeeChatUsers();
-  const matched = await loadMatched(userList);
-  //generate one week of matches, and updates match freq tables accordingly
-  const matches = stableMatch(userList, matched);
-  return matches;
-};
+  // Gets the list of users that are currently "enrolled" in role
+  const userList = await loadRoleUsers(COFFEE_ROLE_ID);
 
-/*
- * Gets the list of users that are currently "enrolled" in coffee chat
- * Returns a mapping of string -> int, where string is their ID, while int is an index assigned to the ID
- * The index is used in place of the ID for match tallying
- */
-const loadCoffeeChatUsers = async (): Promise<Map<string, number>> => {
-  const { client } = container;
-  //gets list of users with the coffee chat role
-  const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
-    ?.filter((member) => member.roles.cache.has(COFFEE_ROLE_ID))
-    .map((member) => member.user.id);
-  //assigns each user ID a unique index
+  // Assigns each user ID a unique index
   const notMatched: Map<string, number> = new Map();
-  userList.forEach((val: string, index: number) => {
-    notMatched.set(val, index);
+
+  // Returns a mapping of string -> int, where string is their ID, while int is an index assigned to the ID
+  // The index is used in place of the ID for match tallying
+  userList.forEach((val: User, index: number) => {
+    notMatched.set(val.id, index);
   });
-  return notMatched;
+
+  const matched = await loadMatched(notMatched);
+  //generate one week of matches, and updates match freq tables accordingly
+  const matches = stableMatch(notMatched, matched);
+  return matches;
 };
 
 /*
  * Checks if a match happened more than once in the tally
  */
-const hasDupe = (matched: number[][], matches: string[][], userList: Map<string, number>): boolean => {
+const hasDupe = (
+  matched: number[][],
+  matches: string[][],
+  userList: Map<string, number>,
+): boolean => {
   for (const [personA, personB] of matches) {
     if (matched[userList.get(personA)!][userList.get(personB)!] > 1) return true;
   }
@@ -62,7 +59,11 @@ const hasDupe = (matched: number[][], matches: string[][], userList: Map<string,
 /*
  * Gets the largest duplicate count among the matches given
  */
-const getMaxDupe = (matched: number[][], matches: string[][], userList: Map<string, number>): number => {
+const getMaxDupe = (
+  matched: number[][],
+  matches: string[][],
+  userList: Map<string, number>,
+): number => {
   let maxDupe = 0;
   for (const [personA, personB] of matches) {
     maxDupe = Math.max(maxDupe, matched[userList.get(personA)!][userList.get(personB)!]);
@@ -76,7 +77,9 @@ const getMaxDupe = (matched: number[][], matches: string[][], userList: Map<stri
  */
 const loadMatched = async (notMatched: Map<string, number>): Promise<number[][]> => {
   const db = await openDB();
-  const matched: number[][] = Array.from(Array(notMatched.size), () => new Array(notMatched.size).fill(0));
+  const matched: number[][] = Array.from(Array(notMatched.size), () =>
+    new Array(notMatched.size).fill(0),
+  );
   const matches = (await db.all(`SELECT * FROM coffee_historic_matches`)) as historic_match[];
   for (const { first_user_id, second_user_id } of matches) {
     if (notMatched.has(first_user_id) && notMatched.has(second_user_id)) {
@@ -98,9 +101,9 @@ export const writeHistoricMatches = async (newMatches: string[][]): Promise<void
   await db.run(
     `INSERT INTO coffee_historic_matches (first_user_id, second_user_id, match_date) VALUES ${_.join(
       newMatches.map(() => `(?,?, CURRENT_TIMESTAMP)`),
-      ','
+      ',',
     )};`,
-    _.flatten(newMatches)
+    _.flatten(newMatches),
   );
 };
 
@@ -121,7 +124,9 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
   for (let i = 0; i < RANDOM_ITERATIONS; i++) {
     //shuffle users, then separate into 2 sections
     const notMatched = _.shuffle(Array.from(userList).map((name) => name[0]));
-    const A = notMatched.slice(0, Math.floor(notMatched.length / 2)).map((name) => new Person(name));
+    const A = notMatched
+      .slice(0, Math.floor(notMatched.length / 2))
+      .map((name) => new Person(name));
     const B = notMatched.slice(Math.floor(notMatched.length / 2)).map((name) => new Person(name));
     //if there is an imbalance between the "genders", we have an odd amount of people. Duplicate someone on the short end to give somebody 2 matches
     //by math, A should always be the one that's short in odd numbers
@@ -137,9 +142,9 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
           [...right].sort(
             (a, b) =>
               matched[userList.get(value.name)!][userList.get(a.name)!] -
-              matched[userList.get(value.name)!][userList.get(b.name)!]
-          )
-        )
+              matched[userList.get(value.name)!][userList.get(b.name)!],
+          ),
+        ),
       );
     };
     //attach preference list for each user with comparator
@@ -153,7 +158,10 @@ const stableMatch = (userList: Map<string, number>, matched: number[][]): string
       output.push([person.name, person.fiance.name]);
     }
     //compare with finalOutput's maxDupe count, overwrite if contender's is lower
-    if (!finalOutput || getMaxDupe(matched, finalOutput, userList) > getMaxDupe(matched, output, userList)) {
+    if (
+      !finalOutput ||
+      getMaxDupe(matched, finalOutput, userList) > getMaxDupe(matched, output, userList)
+    ) {
       i = 0;
       finalOutput = output;
     }
@@ -176,7 +184,10 @@ const randomMatch = (userList: Map<string, number>, matched: number[][]): string
     for (let i = 0; i + 1 < notMatched.length; i += 2) {
       output.push([notMatched[i], notMatched[i + 1]]);
     }
-    if (!finalOutput || getMaxDupe(matched, finalOutput, userList) > getMaxDupe(matched, output, userList)) {
+    if (
+      !finalOutput ||
+      getMaxDupe(matched, finalOutput, userList) > getMaxDupe(matched, output, userList)
+    ) {
       i = 0;
       finalOutput = output;
     }
@@ -229,6 +240,41 @@ export const testPerformance = async (testSize: number): Promise<Map<string, num
   }
   output.set('RANDOM', tally);
   return output;
+};
+
+export const alertMatches = async (matches: string[][]): Promise<void> => {
+  const { client } = container;
+  const outputMap: Map<string, string[]> = new Map();
+  const userMap: Map<string, User> = new Map();
+  //map them to find what to send a specific person
+  for (const pair of matches) {
+    if (!outputMap.get(pair[0])) {
+      outputMap.set(pair[0], []);
+      userMap.set(pair[0], await client.users.fetch(pair[0]));
+    }
+    if (!outputMap.get(pair[1])) {
+      outputMap.set(pair[1], []);
+      userMap.set(pair[1], await client.users.fetch(pair[1]));
+    }
+    outputMap.get(pair[0])!.push(pair[1]);
+    outputMap.get(pair[1])!.push(pair[0]);
+  }
+  //send out messages
+  outputMap.forEach(async (targets, user) => {
+    const discordUser = userMap.get(user)!;
+    //we use raw discord id ping format to minimize fetch numbers on our end
+    const userTargets = targets.map((value) => userMap.get(value)!);
+
+    let message: string;
+
+    if (targets.length > 1) {
+      message = `Your coffee chat :coffee: matches for this week are... **${userTargets[0].tag}** and **${userTargets[1].tag}**! Feel free to contact ${userTargets[0]} and ${userTargets[1]} at your earliest convenience. :wink: If you have any suggestions, please use the suggestion feature to give us feedback!`;
+    } else {
+      message = `Your coffee chat :coffee: match for this week is... **${userTargets[0].tag}**! Feel free to contact ${userTargets[0]} at your earliest convenience. :wink: If you have any suggestions, please use the .suggestion feature to give us feedback!`;
+    }
+
+    await sendMessage(discordUser, message);
+  });
 };
 
 /*setting random iteration count to 1000 allows stable marriage to find the optimized matching for most cases, despite

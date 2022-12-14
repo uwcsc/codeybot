@@ -1,6 +1,9 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
-import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
+import {
+  SubCommandPluginCommand,
+  SubCommandPluginCommandOptions,
+} from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
 import _ from 'lodash';
 import {
@@ -10,21 +13,21 @@ import {
   Suggestion,
   SuggestionState,
   suggestionStatesReadable,
-  updateSuggestionState
+  updateSuggestionState,
 } from '../../components/suggestion';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 const RESULTS_PER_PAGE = 15;
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['suggestions', 'suggest'],
-  description: 'Handles suggestion functions',
+  description: 'Handle suggestion functions.',
   detailedDescription: `This command will forward a suggestion to the CSC Discord Mods. \
 Please note that your suggestion is not anonymous, your Discord username and ID will be recorded. \
 If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
 **Examples:**
 \`${container.botPrefix}suggestion I want a new Discord channel named #hobbies.\``,
-  subCommands: [{ input: 'list', default: true }, 'update', 'create']
+  subCommands: [{ input: 'list', default: true }, 'update', 'create'],
 })
 export class SuggestionCommand extends SubCommandPluginCommand {
   public async create(message: Message, args: Args): Promise<Message> {
@@ -50,19 +53,21 @@ export class SuggestionCommand extends SubCommandPluginCommand {
     const state = args.finished ? null : (await args.rest('string')).toLowerCase();
     //validate state
     if (state !== null && !(state.toLowerCase() in suggestionStatesReadable))
-      return message.reply(`you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`);
+      return message.reply(
+        `you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`,
+      );
     // query suggestions
     const suggestions = await getSuggestions(state);
     // only show up to page limit
     const suggestionsToShow = suggestions.slice(0, RESULTS_PER_PAGE);
     // get information from each suggestion
     const suggestionsInfo = await Promise.all(
-      suggestionsToShow.map((suggestion) => this.getSuggestionDisplayInfo(suggestion))
+      suggestionsToShow.map((suggestion) => this.getSuggestionDisplayInfo(suggestion)),
     );
 
     // construct embed for display
     const title = state ? `${suggestionStatesReadable[state]} Suggestions` : 'Suggestions';
-    const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
+    const outEmbed = new MessageEmbed().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(suggestionsInfo.join(''));
     return message.channel.send({ embeds: [outEmbed] });
   }
@@ -70,12 +75,16 @@ export class SuggestionCommand extends SubCommandPluginCommand {
   async update(message: Message, args: Args): Promise<Message | void> {
     if (!message.member?.permissions.has('ADMINISTRATOR')) return;
 
-    const state = (await args.pick('string').catch(() => `please enter a valid suggestion state.`)).toLowerCase();
+    const state = (
+      await args.pick('string').catch(() => `please enter a valid suggestion state.`)
+    ).toLowerCase();
     const ids = await args.rest('string').catch(() => `please enter valid suggestion IDs.`);
     const suggestionIds = ids.split(' ').map((a) => Number(a));
     //validate state
     if (!(state in suggestionStatesReadable))
-      return message.reply(`you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`);
+      return message.reply(
+        `you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`,
+      );
     // validate each id after first word
     if (_.some(suggestionIds, isNaN)) {
       return message.reply(`you entered an invalid ID. Please enter numbers only.`);
@@ -88,7 +97,7 @@ export class SuggestionCommand extends SubCommandPluginCommand {
 
     // construct embed for display
     const title = `Suggestions Updated To ${suggestionStatesReadable[state]} State`;
-    const outEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
+    const outEmbed = new MessageEmbed().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(suggestionIds.join(', '));
     return message.channel.send({ embeds: [outEmbed] });
   }

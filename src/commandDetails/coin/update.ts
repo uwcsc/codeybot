@@ -3,13 +3,22 @@ import { Permissions, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
-  CodeyCommandResponseType,
-  SapphireMessageExecuteType
+  SapphireMessageExecuteType,
 } from '../../codeyCommand';
-import { getCoinBalanceByUserId, updateCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
+import {
+  getCoinBalanceByUserId,
+  updateCoinBalanceByUserId,
+  UserCoinEvent,
+} from '../../components/coin';
+import { getCoinEmoji } from '../../components/emojis';
+import { pluralize } from '../../utils/pluralize';
 
 // Update coin balance of a user
-const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
+const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (
+  client,
+  messageFromUser,
+  args,
+) => {
   if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) {
     return `You do not have permission to use this command.`;
   }
@@ -22,7 +31,7 @@ const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (client, mess
 
   // Second mandatory argument is amount
   const amount = args['amount'];
-  if (!amount) {
+  if (typeof amount !== 'number') {
     throw new Error('please enter a valid amount to adjust.');
   }
 
@@ -35,12 +44,15 @@ const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (client, mess
     <number>amount,
     UserCoinEvent.AdminCoinAdjust,
     <string>(reason ? reason : ''),
-    client.user?.id
+    client.user?.id,
   );
   // Get new balance
   const newBalance = await getCoinBalanceByUserId(user.id);
 
-  return `${user.username} now has ${newBalance} Codey coins 🪙.`;
+  return `${user.username} now has ${newBalance} Codey ${pluralize(
+    'coin',
+    newBalance,
+  )} ${getCoinEmoji()}.`;
 };
 
 export const coinUpdateCommandDetails: CodeyCommandDetails = {
@@ -53,27 +65,25 @@ export const coinUpdateCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Updating coin balance...',
   executeCommand: coinUpdateExecuteCommand,
-  codeyCommandResponseType: CodeyCommandResponseType.STRING,
-
   options: [
     {
       name: 'user',
-      description: 'The user to adjust the balance of,',
+      description: 'The user to update the balance of.',
       type: CodeyCommandOptionType.USER,
-      required: true
+      required: true,
     },
     {
       name: 'amount',
-      description: 'The amount to adjust the balance of the specified user to,',
+      description: 'The amount to update the balance of the specified user to.',
       type: CodeyCommandOptionType.NUMBER,
-      required: true
+      required: true,
     },
     {
       name: 'reason',
-      description: 'The reason why we are adjusting the balance,',
+      description: 'The reason why we are updating the balance.',
       type: CodeyCommandOptionType.STRING,
-      required: false
-    }
+      required: false,
+    },
   ],
-  subcommandDetails: {}
+  subcommandDetails: {},
 };
