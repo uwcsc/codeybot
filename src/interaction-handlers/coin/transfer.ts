@@ -4,6 +4,7 @@ import {
   InteractionHandlerTypes,
   PieceContext,
   container,
+  Command as SapphireCommand,
   Maybe,
   Awaitable,
 } from '@sapphire/framework';
@@ -37,7 +38,7 @@ export class MenuHandler extends InteractionHandler {
     const { client } = container;
     const response = await coinTransferCommandDetails.executeCommand!(
       client,
-      interaction as any,
+      interaction as unknown as SapphireCommand.ChatInputInteraction,
       {},
     );
 

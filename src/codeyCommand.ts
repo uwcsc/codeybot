@@ -23,7 +23,6 @@ import {
   WebhookEditMessageOptions,
   MessageActionRow,
   MessageActionRowOptions,
-  MessageComponentInteraction,
 } from 'discord.js';
 import { logger } from './logger/default';
 
