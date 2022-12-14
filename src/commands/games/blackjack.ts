@@ -26,6 +26,14 @@ const validateBetAmount = (amount: number, isPercent: boolean): string => {
   return res;
 };
 
+
+/*
+  Returns true if the amount is a percentage
+*/
+const isPercentage = (amount: string): boolean => {
+  return amount.endsWith('%');
+};
+
 @ApplyOptions<CommandOptions>({
   aliases: ['blj', 'bj'],
   description: 'Start a Blackjack game to win some Codey coins!',
@@ -193,40 +201,27 @@ export class BlackjackCommand extends Command {
     const { author, channel } = message;
     const playerBalance = await getCoinBalanceByUserId(author.id);
 
-    if (isNaN(parseInt(betString, 10))) {
+    if (isNaN(playerBalance)) {
       return message.reply('please enter a valid bet amount.');
     }
 
     let bet: number;
-    if (betString.endsWith('%')) {
+    if (isPercentage(betString)) {
       const percentage = parseInt(betString, 10) / 100;
-      if (percentage > 1) {
-        return message.reply(`You can only bet up to 100%. ${getEmojiByName('codeySad')}`);
-      }
       bet = Math.round(playerBalance * percentage);
     } else {
       bet = parseInt(betString, 10);
     }
 
-    const validateRes = validateBetAmount(bet, betString.endsWith('%'));
+    const validateRes = validateBetAmount(bet, isPercentage(betString));
     if (validateRes) {
       // if validation function returns an error message, then send it
       return message.reply(validateRes);
     }
 
     // check player balance and see if it can cover the bet amount
-
     if (playerBalance! < bet) {
-      if (betString.endsWith('%')) {
-        const percentNeeded = playerBalance / (playerBalance / 10);
-        return message.reply(
-          `you don't have enough coins to place that bet. (you'd need at least ${percentNeeded}%) ${getEmojiByName(
-            'codeySad'
-          )}`
-        );
-      } else {
-        return message.reply(`you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`);
-      }
+      return message.reply(`you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`);
     }
 
     // initialize the game
