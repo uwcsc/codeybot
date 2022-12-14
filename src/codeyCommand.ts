@@ -15,12 +15,12 @@ import {
 } from '@sapphire/framework';
 import { APIMessage } from 'discord-api-types/v9';
 import {
-  ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
-  ApplicationCommandOptionBase,
-  SlashCommandBuilder,
-  SlashCommandSubcommandBuilder,
-  SlashCommandSubcommandsOnlyBuilder,
-} from '@discordjs/builders';
+  CommandInteraction,
+  Message,
+  MessagePayload,
+  User,
+  WebhookEditMessageOptions,
+} from 'discord.js';
 import { logger } from './logger/default';
 
 export type SapphireSentMessageType = Message | CommandInteraction;
