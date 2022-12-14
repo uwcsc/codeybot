@@ -1,14 +1,13 @@
-import { Logger } from 'winston';
+import axios from 'axios';
 import { Client, Message } from 'discord.js';
+import { readFileSync } from 'fs';
+import { writeFile } from 'fs/promises';
+import { PDFDocument } from 'pdf-lib';
+import { Logger } from 'winston';
 import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
 import { convertPdfToPic } from '../utils/pdfToPic';
-
-import { readFileSync } from 'fs';
-import { writeFile } from 'fs/promises';
-import axios from 'axios';
-import { PDFDocument } from 'pdf-lib';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;

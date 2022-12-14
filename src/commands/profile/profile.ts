@@ -18,11 +18,11 @@ import {
   validCustomizationsDisplay,
   validUserCustomization,
 } from '../../components/profile';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
   aliases: ['userprofile', 'aboutme'],
-  description: 'Handles user profile functions',
+  description: 'Handle user profile functions.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}profile @Codey\``,
   subCommands: [{ input: 'about', default: true }, 'grad', 'set'],
@@ -39,9 +39,15 @@ export class ProfileCommand extends SubCommandPluginCommand {
       const notDisplay = ['user_id', 'last_updated'];
       const profileDisplay = new MessageEmbed().setTitle(`${user.username}'s profile`);
       // setting profile colour might not be useful, but we should leave it to a separate discussion/ticket
-      profileDisplay.setColor(EMBED_COLOUR);
+      profileDisplay.setColor(DEFAULT_EMBED_COLOUR);
       if (user.avatar) {
-        profileDisplay.setImage(user.displayAvatarURL());
+        profileDisplay.setImage(
+          user.displayAvatarURL({
+            dynamic: true,
+            format: 'png',
+            size: 4096,
+          }),
+        );
       }
       for (const [key, val] of Object.entries(profileDetails)) {
         if (val && !notDisplay.includes(key)) {

@@ -14,9 +14,15 @@
 
 > For CodeyBot developers, we have our own dedicated testing server - ask your team lead for more details.
 
-4. Set up your Discord testing bot for Codey, and add your bot to the Discord testing server. Make sure it has the following perms:
+4. Set up your Discord testing bot for Codey. In the Discord Developer Portal, make sure to turn on all intents:
 
-![botperms](../assets/botPerms.png)
+![Intents](../assets/intents.png)
+
+Also, give the following permissions to your bot:
+
+![Bot Permissions](../assets/botPermissions.png)
+
+Then, add your bot to the Discord testing server.
 
 5. In your cloned project, navigate to `config/`. Duplicate the `vars.template.json` file, move your copy to the `dev` folder, and rename your file `vars.json`. This will be the config file for your local bot. Edit the values in `vars.json` as according to the following config variable descriptions:
 
@@ -27,16 +33,18 @@
 - `OFFICE_STATUS_CHANNEL_ID`: the ID of the office hours channel.
 - `IRC_USER_ID`: the user ID of the irc-bridge bot.
 - `MOD_USER_ID_FOR_BAN_APPEAL`: the user ID of the mod tagged in the appeal messages for bans.
-
-Note that this file will not be pushed to the remote.
+  Note that this file will not be pushed to the remote.
 
 6. Make an `.env` file in the root folder of the project, and put your Discord bot's token, which can be found in the Discord Developer Portal. The format of the `.env` file should be as follows.
 
 ```
 DISCORD_TOKEN=<insert token here>
+CRUNCHBASE_API_KEY=<insert crunchbase key here>
 ```
 
-DO NOT REVEAL THIS TOKEN; ANYONE WITH THIS TOKEN CAN CONTROL YOUR BOT.
+DO NOT REVEAL THE DISCORD_TOKEN; ANYONE WITH THIS TOKEN CAN CONTROL YOUR BOT.
+
+For the `CRUNCHBASE_API_KEY`: This is the API key if you wish to use the upcoming enroll company feature. (Create an account here)[https://www.crunchbase.com/home]. NOTE: feature is still under construction.
 
 Note that this file will also not be pushed to the remote.
 

@@ -1,6 +1,6 @@
 import { GuildMember } from 'discord.js';
-import { logger } from '../logger/default';
 import { vars } from '../config';
+import { logger } from '../logger/default';
 
 const MOD_USER_ID_FOR_BAN_APPEAL: string = vars.MOD_USER_ID_FOR_BAN_APPEAL;
 
@@ -13,7 +13,7 @@ Uh oh, you have been banned from the UW Computer Science Club server ${
 
 > ${reason}
 
-If you believe you have been wrongfully banned and wish to appeal your ban, please DM <@${MOD_USER_ID_FOR_BAN_APPEAL}> with
+If you believe you have been wrongfully banned and wish to appeal your ban, please DM <@${MOD_USER_ID_FOR_BAN_APPEAL}> with \
 a reason why you think you should be unbanned.
 `;
 

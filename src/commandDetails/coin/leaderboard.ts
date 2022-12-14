@@ -7,13 +7,12 @@ import {
   SapphireMessageResponse,
 } from '../../codeyCommand';
 import {
-  getCurrentCoinLeaderboard,
   getCoinBalanceByUserId,
+  getCurrentCoinLeaderboard,
   UserCoinEntry,
-  getUserIdCurrentCoinPosition,
 } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
-import { EMBED_COLOUR } from '../../utils/embeds';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 // How many people are shown on the leaderboard
 const limit = 10;
@@ -25,9 +24,11 @@ const getCurrentCoinLeaderboardEmbed = async (
 ): Promise<MessageEmbed> => {
   // Initialise user's coin balance if they have not already
   const userBalance = await getCoinBalanceByUserId(currentUserId);
-  const currentPosition = await getUserIdCurrentCoinPosition(currentUserId);
+  let currentPosition = 0;
 
   const leaderboardArray: string[] = [];
+  let rank = 0;
+  let previousBalance = -1;
   for (let i = 0; i < leaderboard.length && leaderboardArray.length < limit; i++) {
     const userCoinEntry = leaderboard[i];
     let user: User;
@@ -38,14 +39,30 @@ const getCurrentCoinLeaderboardEmbed = async (
     }
     if (user.bot) continue;
     const userTag = user?.tag ?? '<unknown>';
-    const userCoinEntryText = `${leaderboardArray.length + 1}. ${userTag} - ${
+    const cleanUserTag = userTag
+      .split('~')
+      .join('\\~')
+      .split('*')
+      .join('\\*')
+      .split('_')
+      .join('\\_')
+      .split('`')
+      .join('\\`');
+    if (previousBalance !== userCoinEntry.balance) {
+      previousBalance = userCoinEntry.balance;
+      rank = rank + 1;
+    }
+    const userCoinEntryText = `${rank}. ${cleanUserTag} - ${
       userCoinEntry.balance
     } ${getCoinEmoji()}`;
+    if (userCoinEntry.user_id === currentUserId) {
+      currentPosition = rank;
+    }
     leaderboardArray.push(userCoinEntryText);
   }
   const currentLeaderboardText = leaderboardArray.join('\n');
   const currentLeaderboardEmbed = new MessageEmbed()
-    .setColor(EMBED_COLOUR)
+    .setColor(DEFAULT_EMBED_COLOUR)
     .setTitle('CodeyCoin Leaderboard')
     .setDescription(currentLeaderboardText);
 

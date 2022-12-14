@@ -6,11 +6,12 @@ import { coinInfoCommandDetails } from '../../commandDetails/coin/info';
 import { coinUpdateCommandDetails } from '../../commandDetails/coin/update';
 import { coinTransferCommandDetails } from '../../commandDetails/coin/transfer';
 import { coinCurrentLeaderboardCommandDetails } from '../../commandDetails/coin/leaderboard';
+import { coinUpdateCommandDetails } from '../../commandDetails/coin/update';
 
 const coinCommandDetails: CodeyCommandDetails = {
   name: 'coin',
   aliases: [],
-  description: 'Handles coin functions',
+  description: 'Handle coin functions.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coin adjust @Codey 100\`
 \`${container.botPrefix}coin adjust @Codey -100 Codey broke.\`

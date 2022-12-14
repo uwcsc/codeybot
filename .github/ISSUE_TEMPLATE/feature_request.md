@@ -1,7 +1,6 @@
 ---
 name: "\U0001F4DD Feature Request"
 about: Suggest a new feature for the bot
-title: '[FEATURE]'
 labels: request
 ---
 

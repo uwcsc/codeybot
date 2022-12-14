@@ -1,4 +1,4 @@
-name: Add created issue to backlog
+name: Add created issue to Project Board
 
 on:
   issues:
@@ -12,5 +12,5 @@ jobs:
     steps:
       - uses: actions/add-to-project@v0.3.0
         with:
-          project-url: https://github.com/orgs/uwcsc/projects/3
+          project-url: https://github.com/orgs/uwcsc/projects/2
           github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
