@@ -34,10 +34,6 @@ export type SapphireMessageResponse =
   | WebhookEditMessageOptions
   // void when the command handles sending a response on its own
   | void;
-export type UserMessageType =
-  | Message
-  | SapphireCommand.ChatInputInteraction
-  | MessageComponentInteraction;
 
 export class SapphireMessageResponseWithMetadata {
   response: SapphireMessageResponse;
@@ -52,7 +48,7 @@ export class SapphireMessageResponseWithMetadata {
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
   // Message is for normal commands, ChatInputInteraction is for slash commands
-  messageFromUser: UserMessageType,
+  messageFromUser: Message | SapphireCommand.ChatInputInteraction,
   // Command arguments
   args: CodeyCommandArguments,
 ) => Promise<SapphireMessageResponse | SapphireMessageResponseWithMetadata>;
@@ -245,7 +241,9 @@ const setCommandSubcommand = (
  * Retrieving the `User` depends on whether slash commands were used or not.
  * This method helps generalize this process.
  * */
-export const getUserFromMessage = (message: UserMessageType): User => {
+export const getUserFromMessage = (
+  message: Message | SapphireCommand.ChatInputInteraction,
+): User => {
   if (message instanceof Message) {
     return message.author;
   } else {

@@ -35,10 +35,14 @@ export class MenuHandler extends InteractionHandler {
   // */
   public async run(interaction: ButtonInteraction): Promise<void> {
     const { client } = container;
-    const response = await coinTransferCommandDetails.executeCommand!(client, interaction, {});
+    const response = await coinTransferCommandDetails.executeCommand!(
+      client,
+      interaction as any,
+      {},
+    );
 
     await interaction.reply({
-      content: response.toString(),
+      content: (response as string).toString(),
       ephemeral: false,
     });
   }

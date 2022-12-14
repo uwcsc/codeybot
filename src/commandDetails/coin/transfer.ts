@@ -47,7 +47,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
     return `What exactly are you trying to do there ${getEmojiByName('codeyStressed')}?`;
   }
 
-  switch ((messageFromUser as ButtonInteraction).customId) {
+  switch ((messageFromUser as unknown as ButtonInteraction).customId) {
     case 'accept':
       // Transfer coins
       await transferDbCoinsByUserIds(
