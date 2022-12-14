@@ -199,7 +199,6 @@ export class BlackjackCommand extends Command {
     const betString = await args.pick('string').catch(() => String(DEFAULT_BET));
 
     const { author, channel } = message;
-    const playerBalance = await getCoinBalanceByUserId(author.id);
 
     if (isNaN(playerBalance)) {
       return message.reply('please enter a valid bet amount.');
@@ -220,9 +219,10 @@ export class BlackjackCommand extends Command {
     }
 
     // check player balance and see if it can cover the bet amount
-    if (playerBalance! < bet) {
+    const playerBalance = await getCoinBalanceByUserId(author.id);
+    if (playerBalance! < bet)
       return message.reply(`you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`);
-    }
+    
 
     // initialize the game
     let game = startGame(bet, author.id, channel.id);
