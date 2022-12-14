@@ -1,4 +1,6 @@
 import {
+  ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
+  ApplicationCommandOptionBase,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
@@ -13,13 +15,17 @@ import {
   RegisterBehavior,
   SapphireClient,
 } from '@sapphire/framework';
-import { APIMessage } from 'discord-api-types/v9';
+import { APIMessage, APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import {
-  CommandInteraction,
   Message,
   MessagePayload,
   User,
   WebhookEditMessageOptions,
+  MessageActionRow,
+  BaseMessageComponentOptions,
+  MessageActionRowOptions,
+  CommandInteraction,
+  MessageComponentInteraction,
 } from 'discord.js';
 import { logger } from './logger/default';
 
@@ -30,6 +36,11 @@ export type SapphireMessageResponse =
   | WebhookEditMessageOptions
   // void when the command handles sending a response on its own
   | void;
+export type UserMessageType =
+  | Message
+  | SapphireCommand.ChatInputInteraction
+  | MessageComponentInteraction;
+
 export class SapphireMessageResponseWithMetadata {
   response: SapphireMessageResponse;
   metadata: Record<string, unknown>;
@@ -88,7 +99,6 @@ const setCommandOption = (
   builder: SlashCommandBuilder | SlashCommandSubcommandBuilder,
   option: CodeyCommandOption,
 ): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
-  console.log(option);
   function setupCommand<T extends ApplicationCommandOptionBase>(commandOption: T): T {
     return commandOption
       .setName(option.name)
