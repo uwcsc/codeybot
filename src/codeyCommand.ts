@@ -1,6 +1,4 @@
 import {
-  ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
-  ApplicationCommandOptionBase,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
@@ -17,14 +15,14 @@ import {
 } from '@sapphire/framework';
 import { APIMessage, APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import {
+  BaseMessageComponentOptions,
+  CommandInteraction,
   Message,
   MessagePayload,
   User,
   WebhookEditMessageOptions,
   MessageActionRow,
-  BaseMessageComponentOptions,
   MessageActionRowOptions,
-  CommandInteraction,
   MessageComponentInteraction,
 } from 'discord.js';
 import { logger } from './logger/default';
