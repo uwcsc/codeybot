@@ -39,7 +39,6 @@ const validateBetAmount = (amount: number, isPercent: boolean): string => {
   return res;
 };
 
-
 /*
   Returns true if the amount is a percentage
 */
