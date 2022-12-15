@@ -1,5 +1,11 @@
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars
 import { Args, container } from '@sapphire/framework';
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars
 import {
   SubCommandPluginCommand,
   SubCommandPluginCommandOptions,

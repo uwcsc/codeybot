@@ -120,7 +120,7 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
         `,
   );
   const columns = await db.all(
-    `SELECT count(*) > 0
+    `SELECT *
       FROM pragma_table_info('user_profile_table')
       WHERE name='profile_emoji'
     `,

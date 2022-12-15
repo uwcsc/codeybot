@@ -1,5 +1,11 @@
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars
 import { Args, container } from '@sapphire/framework';
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars
 import {
   SubCommandPluginCommand,
   SubCommandPluginCommandOptions,
@@ -20,6 +26,8 @@ import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
   subCommands: ['match', 'test'],
   requiredUserPermissions: ['ADMINISTRATOR'],
 })
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars
 export class CoffeeChatCommand extends SubCommandPluginCommand {
   static async alertMatches(matches: string[][]): Promise<void> {
     const { client } = container;

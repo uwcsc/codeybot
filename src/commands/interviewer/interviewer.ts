@@ -1,5 +1,9 @@
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars
 import {
   SubCommandPluginCommand,
   SubCommandPluginCommandOptions,
@@ -43,6 +47,7 @@ const RESULTS_PER_PAGE = 6;
     { input: 'list', default: true },
   ],
 })
+// eslint-disable-next-line no-unused-vars
 export class InterviewerCommand extends SubCommandPluginCommand {
   public async clear(message: Message): Promise<Message> {
     const { id } = message.author;
