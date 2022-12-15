@@ -1,8 +1,8 @@
 // Sapphire Specific:
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
 // Sapphire Specific:
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { Args, Command, CommandOptions, container } from '@sapphire/framework';
 import {
   Collection,
@@ -49,7 +49,7 @@ const validateBetAmount = (amount: number): string => {
 \`${container.botPrefix}blj 100\``,
 })
 // Sapphire Specific:
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export class GamesBlackjackCommand extends Command {
   /*
     Returns the corresponding emoji given the card's suit

@@ -1,11 +1,13 @@
 // Sapphire Specific:
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { Args, container } from '@sapphire/framework';
 // Sapphire Specific:
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import {
   SubCommandPluginCommand,
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   SubCommandPluginCommandOptions,
 } from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
@@ -32,7 +34,7 @@ import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
   subCommands: [{ input: 'about', default: true }, 'grad', 'set'],
 })
 // Sapphire Specific:
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export class ProfileCommand extends SubCommandPluginCommand {
   public async about(message: Message, args: Args): Promise<Message> {
     const user = await args.rest('user').catch(() => message.author);
