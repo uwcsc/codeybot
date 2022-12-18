@@ -99,7 +99,7 @@ const convertResumePdfsIntoImages = async (
   // Send the image back to the channel
   const preview_message = await message.channel.send({
     files: imgResponse.map((img) => img.path),
-  })
+  });
   // Inserting the pdf and preview message IDs into the DB
   await db.run(
     'INSERT INTO resume_preview_info (initial_pdf_id, preview_id) VALUES(?, ?)',

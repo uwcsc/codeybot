@@ -7,7 +7,7 @@ import * as colorette from 'colorette';
 import { Message, PartialMessage } from 'discord.js';
 import { inspect } from 'util';
 import { initMessageCreate } from './events/messageCreate';
-import { initMessageDelete } from './events/messageDelete'; 
+import { initMessageDelete } from './events/messageDelete';
 import { initReady } from './events/ready';
 import { logger } from './logger/default';
 import { validateEnvironmentVariables } from './validateEnvVars';

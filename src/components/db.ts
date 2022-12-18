@@ -145,9 +145,9 @@ const initResumePreview = async (db: Database): Promise<void> => {
         initial_pdf_id VARCHAR(255) PRIMARY KEY NOT NULL,
         preview_id VARCHAR(255) NOT NULL
       )
-    `
-  )
-}
+    `,
+  );
+};
 
 const initTables = async (db: Database): Promise<void> => {
   //initialize all relevant tables
