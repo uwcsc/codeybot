@@ -147,9 +147,7 @@ const initResumePreview = async (db: Database): Promise<void> => {
       )
     `,
   );
-  await db.run(
-    'CREATE INDEX IF NOT EXISTS ix_preview_id ON resume_preview_info (preview_id)',
-  );
+  await db.run('CREATE INDEX IF NOT EXISTS ix_preview_id ON resume_preview_info (preview_id)');
 };
 
 const initTables = async (db: Database): Promise<void> => {
