@@ -114,10 +114,20 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
             last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
             faculty VARCHAR(32),
             program VARCHAR(32),
-            specialization VARCHAR(32)
+            specialization VARCHAR(32),
+            profile_emoji VARCHAR(32)
         )
         `,
   );
+  const columns = await db.all(
+    `SELECT *
+      FROM pragma_table_info('user_profile_table')
+      WHERE name='profile_emoji'
+    `,
+  );
+  if (columns.length == 0) {
+    await db.run(`ALTER TABLE user_profile_table ADD COLUMN profile_emoji VARCHAR(32)`);
+  }
 };
 
 const initRpsGameInfo = async (db: Database): Promise<void> => {

@@ -1,7 +1,14 @@
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { Args, container } from '@sapphire/framework';
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import {
   SubCommandPluginCommand,
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   SubCommandPluginCommandOptions,
 } from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
@@ -20,6 +27,8 @@ import { alertMatches } from '../../components/coffeeChat';
   subCommands: ['match', 'test'],
   requiredUserPermissions: ['ADMINISTRATOR'],
 })
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export class CoffeeChatCommand extends SubCommandPluginCommand {
   async match(message: Message): Promise<Message> {
     //makes sure future matches are valid (made for the current group / still has matches left)
