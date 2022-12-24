@@ -119,15 +119,7 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
         )
         `,
   );
-  const columns = await db.all(
-    `SELECT *
-      FROM pragma_table_info('user_profile_table')
-      WHERE name='profile_emoji'
-    `,
-  );
-  if (columns.length == 0) {
-    await db.run(`ALTER TABLE user_profile_table ADD COLUMN profile_emoji VARCHAR(32)`);
-  }
+  await addSQLColumnIfNotExists(db, 'user_profile_table', 'profile_emoji', 'VARCHAR(32)');
 };
 
 const initRpsGameInfo = async (db: Database): Promise<void> => {
@@ -146,6 +138,23 @@ const initRpsGameInfo = async (db: Database): Promise<void> => {
       )
     `,
   );
+};
+
+const addSQLColumnIfNotExists = async (
+  db: Database,
+  tableName: string,
+  columnName: string,
+  columnDataType: string,
+): Promise<void> => {
+  const columns = await db.all(
+    `SELECT *
+      FROM pragma_table_info('${tableName}')
+      WHERE name='${columnName}'
+    `,
+  );
+  if (columns.length == 0) {
+    await db.run(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDataType}`);
+  }
 };
 
 const initTables = async (db: Database): Promise<void> => {
