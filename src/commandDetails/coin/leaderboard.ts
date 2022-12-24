@@ -6,31 +6,39 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
-import {
-  getCoinBalanceByUserId,
-  getCurrentCoinLeaderboard,
-  UserCoinEntry,
-} from '../../components/coin';
+import { getCoinBalanceByUserId, getCoinLeaderboard } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
 import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
-// How many people are shown on the leaderboard
-const limit = 10;
+// Number of users to display on leaderboard
+const LEADERBOARD_LIMIT_DISPLAY = 10;
+// Number of users to fetch for leaderboard
+const LEADERBOARD_LIMIT_FETCH = LEADERBOARD_LIMIT_DISPLAY * 2;
 
-const getCurrentCoinLeaderboardEmbed = async (
+const getCoinLeaderboardEmbed = async (
   client: SapphireClient<boolean>,
-  leaderboard: UserCoinEntry[],
-  currentUserId: string,
+  userId: string,
 ): Promise<MessageEmbed> => {
-  // Initialise user's coin balance if they have not already
-  const userBalance = await getCoinBalanceByUserId(currentUserId);
-  let currentPosition = 0;
-
+  // Get extra users to filter bots later
+  let leaderboard = await getCoinLeaderboard(LEADERBOARD_LIMIT_FETCH);
   const leaderboardArray: string[] = [];
-  let rank = 0;
+  // Initialize user's coin balance if they have not already
+  const userBalance = await getCoinBalanceByUserId(userId);
   let previousBalance = -1;
-  for (let i = 0; i < leaderboard.length && leaderboardArray.length < limit; i++) {
-    const userCoinEntry = leaderboard[i];
+  let position = 0;
+  let rank = 0;
+  let offset = 0;
+  let i = 0;
+  while (leaderboardArray.length < LEADERBOARD_LIMIT_DISPLAY || position === 0) {
+    if (i === LEADERBOARD_LIMIT_FETCH) {
+      offset += LEADERBOARD_LIMIT_FETCH;
+      leaderboard = await getCoinLeaderboard(LEADERBOARD_LIMIT_FETCH, offset);
+      i = 0;
+    }
+    if (leaderboard.length === 0) {
+      break;
+    }
+    const userCoinEntry = leaderboard[i++];
     let user: User;
     try {
       user = await client.users.fetch(userCoinEntry.user_id);
@@ -38,54 +46,53 @@ const getCurrentCoinLeaderboardEmbed = async (
       continue;
     }
     if (user.bot) continue;
-    const userTag = user?.tag ?? '<unknown>';
-    const cleanUserTag = userTag
-      .split('~')
-      .join('\\~')
-      .split('*')
-      .join('\\*')
-      .split('_')
-      .join('\\_')
-      .split('`')
-      .join('\\`');
     if (previousBalance !== userCoinEntry.balance) {
       previousBalance = userCoinEntry.balance;
       rank = rank + 1;
     }
-    const userCoinEntryText = `${rank}. ${cleanUserTag} - ${
-      userCoinEntry.balance
-    } ${getCoinEmoji()}`;
-    if (userCoinEntry.user_id === currentUserId) {
-      currentPosition = rank;
+    if (userCoinEntry.user_id === userId) {
+      position = rank;
     }
-    leaderboardArray.push(userCoinEntryText);
+    if (leaderboardArray.length < LEADERBOARD_LIMIT_DISPLAY) {
+      const userTag = user?.tag ?? '<unknown>';
+      const cleanUserTag = userTag
+        .split('~')
+        .join('\\~')
+        .split('*')
+        .join('\\*')
+        .split('_')
+        .join('\\_')
+        .split('`')
+        .join('\\`');
+      const userCoinEntryText = `${rank}. ${cleanUserTag} - ${
+        userCoinEntry.balance
+      } ${getCoinEmoji()}`;
+      leaderboardArray.push(userCoinEntryText);
+    }
   }
-  const currentLeaderboardText = leaderboardArray.join('\n');
-  const currentLeaderboardEmbed = new MessageEmbed()
+  const leaderboardText = leaderboardArray.join('\n');
+  const leaderboardEmbed = new MessageEmbed()
     .setColor(DEFAULT_EMBED_COLOUR)
-    .setTitle('CodeyCoin Leaderboard')
-    .setDescription(currentLeaderboardText);
-
-  currentLeaderboardEmbed.addFields({
+    .setTitle('Codey Coin Leaderboard')
+    .setDescription(leaderboardText);
+  leaderboardEmbed.addFields({
     name: 'Your Position',
-    value: `You are currently **#${currentPosition}** in the leaderboard with ${userBalance} ${getCoinEmoji()}.`,
+    value: `You are currently **#${position}** in the leaderboard with ${userBalance} ${getCoinEmoji()}.`,
   });
 
-  return currentLeaderboardEmbed;
+  return leaderboardEmbed;
 };
 
-const coinCurrentLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
+const coinLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
   _args,
 ): Promise<SapphireMessageResponse> => {
   const userId = getUserFromMessage(messageFromUser).id;
-  // Get extra users to filter bots later
-  const leaderboard = await getCurrentCoinLeaderboard(limit * 2);
-  return { embeds: [await getCurrentCoinLeaderboardEmbed(client, leaderboard, userId)] };
+  return { embeds: [await getCoinLeaderboardEmbed(client, userId)] };
 };
 
-export const coinCurrentLeaderboardCommandDetails: CodeyCommandDetails = {
+export const coinLeaderboardCommandDetails: CodeyCommandDetails = {
   name: 'leaderboard',
   aliases: ['lb'],
   description: 'Get the current coin leaderboard.',
@@ -95,7 +102,7 @@ export const coinCurrentLeaderboardCommandDetails: CodeyCommandDetails = {
 
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Getting the current coin leaderboard...',
-  executeCommand: coinCurrentLeaderboardExecuteCommand,
+  executeCommand: coinLeaderboardExecuteCommand,
   options: [],
   subcommandDetails: {},
 };
