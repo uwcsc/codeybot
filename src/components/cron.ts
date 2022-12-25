@@ -131,7 +131,7 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
   });
 
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
-  new CronJob('0 */2 * * * *', async function () {
+  new CronJob('0 0 */24 * * *', async function () {
     const leaderboard = await getCoinLeaderboard(10);
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
