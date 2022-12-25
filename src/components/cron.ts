@@ -7,7 +7,7 @@ import { alertUsers } from './officeOpenDM';
 import { vars } from '../config';
 import { DEFAULT_EMBED_COLOUR } from '../utils/embeds';
 import { getMatch, writeHistoricMatches } from '../components/coffeeChat';
-import { adjustCoinBalanceByUserId, BonusType, coinBonusMap } from './coin';
+import { adjustCoinBalanceByUserId, BonusType, coinBonusMap, getCoinLeaderboard } from './coin';
 import { getInterviewers } from './interviewer';
 import {
   getSuggestionPrintout,
@@ -15,10 +15,12 @@ import {
   SuggestionState,
   updateSuggestionState,
 } from './suggestion';
+import { updateMemberRole, loadRoleUsers } from '../utils/roles';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
 const OFFICE_HOURS_STATUS_API = 'https://csclub.ca/office-status/json';
+const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 
 // The last known status of the office
 //  false if closed
@@ -30,6 +32,7 @@ export const initCrons = async (client: Client): Promise<void> => {
   createBonusInterviewerListCron().start();
   createCoffeeChatCron(client).start();
   createOfficeStatusCron(client).start();
+  assignCodeyRoleForLeaderboard(client).start();
 };
 
 interface officeStatus {
@@ -125,4 +128,29 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
     } else {
       throw 'Bad channel type';
     }
+  });
+
+export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
+  new CronJob('0 */2 * * * *', async function () {
+    const leaderboard = await getCoinLeaderboard(10);
+    const guild = client.guilds.resolve(TARGET_GUILD_ID);
+    if (!guild) {
+      throw 'guild not found';
+    }
+    const members = await guild.members.fetch();
+    // Removing role from previous users
+    const usersPreviousRole = await loadRoleUsers('codeyCoin'); // use role id, not the actual name
+    const guildMembersPreviousRole = usersPreviousRole.map((user) => members.get(user.id));
+    guildMembersPreviousRole.forEach(async (user) => {
+      if (user != undefined) {
+        await updateMemberRole(user, 'codeyCoin', false);
+      }
+    });
+    leaderboard.forEach(async (element) => {
+      const userToUpdate = members.get(element.user_id);
+      if (!userToUpdate) {
+        throw 'User not found in guild';
+      }
+      await updateMemberRole(userToUpdate, 'codeyCoin', true);
+    });
   });
