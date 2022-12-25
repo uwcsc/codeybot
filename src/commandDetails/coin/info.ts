@@ -42,7 +42,7 @@ const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
 export const coinInfoCommandDetails: CodeyCommandDetails = {
   name: 'info',
   aliases: ['information, i'],
-  description: 'Get info about CodeyCoin.',
+  description: 'Get info about Codey coin.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coin info\`
 \`${container.botPrefix}coin information\`

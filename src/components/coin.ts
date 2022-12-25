@@ -146,16 +146,17 @@ export const changeDbCoinBalanceByUserId = async (
 /*
   Get the leaderboard for the current coin amounts.
 */
-export const getCurrentCoinLeaderboard = async (limit = 10): Promise<UserCoinEntry[]> => {
+export const getCoinLeaderboard = async (limit: number, offset = 0): Promise<UserCoinEntry[]> => {
   const db = await openDB();
   const res = await db.all(
     `
       SELECT user_id, balance
       FROM user_coin
       ORDER BY balance DESC
-      LIMIT ?
+      LIMIT ? OFFSET ?
     `,
     limit,
+    offset,
   );
   return res;
 };

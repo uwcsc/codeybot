@@ -69,7 +69,7 @@ export class ProfileCommand extends SubCommandPluginCommand {
           );
         }
       }
-      // add codeycoins onto the fields as well
+      // add Codey coins onto the fields as well
       const userCoins = (await getCoinBalanceByUserId(user.id))!.toString();
       profileDisplay.addField('Codey Coins', userCoins, true);
       // display last updated last
