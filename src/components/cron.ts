@@ -16,7 +16,6 @@ import {
   updateSuggestionState,
 } from './suggestion';
 import { updateMemberRole, loadRoleUsers } from '../utils/roles';
-import { logger } from '../logger/default';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
