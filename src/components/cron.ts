@@ -16,6 +16,7 @@ import {
   updateSuggestionState,
 } from './suggestion';
 import { updateMemberRole, loadRoleUsers } from '../utils/roles';
+import { logger } from '../logger/default';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
@@ -131,7 +132,7 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
   });
 
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
-  new CronJob('0 0 */24 * * *', async function () {
+  new CronJob('0 0 * * * *', async function () {
     const leaderboard = await getCoinLeaderboard(10);
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
@@ -139,7 +140,7 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
     }
     const members = await guild.members.fetch();
     // Removing role from previous users
-    const usersPreviousRole = await loadRoleUsers('codeyCoin'); // use role id, not the actual name
+    const usersPreviousRole = await loadRoleUsers('1057399983357313175'); // use role id, not the actual name
     const guildMembersPreviousRole = usersPreviousRole.map((user) => members.get(user.id));
     guildMembersPreviousRole.forEach(async (user) => {
       if (user != undefined) {
