@@ -1,31 +1,20 @@
 import _ from 'lodash';
 import { openDB } from './db';
 
-interface SQLiteCompanyInfoResponse {
-  company_id: string;
-  description: string;
-  categories: string;
-}
-
 interface CompanyInfo {
   company_id: string;
   description: string;
-  categories: string[];
 }
 
-export const getCompanyInfo = async (companyId: string): Promise<CompanyInfo[]> => {
+export const insertCompany = async (companyId: string, description: string): Promise<void> => {
   const db = await openDB();
-  const res: SQLiteCompanyInfoResponse[] = await db.all(
-    'SELECT * FROM companies WHERE id = ?',
-    companyId,
-  );
-  const cleaned = res.map((row) => {
-    return {
-      ...row,
-      categories: row.categories.split(','),
-    };
-  });
-  return cleaned;
+  const insertCompanyCommand = `INSERT INTO companies (company_id, description) VALUES (?,?)`;
+  await db.run(insertCompanyCommand, companyId, description);
+};
+
+export const getCompanyInfo = async (companyId: string): Promise<CompanyInfo> => {
+  const db = await openDB();
+  return (await db.get('SELECT * FROM companies WHERE company_id = ?', companyId)) as CompanyInfo;
 };
 
 export const getCompaniesByUserId = async (userId: string): Promise<string[]> => {
