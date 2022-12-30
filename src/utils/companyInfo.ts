@@ -7,11 +7,18 @@ const CRUNCHBASE_ORGANIZATION_API_URL = 'https://api.crunchbase.com/api/v4/entit
 
 // fields to return from the API. See https://app.swaggerhub.com/apis-docs/Crunchbase/crunchbase-enterprise_api/1.0.3#/Entity/get_entities_organizations__entity_id_ for details
 // NOTE: was unable to add website and categories, seems like the api is a bit broken
-const fields = ['short_description'];
+const fields = ['name', 'short_description'];
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+interface CrunchbaesCompanyDetails {
+  short_description: string;
+  name: string;
+  identifier: Record<string, unknown>;
+}
+
 export const getCrunchbaseCompanyDetails = async (
   companyCrunchbaseLink: string,
-): Promise<Record<string, unknown>> => {
+): Promise<CrunchbaesCompanyDetails> => {
   // check if url contains crunchbase.com/organization
   // if not, throw error
   if (
@@ -46,5 +53,5 @@ export const getCrunchbaseCompanyDetails = async (
     throw new CodeyUserError(undefined, data.error);
   }
 
-  return data;
+  return data.properties;
 };

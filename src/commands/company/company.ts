@@ -1,6 +1,9 @@
 import { Command, container } from '@sapphire/framework';
 import { CodeyCommand, CodeyCommandDetails } from '../../codeyCommand';
 import { companyEnrollCommandDetails } from '../../commandDetails/company/enroll';
+import { companyAddCommandDetails } from '../../commandDetails/company/add';
+import { companyFindCommandDetails } from '../../commandDetails/company/find';
+import { companyProfileCommandDetails } from '../../commandDetails/company/profile';
 
 const companyCommandDetails: CodeyCommandDetails = {
   name: 'company',
@@ -12,6 +15,9 @@ const companyCommandDetails: CodeyCommandDetails = {
   options: [],
   subcommandDetails: {
     enroll: companyEnrollCommandDetails,
+    add: companyAddCommandDetails,
+    find: companyFindCommandDetails,
+    profile: companyProfileCommandDetails,
   },
 };
 

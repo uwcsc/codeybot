@@ -188,20 +188,21 @@ const initCompaniesTable = async (db: Database): Promise<void> => {
     `
     CREATE TABLE IF NOT EXISTS companies (
       company_id VARCHAR(30) PRIMARY KEY NOT NULL,
+      name VARCHAR(64) NOT NULL,
+      image_id TEXT,
       description TEXT
       )`,
   );
 };
 
 const initPeopleCompaniesTable = async (db: Database): Promise<void> => {
-  await db.run(
-    `
+  await db.run(`
     CREATE TABLE IF NOT EXISTS companies_people (
       user_id VARCHAR(255) NOT NULL,
-      company_id VARCHAR(30) NOT NULL,
+      company_id VARCHAR(32) NOT NULL,
+      role VARCHAR(64) NOT NULL,
       FOREIGN KEY(company_id) REFERENCES companies(company_id)
-      )`,
-  );
+      )`);
 };
 
 const initTables = async (db: Database): Promise<void> => {

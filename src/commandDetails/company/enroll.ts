@@ -6,27 +6,21 @@ import {
   SapphireMessageResponse,
 } from '../../codeyCommand';
 import { getCompanyInfo, insertCompany } from '../../components/company';
-import { getCrunchbaseCompanyDetails } from '../../utils/companyInfo';
 
-interface CrunchbaseCompanyProperties {
-  short_description: string;
-}
 const companyEnrollExecuteCommand: SapphireMessageExecuteType = async (
-  client,
-  messageFromUser,
+  _client,
+  _messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
   const company_id = args['company_id'];
   if (!company_id) {
-    throw new Error('please enter a valid user mention or ID for balance adjustment.');
+    throw new Error('please enter a valid company_id.');
   }
   const getExistingCompanyInfo = await getCompanyInfo(<string>company_id);
   if (getExistingCompanyInfo) {
     return 'Company already enrolled!.';
   }
-  const crunchbaseCompanyResponse = await getCrunchbaseCompanyDetails(<string>company_id);
-  const crunchbaseCompanyInfo = crunchbaseCompanyResponse.properties as CrunchbaseCompanyProperties;
-  await insertCompany(<string>company_id, crunchbaseCompanyInfo.short_description);
+  await insertCompany(<string>company_id);
   return 'Company succesfully enrolled!';
 };
 
