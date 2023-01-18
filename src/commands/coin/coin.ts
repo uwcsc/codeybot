@@ -3,7 +3,7 @@ import { CodeyCommand, CodeyCommandDetails } from '../../codeyCommand';
 import { coinAdjustCommandDetails } from '../../commandDetails/coin/adjust';
 import { coinCheckCommandDetails } from '../../commandDetails/coin/check';
 import { coinInfoCommandDetails } from '../../commandDetails/coin/info';
-import { coinCurrentLeaderboardCommandDetails } from '../../commandDetails/coin/leaderboard';
+import { coinLeaderboardCommandDetails } from '../../commandDetails/coin/leaderboard';
 import { coinUpdateCommandDetails } from '../../commandDetails/coin/update';
 
 const coinCommandDetails: CodeyCommandDetails = {
@@ -26,7 +26,7 @@ const coinCommandDetails: CodeyCommandDetails = {
     check: coinCheckCommandDetails,
     info: coinInfoCommandDetails,
     update: coinUpdateCommandDetails,
-    leaderboard: coinCurrentLeaderboardCommandDetails,
+    leaderboard: coinLeaderboardCommandDetails,
   },
   defaultSubcommandDetails: coinCheckCommandDetails,
 };

@@ -1,4 +1,8 @@
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { Args, Command, CommandOptions, container } from '@sapphire/framework';
 import {
   Collection,
@@ -44,6 +48,8 @@ const validateBetAmount = (amount: number): string => {
 \`${container.botPrefix}blackjack 100\`
 \`${container.botPrefix}blj 100\``,
 })
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export class GamesBlackjackCommand extends Command {
   /*
     Returns the corresponding emoji given the card's suit
@@ -163,18 +169,18 @@ export class GamesBlackjackCommand extends Command {
         return `You surrendered and lost **${amountDiff}** Codey ${pluralize(
           'coin',
           amountDiff,
-        )} ${getEmojiByName('codeySad')}.`;
+        )} ${getEmojiByName('codey_sad')}.`;
       }
       if (game.amountWon < game.bet) {
         // player lost
         return `You lost **${amountDiff}** Codey ${pluralize('coin', amountDiff)} ${getEmojiByName(
-          'codeySad',
+          'codey_sad',
         )}, better luck next time!`;
       }
       if (game.amountWon > game.bet) {
         // player won
         return `You won **${amountDiff}** Codey ${pluralize('coin', amountDiff)} ${getEmojiByName(
-          'codeyLove',
+          'codey_love',
         )}, keep your win streak going!`;
       }
       // player tied with dealer
@@ -234,7 +240,7 @@ export class GamesBlackjackCommand extends Command {
     const playerBalance = await getCoinBalanceByUserId(author.id);
     if (playerBalance! < bet)
       return message.reply(
-        `you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`,
+        `you don't have enough coins to place that bet. ${getEmojiByName('codey_sad')}`,
       );
 
     // initialize the game
