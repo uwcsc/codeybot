@@ -53,7 +53,7 @@ export class RpsHandler extends InteractionHandler {
   ): Promise<void> {
     if (interaction.user.id !== rpsGameTracker.getGameFromId(result.gameId)!.state.player1Id) {
       return await interaction.reply({
-        content: `This isn't your game! ${getEmojiByName('codeyAngry')}`,
+        content: `This isn't your game! ${getEmojiByName('codey_angry')}`,
         ephemeral: true,
       });
     }
