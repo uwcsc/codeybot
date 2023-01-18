@@ -3,9 +3,11 @@ import _ from 'lodash';
 import { Person, stableMarriage } from 'stable-marriage';
 import { vars } from '../config';
 import { openDB } from './db';
+import { loadRoleUsers } from '../utils/roles';
+import { User } from 'discord.js';
+import { sendMessage } from '../utils/dm';
 
 const COFFEE_ROLE_ID: string = vars.COFFEE_ROLE_ID;
-const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 //since we might fully hit hundreds of people if we release this into the wider server, set iterations at around 100-200 to keep time at a reasonable number
 //averages around 90% for test sizes 10-20, 75% for test sizes 100-200 people
 const RANDOM_ITERATIONS = 100;
@@ -22,31 +24,22 @@ interface historic_match {
  * Returns a potential single chatter in the single field, null otherwise
  */
 export const getMatch = async (): Promise<string[][]> => {
-  //get list of users and their historic chat history
-  const userList = await loadCoffeeChatUsers();
-  const matched = await loadMatched(userList);
-  //generate one week of matches, and updates match freq tables accordingly
-  const matches = stableMatch(userList, matched);
-  return matches;
-};
+  // Gets the list of users that are currently "enrolled" in role
+  const userList = await loadRoleUsers(COFFEE_ROLE_ID);
 
-/*
- * Gets the list of users that are currently "enrolled" in coffee chat
- * Returns a mapping of string -> int, where string is their ID, while int is an index assigned to the ID
- * The index is used in place of the ID for match tallying
- */
-const loadCoffeeChatUsers = async (): Promise<Map<string, number>> => {
-  const { client } = container;
-  //gets list of users with the coffee chat role
-  const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
-    ?.filter((member) => member.roles.cache.has(COFFEE_ROLE_ID))
-    .map((member) => member.user.id);
-  //assigns each user ID a unique index
+  // Assigns each user ID a unique index
   const notMatched: Map<string, number> = new Map();
-  userList.forEach((val: string, index: number) => {
-    notMatched.set(val, index);
+
+  // Returns a mapping of string -> int, where string is their ID, while int is an index assigned to the ID
+  // The index is used in place of the ID for match tallying
+  userList.forEach((val: User, index: number) => {
+    notMatched.set(val.id, index);
   });
-  return notMatched;
+
+  const matched = await loadMatched(notMatched);
+  //generate one week of matches, and updates match freq tables accordingly
+  const matches = stableMatch(notMatched, matched);
+  return matches;
 };
 
 /*
@@ -247,6 +240,41 @@ export const testPerformance = async (testSize: number): Promise<Map<string, num
   }
   output.set('RANDOM', tally);
   return output;
+};
+
+export const alertMatches = async (matches: string[][]): Promise<void> => {
+  const { client } = container;
+  const outputMap: Map<string, string[]> = new Map();
+  const userMap: Map<string, User> = new Map();
+  //map them to find what to send a specific person
+  for (const pair of matches) {
+    if (!outputMap.get(pair[0])) {
+      outputMap.set(pair[0], []);
+      userMap.set(pair[0], await client.users.fetch(pair[0]));
+    }
+    if (!outputMap.get(pair[1])) {
+      outputMap.set(pair[1], []);
+      userMap.set(pair[1], await client.users.fetch(pair[1]));
+    }
+    outputMap.get(pair[0])!.push(pair[1]);
+    outputMap.get(pair[1])!.push(pair[0]);
+  }
+  //send out messages
+  outputMap.forEach(async (targets, user) => {
+    const discordUser = userMap.get(user)!;
+    //we use raw discord id ping format to minimize fetch numbers on our end
+    const userTargets = targets.map((value) => userMap.get(value)!);
+
+    let message: string;
+
+    if (targets.length > 1) {
+      message = `Your coffee chat :coffee: matches for this week are... **${userTargets[0].tag}** and **${userTargets[1].tag}**! Feel free to contact ${userTargets[0]} and ${userTargets[1]} at your earliest convenience. :wink: If you have any suggestions, please use the suggestion feature to give us feedback!`;
+    } else {
+      message = `Your coffee chat :coffee: match for this week is... **${userTargets[0].tag}**! Feel free to contact ${userTargets[0]} at your earliest convenience. :wink: If you have any suggestions, please use the .suggestion feature to give us feedback!`;
+    }
+
+    await sendMessage(discordUser, message);
+  });
 };
 
 /*setting random iteration count to 1000 allows stable marriage to find the optimized matching for most cases, despite

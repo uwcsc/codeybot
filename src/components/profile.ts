@@ -1,8 +1,10 @@
 import { container } from '@sapphire/framework';
+import emojiRegex from 'emoji-regex';
 import { GuildMember } from 'discord.js';
 import { vars } from '../config';
 import { addOrRemove, updateMemberRole } from '../utils/roles';
 import { openDB } from './db';
+import { getEmojiByName } from './emojis';
 
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 
@@ -17,6 +19,7 @@ export interface UserProfile {
   program?: string;
   specialization?: string;
   last_updated?: string;
+  profile_emoji?: string;
 }
 
 const validFaculties = ['Mathematics', 'Engineering', 'Arts', 'Health', 'Science'];
@@ -54,6 +57,7 @@ export enum configMaps {
   faculty = 'faculty',
   program = 'program',
   specialization = 'specialization',
+  profile_emoji = 'profile_emoji',
 }
 
 export enum prettyProfileDetails {
@@ -67,6 +71,7 @@ export enum prettyProfileDetails {
   program = 'Program',
   specialization = 'Specialization',
   last_updated = 'Last Updated',
+  profile_emoji = 'Profile Emoji',
 }
 
 const validBirthdates = [
@@ -97,6 +102,7 @@ export const customizationLimits = {
   faculty: 'Your faculty. Must be one of ' + validFaculties.join(', '),
   program: 'Your program.',
   specialization: 'Your specialization.',
+  profile_emoji: 'Your profile emoji.',
 };
 
 interface userCustomization {
@@ -109,6 +115,7 @@ enum validatedFields {
   term = 'term',
   faculty = 'faculty',
   year = 'year',
+  profile_emoji = 'profile_emoji',
 }
 
 export const validCustomizations = Object.keys(configMaps) as Array<keyof typeof configMaps>;
@@ -122,7 +129,7 @@ export const validUserCustomization = (
   description: string,
 ): userCustomization => {
   let parsedDescription = description;
-  if (customization !== validatedFields.term) {
+  if (customization !== validatedFields.term && customization != validatedFields.profile_emoji) {
     // convert to lowercase then first letter to capital, in case the user doesn't use proper capitalization
     parsedDescription = description.toLowerCase();
     parsedDescription = parsedDescription[0].toUpperCase() + parsedDescription.slice(1);
@@ -154,6 +161,14 @@ export const validUserCustomization = (
     case validatedFields.year:
       if (parseInt(parsedDescription) < yearStart || parseInt(parsedDescription) > yearEnd) {
         return { reason: 'Invalid year. Must be between: ' + yearStart + ' and ' + yearEnd + '.' };
+      }
+      break;
+    case validatedFields.profile_emoji:
+      if (getEmojiByName(parsedDescription) === undefined) {
+        const emojiRegexToCheck = emojiRegex();
+        if (!parsedDescription.match(emojiRegexToCheck)) {
+          return { reason: 'Invalid profile emoji given ' + parsedDescription + '.' };
+        }
       }
       break;
     default:
@@ -189,7 +204,9 @@ export const editUserProfile = async (member: GuildMember, data: UserProfile): P
 
   if (user.found === 1) {
     // escape any instances of ' character by placing another ' in front of it by sqlite specifications
-    description.replace(/'/g, "''");
+    if (customization != 'profile_emoji') {
+      description.replace(/'/g, "''");
+    }
     query = `UPDATE user_profile_table SET last_updated=CURRENT_DATE, ${customization}=? WHERE user_id=?`;
     await db.run(query, description, member.id);
   } else {

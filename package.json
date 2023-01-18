@@ -30,6 +30,7 @@
     "cron": "^1.8.2",
     "discord.js": "^13.6.0",
     "dotenv": "^8.2.0",
+    "emoji-regex": "^10.2.1",
     "engine-blackjack-ts": "^0.9.11",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",

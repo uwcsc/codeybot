@@ -114,10 +114,12 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
             last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
             faculty VARCHAR(32),
             program VARCHAR(32),
-            specialization VARCHAR(32)
+            specialization VARCHAR(32),
+            profile_emoji VARCHAR(32)
         )
         `,
   );
+  await addSQLColumnIfNotExists(db, 'user_profile_table', 'profile_emoji', 'VARCHAR(32)');
 };
 
 const initRpsGameInfo = async (db: Database): Promise<void> => {
@@ -148,6 +150,33 @@ const initResumePreview = async (db: Database): Promise<void> => {
     `,
   );
   await db.run('CREATE INDEX IF NOT EXISTS ix_resume_preview_info_preview_id ON resume_preview_info (preview_id)');
+};
+
+/*
+  function: addSQLColumnIfNotExists
+  parameters:
+    * db: the object of SQLite Database
+    * tableName: the name of the table where the column needs to be added
+    * columnName: the name of the column that needs to be added to the table
+    * columnDataType: the SQL data type of the column that needs to be added
+  Example:
+    addSQLColumnIfNotExists(db, 'user_profile_table', 'profile_emoji', 'VARCHAR(32)')
+*/
+const addSQLColumnIfNotExists = async (
+  db: Database,
+  tableName: string,
+  columnName: string,
+  columnDataType: string,
+): Promise<void> => {
+  const columns = await db.all(
+    `SELECT *
+      FROM pragma_table_info('${tableName}')
+      WHERE name='${columnName}'
+    `,
+  );
+  if (columns.length == 0) {
+    await db.run(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDataType}`);
+  }
 };
 
 const initTables = async (db: Database): Promise<void> => {
