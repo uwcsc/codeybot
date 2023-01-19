@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/emojis/codeyGaming.png" width="250" height="250" align="left">
-<img src="assets/emojis/codeyDevil.png" width="250" height="250" align="center">
-<img src="assets/emojis/codeyCoding2.png" width="250" height="250" align="right">
+<img src="assets/emojis/codey_gaming.png" width="250" height="250" align="left">
+<img src="assets/emojis/codey_devil.png" width="250" height="250" align="center">
+<img src="assets/emojis/codey_coding2.png" width="250" height="250" align="right">
 
 <br />
 
