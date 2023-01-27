@@ -1,3 +1,4 @@
+import { CodeyUserError } from './../../codeyUserError';
 // Sapphire Specific:
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
@@ -40,7 +41,7 @@ export class SuggestionCommand extends SubCommandPluginCommand {
   public async create(message: Message, args: Args): Promise<Message> {
     const suggestion = await args.rest('string').catch(() => false);
     if (typeof suggestion === 'boolean') {
-      return message.reply('please add a suggestion');
+      throw new CodeyUserError(message, 'please add a suggestion');
     }
     // Add suggestion
     await addSuggestion(message.author.id, message.author.username, suggestion);
@@ -60,7 +61,8 @@ export class SuggestionCommand extends SubCommandPluginCommand {
     const state = args.finished ? null : (await args.rest('string')).toLowerCase();
     //validate state
     if (state !== null && !(state.toLowerCase() in suggestionStatesReadable))
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`,
       );
     // query suggestions
@@ -83,18 +85,23 @@ export class SuggestionCommand extends SubCommandPluginCommand {
     if (!message.member?.permissions.has('ADMINISTRATOR')) return;
 
     const state = (
-      await args.pick('string').catch(() => `please enter a valid suggestion state.`)
+      await args.pick('string').catch(() => {
+        throw new CodeyUserError(message, `please enter a valid suggestion state.`);
+      })
     ).toLowerCase();
-    const ids = await args.rest('string').catch(() => `please enter valid suggestion IDs.`);
+    const ids = await args.rest('string').catch(() => {
+      throw new CodeyUserError(message, `please enter valid suggestion IDs.`);
+    });
     const suggestionIds = ids.split(' ').map((a) => Number(a));
     //validate state
     if (!(state in suggestionStatesReadable))
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `you entered an invalid state. Please enter one of ${getAvailableStatesString()}.`,
       );
     // validate each id after first word
     if (_.some(suggestionIds, isNaN)) {
-      return message.reply(`you entered an invalid ID. Please enter numbers only.`);
+      throw new CodeyUserError(message, `you entered an invalid ID. Please enter numbers only.`);
     }
 
     const suggestionState = state as SuggestionState;

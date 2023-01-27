@@ -1,3 +1,4 @@
+import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
 import { Permissions, User } from 'discord.js';
 import {
@@ -16,12 +17,15 @@ const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFrom
 
   const user = <User>args['user'];
   if (!user) {
-    throw new Error('please enter a valid user mention or ID');
+    throw new CodeyUserError(messageFromUser, 'please enter a valid user mention or ID');
   }
 
   const reason = <string>args['reason'];
   if (!reason) {
-    throw new Error('please enter a valid reason why you are banning the user.');
+    throw new CodeyUserError(
+      messageFromUser,
+      'please enter a valid reason why you are banning the user.',
+    );
   }
 
   const days = <number>args['days'];

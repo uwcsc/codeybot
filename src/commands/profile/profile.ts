@@ -1,3 +1,4 @@
+import { CodeyUserError } from './../../codeyUserError';
 // Sapphire Specific:
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
@@ -96,7 +97,8 @@ export class ProfileCommand extends SubCommandPluginCommand {
     const customization = <keyof typeof configMaps>await args.pick('string').catch(() => false);
     // if no customization is supplied, or its not one of the customizations we provide, return
     if (typeof customization === 'boolean' || !validCustomizations.includes(customization)) {
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `Please enter a customization. Must be one of**${validCustomizationsDisplay}**`,
       );
     }

@@ -1,3 +1,4 @@
+import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
 import { Permissions, User } from 'discord.js';
 import {
@@ -26,13 +27,16 @@ const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (
   // First mandatory argument is user
   const user = <User>args['user'];
   if (!user) {
-    throw new Error('please enter a valid user mention or ID for balance adjustment.');
+    throw new CodeyUserError(
+      messageFromUser,
+      'please enter a valid user mention or ID for balance adjustment.',
+    );
   }
 
   // Second mandatory argument is amount
   const amount = args['amount'];
   if (typeof amount !== 'number') {
-    throw new Error('please enter a valid amount to adjust.');
+    throw new CodeyUserError(messageFromUser, 'please enter a valid amount to adjust.');
   }
 
   // Optional argument is reason

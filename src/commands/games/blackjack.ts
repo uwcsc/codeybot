@@ -30,6 +30,7 @@ import {
   startGame,
 } from '../../components/games/blackjack';
 import { pluralize } from '../../utils/pluralize';
+import { CodeyUserError } from '../../codeyUserError';
 
 const DEFAULT_BET = 10;
 const MIN_BET = 10;
@@ -225,7 +226,9 @@ export class GamesBlackjackCommand extends Command {
     // integer, then this is the bet amount; otherwise, reply that a valid bet amount must be entered
     const bet = args.finished
       ? DEFAULT_BET
-      : await args.rest('integer').catch(() => 'please enter a valid bet amount.');
+      : await args.rest('integer').catch(() => {
+          throw new CodeyUserError(message, 'please enter a valid bet amount.');
+        });
     if (typeof bet === 'string') return message.reply(bet);
 
     const { author, channel } = message;

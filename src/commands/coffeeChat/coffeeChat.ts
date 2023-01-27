@@ -1,3 +1,4 @@
+import { CodeyUserError } from './../../codeyUserError';
 // Sapphire Specific:
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
@@ -40,9 +41,11 @@ export class CoffeeChatCommand extends SubCommandPluginCommand {
 
   async test(message: Message, args: Args): Promise<Message> {
     // Mandatory argument is size
-    const size = await args
-      .rest('integer')
-      .catch(() => 'please enter a valid number of test users.');
+    const size = await args.rest('integer').catch(() => {
+      {
+        throw new CodeyUserError(message, 'please enter a valid number of test users.');
+      }
+    });
     if (typeof size === 'string') return message.reply(size);
 
     const results = await testPerformance(size);

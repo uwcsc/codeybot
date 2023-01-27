@@ -1,3 +1,4 @@
+import { CodeyUserError } from './../../codeyUserError';
 // Sapphire Specific:
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { ApplyOptions } from '@sapphire/decorators';
@@ -55,7 +56,8 @@ export class InterviewerCommand extends SubCommandPluginCommand {
 
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`,
       );
     }
@@ -68,13 +70,15 @@ export class InterviewerCommand extends SubCommandPluginCommand {
   async domain(message: Message, args: Args): Promise<Message> {
     const domain = await args.rest('string').catch(() => `Err`);
     if (!(domain.toLowerCase() in availableDomains))
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `you entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`,
       );
     const { id } = message.author;
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`,
       );
     }
@@ -93,7 +97,8 @@ export class InterviewerCommand extends SubCommandPluginCommand {
 
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`,
       );
     }
@@ -111,7 +116,8 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     // check if user signed up to be interviewer
     const interviewer = await getInterviewer(id);
     if (!interviewer) {
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`,
       );
     }
@@ -133,7 +139,8 @@ export class InterviewerCommand extends SubCommandPluginCommand {
 
     // check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`,
       );
     }
@@ -157,7 +164,8 @@ export class InterviewerCommand extends SubCommandPluginCommand {
   async list(message: Message, args: Args): Promise<Message> {
     const domain = await args.pick('string').catch(() => '');
     if (domain !== '' && !(domain.toLowerCase() in availableDomains))
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `you entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`,
       );
     // query interviewers
@@ -187,7 +195,8 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     //parses link and checks for validity
     const parsedUrl = parseLink(calendarUrl);
     if (!parsedUrl) {
-      return message.reply(
+      throw new CodeyUserError(
+        message,
         `I don't seem to recognize your meeting link. Be sure to use calendly or x.ai.`,
       );
     }
