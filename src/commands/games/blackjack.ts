@@ -252,10 +252,10 @@ export class GamesBlackjackCommand extends Command {
     // show game initial state and setup reactions
     const msg = await message.reply({ embeds: [this.getEmbedFromGame(game)] });
     if (game?.stage != BlackjackStage.DONE) {
-	    msg.react('🇭');
-	    msg.react('🇸');
-	    msg.react('🇶');
-	}
+      msg.react('🇭');
+      msg.react('🇸');
+      msg.react('🇶');
+    }
     // keep handling player action until game is done
     while (game && game?.stage != BlackjackStage.DONE) {
       try {
