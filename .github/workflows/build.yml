@@ -93,7 +93,7 @@ jobs:
           proxy_username: ${{ secrets.DEPLOY_PROXY_USER }}
           proxy_key: ${{ secrets.DEPLOY_PROXY_KEY }}
           script: |
-            cd /codey/${{env.DEPLOYMENT_TARGET}}
+            cd ~/codey/${{env.DEPLOYMENT_TARGET}}
             curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codeybot/main/docker/${{env.DEPLOYMENT_TARGET}}/docker-compose.yml
             docker pull uwcsclub/codey-bot:${{ github.event_name == 'push' && github.sha || env.RELEASE_TAG }}
             echo "TAG=${{ github.event_name == 'push' && github.sha || env.RELEASE_TAG }}" > .env
