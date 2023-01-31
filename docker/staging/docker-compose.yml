@@ -9,4 +9,3 @@ services:
     volumes:
       - ./logs:/usr/app/logs
       - ./db:/usr/app/db
-      
