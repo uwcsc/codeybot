@@ -22,6 +22,7 @@ import {
   WebhookEditMessageOptions,
 } from 'discord.js';
 import { logger } from './logger/default';
+import { CodeyUserError } from './codeyUserError';
 
 export type SapphireSentMessageType = Message | CommandInteraction;
 export type SapphireMessageResponse =
@@ -333,8 +334,15 @@ export class CodeyCommand extends SapphireCommand {
         return await message.reply(<string | MessagePayload>successResponse);
       }
     } catch (e) {
+      console.log('reached here');
       logger.error(e);
-      message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
+      console.log(e instanceof CodeyUserError);
+      if (e instanceof CodeyUserError) {
+        logger.log('info', 'reached here');
+        e.sendToUser();
+      } else {
+        message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
+      }
     }
   }
 
@@ -418,9 +426,13 @@ export class CodeyCommand extends SapphireCommand {
       }
     } catch (e) {
       logger.error(e);
-      return await interaction.editReply(
-        commandDetails.messageIfFailure ?? defaultBackendErrorMessage,
-      );
+      if (e instanceof CodeyUserError) {
+        e.sendToUser();
+      } else {
+        return await interaction.editReply(
+          commandDetails.messageIfFailure ?? defaultBackendErrorMessage,
+        );
+      }
     }
   }
 }

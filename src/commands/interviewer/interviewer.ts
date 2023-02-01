@@ -51,20 +51,26 @@ const RESULTS_PER_PAGE = 6;
 })
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export class InterviewerCommand extends SubCommandPluginCommand {
-  public async clear(message: Message): Promise<Message> {
-    const { id } = message.author;
+  public async clear(message: Message): Promise<Message | void> {
+    try {
+      const { id } = message.author;
 
-    // check if user signed up to be interviewer
-    if (!(await getInterviewer(id))) {
-      throw new CodeyUserError(
-        message,
-        `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`,
-      );
+      // check if user signed up to be interviewer
+      if (!(await getInterviewer(id))) {
+        throw new CodeyUserError(
+          message,
+          `you don't seem to have signed up yet, please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`,
+        );
+      }
+
+      // clear interviewer data
+      await clearProfile(id);
+      return message.reply('your interviewer profile has been cleared!');
+    } catch (e) {
+      if (e instanceof CodeyUserError) {
+        e.sendToUser();
+      }
     }
-
-    // clear interviewer data
-    await clearProfile(id);
-    return message.reply('your interviewer profile has been cleared!');
   }
 
   async domain(message: Message, args: Args): Promise<Message> {

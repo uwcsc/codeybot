@@ -39,20 +39,28 @@ export class CoffeeChatCommand extends SubCommandPluginCommand {
     return message.reply(`Sent ${matches.length} match(es).`);
   }
 
-  async test(message: Message, args: Args): Promise<Message> {
-    // Mandatory argument is size
-    const size = await args.rest('integer').catch(() => {
-      {
-        throw new CodeyUserError(message, 'please enter a valid number of test users.');
-      }
-    });
-    if (typeof size === 'string') return message.reply(size);
+  async test(message: Message, args: Args): Promise<Message | void> {
+    try {
+      // Mandatory argument is size
+      const size = await args.rest('integer').catch(() => {
+        {
+          throw new CodeyUserError(message, 'please enter a valid number of test users.');
+        }
+      });
+      if (typeof size === 'string') return message.reply(size);
 
-    const results = await testPerformance(size);
-    const output = new MessageEmbed().setColor(DEFAULT_EMBED_COLOUR).setTitle('Matches Until Dupe');
-    results.forEach((value, key) => {
-      output.addField(key, value.toString());
-    });
-    return message.channel.send({ embeds: [output] });
+      const results = await testPerformance(size);
+      const output = new MessageEmbed()
+        .setColor(DEFAULT_EMBED_COLOUR)
+        .setTitle('Matches Until Dupe');
+      results.forEach((value, key) => {
+        output.addField(key, value.toString());
+      });
+      return message.channel.send({ embeds: [output] });
+    } catch (e) {
+      if (e instanceof CodeyUserError) {
+        e.sendToUser();
+      }
+    }
   }
 }

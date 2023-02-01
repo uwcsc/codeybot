@@ -22,7 +22,7 @@ const coinAdjustExecuteCommand: SapphireMessageExecuteType = async (
   args,
 ): Promise<SapphireMessageResponse> => {
   if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) {
-    return `You do not have permission to use this command.`;
+    throw new CodeyUserError(messageFromUser, `You do not have permission to use this command.`);
   }
 
   // First mandatory argument is user

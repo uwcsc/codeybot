@@ -7,6 +7,7 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
+import { CodeyUserError } from '../../codeyUserError';
 import { getCoinBalanceByUserId } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
 import { pluralize } from '../../utils/pluralize';
@@ -33,7 +34,10 @@ const coinCheckExecuteCommand: SapphireMessageExecuteType = async (
   try {
     balance = await getCoinBalanceByUserId(user.id);
   } catch (e) {
-    return `Could not fetch the user's balance, contact a mod for help`;
+    throw new CodeyUserError(
+      messageFromUser,
+      `Could not fetch the user's balance, contact a mod for help`,
+    );
   }
 
   // Show coin balance
