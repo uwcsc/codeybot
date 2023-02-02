@@ -17,7 +17,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
 export const coinTransferCommandDetails: CodeyCommandDetails = {
   name: 'transfer',
   aliases: ['t'],
-  description: 'Transfer coins to another user.',
+  description: 'Transfer coins from your balance to another user.',
   detailedDescription: `**Examples:**
 	\`${container.botPrefix}coin transfer @Codey 10\``,
 
