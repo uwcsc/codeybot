@@ -234,41 +234,10 @@ export class GamesBlackjackCommand extends Command {
 
       const { author, channel } = message;
 
-    const validateRes = validateBetAmount(bet);
-    if (validateRes) {
-      // if validation function returns an error message, then send it
-      return message.reply(validateRes);
-    }
-
-    // check player balance and see if it can cover the bet amount
-    const playerBalance = await getCoinBalanceByUserId(author.id);
-    if (playerBalance! < bet)
-      return message.reply(
-        `you don't have enough coins to place that bet. ${getEmojiByName('codey_sad')}`,
-      );
-
-    // initialize the game
-    let game = startGame(bet, author.id, channel.id);
-    if (!game) {
-      return message.reply('please finish your current game before starting another one!');
-    }
-
-    // show game initial state and setup reactions
-    const msg = await message.reply({ embeds: [this.getEmbedFromGame(game)] });
-    if (game?.stage != BlackjackStage.DONE) {
-      msg.react('🇭');
-      msg.react('🇸');
-      msg.react('🇶');
-    }
-    // keep handling player action until game is done
-    while (game && game?.stage != BlackjackStage.DONE) {
-      try {
-        // wait for user action
-        game = await this.handlePlayerAction(msg, author.id);
-      } catch {
-        // if player has not acted within time limit, consider it as quitting the game
-        game = await performGameAction(author.id, BlackjackAction.QUIT);
-        message.reply("you didn't act within the time limit, please start another game!");
+      const validateRes = validateBetAmount(bet);
+      if (validateRes) {
+        // if validation function returns an error message, then send it
+        throw new CodeyUserError(message, validateRes);
       }
 
       // check player balance and see if it can cover the bet amount
@@ -276,7 +245,7 @@ export class GamesBlackjackCommand extends Command {
       if (playerBalance! < bet)
         throw new CodeyUserError(
           message,
-          `you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`,
+          `you don't have enough coins to place that bet. ${getEmojiByName('codey_sad')}`,
         );
 
       // initialize the game
@@ -290,9 +259,11 @@ export class GamesBlackjackCommand extends Command {
 
       // show game initial state and setup reactions
       const msg = await message.reply({ embeds: [this.getEmbedFromGame(game)] });
-      msg.react('🇭');
-      msg.react('🇸');
-      msg.react('🇶');
+      if (game?.stage != BlackjackStage.DONE) {
+        msg.react('🇭');
+        msg.react('🇸');
+        msg.react('🇶');
+      }
       // keep handling player action until game is done
       while (game && game?.stage != BlackjackStage.DONE) {
         try {
@@ -301,25 +272,16 @@ export class GamesBlackjackCommand extends Command {
         } catch {
           // if player has not acted within time limit, consider it as quitting the game
           game = await performGameAction(author.id, BlackjackAction.QUIT);
-          throw new CodeyUserError(
-            message,
-            "you didn't act within the time limit, please start another game!",
-          );
+          message.reply("you didn't act within the time limit, please start another game!");
         }
 
-        if (!game) {
-          // no game state is returned from action, either invalid action or non-existent game
-          this.endGame(msg, author.id);
-          throw new CodeyUserError(
-            message,
-            "something went wrong, please try again later! Don't worry, you didn't lose any coins.",
-          );
+        if (game) {
+          // update game embed
+          await msg.edit({ embeds: [this.getEmbedFromGame(game)] });
+          // end the game
+          this.endGame(msg, author.id, this.getBalanceChange(game));
+          return msg;
         }
-        // update game embed
-        await msg.edit({ embeds: [this.getEmbedFromGame(game)] });
-        // end the game
-        this.endGame(msg, author.id, this.getBalanceChange(game));
-        return msg;
       }
     } catch (e) {
       if (e instanceof CodeyUserError) {
