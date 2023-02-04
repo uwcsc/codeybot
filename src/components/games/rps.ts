@@ -4,7 +4,7 @@ import { getRandomIntFrom1 } from '../../utils/num';
 import { adjustCoinBalanceByUserId, UserCoinEvent } from '../coin';
 import { openDB } from '../db';
 import { getCoinEmoji, getEmojiByName } from '../emojis';
-
+import { CodeyUserError } from '../../codeyUserError';
 class RpsGameTracker {
   // Key = id, Value = game
   games: Map<number, RpsGame>;
@@ -57,14 +57,14 @@ class RpsGameTracker {
       this.games.set(id, game);
       return game;
     }
-    throw new Error('Something went wrong with starting the RPS game');
+    throw new CodeyUserError(undefined, 'Something went wrong with starting the RPS game');
   }
 
   async endGame(gameId: number): Promise<void> {
     const db = await openDB();
     const game = this.getGameFromId(gameId);
     if (!game) {
-      throw new Error(`No game with game ID ${gameId} found`);
+      throw new CodeyUserError(undefined, `No game with game ID ${gameId} found`);
     }
     // Don't do anything if game status is still pending
     if (game.state.status === RpsGameStatus.Pending) return;
