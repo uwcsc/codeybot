@@ -47,7 +47,7 @@ class RpsGameTracker {
         player1Id: player1User.id,
         player1Username: player1User.username,
         player2Id: player2User?.id,
-        player2Username: player2User?.username ?? `Codey ${getEmojiByName('codeyLove')}`,
+        player2Username: player2User?.username ?? `Codey ${getEmojiByName('codey_love')}`,
         bet: bet,
         status: RpsGameStatus.Pending,
         player1Sign: RpsGameSign.Pending,
@@ -230,7 +230,7 @@ export class RpsGame {
         }
       // Timeout can be implemented later
       default:
-        return `Something went wrong! ${getEmojiByName('codeySad')}`;
+        return `Something went wrong! ${getEmojiByName('codey_sad')}`;
     }
   }
 

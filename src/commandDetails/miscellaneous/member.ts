@@ -38,10 +38,10 @@ const getMemberEmbed = async (uwid: UwIdType): Promise<MessageEmbed> => {
     return new MessageEmbed()
       .setColor('GREEN')
       .setTitle(title)
-      .setDescription(`You're a CSC member! Hooray! ${getEmojiByName('codeyLove')}`);
+      .setDescription(`You're a CSC member! Hooray! ${getEmojiByName('codey_love')}`);
   }
 
-  const NOT_MEMBER_DESCRIPTION = `You're not a CSC member! ${getEmojiByName('codeySad')}
+  const NOT_MEMBER_DESCRIPTION = `You're not a CSC member! ${getEmojiByName('codey_sad')}
 
 Being a CSC member comes with gaining access to CSC machines, cloud, email, web hosting, and more! Additional details can be found here! https://csclub.uwaterloo.ca/resources/services/
 

@@ -27,10 +27,12 @@ Then, add your bot to the Discord testing server.
 5. In your cloned project, navigate to `config/`. Duplicate the `vars.template.json` file, move your copy to the `dev` folder, and rename your file `vars.json`. This will be the config file for your local bot. Edit the values in `vars.json` as according to the following config variable descriptions:
 
 - `TARGET_GUILD_ID`: the ID of the guild (server) that the bot is in.
-- `COFFEE_ROLE_ID`: the ID of the role the bot will use to decide who is enrolled into coffee chats.
+- `COFFEE_ROLE_ID`: the ID of the role for users to be matched in coffee chats.
+- `OFFICE_PING_ROLE_ID`: the ID of the role for users to be pinged when the office opens.
 - `NOTIF_CHANNEL_ID`: the ID of the channel the bot will send system notifications to.
 - `ANNOUNCEMENTS_CHANNEL_ID`: the ID of the announcements channel.
-- `OFFICE_STATUS_CHANNEL_ID`: the ID of the office hours channel.
+- `OFFICE_STATUS_CHANNEL_ID`: the ID of the office status channel.
+- `RESUME_CHANNEL_ID`: the ID of the channel in which resumes are posted for critique.
 - `IRC_USER_ID`: the user ID of the irc-bridge bot.
 - `MOD_USER_ID_FOR_BAN_APPEAL`: the user ID of the mod tagged in the appeal messages for bans.
   Note that this file will not be pushed to the remote.

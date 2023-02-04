@@ -170,18 +170,18 @@ export class GamesBlackjackCommand extends Command {
         return `You surrendered and lost **${amountDiff}** Codey ${pluralize(
           'coin',
           amountDiff,
-        )} ${getEmojiByName('codeySad')}.`;
+        )} ${getEmojiByName('codey_sad')}.`;
       }
       if (game.amountWon < game.bet) {
         // player lost
         return `You lost **${amountDiff}** Codey ${pluralize('coin', amountDiff)} ${getEmojiByName(
-          'codeySad',
+          'codey_sad',
         )}, better luck next time!`;
       }
       if (game.amountWon > game.bet) {
         // player won
         return `You won **${amountDiff}** Codey ${pluralize('coin', amountDiff)} ${getEmojiByName(
-          'codeyLove',
+          'codey_love',
         )}, keep your win streak going!`;
       }
       // player tied with dealer
@@ -234,10 +234,41 @@ export class GamesBlackjackCommand extends Command {
 
       const { author, channel } = message;
 
-      const validateRes = validateBetAmount(bet);
-      if (validateRes) {
-        // if validation function returns an error message, then send it
-        return message.reply(validateRes);
+    const validateRes = validateBetAmount(bet);
+    if (validateRes) {
+      // if validation function returns an error message, then send it
+      return message.reply(validateRes);
+    }
+
+    // check player balance and see if it can cover the bet amount
+    const playerBalance = await getCoinBalanceByUserId(author.id);
+    if (playerBalance! < bet)
+      return message.reply(
+        `you don't have enough coins to place that bet. ${getEmojiByName('codey_sad')}`,
+      );
+
+    // initialize the game
+    let game = startGame(bet, author.id, channel.id);
+    if (!game) {
+      return message.reply('please finish your current game before starting another one!');
+    }
+
+    // show game initial state and setup reactions
+    const msg = await message.reply({ embeds: [this.getEmbedFromGame(game)] });
+    if (game?.stage != BlackjackStage.DONE) {
+      msg.react('🇭');
+      msg.react('🇸');
+      msg.react('🇶');
+    }
+    // keep handling player action until game is done
+    while (game && game?.stage != BlackjackStage.DONE) {
+      try {
+        // wait for user action
+        game = await this.handlePlayerAction(msg, author.id);
+      } catch {
+        // if player has not acted within time limit, consider it as quitting the game
+        game = await performGameAction(author.id, BlackjackAction.QUIT);
+        message.reply("you didn't act within the time limit, please start another game!");
       }
 
       // check player balance and see if it can cover the bet amount

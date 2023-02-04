@@ -211,7 +211,7 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     await upsertInterviewer(id, parsedUrl);
     return message.reply(
       `your info has been updated. Thanks for helping out! ${getEmojiByName(
-        'codeyLove',
+        'codey_love',
       )?.toString()}`,
     );
   }
