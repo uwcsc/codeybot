@@ -15,12 +15,4 @@ export class CodeyUserError {
       this.message.reply(this.errorMessage);
     }
   };
-
-  getMessage = (): Message | Command.ChatInputInteraction<CacheType> | void => {
-    return this.message;
-  };
-
-  setMessage = (_message: Message | Command.ChatInputInteraction<CacheType>): void => {
-    this.message = _message;
-  };
 }

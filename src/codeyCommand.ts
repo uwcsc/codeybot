@@ -170,7 +170,7 @@ const setCommandOption = (
         )
       );
     default:
-      throw new CodeyUserError(undefined, `Unknown option type.`);
+      throw new Error(`Unknown option type.`);
   }
 };
 
@@ -335,10 +335,9 @@ export class CodeyCommand extends SapphireCommand {
       }
     } catch (e) {
       logger.error(e);
-      console.log(e instanceof CodeyUserError);
       if (e instanceof CodeyUserError) {
-        if (!e.getMessage()) {
-          e.setMessage(message);
+        if (!e.message) {
+          e.message = message;
         }
         e.sendToUser();
       } else {
@@ -428,8 +427,8 @@ export class CodeyCommand extends SapphireCommand {
     } catch (e) {
       logger.error(e);
       if (e instanceof CodeyUserError) {
-        if (!e.getMessage()) {
-          e.setMessage(interaction);
+        if (!e.message) {
+          e.message = interaction;
         }
         e.sendToUser();
       } else {
