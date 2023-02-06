@@ -21,6 +21,7 @@ const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
 const OFFICE_HOURS_STATUS_API = 'https://csclub.ca/office-status/json';
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
+const CODEY_COIN_ROLE_ID: string = vars.CODEY_COIN_ROLE_ID;
 
 // The last known status of the office
 //  false if closed
@@ -131,7 +132,7 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
   });
 
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
-  new CronJob('0 0 * * * *', async function () {
+  new CronJob('0 0 0 */1 * * *', async function () {
     const leaderboard = await getCoinLeaderboard(10);
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
@@ -139,7 +140,7 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
     }
     const members = await guild.members.fetch();
     // Removing role from previous users
-    const usersPreviousRole = await loadRoleUsers('1057399983357313175'); // use role id, not the actual name
+    const usersPreviousRole = await loadRoleUsers(CODEY_COIN_ROLE_ID);
     const guildMembersPreviousRole = usersPreviousRole.map((user) => members.get(user.id));
     guildMembersPreviousRole.forEach(async (user) => {
       if (user != undefined) {
@@ -148,9 +149,8 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
     });
     leaderboard.forEach(async (element) => {
       const userToUpdate = members.get(element.user_id);
-      if (!userToUpdate) {
-        throw 'User not found in guild';
+      if (userToUpdate) {
+        await updateMemberRole(userToUpdate, 'codeyCoin', true);
       }
-      await updateMemberRole(userToUpdate, 'codeyCoin', true);
     });
   });
