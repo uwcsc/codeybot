@@ -143,7 +143,7 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
     const usersPreviousRole = await loadRoleUsers(CODEY_COIN_ROLE_ID);
     const guildMembersPreviousRole = usersPreviousRole.map((user) => members.get(user.id));
     guildMembersPreviousRole.forEach(async (user) => {
-      if (user != undefined) {
+      if (user) {
         await updateMemberRole(user, 'codeyCoin', false);
       }
     });
