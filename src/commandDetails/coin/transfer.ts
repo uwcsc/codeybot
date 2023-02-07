@@ -11,6 +11,21 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ) => {
+  // First mandatory argument is receiving user
+  const receivingUser = <User>args['user'];
+  if (!receivingUser) {
+    throw new Error('please enter a valid user mention or ID for balance transfer.');
+  }
+
+  // Second mandatory argument is amount
+  const amount = args['amount'];
+  if (typeof amount !== 'number') {
+    throw new Error('please enter a valid amount to transfer.');
+  }
+
+  // Optional argument is reason
+  const reason = args['reason'];
+
   return '';
 };
 
