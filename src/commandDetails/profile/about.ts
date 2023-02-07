@@ -1,5 +1,5 @@
-import { CodeyUserError } from './../../codeyUserError';
-import { getUserProfileById, prettyProfileDetails, UserProfile } from './../../components/profile';
+import { CodeyUserError } from '../../codeyUserError';
+import { getUserProfileById, prettyProfileDetails, UserProfile } from '../../components/profile';
 import { container } from '@sapphire/framework';
 import { User, MessageEmbed } from 'discord.js';
 import {
@@ -7,6 +7,7 @@ import {
   CodeyCommandOptionType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
+  getUserFromMessage,
 } from '../../codeyCommand';
 import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 import { getCoinBalanceByUserId } from '../../components/coin';
@@ -17,9 +18,9 @@ const profileAboutExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-  const user = <User>args['user'];
+  let user = <User>args['user'];
   if (!user) {
-    throw new Error('please enter a valid user mention or ID for balance adjustment.');
+    user = getUserFromMessage(messageFromUser);
   }
 
   // get user profile if exists
@@ -68,14 +69,16 @@ const profileAboutExecuteCommand: SapphireMessageExecuteType = async (
   }
 };
 
-export const profileAboutComamndDetails: CodeyCommandDetails = {
+export const profileAboutCommandDetails: CodeyCommandDetails = {
   name: 'about',
-  aliases: ['userprofile', 'aboutme'],
-  description: 'Handle user profile functions.',
+  aliases: ['a'],
+  description: 'Display user profile.',
   detailedDescription: `**Examples:**
-  \`${container.botPrefix}profile @Codey\``,
+  \`${container.botPrefix}profile about @Codey\`
+  \`${container.botPrefix}profile a @Codey\``,
 
   isCommandResponseEphemeral: false,
+  messageWhenExecutingCommand: "Getting user's profile...",
   executeCommand: profileAboutExecuteCommand,
   options: [
     {
