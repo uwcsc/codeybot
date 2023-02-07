@@ -8,8 +8,8 @@ import {
   SapphireMessageResponseWithMetadata,
 } from '../../codeyCommand';
 import {
+  adjustCoinBalanceByUserId,
   getCoinBalanceByUserId,
-  updateCoinBalanceByUserId,
   UserCoinEvent,
 } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
@@ -35,31 +35,55 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
   // Optional argument is reason
   const reason = args['reason'];
 
-  // Retrieve the sender balance and ensure they have enough coins
-  const senderBalance = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
-  if (amount > senderBalance) {
-    return new SapphireMessageResponseWithMetadata(
-      `You don't have enough ${getCoinEmoji()} to place that bet.`,
-      {},
-    );
+  // Retrieve sending user
+  const sendingUser = getUserFromMessage(messageFromUser);
+
+  // Ensure the transfer involves two distinct users
+  if (sendingUser.id === receivingUser.id) {
+    return new SapphireMessageResponseWithMetadata(`You can't transfer to yourself.`, {});
   }
 
-  // Retrieve the receiver balance, add the coins transferred and update
-  const receiverBalance = await getCoinBalanceByUserId(receivingUser.id);
-  await updateCoinBalanceByUserId(
+  // Retrieve sending user balance and ensure transferred amount is valid
+  const senderBalance = await getCoinBalanceByUserId(sendingUser.id);
+  if (amount > senderBalance) {
+    return new SapphireMessageResponseWithMetadata(
+      `You don't have enough ${getCoinEmoji()} to transfer that amount.`,
+      {},
+    );
+  } else if (amount <= 0) {
+    return new SapphireMessageResponseWithMetadata(`You can't transfer less than 1 coin.`, {});
+  }
+
+  // Adjust the receiver balance with coins transferred
+  await adjustCoinBalanceByUserId(
     receivingUser.id,
-    <number>(receiverBalance + amount),
-    UserCoinEvent.AdminCoinUpdate,
+    amount,
+    UserCoinEvent.AdminCoinAdjust,
     <string>(reason ?? ''),
     client.user?.id,
   );
 
-  // Get new balance
-  const newBalance = await getCoinBalanceByUserId(receivingUser.id);
+  // Get new receiver balance
+  const newReceiverBalance = await getCoinBalanceByUserId(receivingUser.id);
 
-  return `${receivingUser.username} now has ${newBalance} Codey ${pluralize(
+  // Adjust the sender balance with coins transferred
+  await adjustCoinBalanceByUserId(
+    sendingUser.id,
+    <number>(-1 * amount),
+    UserCoinEvent.AdminCoinAdjust,
+    <string>(reason ?? ''),
+    client.user?.id,
+  );
+
+  // Get new sender balance
+  const newSenderBalance = await getCoinBalanceByUserId(sendingUser.id);
+
+  return `${receivingUser.username} now has ${newReceiverBalance} Codey ${pluralize(
     'coin',
-    newBalance,
+    newReceiverBalance,
+  )} ${getCoinEmoji()}. ${sendingUser.username} now has ${newSenderBalance} Codey ${pluralize(
+    'coin',
+    newReceiverBalance,
   )} ${getCoinEmoji()}.`;
 };
 
@@ -68,7 +92,8 @@ export const coinTransferCommandDetails: CodeyCommandDetails = {
   aliases: ['t'],
   description: 'Transfer coins from your balance to another user.',
   detailedDescription: `**Examples:**
-	\`${container.botPrefix}coin transfer @Codey 10\``,
+	\`${container.botPrefix}coin transfer @Codey 10\`
+  \`${container.botPrefix}coin transfer @Codey 10 Lost a bet to Codey\``,
 
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Transferring coins...',
