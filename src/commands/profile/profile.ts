@@ -104,7 +104,6 @@ export class ProfileCommand extends SubCommandPluginCommand {
       const customization = <keyof typeof configMaps>await args.pick('string').catch(() => false);
       // if no customization is supplied, or its not one of the customizations we provide, return
       if (typeof customization === 'boolean' || !validCustomizations.includes(customization)) {
-        console.trace('error was thrown here');
         throw new CodeyUserError(
           message,
           `Please enter a customization. Must be one of**${validCustomizationsDisplay}**`,
