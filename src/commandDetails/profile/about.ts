@@ -47,23 +47,23 @@ const profileAboutExecuteCommand: SapphireMessageExecuteType = async (
         // iterate through each of the configurations, prettyProfileDetails making the configuration more readable
         // as opposed to snake case
         // need to cast val to string since addField does not take in numbers
-        profileDisplay.addField(
-          prettyProfileDetails[key as keyof typeof prettyProfileDetails],
-          val.toString(),
-          key !== 'about_me', // since about_me can be long, we dont want to inline it
-        );
+        profileDisplay.addFields({
+          name: prettyProfileDetails[key as keyof typeof prettyProfileDetails],
+          value: val.toString(),
+          inline: key !== 'about_me', // since about_me can be long, we dont want to inline it
+        });
       }
     }
     // add Codey coins onto the fields as well
     const userCoins = (await getCoinBalanceByUserId(user.id))!.toString();
-    profileDisplay.addField('Codey Coins', userCoins, true);
+    profileDisplay.addFields({ name: 'Codey Coins', value: userCoins, inline: true });
     // display last updated last
     if (profileDetails['last_updated']) {
-      profileDisplay.addField(
-        prettyProfileDetails.last_updated,
-        profileDetails['last_updated'],
-        true,
-      );
+      profileDisplay.addFields({
+        name: prettyProfileDetails.last_updated,
+        value: profileDetails['last_updated'],
+        inline: true,
+      });
     }
     return { embeds: [profileDisplay] };
   }

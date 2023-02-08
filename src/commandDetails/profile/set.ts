@@ -43,7 +43,7 @@ const profileSetExecuteCommand: SapphireMessageExecuteType = async (
   }
   // if reason is not valid the reason will be returned by the validUserCustomization function
   const messagePrefix = 'Invalid arguments, please try again. Reason: ';
-  throw new CodeyUserError(messageFromUser, messagePrefix + reason);
+  throw new CodeyUserError(messageFromUser, `${messagePrefix}${reason}`);
 };
 
 export const profileSetCommandDetails: CodeyCommandDetails = {
