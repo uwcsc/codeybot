@@ -269,19 +269,19 @@ export class GamesBlackjackCommand extends Command {
         try {
           // wait for user action
           game = await this.handlePlayerAction(msg, author.id);
+          await msg.edit({ embeds: [this.getEmbedFromGame(game!)] });
         } catch {
           // if player has not acted within time limit, consider it as quitting the game
           game = await performGameAction(author.id, BlackjackAction.QUIT);
           message.reply("you didn't act within the time limit, please start another game!");
         }
-
-        if (game) {
-          // update game embed
-          await msg.edit({ embeds: [this.getEmbedFromGame(game)] });
-          // end the game
-          this.endGame(msg, author.id, this.getBalanceChange(game));
-          return msg;
-        }
+      }
+      if (game) {
+        // update game embed
+        await msg.edit({ embeds: [this.getEmbedFromGame(game)] });
+        // end the game
+        this.endGame(msg, author.id, this.getBalanceChange(game));
+        return msg;
       }
     } catch (e) {
       if (e instanceof CodeyUserError) {
