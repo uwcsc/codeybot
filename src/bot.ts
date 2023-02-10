@@ -4,9 +4,10 @@ dotenv.config();
 import { container, LogLevel, SapphireClient, SapphirePrefix } from '@sapphire/framework';
 import '@sapphire/plugin-logger/register';
 import * as colorette from 'colorette';
-import { Message } from 'discord.js';
+import { Message, PartialMessage } from 'discord.js';
 import { inspect } from 'util';
 import { initMessageCreate } from './events/messageCreate';
+import { initMessageDelete } from './events/messageDelete';
 import { initReady } from './events/ready';
 import { logger } from './logger/default';
 import { validateEnvironmentVariables } from './validateEnvVars';
@@ -53,6 +54,9 @@ export const startBot = async (): Promise<void> => {
     client.on('ready', initReady);
     client.on('messageCreate', (message: Message) => {
       initMessageCreate(client, logger, message);
+    });
+    client.on('messageDelete', (message: Message | PartialMessage) => {
+      initMessageDelete(message);
     });
     client.login();
   } catch (e: unknown) {

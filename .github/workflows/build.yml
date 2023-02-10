@@ -53,6 +53,7 @@ jobs:
           echo "DEPLOYMENT_TARGET=production" >> $GITHUB_ENV
           echo "RELEASE_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
           echo "DEPLOYMENT_HOST=${{secrets.DEPLOY_HOST}}" >> $GITHUB_ENV
+          echo "DISCORD_TOKEN=${{secrets.DISCORD_TOKEN}}" >> $GITHUB_ENV
 
       # set target deployment to staging on push
       - name: Configuration for pushes
@@ -60,6 +61,7 @@ jobs:
         run: |
           echo "DEPLOYMENT_TARGET=staging" >> $GITHUB_ENV
           echo "DEPLOYMENT_HOST=${{secrets.STAGING_DEPLOY_HOST}}" >> $GITHUB_ENV
+          echo "DISCORD_TOKEN=${{secrets.STAGING_DISCORD_TOKEN}}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -89,10 +91,14 @@ jobs:
           host: ${{ env.DEPLOYMENT_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          proxy_host: ${{ secrets.DEPLOY_PROXY_HOST }}
+          proxy_username: ${{ secrets.DEPLOY_PROXY_USER }}
+          proxy_key: ${{ secrets.DEPLOY_PROXY_KEY }}
           script: |
-            cd /codey/${{env.DEPLOYMENT_TARGET}}
+            cd ~/codey/${{env.DEPLOYMENT_TARGET}}
             curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codeybot/main/docker/${{env.DEPLOYMENT_TARGET}}/docker-compose.yml
             docker pull uwcsclub/codey-bot:${{ github.event_name == 'push' && github.sha || env.RELEASE_TAG }}
-            echo "TAG=${{ github.event_name == 'push' && github.sha || env.RELEASE_TAG }}" > docker.env
-            docker compose --env-file docker.env down
-            docker compose --env-file docker.env up -d
+            echo "TAG=${{ github.event_name == 'push' && github.sha || env.RELEASE_TAG }}" > .env
+            echo "DISCORD_TOKEN=${{ env.DISCORD_TOKEN }}" >> .env
+            docker compose down
+            docker compose up -d

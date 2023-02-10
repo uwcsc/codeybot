@@ -4,7 +4,7 @@ import { getRandomIntFrom1 } from '../../utils/num';
 import { adjustCoinBalanceByUserId, UserCoinEvent } from '../coin';
 import { openDB } from '../db';
 import { getCoinEmoji, getEmojiByName } from '../emojis';
-
+import { CodeyUserError } from '../../codeyUserError';
 class RpsGameTracker {
   // Key = id, Value = game
   games: Map<number, RpsGame>;
@@ -47,7 +47,7 @@ class RpsGameTracker {
         player1Id: player1User.id,
         player1Username: player1User.username,
         player2Id: player2User?.id,
-        player2Username: player2User?.username ?? `Codey ${getEmojiByName('codeyLove')}`,
+        player2Username: player2User?.username ?? `Codey ${getEmojiByName('codey_love')}`,
         bet: bet,
         status: RpsGameStatus.Pending,
         player1Sign: RpsGameSign.Pending,
@@ -57,14 +57,14 @@ class RpsGameTracker {
       this.games.set(id, game);
       return game;
     }
-    throw new Error('Something went wrong with starting the RPS game');
+    throw new CodeyUserError(undefined, 'Something went wrong with starting the RPS game');
   }
 
   async endGame(gameId: number): Promise<void> {
     const db = await openDB();
     const game = this.getGameFromId(gameId);
     if (!game) {
-      throw new Error(`No game with game ID ${gameId} found`);
+      throw new CodeyUserError(undefined, `No game with game ID ${gameId} found`);
     }
     // Don't do anything if game status is still pending
     if (game.state.status === RpsGameStatus.Pending) return;
@@ -230,7 +230,7 @@ export class RpsGame {
         }
       // Timeout can be implemented later
       default:
-        return `Something went wrong! ${getEmojiByName('codeySad')}`;
+        return `Something went wrong! ${getEmojiByName('codey_sad')}`;
     }
   }
 

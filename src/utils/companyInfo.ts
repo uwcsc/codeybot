@@ -1,5 +1,6 @@
 import { isValidUrl } from './validateUrl';
 import fetch from 'node-fetch';
+import { CodeyUserError } from '../codeyUserError';
 
 const CRUNCHBASE_ORGANIZATION_URL = 'crunchbase.com/organization/';
 const CRUNCHBASE_ORGANIZATION_API_URL = 'https://api.crunchbase.com/api/v4/entities/organizations/';
@@ -12,7 +13,7 @@ const getCompanyInfo = async (companyCrunchbaseLink: string) => {
     isValidUrl(companyCrunchbaseLink) &&
     !companyCrunchbaseLink.includes(CRUNCHBASE_ORGANIZATION_URL)
   ) {
-    throw new Error('Invalid URL');
+    throw new CodeyUserError(undefined, 'Invalid URL');
   }
 
   let companyName;
@@ -29,7 +30,7 @@ const getCompanyInfo = async (companyCrunchbaseLink: string) => {
   );
   const data = await response.json();
   if (data.error) {
-    throw new Error(data.error);
+    throw new CodeyUserError(undefined, data.error);
   }
 
   return data;

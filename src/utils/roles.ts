@@ -1,6 +1,7 @@
 import { ColorResolvable, GuildMember, Role, RoleManager, User } from 'discord.js';
 import { container } from '@sapphire/framework';
 import { vars } from '../config';
+import { CodeyUserError } from '../codeyUserError';
 
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 
@@ -19,7 +20,7 @@ const createRole = async (roleName: string, roles: RoleManager): Promise<Role> =
     };
     return await roles.create(role);
   } catch (err) {
-    throw new Error(`Failed to create the role ${roleName}: ${err}`);
+    throw new CodeyUserError(undefined, `Failed to create the role ${roleName}: ${err}`);
   }
 };
 
@@ -42,7 +43,8 @@ export const updateMemberRole = async (
       await member.roles.remove(role);
     }
   } catch (err) {
-    throw new Error(
+    throw new CodeyUserError(
+      undefined,
       `Failed to ${add ? 'add' : 'remove'} the role ${roleName} ${add ? 'to' : 'from'} user ${
         member.user.tag
       } (${member.id}).`,

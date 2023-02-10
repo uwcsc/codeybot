@@ -13,7 +13,7 @@ export const getEmojiByName = (name: string): Emoji | undefined => {
 };
 
 export const getCoinEmoji = (): Emoji | string => {
-  let emoji: Emoji | string = emojiList['codeyCoin'];
+  let emoji: Emoji | string = emojiList['codey_coin'];
   if (emoji === undefined) emoji = '🪙';
   return emoji;
 };
