@@ -2,14 +2,10 @@ import _ from 'lodash';
 import { openDB } from './db';
 import { getCrunchbaseCompanyDetails } from '../utils/companyInfo';
 
-interface CompanyInfo {
+export interface CrunchbaseCompanyProperties {
   company_id: string;
-  description: string;
-}
-
-interface CrunchbaseCompanyProperties {
   name: string;
-  short_description: string;
+  description: string;
   image_id: string;
 }
 
@@ -18,21 +14,22 @@ export const insertCompany = async (companyId: string): Promise<void> => {
   const { name, short_description } = crunchbaseCompanyResponse;
   const companyImageId = crunchbaseCompanyResponse.identifier?.image_id;
   const crunchbaseCompanyInfo = {
+    company_id: companyId,
     name,
-    short_description,
+    description: short_description,
     image_id: <string>companyImageId,
   };
-  await insertCompanyDetails(<string>companyId, crunchbaseCompanyInfo);
+  await insertCompanyDetails(crunchbaseCompanyInfo);
 };
 
 export const insertCompanyDetails = async (
-  companyId: string,
   crunchbaseCompanyInfo: CrunchbaseCompanyProperties,
 ): Promise<void> => {
   const db = await openDB();
-  const { name, image_id, short_description } = crunchbaseCompanyInfo;
-  const insertCompanyCommand = `INSERT INTO companies (company_id, name, image_id, description) VALUES (?,?,?)`;
-  await db.run(insertCompanyCommand, companyId, name, image_id, short_description);
+  const { name, image_id, description, company_id } = crunchbaseCompanyInfo;
+  console.log(crunchbaseCompanyInfo);
+  const insertCompanyCommand = `INSERT INTO companies (company_id, name, image_id, description) VALUES (?,?,?,?)`;
+  await db.run(insertCompanyCommand, company_id, name, image_id, description);
 };
 
 export const addUserToCompany = async (
@@ -45,9 +42,12 @@ export const addUserToCompany = async (
   await db.run(insertCompanyCommand, userId, companyId, role);
 };
 
-export const getCompanyInfo = async (companyId: string): Promise<CompanyInfo> => {
+export const getCompanyInfo = async (companyId: string): Promise<CrunchbaseCompanyProperties> => {
   const db = await openDB();
-  return (await db.get('SELECT * FROM companies WHERE company_id = ?', companyId)) as CompanyInfo;
+  return (await db.get(
+    'SELECT * FROM companies WHERE company_id = ?',
+    companyId,
+  )) as CrunchbaseCompanyProperties;
 };
 
 export const getCompaniesByUserId = async (userId: string): Promise<CompanyPersonDetails[]> => {
@@ -55,7 +55,7 @@ export const getCompaniesByUserId = async (userId: string): Promise<CompanyPerso
   return await db.all('SELECT * FROM companies_people WHERE user_id = ?', userId);
 };
 
-interface CompanyPersonDetails {
+export interface CompanyPersonDetails {
   user_id: string;
   role: string;
 }
