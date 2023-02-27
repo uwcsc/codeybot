@@ -65,3 +65,19 @@ export const loadRoleUsers = async (role_id: string): Promise<User[]> => {
 
   return userList;
 };
+
+/*
+ * Given a role id, returns the role name
+ */
+export const getRoleName = async (roleId: string): Promise<string> => {
+  const { client } = container;
+
+  const role = (await client.guilds.fetch(TARGET_GUILD_ID)).roles.cache.find(
+    (role) => role.id == roleId,
+  );
+  if (!role) {
+    return '';
+  } else {
+    return role.name;
+  }
+};

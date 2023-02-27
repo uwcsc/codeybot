@@ -15,7 +15,7 @@ import {
   SuggestionState,
   updateSuggestionState,
 } from './suggestion';
-import { updateMemberRole, loadRoleUsers } from '../utils/roles';
+import { updateMemberRole, loadRoleUsers, getRoleName } from '../utils/roles';
 import { CodeyUserError } from '../codeyUserError';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
@@ -23,7 +23,6 @@ const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
 const OFFICE_HOURS_STATUS_API = 'https://csclub.ca/office-status/json';
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 const CODEY_COIN_ROLE_ID: string = vars.CODEY_COIN_ROLE_ID;
-const CODEY_COIN_ROLE_NAME: string = vars.CODEY_COIN_ROLE_NAME;
 const numberUsersToAssignRole = 10;
 
 // The last known status of the office
@@ -135,25 +134,26 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
   });
 
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
-  new CronJob('0 0 0 */1 * * *', async function () {
+  new CronJob('0 0 0 */1 * *', async function () {
     const leaderboard = await getCoinLeaderboard(numberUsersToAssignRole);
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
       throw new CodeyUserError(undefined, 'guild not found');
     }
+    console.log('running cron job');
     const members = await guild.members.fetch();
     // Removing role from previous users
     const usersPreviousRole = await loadRoleUsers(CODEY_COIN_ROLE_ID);
     const guildMembersPreviousRole = usersPreviousRole.map((user) => members.get(user.id));
     guildMembersPreviousRole.forEach(async (user) => {
       if (user) {
-        await updateMemberRole(user, CODEY_COIN_ROLE_NAME, false);
+        await updateMemberRole(user, await getRoleName(CODEY_COIN_ROLE_ID), false);
       }
     });
     leaderboard.forEach(async (element) => {
       const userToUpdate = members.get(element.user_id);
       if (userToUpdate) {
-        await updateMemberRole(userToUpdate, CODEY_COIN_ROLE_NAME, true);
+        await updateMemberRole(userToUpdate, await getRoleName(CODEY_COIN_ROLE_ID), true);
       }
     });
   });
