@@ -26,7 +26,6 @@ export const insertCompanyDetails = async (
 ): Promise<void> => {
   const db = await openDB();
   const { name, image_id, description, company_id } = crunchbaseCompanyInfo;
-  console.log(crunchbaseCompanyInfo);
   const insertCompanyCommand = `INSERT INTO companies (company_id, name, image_id, description) VALUES (?,?,?,?)`;
   await db.run(insertCompanyCommand, company_id, name, image_id, description);
 };

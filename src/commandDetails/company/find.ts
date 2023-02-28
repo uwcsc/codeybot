@@ -61,7 +61,7 @@ const companyFindExecuteCommand: SapphireMessageExecuteType = async (
     throw new Error('No one works at this company in the server!');
   }
   return {
-    embeds: [await getCompanyFindEmbed(client, <string>company_id, companyInfo, companyUsers)],
+    embeds: [await getCompanyFindEmbed(client, companyInfo, companyUsers)],
   };
 };
 

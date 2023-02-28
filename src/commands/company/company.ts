@@ -10,7 +10,8 @@ const companyCommandDetails: CodeyCommandDetails = {
   aliases: [],
   description: 'View individuals at certain companies here.',
   detailedDescription: `**Examples:**
-\`${container.botPrefix}company \`
+\`${container.botPrefix}company add coinbase SRE\`
+\`${container.botPrefix}company find coinbase\`
 `,
   options: [],
   subcommandDetails: {

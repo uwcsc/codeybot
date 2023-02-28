@@ -17,11 +17,11 @@ const companyAddExecuteCommand: SapphireMessageExecuteType = async (
   if (!company_id) {
     throw new Error('please enter a valid crunchbase company id.');
   }
+  console.log(args);
   const role = args['role'];
   if (!role) {
     throw new Error('please enter your role at this company.');
   }
-  console.log(role);
   const company = await getCompanyInfo(<string>company_id);
   if (!company) {
     await insertCompany(<string>company_id);

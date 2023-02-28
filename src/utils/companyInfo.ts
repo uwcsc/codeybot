@@ -37,16 +37,11 @@ export const getCrunchbaseCompanyDetails = async (
     companyName = companyCrunchbaseLink;
   }
 
-  const full_url = `${CRUNCHBASE_ORGANIZATION_API_URL}${companyName}?user_key=${
-    process.env.CRUNCHBASE_API_KEY
-  }&field_ids=${fields.join(',')}`;
-
   const response = await fetch(
     `${CRUNCHBASE_ORGANIZATION_API_URL}${companyName}?user_key=${
       process.env.CRUNCHBASE_API_KEY
     }&field_ids=${fields.join(',')}`,
   );
-  console.log(full_url);
 
   const data = await response.json();
   if (data.error) {

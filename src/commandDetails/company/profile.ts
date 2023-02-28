@@ -13,7 +13,6 @@ const companyProfileExecuteCommand: SapphireMessageExecuteType = async (
 ): Promise<SapphireMessageResponse> => {
   const user = getUserFromMessage(messageFromUser);
   const companies = await getCompaniesByUserId(user.id);
-  console.log(companies);
   return `your companies are: ${JSON.stringify(companies)}`;
 };
 
