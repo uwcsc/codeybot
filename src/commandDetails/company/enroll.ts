@@ -37,8 +37,7 @@ export const companyEnrollCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'company_id',
-      description: `The unique identifier for the company. This can be either a link to its crunchbarse url or the company's crunchbase id,
-        which is the last part of the crunchbase url (/organization/{crunchbase_id}).`,
+      description: `The id for the company. This can be either a link to its crunchbase url or the crunchbase id.`,
       type: CodeyCommandOptionType.STRING,
       required: true,
     },

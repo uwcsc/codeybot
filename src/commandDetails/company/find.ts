@@ -57,8 +57,10 @@ const companyFindExecuteCommand: SapphireMessageExecuteType = async (
     throw new Error('This company does not exist in the server!');
   }
   const companyUsers = await getEmployeesByCompanyId(<string>company_id);
-  if (!companyUsers) {
-    throw new Error('No one works at this company in the server!');
+  console.log('here');
+  console.log(companyUsers);
+  if (!companyUsers.length) {
+    return 'No one works at this company in the server!';
   }
   return {
     embeds: [await getCompanyFindEmbed(client, companyInfo, companyUsers)],
@@ -78,8 +80,7 @@ export const companyFindCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'company_id',
-      description: `The unique identifier for the company. This can be either a link to its crunchbarse url or the company's crunchbase id,
-        which is the last part of the crunchbase url (/organization/{crunchbase_id}).`,
+      description: `The id for the company. This can be either a link to its crunchbase url or the crunchbase id.`,
       type: CodeyCommandOptionType.STRING,
       required: true,
     },

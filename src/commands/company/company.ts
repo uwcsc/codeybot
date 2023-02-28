@@ -4,11 +4,13 @@ import { companyEnrollCommandDetails } from '../../commandDetails/company/enroll
 import { companyAddCommandDetails } from '../../commandDetails/company/add';
 import { companyFindCommandDetails } from '../../commandDetails/company/find';
 import { companyProfileCommandDetails } from '../../commandDetails/company/profile';
+import { companyRemoveCommandDetails } from '../../commandDetails/company/remove';
 
 const companyCommandDetails: CodeyCommandDetails = {
   name: 'company',
   aliases: [],
-  description: 'View individuals at certain companies here.',
+  description:
+    'Add yourself to a database of internships/jobs, or look for individuals that have worked at a job .',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}company add coinbase SRE\`
 \`${container.botPrefix}company find coinbase\`
@@ -17,9 +19,11 @@ const companyCommandDetails: CodeyCommandDetails = {
   subcommandDetails: {
     enroll: companyEnrollCommandDetails,
     add: companyAddCommandDetails,
+    remove: companyRemoveCommandDetails,
     find: companyFindCommandDetails,
     profile: companyProfileCommandDetails,
   },
+  defaultSubcommandDetails: companyFindCommandDetails,
 };
 
 export class CompanyCommand extends CodeyCommand {

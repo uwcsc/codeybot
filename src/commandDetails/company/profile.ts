@@ -13,7 +13,10 @@ const companyProfileExecuteCommand: SapphireMessageExecuteType = async (
 ): Promise<SapphireMessageResponse> => {
   const user = getUserFromMessage(messageFromUser);
   const companies = await getCompaniesByUserId(user.id);
-  return `your companies are: ${JSON.stringify(companies)}`;
+  // return a string where each line is the company_id - company_name
+  console.log(companies);
+  const companyString = companies.map((company) => `${company.name} - ${company.role}`).join('\n');
+  return `You are associated with the following companies:\n${companyString}`;
 };
 
 export const companyProfileCommandDetails: CodeyCommandDetails = {
