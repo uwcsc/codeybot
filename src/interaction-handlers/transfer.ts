@@ -4,9 +4,8 @@ import {
   Maybe,
   PieceContext,
 } from '@sapphire/framework';
-import { ButtonInteraction, CommandInteraction, Message, MessagePayload } from 'discord.js';
+import { ButtonInteraction } from 'discord.js';
 import { getEmojiByName } from '../components/emojis';
-import { getCodeyRpsSign, RpsGameSign, rpsGameTracker } from '../components/games/rps';
 import { TransferSign } from '../components/coin';
 
 export class TransferHandler extends InteractionHandler {
@@ -28,10 +27,10 @@ export class TransferHandler extends InteractionHandler {
 
     let transferSign: TransferSign;
     switch (sign) {
-      case 'accept':
+      case 'check':
         transferSign = TransferSign.Accept;
         break;
-      case 'decline':
+      case 'x':
         transferSign = TransferSign.Decline;
         break;
       default:

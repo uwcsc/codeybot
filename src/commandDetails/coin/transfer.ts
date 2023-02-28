@@ -50,7 +50,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
       `You don't have enough ${getCoinEmoji()} to transfer that amount.`,
       {},
     );
-  } else if (amount <= 0) {
+  } else if (amount < 1) {
     return new SapphireMessageResponseWithMetadata(`You can't transfer less than 1 coin.`, {});
   }
 

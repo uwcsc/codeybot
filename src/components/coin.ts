@@ -1,5 +1,10 @@
 import _ from 'lodash';
 import { openDB } from './db';
+import { SapphireClient } from '@sapphire/framework';
+import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
+import { SapphireMessageResponse, SapphireMessageResponseWithMetadata } from '../codeyCommand';
+import { pluralize } from '../utils/pluralize';
+import { getCoinEmoji } from './emojis';
 
 export enum BonusType {
   Daily = 0,
@@ -286,3 +291,128 @@ export const getEmojiFromSign = (sign: TransferSign): string => {
       return '❌';
   }
 };
+
+enum TransferState {
+  Pending,
+  Rejected,
+  Confirmed,
+}
+
+export class Transfer {
+  sender: User;
+  receiver: User;
+  state: TransferState;
+  amount: number;
+  channelId: string;
+  reason: string;
+  client: SapphireClient<boolean>;
+
+  constructor(
+    sendingUser: User,
+    receivingUser: User,
+    channelId: string,
+    amount: number,
+    reason: string,
+    client: SapphireClient<boolean>,
+  ) {
+    this.sender = sendingUser;
+    this.receiver = receivingUser;
+    this.state = TransferState.Pending;
+    this.amount = amount;
+    this.channelId = channelId;
+    this.reason = reason;
+    this.client = client;
+  }
+
+  // Only called if state is no longer pending. Transfers coins and returns output as needed
+  private async handleTransaction(): Promise<SapphireMessageResponseWithMetadata> {
+    if (this.state === TransferState.Rejected) {
+      return new SapphireMessageResponseWithMetadata(
+        `${this.receiver.username} rejected the transfer.`,
+        {},
+      );
+    } else {
+      // Adjust the receiver balance with coins transferred
+      await adjustCoinBalanceByUserId(
+        this.receiver.id,
+        this.amount,
+        UserCoinEvent.AdminCoinAdjust,
+        <string>(this.reason ?? ''),
+        this.client.user?.id,
+      );
+
+      // Get new receiver balance
+      const newReceiverBalance = await getCoinBalanceByUserId(this.receiver.id);
+
+      // Adjust the sender balance with coins transferred
+      await adjustCoinBalanceByUserId(
+        this.sender.id,
+        <number>(-1 * this.amount),
+        UserCoinEvent.AdminCoinAdjust,
+        <string>(this.reason ?? ''),
+        this.client.user?.id,
+      );
+
+      // Get new sender balance
+      const newSenderBalance = await getCoinBalanceByUserId(this.sender.id);
+      return new SapphireMessageResponseWithMetadata(
+        `${this.receiver.username} accepted the transfer. ${
+          this.receiver.username
+        } now has ${newReceiverBalance} Codey ${pluralize(
+          'coin',
+          newReceiverBalance,
+          // eslint-disable-next-line prettier/prettier
+        )} ${getCoinEmoji()}. ${
+          this.sender.username
+        } now has ${newSenderBalance} Codey ${pluralize(
+          'coin',
+          newReceiverBalance,
+        )} ${getCoinEmoji()}.`,
+        {},
+      );
+    }
+  }
+
+  public getEmbedColor(): ColorResolvable {
+    switch (this.state) {
+      case TransferState.Pending:
+        return 'YELLOW';
+      case TransferState.Confirmed:
+        return 'GREEN';
+      case TransferState.Rejected:
+        return 'RED';
+      default:
+        return 'YELLOW';
+    }
+  }
+
+  public getTransferState(): SapphireMessageResponse {
+    const embed = new MessageEmbed()
+      .setColor(this.getEmbedColor())
+      .setTitle('Coin Transfer')
+      .setDescription(
+        `
+Amount: ${this.amount} ${getCoinEmoji()}
+Sender: ${this.sender.username}
+
+Please choose whether you would like to accept this transfer.
+`,
+      );
+    // Buttons
+    const row = new MessageActionRow().addComponents(
+      new MessageButton()
+        .setCustomId(`transfer-check-${this.receiver.id}`)
+        .setLabel(getEmojiFromSign(TransferSign.Accept))
+        .setStyle('SECONDARY'),
+      new MessageButton()
+        .setCustomId(`transfer-x-${this.receiver.id}`)
+        .setLabel(getEmojiFromSign(TransferSign.Decline))
+        .setStyle('SECONDARY'),
+    );
+
+    return {
+      embeds: [embed],
+      components: this.state === TransferState.Pending ? [row] : [],
+    };
+  }
+}
