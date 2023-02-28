@@ -269,3 +269,20 @@ export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
   }
   return false;
 };
+
+export enum TransferSign {
+  Pending = 0,
+  Accept = 1,
+  Decline = 2,
+}
+
+export const getEmojiFromSign = (sign: TransferSign): string => {
+  switch (sign) {
+    case TransferSign.Pending:
+      return '❓';
+    case TransferSign.Accept:
+      return '✅';
+    case TransferSign.Decline:
+      return '❌';
+  }
+};
