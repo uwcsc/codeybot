@@ -19,7 +19,6 @@ const CRUNCHBASE_IMAGE_CDN =
 
 const getCompanyFindEmbed = async (
   client: SapphireClient<boolean>,
-  companyId: string,
   companyInfo: CrunchbaseCompanyProperties,
   companyUsers: CompanyPersonDetails[],
 ) => {

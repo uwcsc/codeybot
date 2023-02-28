@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { openDB } from './db';
 import { getCrunchbaseCompanyDetails } from '../utils/companyInfo';
 
