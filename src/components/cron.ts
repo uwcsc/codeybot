@@ -15,7 +15,7 @@ import {
   SuggestionState,
   updateSuggestionState,
 } from './suggestion';
-import { updateMemberRole, loadRoleUsers, getRoleName } from '../utils/roles';
+import { updateMemberRole, getRoleName, loadRoleMembers } from '../utils/roles';
 import { CodeyUserError } from '../codeyUserError';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
@@ -23,7 +23,7 @@ const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
 const OFFICE_HOURS_STATUS_API = 'https://csclub.ca/office-status/json';
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 const CODEY_COIN_ROLE_ID: string = vars.CODEY_COIN_ROLE_ID;
-const numberUsersToAssignRole = 10;
+const NUMBER_USERS_TO_ASSIGN_ROLE = 10;
 
 // The last known status of the office
 //  false if closed
@@ -133,25 +133,24 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
     }
   });
 
+// Gives Codey coin role to those on the leaderboard list everyday
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
   new CronJob('0 0 0 */1 * *', async function () {
-    const leaderboard = await getCoinLeaderboard(numberUsersToAssignRole);
+    const leaderboard = await getCoinLeaderboard(NUMBER_USERS_TO_ASSIGN_ROLE);
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
       throw new CodeyUserError(undefined, 'guild not found');
     }
-    console.log('running cron job');
     const members = await guild.members.fetch();
     // Removing role from previous users
-    const usersPreviousRole = await loadRoleUsers(CODEY_COIN_ROLE_ID);
-    const guildMembersPreviousRole = usersPreviousRole.map((user) => members.get(user.id));
-    guildMembersPreviousRole.forEach(async (user) => {
-      if (user) {
-        await updateMemberRole(user, await getRoleName(CODEY_COIN_ROLE_ID), false);
+    const guildMembersPreviousRole = await loadRoleMembers(CODEY_COIN_ROLE_ID);
+    guildMembersPreviousRole.forEach(async (member) => {
+      if (member) {
+        await updateMemberRole(member, await getRoleName(CODEY_COIN_ROLE_ID), false);
       }
     });
-    leaderboard.forEach(async (element) => {
-      const userToUpdate = members.get(element.user_id);
+    leaderboard.forEach(async (lbUserCoinEntry) => {
+      const userToUpdate = members.get(lbUserCoinEntry.user_id);
       if (userToUpdate) {
         await updateMemberRole(userToUpdate, await getRoleName(CODEY_COIN_ROLE_ID), true);
       }
