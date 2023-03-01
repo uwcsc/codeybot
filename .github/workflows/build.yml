@@ -100,5 +100,6 @@ jobs:
             docker pull uwcsclub/codey-bot:${{ github.event_name == 'push' && github.sha || env.RELEASE_TAG }}
             echo "TAG=${{ github.event_name == 'push' && github.sha || env.RELEASE_TAG }}" > .env
             echo "DISCORD_TOKEN=${{ env.DISCORD_TOKEN }}" >> .env
+            echo "CRUNCHBASE_API_KEY=${{ secrets.CRUNCHBASE_API_KEY }}" >> .env
             docker compose down
             docker compose up -d
