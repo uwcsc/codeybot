@@ -1,3 +1,4 @@
+import { APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import { GuildMember } from 'discord.js';
 import { CodeyUserError } from '../../codeyUserError';
 import {
@@ -46,6 +47,17 @@ const profileSetExecuteCommand: SapphireMessageExecuteType = async (
   throw new CodeyUserError(messageFromUser, `${messagePrefix}${reason}`);
 };
 
+const createInitialValues = (): APIApplicationCommandOptionChoice[] => {
+  return [
+    ...Object.values(validCustomizations).map((element) => {
+      return {
+        name: element,
+        value: element,
+      };
+    }),
+  ];
+};
+
 export const profileSetCommandDetails: CodeyCommandDetails = {
   name: 'set',
   aliases: ['s'],
@@ -63,6 +75,7 @@ export const profileSetCommandDetails: CodeyCommandDetails = {
       description: 'The customization to be set for the user.',
       type: CodeyCommandOptionType.STRING,
       required: true,
+      choices: createInitialValues(),
     },
     {
       name: 'description',
