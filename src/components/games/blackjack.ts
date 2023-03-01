@@ -91,11 +91,13 @@ export const startGame = (
 ): GameState | null => {
   // if player started a game more than a minute ago, allow them to start another one in case the game got stuck
   if (gamesByPlayerId.has(playerId)) {
+    // check game state of the current game
+    const currentGameStatus = getGameState(gamesByPlayerId.get(playerId)!.game!).stage;
     // player already has a game in progress, get the start time of the existing game
     const startedAt = gamesByPlayerId.get(playerId)?.startedAt.getTime();
     const now = new Date().getTime();
-    if (startedAt && now - startedAt < 60000) {
-      // game was started in the past minute, don't start a new one
+    if (currentGameStatus !== BlackjackStage.DONE && startedAt && now - startedAt < 60000) {
+      // game was started in the past minute and is still in progress, don't start a new one
       return null;
     }
   }
