@@ -7,7 +7,7 @@ import { alertUsers } from './officeOpenDM';
 import { vars } from '../config';
 import { DEFAULT_EMBED_COLOUR } from '../utils/embeds';
 import { getMatch, writeHistoricMatches } from '../components/coffeeChat';
-import { adjustCoinBalanceByUserId, BonusType, coinBonusMap } from './coin';
+import { adjustCoinBalanceByUserId, BonusType, coinBonusMap, getCoinLeaderboard } from './coin';
 import { getInterviewers } from './interviewer';
 import {
   getSuggestionPrintout,
@@ -15,10 +15,15 @@ import {
   SuggestionState,
   updateSuggestionState,
 } from './suggestion';
+import { updateMemberRole, getRoleName, loadRoleMembers } from '../utils/roles';
+import { CodeyUserError } from '../codeyUserError';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
 const OFFICE_HOURS_STATUS_API = 'https://csclub.ca/office-status/json';
+const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
+const CODEY_COIN_ROLE_ID: string = vars.CODEY_COIN_ROLE_ID;
+const NUMBER_USERS_TO_ASSIGN_ROLE = 10;
 
 // The last known status of the office
 //  false if closed
@@ -30,6 +35,7 @@ export const initCrons = async (client: Client): Promise<void> => {
   createBonusInterviewerListCron().start();
   createCoffeeChatCron(client).start();
   createOfficeStatusCron(client).start();
+  assignCodeyRoleForLeaderboard(client).start();
 };
 
 interface officeStatus {
@@ -125,4 +131,28 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
     } else {
       throw 'Bad channel type';
     }
+  });
+
+// Gives Codey coin role to those on the leaderboard list everyday
+export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
+  new CronJob('0 0 0 */1 * *', async function () {
+    const leaderboard = await getCoinLeaderboard(NUMBER_USERS_TO_ASSIGN_ROLE);
+    const guild = client.guilds.resolve(TARGET_GUILD_ID);
+    if (!guild) {
+      throw new CodeyUserError(undefined, 'guild not found');
+    }
+    const members = await guild.members.fetch();
+    // Removing role from previous members
+    const guildMembersPreviousRole = await loadRoleMembers(CODEY_COIN_ROLE_ID);
+    guildMembersPreviousRole.forEach(async (member) => {
+      if (member) {
+        await updateMemberRole(member, await getRoleName(CODEY_COIN_ROLE_ID), false);
+      }
+    });
+    leaderboard.forEach(async (lbUserCoinEntry) => {
+      const memberToUpdate = members.get(lbUserCoinEntry.user_id);
+      if (memberToUpdate) {
+        await updateMemberRole(memberToUpdate, await getRoleName(CODEY_COIN_ROLE_ID), true);
+      }
+    });
   });
