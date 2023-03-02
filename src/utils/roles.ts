@@ -67,10 +67,10 @@ export const loadRoleUsers = async (role_id: string): Promise<User[]> => {
 export const loadRoleMembers = async (role_id: string): Promise<GuildMember[]> => {
   const { client } = container;
 
-  // fetches all the users in the server and then filters based on the role
+  // fetches all the members in the server and then filters based on the role
   const memberList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
-    ?.filter((member) => member.roles.cache.has(role_id))
-    .map((member) => member);
+    .map((member, _) => member)
+    .filter((member) => member.roles.cache.has(role_id));
 
   return memberList;
 };

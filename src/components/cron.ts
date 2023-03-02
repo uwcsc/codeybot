@@ -142,7 +142,7 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
       throw new CodeyUserError(undefined, 'guild not found');
     }
     const members = await guild.members.fetch();
-    // Removing role from previous users
+    // Removing role from previous members
     const guildMembersPreviousRole = await loadRoleMembers(CODEY_COIN_ROLE_ID);
     guildMembersPreviousRole.forEach(async (member) => {
       if (member) {
@@ -150,9 +150,9 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
       }
     });
     leaderboard.forEach(async (lbUserCoinEntry) => {
-      const userToUpdate = members.get(lbUserCoinEntry.user_id);
-      if (userToUpdate) {
-        await updateMemberRole(userToUpdate, await getRoleName(CODEY_COIN_ROLE_ID), true);
+      const memberToUpdate = members.get(lbUserCoinEntry.user_id);
+      if (memberToUpdate) {
+        await updateMemberRole(memberToUpdate, await getRoleName(CODEY_COIN_ROLE_ID), true);
       }
     });
   });
