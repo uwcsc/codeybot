@@ -41,6 +41,7 @@
     "sqlite": "^4.0.22",
     "sqlite3": "^5.0.2",
     "stable-marriage": "^1.0.2",
+    "turndown": "^7.1.1",
     "typescript": "^4.6.3",
     "winston": "^3.8.1"
   },
@@ -51,6 +52,7 @@
     "@types/lodash": "^4.14.168",
     "@types/node": "^15.0.1",
     "@types/sqlite3": "^3.1.7",
+    "@types/turndown": "^5.0.1",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.25.0",
