@@ -2,6 +2,8 @@ import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
+  ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
+  ApplicationCommandOptionBase,
 } from '@discordjs/builders';
 import {
   ApplicationCommandRegistries,
@@ -13,7 +15,7 @@ import {
   RegisterBehavior,
   SapphireClient,
 } from '@sapphire/framework';
-import { APIMessage } from 'discord-api-types/v9';
+import { APIMessage, APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import {
   CommandInteraction,
   Message,
@@ -22,6 +24,7 @@ import {
   WebhookEditMessageOptions,
 } from 'discord.js';
 import { logger } from './logger/default';
+import { CodeyUserError } from './codeyUserError';
 
 export type SapphireSentMessageType = Message | CommandInteraction;
 export type SapphireMessageResponse =
@@ -79,6 +82,8 @@ export interface CodeyCommandOption {
   type: CodeyCommandOptionType;
   /** Whether the option is required */
   required: boolean;
+  /** Mention choices for the field if needed */
+  choices?: APIApplicationCommandOptionChoice[];
 }
 
 /** Sets the command option in the slash command builder */
@@ -86,88 +91,42 @@ const setCommandOption = (
   builder: SlashCommandBuilder | SlashCommandSubcommandBuilder,
   option: CodeyCommandOption,
 ): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
+  function setupCommand<T extends ApplicationCommandOptionBase>(commandOption: T): T {
+    return commandOption
+      .setName(option.name)
+      .setDescription(option.description)
+      .setRequired(option.required);
+  }
+
+  function setupChoices<
+    B extends string | number,
+    T extends ApplicationCommandOptionBase &
+      ApplicationCommandOptionWithChoicesAndAutocompleteMixin<B>,
+  >(commandOption: T): T {
+    logger.info(option.choices);
+    return option.choices
+      ? commandOption.addChoices(...(option.choices as APIApplicationCommandOptionChoice<B>[]))
+      : commandOption;
+  }
   switch (option.type) {
     case CodeyCommandOptionType.STRING:
-      return <SlashCommandBuilder>(
-        builder.addStringOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addStringOption((x) => setupCommand(setupChoices(x)));
     case CodeyCommandOptionType.INTEGER:
-      return <SlashCommandBuilder>(
-        builder.addIntegerOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addIntegerOption((x) => setupCommand(setupChoices(x)));
     case CodeyCommandOptionType.BOOLEAN:
-      return <SlashCommandBuilder>(
-        builder.addBooleanOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addBooleanOption(setupCommand);
     case CodeyCommandOptionType.USER:
-      return <SlashCommandBuilder>(
-        builder.addUserOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addUserOption(setupCommand);
     case CodeyCommandOptionType.CHANNEL:
-      return <SlashCommandBuilder>(
-        builder.addChannelOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addChannelOption(setupCommand);
     case CodeyCommandOptionType.ROLE:
-      return <SlashCommandBuilder>(
-        builder.addRoleOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addRoleOption(setupCommand);
     case CodeyCommandOptionType.MENTIONABLE:
-      return <SlashCommandBuilder>(
-        builder.addMentionableOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addMentionableOption(setupCommand);
     case CodeyCommandOptionType.NUMBER:
-      return <SlashCommandBuilder>(
-        builder.addNumberOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addNumberOption((x) => setupCommand(setupChoices(x)));
     case CodeyCommandOptionType.ATTACHMENT:
-      return <SlashCommandBuilder>(
-        builder.addAttachmentOption((commandOption) =>
-          commandOption
-            .setName(option.name)
-            .setDescription(option.description)
-            .setRequired(option.required),
-        )
-      );
+      return <SlashCommandBuilder>builder.addAttachmentOption(setupCommand);
     default:
       throw new Error(`Unknown option type.`);
   }
@@ -334,7 +293,14 @@ export class CodeyCommand extends SapphireCommand {
       }
     } catch (e) {
       logger.error(e);
-      message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
+      if (e instanceof CodeyUserError) {
+        if (!e.message) {
+          e.message = message;
+        }
+        e.sendToUser();
+      } else {
+        message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
+      }
     }
   }
 
@@ -418,9 +384,16 @@ export class CodeyCommand extends SapphireCommand {
       }
     } catch (e) {
       logger.error(e);
-      return await interaction.editReply(
-        commandDetails.messageIfFailure ?? defaultBackendErrorMessage,
-      );
+      if (e instanceof CodeyUserError) {
+        if (!e.message) {
+          e.message = interaction;
+        }
+        e.sendToUser();
+      } else {
+        return await interaction.editReply(
+          commandDetails.messageIfFailure ?? defaultBackendErrorMessage,
+        );
+      }
     }
   }
 }
