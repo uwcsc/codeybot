@@ -20,10 +20,12 @@ export class TransferHandler extends InteractionHandler {
     receiverId: string;
     sign: TransferSign;
   }> {
+    // interaction.customId should be in the form "transfer-{check|x}-{receiver id}-{sender id} as in src/components/coin.ts"
     if (!interaction.customId.startsWith('transfer')) return this.none();
     const parsedCustomId = interaction.customId.split('-');
     const sign = parsedCustomId[1];
     const receiverId = parsedCustomId[2];
+    const senderId = parsedCustomId[3];
 
     let transferSign: TransferSign;
     switch (sign) {
@@ -40,11 +42,12 @@ export class TransferHandler extends InteractionHandler {
     return this.some({
       receiverId: receiverId,
       sign: transferSign,
+      senderId: senderId,
     });
   }
   public async run(
     interaction: ButtonInteraction,
-    result: { receiverId: string; sign: TransferSign },
+    result: { receiverId: string; senderId: string; sign: TransferSign },
   ): Promise<void> {
     if (interaction.user.id !== result.receiverId) {
       return await interaction.reply({
