@@ -5,7 +5,6 @@ import {
   CodeyCommandOptionType,
   SapphireAfterReplyType,
   SapphireMessageExecuteType,
-  SapphireMessageResponse,
   SapphireMessageResponseWithMetadata,
 } from '../../codeyCommand';
 import { CodeyUserError } from '../../codeyUserError';
@@ -37,7 +36,7 @@ const leetcodeRandomExecuteCommand: SapphireMessageExecuteType = async (
 
 const leetcodeRandomAfterMessageReply: SapphireAfterReplyType = async (
   result,
-  sentMessage,
+  _sentMessage,
 ): Promise<unknown> => {
   // The API might take more than 3 seconds to complete
   // Which is more than the timeout for slash commands

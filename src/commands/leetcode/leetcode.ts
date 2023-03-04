@@ -1,4 +1,4 @@
-import { Command, container } from '@sapphire/framework';
+import { Command } from '@sapphire/framework';
 import { CodeyCommand, CodeyCommandDetails } from '../../codeyCommand';
 import { leetcodeRandomCommandDetails } from '../../commandDetails/leetcode/leetcodeRandomCommandDetails';
 import { leetcodeSpecificCommandDetails } from '../../commandDetails/leetcode/leetcodeSpecificCommandDetails';

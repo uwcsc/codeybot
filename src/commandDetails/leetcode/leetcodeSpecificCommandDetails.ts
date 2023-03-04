@@ -1,5 +1,4 @@
 import { container } from '@sapphire/framework';
-import { User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,

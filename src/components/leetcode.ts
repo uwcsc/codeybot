@@ -81,11 +81,6 @@ interface LeetcodeProblemData {
   problemId: number;
 }
 
-interface LeetcodeProblemQuery {
-  difficulty: LeetcodeDifficulty;
-  tags: string;
-}
-
 export const createInitialValuesForTags = (): APIApplicationCommandOptionChoice[] => {
   return [
     ...Object.entries(LeetcodeTagsDict).map((e) => {
