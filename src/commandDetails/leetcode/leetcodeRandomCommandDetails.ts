@@ -1,5 +1,5 @@
 import { container } from '@sapphire/framework';
-import { TextBasedChannel } from 'discord.js';
+import { Message, TextBasedChannel } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -8,6 +8,7 @@ import {
   SapphireMessageResponse,
   SapphireMessageResponseWithMetadata,
 } from '../../codeyCommand';
+import { CodeyUserError } from '../../codeyUserError';
 import {
   getMessageForLeetcodeProblem,
   getLeetcodeProblemDataFromId,
@@ -30,7 +31,7 @@ const leetcodeRandomExecuteCommand: SapphireMessageExecuteType = async (
   return new SapphireMessageResponseWithMetadata('The problem will be loaded shortly...', {
     difficulty,
     tag,
-    channel: messageFromUser.channel,
+    messageFromUser,
   });
 };
 
@@ -44,7 +45,8 @@ const leetcodeRandomAfterMessageReply: SapphireAfterReplyType = async (
 
   const difficulty = <LeetcodeDifficulty | undefined>result.metadata['difficulty'];
   const tag = <string | undefined>result.metadata['tag'];
-  const channel = <TextBasedChannel>result.metadata['channel'];
+  const message = <Message<boolean>>result.metadata['messageFromUser'];
+  const channel = <TextBasedChannel>message.channel;
 
   let problemId;
   if (typeof difficulty === 'undefined' && typeof tag === 'undefined') {
@@ -52,10 +54,15 @@ const leetcodeRandomAfterMessageReply: SapphireAfterReplyType = async (
   } else {
     const problemIds = await getListOfLeetcodeProblemIds(difficulty, tag);
     const index = getRandomIntFrom1(problemIds.length) - 1;
+    if (problemIds.length === 0) {
+      throw new CodeyUserError(message, 'There are no problems with the specified filters.');
+    }
     problemId = problemIds[index];
   }
   const problemData = await getLeetcodeProblemDataFromId(problemId);
-  await channel?.send(getMessageForLeetcodeProblem(problemData));
+  const content = getMessageForLeetcodeProblem(problemData).slice(0, 2000);
+
+  await channel?.send(content);
   return;
 };
 
