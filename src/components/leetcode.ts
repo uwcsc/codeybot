@@ -1,8 +1,10 @@
 import axios from 'axios';
+import { MessageEmbed } from 'discord.js';
 import { convertHtmlToMarkdown } from '../utils/markdown';
 
 const leetcodeIdUrl = 'https://lcid.cc/info';
-const leetcodeUrl = 'https://leetcode.com/graphql';
+const leetcodeApiUrl = 'https://leetcode.com/graphql';
+const leetcodeUrl = 'https://leetcode.com/problems';
 
 interface LeetcodeTopicTag {
   name: string;
@@ -37,11 +39,16 @@ interface LeetcodeProblemData {
   categoryTitle: string;
   paidOnly: boolean;
   title: string;
+  titleSlug: string;
   topicTags: LeetcodeTopicTag[];
   totalAcceptedRaw: number;
   totalSubmissionRaw: number;
   contentAsMarkdown: string;
+  problemId: number;
 }
+
+// I couldn't find a way to get this dynamically, so a constant suffices for now
+export const totalNumberOfLeetcodeProblems = 2577;
 
 export const getLeetcodeProblemDataFromId = async (
   problemId: number,
@@ -50,7 +57,7 @@ export const getLeetcodeProblemDataFromId = async (
     await axios.get(`${leetcodeIdUrl}/${problemId}`)
   ).data;
   const resFromLeetcode: LeetcodeProblemDataFromUrl = (
-    await axios.get(leetcodeUrl, {
+    await axios.get(leetcodeApiUrl, {
       params: {
         operationName: 'questionData',
         variables: {
@@ -65,6 +72,15 @@ export const getLeetcodeProblemDataFromId = async (
   const result: LeetcodeProblemData = {
     ...resFromLeetcodeById,
     contentAsMarkdown: convertHtmlToMarkdown(resFromLeetcode.data.question.content),
+    problemId: problemId,
   };
   return result;
+};
+
+export const getMessageForLeetcodeProblem = (leetcodeProblemData: LeetcodeProblemData): string => {
+  const title = `#${leetcodeProblemData.problemId}: ${leetcodeProblemData.title}`;
+  const content = leetcodeProblemData.contentAsMarkdown;
+  const url = `${leetcodeUrl}/${leetcodeProblemData.titleSlug}`;
+  const difficulty = leetcodeProblemData.difficulty;
+  return `**${title} - ${difficulty}**\n*Problem URL: ${url}*\n\n${content}`;
 };

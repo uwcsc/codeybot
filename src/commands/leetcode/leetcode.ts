@@ -1,5 +1,6 @@
 import { Command, container } from '@sapphire/framework';
 import { CodeyCommand, CodeyCommandDetails } from '../../codeyCommand';
+import { leetcodeRandomCommandDetails } from '../../commandDetails/leetcode/leetcodeRandomCommandDetails';
 import { leetcodeSpecificCommandDetails } from '../../commandDetails/leetcode/leetcodeSpecificCommandDetails';
 
 const leetcodeCommandDetails: CodeyCommandDetails = {
@@ -9,10 +10,10 @@ const leetcodeCommandDetails: CodeyCommandDetails = {
   detailedDescription: ``, // leave blank for now
   options: [],
   subcommandDetails: {
-    // random
+    random: leetcodeRandomCommandDetails,
     specific: leetcodeSpecificCommandDetails,
   },
-  defaultSubcommandDetails: leetcodeSpecificCommandDetails,
+  defaultSubcommandDetails: leetcodeRandomCommandDetails,
 };
 
 export class LeetcodeCommand extends CodeyCommand {
