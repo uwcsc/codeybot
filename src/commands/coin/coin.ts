@@ -4,6 +4,7 @@ import { coinAdjustCommandDetails } from '../../commandDetails/coin/adjust';
 import { coinCheckCommandDetails } from '../../commandDetails/coin/check';
 import { coinInfoCommandDetails } from '../../commandDetails/coin/info';
 import { coinLeaderboardCommandDetails } from '../../commandDetails/coin/leaderboard';
+import { coinTransferCommandDetails } from '../../commandDetails/coin/transfer';
 import { coinUpdateCommandDetails } from '../../commandDetails/coin/update';
 
 const coinCommandDetails: CodeyCommandDetails = {
@@ -19,7 +20,9 @@ const coinCommandDetails: CodeyCommandDetails = {
 \`${container.botPrefix}coin info\`
 \`${container.botPrefix}coin i\`
 \`${container.botPrefix}coin update @Codey 100\`
-\`${container.botPrefix}coin update @Codey 0 Reset Codey's balance.\``,
+\`${container.botPrefix}coin update @Codey 0 Reset Codey's balance.\`
+\`${container.botPrefix}coin transfer @Codey 10\`
+\`${container.botPrefix}coin transfer @Codey 15 Lost a bet to Codey \``,
   options: [],
   subcommandDetails: {
     adjust: coinAdjustCommandDetails,
@@ -27,6 +30,7 @@ const coinCommandDetails: CodeyCommandDetails = {
     info: coinInfoCommandDetails,
     update: coinUpdateCommandDetails,
     leaderboard: coinLeaderboardCommandDetails,
+    transfer: coinTransferCommandDetails,
   },
   defaultSubcommandDetails: coinCheckCommandDetails,
 };
