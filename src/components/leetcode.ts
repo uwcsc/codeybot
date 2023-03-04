@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { MessageEmbed } from 'discord.js';
+import { APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import { convertHtmlToMarkdown } from '../utils/markdown';
 
 const leetcodeIdUrl = 'https://lcid.cc/info';
@@ -32,59 +32,13 @@ const LeetcodeTagsDict = {
   counting: 'Counting',
   backtracking: 'Backtracking',
   'sliding-window': 'Sliding Window',
-  'union-find': 'Union Find',
-  'linked-list': 'Linked List',
-  'ordered-set': 'Ordered Set',
-  'monotonic-stack': 'Monotonic Stack',
-  enumeration: 'Enumeration',
-  recursion: 'Recursion',
-  trie: 'Trie',
-  'divide-and-conquer': 'Divide and Conquer',
-  'binary-search-tree': 'Binary Search Tree',
-  queue: 'Queue',
-  bitmask: 'Bitmask',
-  memoization: 'Memoization',
-  geometry: 'Geometry',
-  'segment-tree': 'Segment Tree',
-  'topological-sort': 'Topological Sort',
-  'number-theory': 'Number Theory',
-  'binary-indexed-tree': 'Binary Indexed Tree',
-  'hash-function': 'Hash Function',
-  'game-theory': 'Game Theory',
-  combinatorics: 'Combinatorics',
-  'shortest-path': 'Shortest Path',
-  'data-stream': 'Data Stream',
-  interactive: 'Interactive',
-  'string-matching': 'String Matching',
-  'rolling-hash': 'Rolling Hash',
-  randomized: 'Randomized',
-  brainteaser: 'Brainteaser',
-  'monotonic-queue': 'Monotonic Queue',
-  'merge-sort': 'Merge Sort',
-  iterator: 'Iterator',
-  concurrency: 'Concurrency',
-  'doubly-linked-list': 'Doubly-Linked List',
-  'probability-and-statistics': 'Probability and Statistics',
-  quickselect: 'Quickselect',
-  'bucket-sort': 'Bucket Sort',
-  'suffix-array': 'Suffix Array',
-  'minimum-spanning-tree': 'Minimum Spanning Tree',
-  'counting-sort': 'Counting Sort',
-  shell: 'Shell',
-  'line-sweep': 'Line Sweep',
-  'reservoir-sampling': 'Reservoir Sampling',
-  'eulerian-circuit': 'Eulerian Circuit',
-  'radix-sort': 'Radix Sort',
-  'strongly-connected-component': 'Strongly Connected Component',
-  'rejection-sampling': 'Rejection Sampling',
-  'biconnected-component': 'Biconnected Component',
 };
 
 interface LeetcodeTopicTag {
   name: string;
 }
 
-enum LeetcodeDifficulty {
+export enum LeetcodeDifficulty {
   'Easy',
   'Medium',
   'Hard',
@@ -132,6 +86,17 @@ interface LeetcodeProblemQuery {
   tags: string;
 }
 
+export const createInitialValuesForTags = (): APIApplicationCommandOptionChoice[] => {
+  return [
+    ...Object.entries(LeetcodeTagsDict).map((e) => {
+      return {
+        name: e[1],
+        value: e[0],
+      };
+    }),
+  ];
+};
+
 export const getLeetcodeProblemDataFromId = async (
   problemId: number,
 ): Promise<LeetcodeProblemData> => {
@@ -158,6 +123,38 @@ export const getLeetcodeProblemDataFromId = async (
   };
   return result;
 };
+
+export const getListOfLeetcodeProblemIds = async (
+  difficulty?: LeetcodeDifficulty,
+  tag?: string,
+): Promise<number[]> => {
+  const filters = {
+    ...(typeof difficulty !== 'undefined'
+      ? { difficulty: difficulty.toString().toUpperCase() }
+      : {}),
+    ...(typeof tag !== 'undefined' ? { tags: [tag] } : {}),
+  };
+  const resFromLeetcode = (
+    await axios.get(leetcodeApiUrl, {
+      params: {
+        variables: {
+          categorySlug: '',
+          filters: filters,
+          limit: 2000,
+          skip: 0,
+        },
+        query:
+          'query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {\n      acRate\n      difficulty\n      freqBar\n      frontendQuestionId: questionFrontendId\n      isFavor\n      paidOnly: isPaidOnly\n      status\n      title\n      titleSlug\n      topicTags {\n        name\n        id\n        slug\n      }\n      hasSolution\n      hasVideoSolution\n    }\n  }\n}\n    ',
+      },
+    })
+  ).data;
+  const result = resFromLeetcode.data.problemsetQuestionList.questions.map(
+    (question: { frontendQuestionId: number }) => question.frontendQuestionId,
+  );
+  return result;
+};
+
+export const totalNumberOfProblems = 2577;
 
 export const getMessageForLeetcodeProblem = (leetcodeProblemData: LeetcodeProblemData): string => {
   const title = `#${leetcodeProblemData.problemId}: ${leetcodeProblemData.title}`;
