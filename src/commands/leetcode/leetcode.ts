@@ -6,7 +6,7 @@ import { leetcodeSpecificCommandDetails } from '../../commandDetails/leetcode/le
 const leetcodeCommandDetails: CodeyCommandDetails = {
   name: 'leetcode',
   aliases: [],
-  description: 'Handle coin functions.',
+  description: 'Handle LeetCode functions.',
   detailedDescription: ``, // leave blank for now
   options: [],
   subcommandDetails: {

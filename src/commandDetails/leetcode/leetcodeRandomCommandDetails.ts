@@ -14,11 +14,10 @@ import {
   createInitialValuesForTags,
   getListOfLeetcodeProblemIds,
   LeetcodeDifficulty,
-  totalNumberOfProblems,
+  TOTAL_NUMBER_OF_PROBLEMS,
 } from '../../components/leetcode';
 import { getRandomIntFrom1 } from '../../utils/num';
 
-// Check a user's balance
 const leetcodeRandomExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
@@ -49,7 +48,7 @@ const leetcodeRandomAfterMessageReply: SapphireAfterReplyType = async (
 
   let problemId;
   if (typeof difficulty === 'undefined' && typeof tag === 'undefined') {
-    problemId = getRandomIntFrom1(totalNumberOfProblems);
+    problemId = getRandomIntFrom1(TOTAL_NUMBER_OF_PROBLEMS);
   } else {
     const problemIds = await getListOfLeetcodeProblemIds(difficulty, tag);
     const index = getRandomIntFrom1(problemIds.length) - 1;
@@ -67,8 +66,8 @@ const leetcodeRandomAfterMessageReply: SapphireAfterReplyType = async (
 
 export const leetcodeRandomCommandDetails: CodeyCommandDetails = {
   name: 'random',
-  aliases: ['random'],
-  description: 'Get a random Leetcode problem',
+  aliases: ['r'],
+  description: 'Get a random LeetCode problem.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}leetcode\`\n
 \`${container.botPrefix}leetcode random\``,
@@ -79,7 +78,7 @@ export const leetcodeRandomCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'difficulty',
-      description: 'The difficulty of the problem to filter by if specified.',
+      description: 'The difficulty of the problem.',
       type: CodeyCommandOptionType.STRING,
       required: false,
       choices: [
@@ -90,7 +89,7 @@ export const leetcodeRandomCommandDetails: CodeyCommandDetails = {
     },
     {
       name: 'tag',
-      description: 'The type of problem to filter by if specified.',
+      description: 'The type of problem.',
       type: CodeyCommandOptionType.STRING,
       required: false,
       choices: createInitialValuesForTags(),

@@ -2,6 +2,8 @@ import axios from 'axios';
 import { APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import { convertHtmlToMarkdown } from '../utils/markdown';
 
+export const TOTAL_NUMBER_OF_PROBLEMS = 2577;
+
 const leetcodeIdUrl = 'https://lcid.cc/info';
 const leetcodeApiUrl = 'https://leetcode.com/graphql';
 const leetcodeUrl = 'https://leetcode.com/problems';
@@ -148,8 +150,6 @@ export const getListOfLeetcodeProblemIds = async (
   );
   return result;
 };
-
-export const totalNumberOfProblems = 2577;
 
 export const getMessageForLeetcodeProblem = (leetcodeProblemData: LeetcodeProblemData): string => {
   const title = `#${leetcodeProblemData.problemId}: ${leetcodeProblemData.title}`;
