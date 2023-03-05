@@ -103,7 +103,6 @@ const setCommandOption = (
     T extends ApplicationCommandOptionBase &
       ApplicationCommandOptionWithChoicesAndAutocompleteMixin<B>,
   >(commandOption: T): T {
-    logger.info(option.choices);
     return option.choices
       ? commandOption.addChoices(...(option.choices as APIApplicationCommandOptionChoice<B>[]))
       : commandOption;
