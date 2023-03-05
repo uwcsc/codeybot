@@ -16,7 +16,7 @@ const leetcodeSpecificExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-  const problemId = <number>args['problem-ID'];
+  const problemId = <number>args['problem-id'];
   if (!Number.isInteger(problemId)) {
     throw new CodeyUserError(messageFromUser, 'Problem ID must be an integer.');
   }
@@ -36,7 +36,7 @@ export const leetcodeSpecificCommandDetails: CodeyCommandDetails = {
   executeCommand: leetcodeSpecificExecuteCommand,
   options: [
     {
-      name: 'problem-ID',
+      name: 'problem-id',
       description: 'The problem ID.',
       type: CodeyCommandOptionType.NUMBER,
       required: true,
