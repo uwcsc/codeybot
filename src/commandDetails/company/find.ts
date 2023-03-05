@@ -57,8 +57,6 @@ const companyFindExecuteCommand: SapphireMessageExecuteType = async (
     throw new Error('This company does not exist in the server!');
   }
   const companyUsers = await getEmployeesByCompanyId(<string>company_id);
-  console.log('here');
-  console.log(companyUsers);
   if (!companyUsers.length) {
     return 'No one works at this company in the server!';
   }

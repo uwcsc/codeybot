@@ -17,6 +17,7 @@ import {
 } from './suggestion';
 import { updateMemberRole, getRoleName, loadRoleMembers } from '../utils/roles';
 import { CodeyUserError } from '../codeyUserError';
+import { logger } from '../logger/default';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
@@ -59,7 +60,7 @@ export const createOfficeStatusCron = (client: Client): CronJob =>
       await (messageChannel as TextChannel).setName(curName);
       const time = Math.floor(response['time']);
       const topic = `Last updated at <t:${time}:F> for you (<t:${time}:R>)`;
-      await (messageChannel as TextChannel).setTopic(topic).catch(console.error);
+      await (messageChannel as TextChannel).setTopic(topic).catch(logger.error);
     } else {
       throw 'Bad channel type';
     }
