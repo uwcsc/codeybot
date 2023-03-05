@@ -2,13 +2,9 @@ import _, { uniqueId } from 'lodash';
 import { openDB } from './db';
 import { SapphireClient } from '@sapphire/framework';
 import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
-import {
-  SapphireMessageResponse,
-  SapphireMessageResponseWithMetadata,
-  SapphireSentMessageType,
-} from '../codeyCommand';
+import { SapphireMessageResponse, SapphireSentMessageType } from '../codeyCommand';
 import { pluralize } from '../utils/pluralize';
-import { getCoinEmoji } from './emojis';
+import { getCoinEmoji, getEmojiByName } from './emojis';
 
 export enum BonusType {
   Daily = 0,
@@ -352,7 +348,7 @@ class TransferTracker {
     }
 
     if (transfer.state.result === TransferResult.Pending) return;
-    transfer.handleTransaction();
+    await transfer.handleTransaction();
   }
 }
 
@@ -378,13 +374,8 @@ export class Transfer {
   }
 
   // Only called if state is no longer pending. Transfers coins and returns output as needed
-  async handleTransaction(): Promise<SapphireMessageResponseWithMetadata> {
-    if (this.state.result === TransferResult.Rejected) {
-      return new SapphireMessageResponseWithMetadata(
-        `${this.state.receiver.username} rejected the transfer.`,
-        {},
-      );
-    } else {
+  async handleTransaction(): Promise<void> {
+    if (this.state.result === TransferResult.Confirmed) {
       // Adjust the receiver balance with coins transferred
       await adjustCoinBalanceByUserId(
         this.state.receiver.id,
@@ -394,9 +385,6 @@ export class Transfer {
         this.client.user?.id,
       );
 
-      // Get new receiver balance
-      const newReceiverBalance = await getCoinBalanceByUserId(this.state.receiver.id);
-
       // Adjust the sender balance with coins transferred
       await adjustCoinBalanceByUserId(
         this.state.sender.id,
@@ -405,11 +393,26 @@ export class Transfer {
         <string>(this.state.reason ?? ''),
         this.client.user?.id,
       );
+    }
+  }
 
-      // Get new sender balance
-      const newSenderBalance = await getCoinBalanceByUserId(this.state.sender.id);
-      return new SapphireMessageResponseWithMetadata(
-        `${this.state.receiver.username} accepted the transfer. ${
+  public getEmbedColor(): ColorResolvable {
+    switch (this.state.result) {
+      case TransferResult.Confirmed:
+        return 'GREEN';
+      case TransferResult.Rejected:
+        return 'RED';
+      default:
+        return 'YELLOW';
+    }
+  }
+
+  public async getStatusAsString(): Promise<string> {
+    switch (this.state.result) {
+      case TransferResult.Confirmed:
+        const newReceiverBalance = await getCoinBalanceByUserId(this.state.receiver.id);
+        const newSenderBalance = await getCoinBalanceByUserId(this.state.sender.id);
+        return `${this.state.receiver.username} accepted the transfer. ${
           this.state.receiver.username
         } now has ${newReceiverBalance} Codey ${pluralize(
           'coin',
@@ -420,26 +423,17 @@ export class Transfer {
         } now has ${newSenderBalance} Codey ${pluralize(
           'coin',
           newReceiverBalance,
-        )} ${getCoinEmoji()}.`,
-        {},
-      );
-    }
-  }
-
-  public getEmbedColor(): ColorResolvable {
-    switch (this.state.result) {
-      case TransferResult.Pending:
-        return 'YELLOW';
-      case TransferResult.Confirmed:
-        return 'GREEN';
+        )} ${getCoinEmoji()}.`;
       case TransferResult.Rejected:
-        return 'RED';
+        return `This transfer was rejected by ${this.state.receiver.username}.`;
+      case TransferResult.Pending:
+        return 'Please choose whether you would like to accept this transfer.';
       default:
-        return 'YELLOW';
+        return `Something went wrong! ${getEmojiByName('codey_sad')}`;
     }
   }
 
-  public getTransferResponse(): SapphireMessageResponse {
+  public async getTransferResponse(): Promise<SapphireMessageResponse> {
     const embed = new MessageEmbed()
       .setColor(this.getEmbedColor())
       .setTitle('Coin Transfer')
@@ -448,17 +442,17 @@ export class Transfer {
 Amount: ${this.state.amount} ${getCoinEmoji()}
 Sender: ${this.state.sender.username}
 
-Please choose whether you would like to accept this transfer.
+${await this.getStatusAsString()}
 `,
       );
     // Buttons
     const row = new MessageActionRow().addComponents(
       new MessageButton()
-        .setCustomId(`transfer-check-${this.state.receiver.id}-${this.state.sender.id}`)
+        .setCustomId(`transfer-check-${this.transferId}`)
         .setLabel(getEmojiFromSign(TransferSign.Accept))
         .setStyle('SECONDARY'),
       new MessageButton()
-        .setCustomId(`transfer-x-${this.state.receiver.id}-${this.state.sender.id}`)
+        .setCustomId(`transfer-x-${this.transferId}`)
         .setLabel(getEmojiFromSign(TransferSign.Decline))
         .setStyle('SECONDARY'),
     );

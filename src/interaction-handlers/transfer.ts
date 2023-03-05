@@ -51,16 +51,13 @@ export class TransferHandler extends InteractionHandler {
     if (!transfer) {
       throw new Error('Transfer with given id does not exist');
     }
-    if (interaction.user.id !== (transfer.state.receiver.id || transfer.state.sender.id)) {
+    if (interaction.user.id !== transfer.state.receiver.id) {
       return await interaction.reply({
         content: `This isn't your transfer! ${getEmojiByName('codey_angry')}`,
         ephemeral: true,
       });
     }
-    if (interaction.user.id === transfer.state.sender.id) {
-      console.log('Only for testing');
-    }
-    transferTracker.runFuncOnGame(result.transferId, (transfer) => {
+    transferTracker.runFuncOnGame(result.transferId, async (transfer) => {
       switch (result.sign) {
         case TransferSign.Accept:
           transfer.state.result = TransferResult.Confirmed;
@@ -71,12 +68,13 @@ export class TransferHandler extends InteractionHandler {
         default:
           transfer.state.result = TransferResult.Pending;
       }
+      await transferTracker.endTransfer(result.transferId);
+      const message = await transfer.getTransferResponse();
       if (transfer.transferMessage instanceof Message) {
-        transfer.transferMessage.edit(<MessagePayload>transfer.getTransferResponse());
+        transfer.transferMessage.edit(<MessagePayload>message);
       } else if (transfer.transferMessage instanceof CommandInteraction) {
-        transfer.transferMessage.editReply(<MessagePayload>transfer.getTransferResponse());
+        transfer.transferMessage.editReply(<MessagePayload>message);
       }
     });
-    transferTracker.endTransfer(result.transferId);
   }
 }

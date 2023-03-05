@@ -8,14 +8,8 @@ import {
   SapphireMessageResponseWithMetadata,
   SapphireAfterReplyType,
 } from '../../codeyCommand';
-import {
-  adjustCoinBalanceByUserId,
-  getCoinBalanceByUserId,
-  transferTracker,
-  UserCoinEvent,
-} from '../../components/coin';
+import { getCoinBalanceByUserId, transferTracker } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
-import { pluralize } from '../../utils/pluralize';
 
 const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
   client,
@@ -68,7 +62,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
     messageFromUser.channelId,
   );
 
-  return new SapphireMessageResponseWithMetadata(transfer.getTransferResponse(), {
+  return new SapphireMessageResponseWithMetadata(await transfer.getTransferResponse(), {
     transferId: transfer.transferId,
   });
 };
