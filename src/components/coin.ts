@@ -373,7 +373,7 @@ export class Transfer {
     this.transferId = transferId;
   }
 
-  // Only called if state is no longer pending. Transfers coins and returns output as needed
+  // called if state is (believed to be) no longer pending. Transfers coins and updates balances if transfer is confirmed
   async handleTransaction(): Promise<void> {
     if (this.state.result === TransferResult.Confirmed) {
       // Adjust the receiver balance with coins transferred
@@ -417,7 +417,6 @@ export class Transfer {
         } now has ${newReceiverBalance} Codey ${pluralize(
           'coin',
           newReceiverBalance,
-          // eslint-disable-next-line prettier/prettier
         )} ${getCoinEmoji()}. ${
           this.state.sender.username
         } now has ${newSenderBalance} Codey ${pluralize(

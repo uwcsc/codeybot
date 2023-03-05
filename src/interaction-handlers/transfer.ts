@@ -20,7 +20,7 @@ export class TransferHandler extends InteractionHandler {
     transferId: string;
     sign: TransferSign;
   }> {
-    // interaction.customId should be in the form "transfer-{check|x}-{receiver id}-{sender id} as in src/components/coin.ts"
+    // interaction.customId should be in the form "transfer-{check|x}-{transfer id} as in src/components/coin.ts"
     if (!interaction.customId.startsWith('transfer')) return this.none();
     const parsedCustomId = interaction.customId.split('-');
     const sign = parsedCustomId[1];
@@ -51,13 +51,15 @@ export class TransferHandler extends InteractionHandler {
     if (!transfer) {
       throw new Error('Transfer with given id does not exist');
     }
+    // only receiver can confirm the transfer
     if (interaction.user.id !== transfer.state.receiver.id) {
       return await interaction.reply({
         content: `This isn't your transfer! ${getEmojiByName('codey_angry')}`,
-        ephemeral: true,
+        ephemeral: true, // other users do not see this message
       });
     }
     transferTracker.runFuncOnGame(result.transferId, async (transfer) => {
+      // set the result of the transfer
       switch (result.sign) {
         case TransferSign.Accept:
           transfer.state.result = TransferResult.Confirmed;
@@ -68,6 +70,7 @@ export class TransferHandler extends InteractionHandler {
         default:
           transfer.state.result = TransferResult.Pending;
       }
+      // update the balances of the sender/receiver as per the transfer result
       await transferTracker.endTransfer(result.transferId);
       const message = await transfer.getTransferResponse();
       if (transfer.transferMessage instanceof Message) {
