@@ -99,11 +99,11 @@ const convertResumePdfsIntoImages = async (
   // Convert the resume pdf into image
   const imgResponse = await convertPdfToPic('tmp/resume.pdf', 'resume', width * 2, height * 2);
   // Send the image back to the channel as a thread
-  const botMessage = await message.channel.send('Converting Resume...');
-  const thread = await botMessage.startThread({
+  const thread = await message.startThread({
     name: `${fileName}`,
     autoArchiveDuration: 60,
   });
+  const botMessage = await thread.send('Converting Resume...');
   const preview_message = await thread.send({
     files: imgResponse.map((img) => img.path),
   });
