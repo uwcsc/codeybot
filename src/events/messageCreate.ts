@@ -103,7 +103,6 @@ const convertResumePdfsIntoImages = async (
     name: `${fileName}`,
     autoArchiveDuration: 60,
   });
-  const botMessage = await thread.send('Converting Resume...');
   const preview_message = await thread.send({
     files: imgResponse.map((img) => img.path),
   });
