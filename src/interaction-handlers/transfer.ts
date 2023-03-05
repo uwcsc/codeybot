@@ -4,9 +4,9 @@ import {
   Maybe,
   PieceContext,
 } from '@sapphire/framework';
-import { ButtonInteraction } from 'discord.js';
+import { ButtonInteraction, CommandInteraction, Message, MessagePayload } from 'discord.js';
 import { getEmojiByName } from '../components/emojis';
-import { TransferSign } from '../components/coin';
+import { TransferSign, TransferResult, transferTracker } from '../components/coin';
 
 export class TransferHandler extends InteractionHandler {
   public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -17,15 +17,14 @@ export class TransferHandler extends InteractionHandler {
   }
   // Get the game info and the interaction type
   public override parse(interaction: ButtonInteraction): Maybe<{
-    receiverId: string;
+    transferId: string;
     sign: TransferSign;
   }> {
     // interaction.customId should be in the form "transfer-{check|x}-{receiver id}-{sender id} as in src/components/coin.ts"
     if (!interaction.customId.startsWith('transfer')) return this.none();
     const parsedCustomId = interaction.customId.split('-');
     const sign = parsedCustomId[1];
-    const receiverId = parsedCustomId[2];
-    const senderId = parsedCustomId[3];
+    const transferId = parsedCustomId[2];
 
     let transferSign: TransferSign;
     switch (sign) {
@@ -40,20 +39,44 @@ export class TransferHandler extends InteractionHandler {
         break;
     }
     return this.some({
-      receiverId: receiverId,
+      transferId: transferId,
       sign: transferSign,
-      senderId: senderId,
     });
   }
   public async run(
     interaction: ButtonInteraction,
-    result: { receiverId: string; senderId: string; sign: TransferSign },
+    result: { transferId: string; sign: TransferSign },
   ): Promise<void> {
-    if (interaction.user.id !== result.receiverId) {
+    const transfer = transferTracker.getTransferFromId(result.transferId);
+    if (!transfer) {
+      throw new Error('Transfer with given id does not exist');
+    }
+    if (interaction.user.id !== (transfer.state.receiver.id || transfer.state.sender.id)) {
       return await interaction.reply({
         content: `This isn't your transfer! ${getEmojiByName('codey_angry')}`,
         ephemeral: true,
       });
     }
+    if (interaction.user.id === transfer.state.sender.id) {
+      console.log('Only for testing');
+    }
+    transferTracker.runFuncOnGame(result.transferId, (transfer) => {
+      switch (result.sign) {
+        case TransferSign.Accept:
+          transfer.state.result = TransferResult.Confirmed;
+          break;
+        case TransferSign.Decline:
+          transfer.state.result = TransferResult.Rejected;
+          break;
+        default:
+          transfer.state.result = TransferResult.Pending;
+      }
+      if (transfer.transferMessage instanceof Message) {
+        transfer.transferMessage.edit(<MessagePayload>transfer.getTransferResponse());
+      } else if (transfer.transferMessage instanceof CommandInteraction) {
+        transfer.transferMessage.editReply(<MessagePayload>transfer.getTransferResponse());
+      }
+    });
+    transferTracker.endTransfer(result.transferId);
   }
 }

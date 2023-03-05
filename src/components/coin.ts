@@ -1,8 +1,12 @@
-import _ from 'lodash';
+import _, { uniqueId } from 'lodash';
 import { openDB } from './db';
 import { SapphireClient } from '@sapphire/framework';
 import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
-import { SapphireMessageResponse, SapphireMessageResponseWithMetadata } from '../codeyCommand';
+import {
+  SapphireMessageResponse,
+  SapphireMessageResponseWithMetadata,
+  SapphireSentMessageType,
+} from '../codeyCommand';
 import { pluralize } from '../utils/pluralize';
 import { getCoinEmoji } from './emojis';
 
@@ -292,7 +296,7 @@ export const getEmojiFromSign = (sign: TransferSign): string => {
   }
 };
 
-enum TransferResult {
+export enum TransferResult {
   Pending,
   Rejected,
   Confirmed,
@@ -303,22 +307,78 @@ type TransferState = {
   receiver: User;
   result: TransferResult;
   amount: number;
-  reason: string;
+  reason?: string;
 };
+
+class TransferTracker {
+  transfers: Map<string, Transfer>; // id, transfer
+
+  constructor() {
+    this.transfers = new Map<string, Transfer>();
+  }
+  getTransferFromId(id: string): Transfer | undefined {
+    return this.transfers.get(id);
+  }
+
+  runFuncOnGame(transferId: string, func: (transfer: Transfer) => void): void {
+    func(this.getTransferFromId(transferId)!);
+  }
+
+  async startTransfer(
+    sender: User,
+    receiver: User,
+    amount: number,
+    channelId: string,
+    client: SapphireClient<boolean>,
+    reason?: string,
+  ): Promise<Transfer> {
+    const transferId = uniqueId();
+    const transferState: TransferState = {
+      sender: sender,
+      receiver: receiver,
+      amount: amount,
+      reason: reason ?? '',
+      result: TransferResult.Pending,
+    };
+    const transfer = new Transfer(channelId, client, transferId, transferState);
+    this.transfers.set(transferId, transfer);
+    return transfer;
+  }
+
+  async endTransfer(transferId: string): Promise<void> {
+    const transfer = this.transfers.get(transferId);
+    if (!transfer) {
+      throw new Error(`No transfer with transfer ID ${transferId} found`);
+    }
+
+    if (transfer.state.result === TransferResult.Pending) return;
+    transfer.handleTransaction();
+  }
+}
+
+export const transferTracker = new TransferTracker();
 
 export class Transfer {
   channelId: string;
   client: SapphireClient<boolean>;
   state: TransferState;
+  transferId: string;
+  transferMessage!: SapphireSentMessageType;
 
-  constructor(channelId: string, client: SapphireClient<boolean>, transferState: TransferState) {
+  constructor(
+    channelId: string,
+    client: SapphireClient<boolean>,
+    transferId: string,
+    transferState: TransferState,
+  ) {
     this.channelId = channelId;
     this.state = transferState;
     this.client = client;
+    this.transferId = transferId;
   }
 
   // Only called if state is no longer pending. Transfers coins and returns output as needed
-  private async handleTransaction(): Promise<SapphireMessageResponseWithMetadata> {
+  async handleTransaction(): Promise<SapphireMessageResponseWithMetadata> {
     if (this.state.result === TransferResult.Rejected) {
       return new SapphireMessageResponseWithMetadata(
         `${this.state.receiver.username} rejected the transfer.`,
@@ -379,7 +439,7 @@ export class Transfer {
     }
   }
 
-  public getTransferState(): SapphireMessageResponse {
+  public getTransferResponse(): SapphireMessageResponse {
     const embed = new MessageEmbed()
       .setColor(this.getEmbedColor())
       .setTitle('Coin Transfer')
