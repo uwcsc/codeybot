@@ -94,10 +94,16 @@ const convertResumePdfsIntoImages = async (
     return await message.channel.send('Resume must be 1 page.');
   }
 
+  const fileMatch = pdfLink.match('[^/]*$') || ['Resume'];
+  const fileName = fileMatch[0];
   // Convert the resume pdf into image
   const imgResponse = await convertPdfToPic('tmp/resume.pdf', 'resume', width * 2, height * 2);
-  // Send the image back to the channel
-  const preview_message = await message.channel.send({
+  // Send the image back to the channel as a thread
+  const thread = await message.startThread({
+    name: `${fileName}`,
+    autoArchiveDuration: 60,
+  });
+  const preview_message = await thread.send({
     files: imgResponse.map((img) => img.path),
   });
   // Inserting the pdf and preview message IDs into the DB
