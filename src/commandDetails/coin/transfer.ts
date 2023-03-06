@@ -70,7 +70,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
 const transferAfterMessageReply: SapphireAfterReplyType = async (result, sentMessage) => {
   if (typeof result.metadata.transferId === 'undefined') return;
   // Store the message which the game takes place in the game object
-  transferTracker.runFuncOnGame(<string>result.metadata.transferId, (transfer) => {
+  transferTracker.runFuncOnTransfer(<string>result.metadata.transferId, (transfer) => {
     transfer.transferMessage = sentMessage;
   });
 };

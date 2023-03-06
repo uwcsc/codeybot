@@ -4,9 +4,10 @@ import {
   Maybe,
   PieceContext,
 } from '@sapphire/framework';
-import { ButtonInteraction, CommandInteraction, Message, MessagePayload } from 'discord.js';
+import { ButtonInteraction } from 'discord.js';
 import { getEmojiByName } from '../components/emojis';
 import { TransferSign, TransferResult, transferTracker } from '../components/coin';
+import { updateMessageEmbed } from '../utils/embeds';
 
 export class TransferHandler extends InteractionHandler {
   public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -58,7 +59,7 @@ export class TransferHandler extends InteractionHandler {
         ephemeral: true, // other users do not see this message
       });
     }
-    transferTracker.runFuncOnGame(result.transferId, async (transfer) => {
+    transferTracker.runFuncOnTransfer(result.transferId, async (transfer) => {
       // set the result of the transfer
       switch (result.sign) {
         case TransferSign.Accept:
@@ -73,11 +74,7 @@ export class TransferHandler extends InteractionHandler {
       // update the balances of the sender/receiver as per the transfer result
       await transferTracker.endTransfer(result.transferId);
       const message = await transfer.getTransferResponse();
-      if (transfer.transferMessage instanceof Message) {
-        transfer.transferMessage.edit(<MessagePayload>message);
-      } else if (transfer.transferMessage instanceof CommandInteraction) {
-        transfer.transferMessage.editReply(<MessagePayload>message);
-      }
+      updateMessageEmbed(transfer.transferMessage, message);
     });
   }
 }

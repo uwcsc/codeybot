@@ -22,6 +22,7 @@ export enum UserCoinEvent {
   RpsLoss,
   RpsDrawAgainstCodey,
   RpsWin,
+  CoinTransferAcceptor,
 }
 
 export type Bonus = {
@@ -316,7 +317,7 @@ class TransferTracker {
     return this.transfers.get(id);
   }
 
-  runFuncOnGame(transferId: string, func: (transfer: Transfer) => void): void {
+  runFuncOnTransfer(transferId: string, func: (transfer: Transfer) => void): void {
     func(this.getTransferFromId(transferId)!);
   }
 
@@ -380,7 +381,7 @@ export class Transfer {
       await adjustCoinBalanceByUserId(
         this.state.receiver.id,
         this.state.amount,
-        UserCoinEvent.AdminCoinAdjust,
+        UserCoinEvent.CoinTransferAcceptor,
         <string>(this.state.reason ?? ''),
         this.client.user?.id,
       );
@@ -389,7 +390,7 @@ export class Transfer {
       await adjustCoinBalanceByUserId(
         this.state.sender.id,
         <number>(-1 * this.state.amount),
-        UserCoinEvent.AdminCoinAdjust,
+        UserCoinEvent.CoinTransferAcceptor,
         <string>(this.state.reason ?? ''),
         this.client.user?.id,
       );
@@ -448,12 +449,12 @@ ${await this.getStatusAsString()}
     const row = new MessageActionRow().addComponents(
       new MessageButton()
         .setCustomId(`transfer-check-${this.transferId}`)
-        .setLabel(getEmojiFromSign(TransferSign.Accept))
-        .setStyle('SECONDARY'),
+        .setLabel('Accept')
+        .setStyle('SUCCESS'),
       new MessageButton()
         .setCustomId(`transfer-x-${this.transferId}`)
-        .setLabel(getEmojiFromSign(TransferSign.Decline))
-        .setStyle('SECONDARY'),
+        .setLabel('Reject')
+        .setStyle('DANGER'),
     );
 
     return {
