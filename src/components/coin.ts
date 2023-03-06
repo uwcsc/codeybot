@@ -22,7 +22,8 @@ export enum UserCoinEvent {
   RpsLoss,
   RpsDrawAgainstCodey,
   RpsWin,
-  CoinTransferAcceptor,
+  CoinTransferReceiver,
+  CoinTransferSender,
 }
 
 export type Bonus = {
@@ -381,7 +382,7 @@ export class Transfer {
       await adjustCoinBalanceByUserId(
         this.state.receiver.id,
         this.state.amount,
-        UserCoinEvent.CoinTransferAcceptor,
+        UserCoinEvent.CoinTransferReceiver,
         <string>(this.state.reason ?? ''),
         this.client.user?.id,
       );
@@ -390,7 +391,7 @@ export class Transfer {
       await adjustCoinBalanceByUserId(
         this.state.sender.id,
         <number>(-1 * this.state.amount),
-        UserCoinEvent.CoinTransferAcceptor,
+        UserCoinEvent.CoinTransferSender,
         <string>(this.state.reason ?? ''),
         this.client.user?.id,
       );
