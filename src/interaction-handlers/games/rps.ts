@@ -4,9 +4,10 @@ import {
   Maybe,
   PieceContext,
 } from '@sapphire/framework';
-import { ButtonInteraction, CommandInteraction, Message, MessagePayload } from 'discord.js';
+import { ButtonInteraction } from 'discord.js';
 import { getEmojiByName } from '../../components/emojis';
 import { getCodeyRpsSign, RpsGameSign, rpsGameTracker } from '../../components/games/rps';
+import { updateMessageEmbed } from '../../utils/embeds';
 
 export class RpsHandler extends InteractionHandler {
   public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -64,11 +65,7 @@ export class RpsHandler extends InteractionHandler {
         game.state.player2Sign = getCodeyRpsSign();
         game.setStatus(undefined);
       }
-      if (game.gameMessage instanceof Message) {
-        game.gameMessage.edit(<MessagePayload>game.getGameResponse());
-      } else if (game.gameMessage instanceof CommandInteraction) {
-        game.gameMessage.editReply(<MessagePayload>game.getGameResponse());
-      }
+      updateMessageEmbed(game.gameMessage, game.getGameResponse());
     });
     rpsGameTracker.endGame(result.gameId);
   }
