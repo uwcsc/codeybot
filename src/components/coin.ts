@@ -1,5 +1,10 @@
-import _ from 'lodash';
+import _, { uniqueId } from 'lodash';
 import { openDB } from './db';
+import { SapphireClient } from '@sapphire/framework';
+import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
+import { SapphireMessageResponse, SapphireSentMessageType } from '../codeyCommand';
+import { pluralize } from '../utils/pluralize';
+import { getCoinEmoji, getEmojiByName } from './emojis';
 
 export enum BonusType {
   Daily = 0,
@@ -17,6 +22,8 @@ export enum UserCoinEvent {
   RpsLoss,
   RpsDrawAgainstCodey,
   RpsWin,
+  CoinTransferReceiver,
+  CoinTransferSender,
 }
 
 export type Bonus = {
@@ -269,3 +276,191 @@ export const applyBonusByUserId = async (userId: string): Promise<boolean> => {
   }
   return false;
 };
+
+export enum TransferSign {
+  Pending = 0,
+  Accept = 1,
+  Decline = 2,
+}
+
+export const getEmojiFromSign = (sign: TransferSign): string => {
+  switch (sign) {
+    case TransferSign.Pending:
+      return '❓';
+    case TransferSign.Accept:
+      return '✅';
+    case TransferSign.Decline:
+      return '❌';
+  }
+};
+
+export enum TransferResult {
+  Pending,
+  Rejected,
+  Confirmed,
+}
+
+type TransferState = {
+  sender: User;
+  receiver: User;
+  result: TransferResult;
+  amount: number;
+  reason?: string;
+};
+
+class TransferTracker {
+  transfers: Map<string, Transfer>; // id, transfer
+
+  constructor() {
+    this.transfers = new Map<string, Transfer>();
+  }
+  getTransferFromId(id: string): Transfer | undefined {
+    return this.transfers.get(id);
+  }
+
+  runFuncOnTransfer(transferId: string, func: (transfer: Transfer) => void): void {
+    func(this.getTransferFromId(transferId)!);
+  }
+
+  async startTransfer(
+    sender: User,
+    receiver: User,
+    amount: number,
+    channelId: string,
+    client: SapphireClient<boolean>,
+    reason?: string,
+  ): Promise<Transfer> {
+    const transferId = uniqueId();
+    const transferState: TransferState = {
+      sender: sender,
+      receiver: receiver,
+      amount: amount,
+      reason: reason ?? '',
+      result: TransferResult.Pending,
+    };
+    const transfer = new Transfer(channelId, client, transferId, transferState);
+    this.transfers.set(transferId, transfer);
+    return transfer;
+  }
+
+  async endTransfer(transferId: string): Promise<void> {
+    const transfer = this.transfers.get(transferId);
+    if (!transfer) {
+      throw new Error(`No transfer with transfer ID ${transferId} found`);
+    }
+
+    if (transfer.state.result === TransferResult.Pending) return;
+    await transfer.handleTransaction();
+  }
+}
+
+export const transferTracker = new TransferTracker();
+
+export class Transfer {
+  channelId: string;
+  client: SapphireClient<boolean>;
+  state: TransferState;
+  transferId: string;
+  transferMessage!: SapphireSentMessageType;
+
+  constructor(
+    channelId: string,
+    client: SapphireClient<boolean>,
+    transferId: string,
+    transferState: TransferState,
+  ) {
+    this.channelId = channelId;
+    this.state = transferState;
+    this.client = client;
+    this.transferId = transferId;
+  }
+
+  // called if state is (believed to be) no longer pending. Transfers coins and updates balances if transfer is confirmed
+  async handleTransaction(): Promise<void> {
+    if (this.state.result === TransferResult.Confirmed) {
+      // Adjust the receiver balance with coins transferred
+      await adjustCoinBalanceByUserId(
+        this.state.receiver.id,
+        this.state.amount,
+        UserCoinEvent.CoinTransferReceiver,
+        <string>(this.state.reason ?? ''),
+        this.client.user?.id,
+      );
+
+      // Adjust the sender balance with coins transferred
+      await adjustCoinBalanceByUserId(
+        this.state.sender.id,
+        <number>(-1 * this.state.amount),
+        UserCoinEvent.CoinTransferSender,
+        <string>(this.state.reason ?? ''),
+        this.client.user?.id,
+      );
+    }
+  }
+
+  public getEmbedColor(): ColorResolvable {
+    switch (this.state.result) {
+      case TransferResult.Confirmed:
+        return 'GREEN';
+      case TransferResult.Rejected:
+        return 'RED';
+      default:
+        return 'YELLOW';
+    }
+  }
+
+  public async getStatusAsString(): Promise<string> {
+    switch (this.state.result) {
+      case TransferResult.Confirmed:
+        const newReceiverBalance = await getCoinBalanceByUserId(this.state.receiver.id);
+        const newSenderBalance = await getCoinBalanceByUserId(this.state.sender.id);
+        return `${this.state.receiver.username} accepted the transfer. ${
+          this.state.receiver.username
+        } now has ${newReceiverBalance} Codey ${pluralize(
+          'coin',
+          newReceiverBalance,
+        )} ${getCoinEmoji()}. ${
+          this.state.sender.username
+        } now has ${newSenderBalance} Codey ${pluralize(
+          'coin',
+          newReceiverBalance,
+        )} ${getCoinEmoji()}.`;
+      case TransferResult.Rejected:
+        return `This transfer was rejected by ${this.state.receiver.username}.`;
+      case TransferResult.Pending:
+        return 'Please choose whether you would like to accept this transfer.';
+      default:
+        return `Something went wrong! ${getEmojiByName('codey_sad')}`;
+    }
+  }
+
+  public async getTransferResponse(): Promise<SapphireMessageResponse> {
+    const embed = new MessageEmbed()
+      .setColor(this.getEmbedColor())
+      .setTitle('Coin Transfer')
+      .setDescription(
+        `
+Amount: ${this.state.amount} ${getCoinEmoji()}
+Sender: ${this.state.sender.username}
+
+${await this.getStatusAsString()}
+`,
+      );
+    // Buttons
+    const row = new MessageActionRow().addComponents(
+      new MessageButton()
+        .setCustomId(`transfer-check-${this.transferId}`)
+        .setLabel('Accept')
+        .setStyle('SUCCESS'),
+      new MessageButton()
+        .setCustomId(`transfer-x-${this.transferId}`)
+        .setLabel('Reject')
+        .setStyle('DANGER'),
+    );
+
+    return {
+      embeds: [embed],
+      components: this.state.result === TransferResult.Pending ? [row] : [],
+    };
+  }
+}

@@ -1,4 +1,13 @@
-import { Client, Message, MessageEmbed, TextChannel, User } from 'discord.js';
+import {
+  Client,
+  CommandInteraction,
+  Message,
+  MessageEmbed,
+  MessagePayload,
+  TextChannel,
+  User,
+} from 'discord.js';
+import { SapphireMessageResponse } from '../codeyCommand';
 import { vars } from '../config';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
@@ -34,4 +43,18 @@ export const sendKickEmbed = async (
     });
   }
   await (client.channels.cache.get(NOTIF_CHANNEL_ID) as TextChannel).send({ embeds: [kickEmbed] });
+};
+
+/**
+ * Update a message embed
+ */
+export const updateMessageEmbed = (
+  embedMessage: Message | CommandInteraction,
+  newMessage: SapphireMessageResponse,
+): void => {
+  if (embedMessage instanceof Message) {
+    embedMessage.edit(<MessagePayload>newMessage);
+  } else if (embedMessage instanceof CommandInteraction) {
+    embedMessage.editReply(<MessagePayload>newMessage);
+  }
 };

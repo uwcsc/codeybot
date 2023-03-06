@@ -6,14 +6,10 @@ import {
   SapphireMessageExecuteType,
   getUserFromMessage,
   SapphireMessageResponseWithMetadata,
+  SapphireAfterReplyType,
 } from '../../codeyCommand';
-import {
-  adjustCoinBalanceByUserId,
-  getCoinBalanceByUserId,
-  UserCoinEvent,
-} from '../../components/coin';
+import { getCoinBalanceByUserId, transferTracker } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
-import { pluralize } from '../../utils/pluralize';
 
 const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
   client,
@@ -36,7 +32,7 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
   }
 
   // Optional argument is reason
-  const reason = args['reason'];
+  const reason = <string>args['reason'] ?? '';
 
   // Retrieve sending user
   const sendingUser = getUserFromMessage(messageFromUser);
@@ -53,41 +49,30 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
       `You don't have enough ${getCoinEmoji()} to transfer that amount.`,
       {},
     );
-  } else if (amount <= 0) {
+  } else if (amount < 1) {
     return new SapphireMessageResponseWithMetadata(`You can't transfer less than 1 coin.`, {});
   }
 
-  // Adjust the receiver balance with coins transferred
-  await adjustCoinBalanceByUserId(
-    receivingUser.id,
+  const transfer = await transferTracker.startTransfer(
+    sendingUser,
+    receivingUser,
     amount,
-    UserCoinEvent.AdminCoinAdjust,
-    <string>(reason ?? ''),
-    client.user?.id,
+    reason,
+    client,
+    messageFromUser.channelId,
   );
 
-  // Get new receiver balance
-  const newReceiverBalance = await getCoinBalanceByUserId(receivingUser.id);
+  return new SapphireMessageResponseWithMetadata(await transfer.getTransferResponse(), {
+    transferId: transfer.transferId,
+  });
+};
 
-  // Adjust the sender balance with coins transferred
-  await adjustCoinBalanceByUserId(
-    sendingUser.id,
-    <number>(-1 * amount),
-    UserCoinEvent.AdminCoinAdjust,
-    <string>(reason ?? ''),
-    client.user?.id,
-  );
-
-  // Get new sender balance
-  const newSenderBalance = await getCoinBalanceByUserId(sendingUser.id);
-
-  return `${receivingUser.username} now has ${newReceiverBalance} Codey ${pluralize(
-    'coin',
-    newReceiverBalance,
-  )} ${getCoinEmoji()}. ${sendingUser.username} now has ${newSenderBalance} Codey ${pluralize(
-    'coin',
-    newReceiverBalance,
-  )} ${getCoinEmoji()}.`;
+const transferAfterMessageReply: SapphireAfterReplyType = async (result, sentMessage) => {
+  if (typeof result.metadata.transferId === 'undefined') return;
+  // Store the message which the game takes place in the game object
+  transferTracker.runFuncOnTransfer(<string>result.metadata.transferId, (transfer) => {
+    transfer.transferMessage = sentMessage;
+  });
 };
 
 export const coinTransferCommandDetails: CodeyCommandDetails = {
@@ -100,6 +85,7 @@ export const coinTransferCommandDetails: CodeyCommandDetails = {
 
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Transferring coins...',
+  afterMessageReply: transferAfterMessageReply,
   executeCommand: coinTransferExecuteCommand,
   options: [
     {
