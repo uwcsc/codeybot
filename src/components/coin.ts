@@ -298,6 +298,7 @@ export enum TransferResult {
   Pending,
   Rejected,
   Confirmed,
+  Invalid,
 }
 
 type TransferState = {
@@ -376,8 +377,12 @@ export class Transfer {
   }
 
   // called if state is (believed to be) no longer pending. Transfers coins and updates balances if transfer is confirmed
+  // also checks if sender still has enough coins in their balance
   async handleTransaction(): Promise<void> {
-    if (this.state.result === TransferResult.Confirmed) {
+    const senderBalance = await getCoinBalanceByUserId(this.state.sender.id);
+    if (this.state.amount > senderBalance) {
+      this.state.result = TransferResult.Invalid;
+    } else if (this.state.result === TransferResult.Confirmed) {
       // Adjust the receiver balance with coins transferred
       await adjustCoinBalanceByUserId(
         this.state.receiver.id,
@@ -404,6 +409,8 @@ export class Transfer {
         return 'GREEN';
       case TransferResult.Rejected:
         return 'RED';
+      case TransferResult.Invalid:
+        return 'DARK_BLUE';
       default:
         return 'YELLOW';
     }
@@ -423,12 +430,14 @@ export class Transfer {
           this.state.sender.username
         } now has ${newSenderBalance} Codey ${pluralize(
           'coin',
-          newReceiverBalance,
+          newSenderBalance,
         )} ${getCoinEmoji()}.`;
       case TransferResult.Rejected:
         return `This transfer was rejected by ${this.state.receiver.username}.`;
       case TransferResult.Pending:
         return 'Please choose whether you would like to accept this transfer.';
+      case TransferResult.Invalid:
+        return 'This transfer has become invalid.';
       default:
         return `Something went wrong! ${getEmojiByName('codey_sad')}`;
     }
