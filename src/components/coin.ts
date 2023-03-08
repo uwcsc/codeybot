@@ -382,10 +382,7 @@ export class Transfer {
     const senderBalance = await getCoinBalanceByUserId(this.state.sender.id);
     if (this.state.amount > senderBalance) {
       this.state.result = TransferResult.Invalid;
-      return;
-    }
-
-    if (this.state.result === TransferResult.Confirmed) {
+    } else if (this.state.result === TransferResult.Confirmed) {
       // Adjust the receiver balance with coins transferred
       await adjustCoinBalanceByUserId(
         this.state.receiver.id,
