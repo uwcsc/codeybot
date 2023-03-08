@@ -433,7 +433,7 @@ export class Transfer {
           this.state.sender.username
         } now has ${newSenderBalance} Codey ${pluralize(
           'coin',
-          newReceiverBalance,
+          newSenderBalance,
         )} ${getCoinEmoji()}.`;
       case TransferResult.Rejected:
         return `This transfer was rejected by ${this.state.receiver.username}.`;
