@@ -306,7 +306,7 @@ type TransferState = {
   receiver: User;
   result: TransferResult;
   amount: number;
-  reason?: string;
+  reason: string;
 };
 
 class TransferTracker {
@@ -327,16 +327,16 @@ class TransferTracker {
     sender: User,
     receiver: User,
     amount: number,
-    channelId: string,
+    reason: string,
     client: SapphireClient<boolean>,
-    reason?: string,
+    channelId: string,
   ): Promise<Transfer> {
     const transferId = uniqueId();
     const transferState: TransferState = {
       sender: sender,
       receiver: receiver,
       amount: amount,
-      reason: reason ?? '',
+      reason: reason,
       result: TransferResult.Pending,
     };
     const transfer = new Transfer(channelId, client, transferId, transferState);
@@ -450,8 +450,9 @@ export class Transfer {
       .setDescription(
         `
 Amount: ${this.state.amount} ${getCoinEmoji()}
-Sender: ${this.state.sender.username}
-
+From: ${this.state.sender.username}
+To: ${this.state.receiver.username}
+${this.state.reason ? `Reason: ${this.state.reason}\n` : ''}
 ${await this.getStatusAsString()}
 `,
       );

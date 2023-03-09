@@ -33,7 +33,6 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
 
   // Optional argument is reason
   const reason = <string>args['reason'] ?? '';
-
   // Retrieve sending user
   const sendingUser = getUserFromMessage(messageFromUser);
 
@@ -81,7 +80,7 @@ export const coinTransferCommandDetails: CodeyCommandDetails = {
   description: 'Transfer coins from your balance to another user.',
   detailedDescription: `**Examples:**
 	\`${container.botPrefix}coin transfer @Codey 10\`
-  \`${container.botPrefix}coin transfer @Codey 10 Lost a bet to Codey\``,
+  \`${container.botPrefix}coin transfer @Codey 10 Lost a bet to @Codey\``,
 
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Transferring coins...',
