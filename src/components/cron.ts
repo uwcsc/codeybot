@@ -161,4 +161,3 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
       }
     });
   });
-
