@@ -154,7 +154,7 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
         await updateMemberRole(member, roleName, false);
       }
     });
-    leaderboardIds.forEach(async (user_id) => {    
+    leaderboardIds.forEach(async (user_id) => {
       const memberToUpdate = members.get(user_id);
       if (memberToUpdate && !previousIds.has(user_id)) {
         await updateMemberRole(memberToUpdate, roleName, true);
