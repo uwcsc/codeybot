@@ -263,11 +263,19 @@ export class CodeyCommand extends SapphireCommand {
       await commandArgs.pick('string');
     }
     const args: CodeyCommandArguments = {};
-    for (const commandOption of commandDetails.options!) {
+    for (let i = 0; i < commandDetails.options!.length; i++) {
+      const commandOption = commandDetails.options![i];
       try {
-        args[commandOption.name] = <CodeyCommandArgumentValueType>(
-          await commandArgs.pick(<keyof ArgType>commandOption.type)
-        );
+        // take all remaining arguments given if this is the last argument option
+        if (i == commandDetails.options!.length - 1) {
+          args[commandOption.name] = <CodeyCommandArgumentValueType>(
+            await commandArgs.rest(<keyof ArgType>commandOption.type)
+          );
+        } else {
+          args[commandOption.name] = <CodeyCommandArgumentValueType>(
+            await commandArgs.pick(<keyof ArgType>commandOption.type)
+          );
+        }
       } catch (e) {}
     }
 
