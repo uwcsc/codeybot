@@ -1,23 +1,22 @@
 import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
 import { SapphireMessageResponse, SapphireSentMessageType } from '../../codeyCommand';
-import { getRandomIntFrom1 } from '../../utils/num';
 import { adjustCoinBalanceByUserId, UserCoinEvent } from '../coin';
 import { openDB } from '../db';
-import { getCoinEmoji, getEmojiByName } from '../emojis';
 import { CodeyUserError } from '../../codeyUserError';
+import { getEmojiByName } from '../emojis';
 class ConnectFourGameTracker {
   // Key = id, Value = game
-  games: Map<number, RpsGame>;
+  games: Map<number, ConnectFourGame>;
 
   constructor() {
-    this.games = new Map<number, RpsGame>();
+    this.games = new Map<number, ConnectFourGame>();
   }
 
-  getGameFromId(id: number): RpsGame | undefined {
+  getGameFromId(id: number): ConnectFourGame | undefined {
     return this.games.get(id);
   }
 
-  runFuncOnGame(gameId: number, func: (game: RpsGame) => void): void {
+  runFuncOnGame(gameId: number, func: (game: ConnectFourGame) => void): void {
     func(this.getGameFromId(gameId)!);
   }
 
@@ -29,12 +28,12 @@ class ConnectFourGameTracker {
     channelId: string,
     player1User: User,
     player2User?: User,
-  ): Promise<RpsGame> {
+  ): Promise<ConnectFourGame> {
     const db = await openDB();
     const result = await db.run(
       `
-    INSERT INTO rps_game_info (player1_id, player2_id, bet)
-    VALUES (?, ?, ?)
+    INSERT INTO connect_four_game_info (player1_id, player2_id)
+    VALUES (?, ?)
   `,
       player1User.id,
       player2User?.id,
@@ -43,21 +42,20 @@ class ConnectFourGameTracker {
     // get last inserted ID
     const id = result.lastID;
     if (id) {
-      const state: RpsGameState = {
+      const state: ConnectFourGameState = {
         player1Id: player1User.id,
         player1Username: player1User.username,
         player2Id: player2User?.id,
         player2Username: player2User?.username ?? `Codey ${getEmojiByName('codey_love')}`,
-        bet: bet,
         status: ConnectFourGameStatus.Pending,
         player1Sign: ConnectFourGameSign.Pending,
         player2Sign: ConnectFourGameSign.Pending,
       };
-      const game = new RpsGame(id!, channelId, state);
+      const game = new ConnectFourGame(id!, channelId, state);
       this.games.set(id, game);
       return game;
     }
-    throw new CodeyUserError(undefined, 'Something went wrong with starting the RPS game');
+    throw new CodeyUserError(undefined, 'Something went wrong with starting the Connect4 game');
   }
 
   async endGame(gameId: number): Promise<void> {
@@ -69,44 +67,10 @@ class ConnectFourGameTracker {
     // Don't do anything if game status is still pending
     if (game.state.status === ConnectFourGameStatus.Pending) return;
     // Update winnings
-    switch (game.state.status) {
-      case ConnectFourGameStatus.Player1Win:
-        await adjustCoinBalanceByUserId(game.state.player1Id, game.state.bet, UserCoinEvent.RpsWin);
-        if (game.state.player2Id) {
-          await adjustCoinBalanceByUserId(
-            game.state.player2Id,
-            -game.state.bet,
-            UserCoinEvent.RpsLoss,
-          );
-        }
-        break;
-      case ConnectFourGameStatus.Player2Win:
-        await adjustCoinBalanceByUserId(
-          game.state.player1Id,
-          -game.state.bet,
-          UserCoinEvent.RpsLoss,
-        );
-        if (game.state.player2Id) {
-          await adjustCoinBalanceByUserId(
-            game.state.player2Id,
-            game.state.bet,
-            UserCoinEvent.RpsWin,
-          );
-        }
-        break;
-      case ConnectFourGameStatus.Draw:
-        if (!game.state.player2Id) {
-          await adjustCoinBalanceByUserId(
-            game.state.player1Id,
-            -game.state.bet / 2,
-            UserCoinEvent.RpsDrawAgainstCodey,
-          );
-        }
-        break;
-    }
+
     await db.run(
       `
-      UPDATE rps_game_info
+      UPDATE connect_four_game_info
       SET player1_sign = ?, player2_sign = ?, status = ?
       WHERE id=?
       `,
@@ -121,24 +85,24 @@ class ConnectFourGameTracker {
 
 export const connectFourGameTracker = new ConnectFourGameTracker();
 
-export enum RpsWinner {
+export enum ConnectFourWinner {
   Player1,
   Player2,
   Tie,
 }
 
-export enum RpsTimeout {
+export enum ConnectFourTimeout {
   Player1,
   Player2,
 }
 
-export class RpsGame {
+export class ConnectFourGame {
   id: number;
   channelId: string;
   gameMessage!: SapphireSentMessageType;
-  state: RpsGameState;
+  state: ConnectFourGameState;
 
-  constructor(id: number, channelId: string, state: RpsGameState) {
+  constructor(id: number, channelId: string, state: ConnectFourGameState) {
     this.id = id;
     this.channelId = channelId;
     this.state = state;
@@ -147,18 +111,18 @@ export class RpsGame {
   private determineWinner(
     player1Sign: ConnectFourGameSign,
     player2Sign: ConnectFourGameSign,
-  ): RpsWinner {
+  ): ConnectFourWinner {
     if (player1Sign === player2Sign) {
-      return RpsWinner.Tie;
+      return ConnectFourWinner.Tie;
     }
     if (
       (player1Sign === ConnectFourGameSign.Paper && player2Sign === ConnectFourGameSign.Rock) ||
       (player1Sign === ConnectFourGameSign.Scissors && player2Sign === ConnectFourGameSign.Paper) ||
       (player1Sign === ConnectFourGameSign.Rock && player2Sign === ConnectFourGameSign.Scissors)
     ) {
-      return RpsWinner.Player1;
+      return ConnectFourWinner.Player1;
     }
-    return RpsWinner.Player2;
+    return ConnectFourWinner.Player2;
   }
 
   public setStatus(timeout?: RpsTimeout): void {
@@ -175,13 +139,13 @@ export class RpsGame {
       } else {
         const winner = this.determineWinner(this.state.player1Sign, this.state.player2Sign);
         switch (winner) {
-          case RpsWinner.Player1:
+          case ConnectFourWinner.Player1:
             this.state.status = ConnectFourGameStatus.Player1Win;
             break;
-          case RpsWinner.Player2:
+          case ConnectFourWinner.Player2:
             this.state.status = ConnectFourGameStatus.Player2Win;
             break;
-          case RpsWinner.Tie:
+          case ConnectFourWinner.Tie:
             this.state.status = ConnectFourGameStatus.Draw;
             break;
           default:
@@ -189,9 +153,9 @@ export class RpsGame {
             break;
         }
       }
-    } else if (timeout === RpsTimeout.Player1) {
+    } else if (timeout === ConnectFourTimeout.Player1) {
       this.state.status = ConnectFourGameStatus.Player1TimeOut;
-    } else if (timeout === RpsTimeout.Player2) {
+    } else if (timeout === ConnectFourTimeout.Player2) {
       this.state.status = ConnectFourGameStatus.Player2TimeOut;
     } else {
       this.state.status = ConnectFourGameStatus.Unknown;
@@ -216,21 +180,11 @@ export class RpsGame {
       case ConnectFourGameStatus.Pending:
         return 'Game in progress...';
       case ConnectFourGameStatus.Player1Win:
-        return `${this.state.player1Username} has won, and wins ${
-          this.state.bet
-        } ${getCoinEmoji()} from ${this.state.player2Username}!`;
+        return `${this.state.player1Username} has won!`;
       case ConnectFourGameStatus.Player2Win:
-        return `${this.state.player2Username} has won, and wins ${
-          this.state.bet
-        } ${getCoinEmoji()} from ${this.state.player1Username}!`;
+        return `${this.state.player2Username} has won!`;
       case ConnectFourGameStatus.Draw:
-        if (!this.state.player2Id) {
-          return `The match ended in a draw, so ${this.state.player2Username} has taken ${
-            this.state.bet / 2
-          } ${getCoinEmoji()} from ${this.state.player1Username}!`;
-        } else {
-          return `The match ended in a draw!`;
-        }
+        return `The match ended in a draw!`;
       // Timeout can be implemented later
       default:
         return `Something went wrong! ${getEmojiByName('codey_sad')}`;
@@ -241,15 +195,10 @@ export class RpsGame {
   public getGameResponse(): SapphireMessageResponse {
     const embed = new MessageEmbed()
       .setColor(this.getEmbedColor())
-      .setTitle('Rock, Paper, Scissors!')
+      .setTitle('Connect4')
       .setDescription(
         `
-Bet: ${this.state.bet} ${getCoinEmoji()}
 Players: ${this.state.player1Username} vs. ${this.state.player2Username}
-
-If you win, you win your bet.
-If you lose, you lose your entire bet to Codey.
-If you draw, Codey takes 50% of your bet.
 `,
       )
       .addFields([
@@ -265,18 +214,10 @@ ${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)
       ]);
     // Buttons
     const row = new MessageActionRow().addComponents(
-      new MessageButton()
-        .setCustomId(`rps-rock-${this.id}`)
-        .setLabel(getEmojiFromSign(ConnectFourGameSign.Rock))
-        .setStyle('SECONDARY'),
-      new MessageButton()
-        .setCustomId(`rps-paper-${this.id}`)
-        .setLabel(getEmojiFromSign(ConnectFourGameSign.Paper))
-        .setStyle('SECONDARY'),
-      new MessageButton()
-        .setCustomId(`rps-scissors-${this.id}`)
-        .setLabel(getEmojiFromSign(ConnectFourGameSign.Scissors))
-        .setStyle('SECONDARY'),
+      new MessageButton().setCustomId('col1').setLabel('1').setStyle('SECONDARY'),
+      new MessageButton().setCustomId('col2').setLabel('2').setStyle('SECONDARY'),
+      new MessageButton().setCustomId('col3').setLabel('3').setStyle('SECONDARY'),
+      new MessageButton().setCustomId('col4').setLabel('4').setStyle('SECONDARY'),
     );
 
     return {
@@ -317,18 +258,12 @@ export const getEmojiFromSign = (sign: ConnectFourGameSign): string => {
   }
 };
 
-export type RpsGameState = {
+export type ConnectFourGameState = {
   player1Id: string;
   player1Username: string;
   player2Id?: string;
   player2Username: string;
-  bet: number;
   status: ConnectFourGameStatus;
   player1Sign: ConnectFourGameSign;
   player2Sign: ConnectFourGameSign;
-};
-
-// Algorithm to get RPS game sign for Codey
-export const getCodeyRpsSign = (): ConnectFourGameSign => {
-  return getRandomIntFrom1(3);
 };
