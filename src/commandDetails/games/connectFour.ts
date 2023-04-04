@@ -24,8 +24,6 @@ const connectFourExecuteCommand: SapphireMessageExecuteType = async (
   // The user can challenge another user in the server
   // once we get that user's id we get the User object
   const challenger = args['challenger'] as User;
-
-  const bet = (args['bet'] ?? 10) as number;
   console.log(challenger);
   // const challengerUser = getUserFromId(challenger);
   // const balance = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
@@ -40,10 +38,8 @@ const connectFourExecuteCommand: SapphireMessageExecuteType = async (
   // }
 
   const game = await connectFourGameTracker.startGame(
-    bet,
     messageFromUser.channelId,
     getUserFromMessage(messageFromUser),
-    undefined, // We should change this when we implement 2 players
   );
 
   // Return initial response
@@ -52,7 +48,7 @@ const connectFourExecuteCommand: SapphireMessageExecuteType = async (
   });
 };
 
-const rpsAfterMessageReply: SapphireAfterReplyType = async (result, sentMessage) => {
+const connectFourAfterMessageReply: SapphireAfterReplyType = async (result, sentMessage) => {
   if (typeof result.metadata.gameId === 'undefined') return;
   // Store the message which the game takes place in the game object
   connectFourGameTracker.runFuncOnGame(<number>result.metadata.gameId, (game) => {
@@ -71,7 +67,7 @@ export const connectFourCommandDetails: CodeyCommandDetails = {
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Setting up your Connect 4 game...',
   executeCommand: connectFourExecuteCommand,
-  afterMessageReply: rpsAfterMessageReply,
+  afterMessageReply: connectFourAfterMessageReply,
   options: [
     {
       name: 'challenger',

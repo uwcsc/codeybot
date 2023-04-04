@@ -24,7 +24,6 @@ class ConnectFourGameTracker {
     Starts a Connect Four game
   */
   async startGame(
-    bet: number,
     channelId: string,
     player1User: User,
     player2User?: User,
@@ -37,7 +36,6 @@ class ConnectFourGameTracker {
   `,
       player1User.id,
       player2User?.id,
-      bet,
     );
     // get last inserted ID
     const id = result.lastID;
@@ -114,18 +112,12 @@ export class ConnectFourGame {
   ): ConnectFourWinner {
     if (player1Sign === player2Sign) {
       return ConnectFourWinner.Tie;
-    }
-    if (
-      (player1Sign === ConnectFourGameSign.Paper && player2Sign === ConnectFourGameSign.Rock) ||
-      (player1Sign === ConnectFourGameSign.Scissors && player2Sign === ConnectFourGameSign.Paper) ||
-      (player1Sign === ConnectFourGameSign.Rock && player2Sign === ConnectFourGameSign.Scissors)
-    ) {
+    } else {
       return ConnectFourWinner.Player1;
     }
-    return ConnectFourWinner.Player2;
   }
 
-  public setStatus(timeout?: RpsTimeout): void {
+  public setStatus(timeout?: ConnectFourTimeout): void {
     // Both players submitted a sign
     if (typeof timeout === 'undefined') {
       /*

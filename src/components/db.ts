@@ -140,6 +140,23 @@ const initRpsGameInfo = async (db: Database): Promise<void> => {
   );
 };
 
+const initConnectFourGameInfo = async (db: Database): Promise<void> => {
+  // If player 2 ID is null, the game was against Codey
+  await db.run(
+    `
+      CREATE TABLE IF NOT EXISTS connect_four_game_info (
+        id INTEGER PRIMARY KEY NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        player1_id VARCHAR(30) NOT NULL,
+        player2_id VARCHAR(30),
+        player1_sign INTEGER NOT NULL DEFAULT 0,
+        player2_sign INTEGER NOT NULL DEFAULT 0,
+        status INTEGER NOT NULL DEFAULT 0
+      )
+    `,
+  );
+};
+
 const initResumePreview = async (db: Database): Promise<void> => {
   await db.run(
     `
@@ -215,6 +232,7 @@ const initTables = async (db: Database): Promise<void> => {
   await initUserCoinTable(db);
   await initUserProfileTable(db);
   await initRpsGameInfo(db);
+  await initConnectFourGameInfo(db);
   await initResumePreview(db);
   await initCompaniesTable(db);
   await initPeopleCompaniesTable(db);
