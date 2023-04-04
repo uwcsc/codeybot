@@ -152,7 +152,7 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
     });
     leaderboard.forEach(async (lbUserCoinEntry) => {
       const memberToUpdate = members.get(lbUserCoinEntry.user_id);
-      if (memberToUpdate) {
+      if (memberToUpdate && !memberToUpdate.user?.bot) {
         await updateMemberRole(memberToUpdate, await getRoleName(CODEY_COIN_ROLE_ID), true);
       }
     });
