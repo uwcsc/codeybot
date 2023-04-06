@@ -52,13 +52,22 @@ export class ConnectFourHandler extends InteractionHandler {
         ephemeral: true,
       });
     }
+    if (!updateColumn(game.state.columns[codeySign - 1], game.state.player2Sign)) {
+      return await interaction.reply({
+        content: `This isn't your game! ${getEmojiByName('codey_angry')}`,
+        ephemeral: true,
+      });
+    }
+
     connectFourGameTracker.runFuncOnGame(result.gameId, (game) => {
-      updateColumn(game.state.columns[result.sign], game.state.player1Sign);
-      // If single player, get Codey's sign
+      console.log('@@@@@@@@@');
+      console.log(game.state.columns);
+      updateColumn(game.state.columns[result.sign - 1], game.state.player1Sign);
+      // If single player, get Codey's sig
       if (!game.state.player2Id) {
-        console.log('@@@@@@@@@');
-        updateColumn(game.state.columns[getCodeyConnectFourSign()], game.state.player2Sign);
-        // game.setStatus(undefined);
+        const codeySign = getCodeyConnectFourSign();
+        console.log(codeySign);
+        game.setStatus(undefined);
       }
       console.log(game.state.columns);
       updateMessageEmbed(game.gameMessage, game.getGameResponse());

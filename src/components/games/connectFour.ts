@@ -97,12 +97,6 @@ class ConnectFourGameTracker {
 
 export const connectFourGameTracker = new ConnectFourGameTracker();
 
-export enum ConnectFourWinner {
-  Player1,
-  Player2,
-  Tie,
-}
-
 export enum ConnectFourTimeout {
   Player1,
   Player2,
@@ -120,15 +114,50 @@ export class ConnectFourGame {
     this.state = state;
   }
 
-  private determineWinner(
-    player1Sign: ConnectFourGameSign,
-    player2Sign: ConnectFourGameSign,
-  ): ConnectFourWinner {
-    if (player1Sign === player2Sign) {
-      return ConnectFourWinner.Tie;
+  private determineWinner(sign: ConnectFourGameSign): ConnectFourGameStatus {
+    if (sign === ConnectFourGameSign.Player1) {
+      return ConnectFourGameStatus.Player1Win;
+    } else if (sign === ConnectFourGameSign.Player2) {
+      return ConnectFourGameStatus.Player2Win;
     } else {
-      return ConnectFourWinner.Player1;
+      return ConnectFourGameStatus.Unknown;
     }
+  }
+
+  private determineStatus(state: ConnectFourGameState): ConnectFourGameStatus {
+    console.log('--------------- Determining status ---------------');
+    // Check for vertical win
+    for (let i = 0; i < CONNECT_FOUR_COLUMN_COUNT; i++) {
+      if (state.columns[i].fill >= 4) {
+        // check if there are 4 of one player in a row
+        // sliding window
+        let token = ConnectFourGameSign.Pending;
+        let m = 0;
+        let n = 0;
+        while (
+          state.columns[i].tokens[n] != ConnectFourGameSign.Pending &&
+          n < CONNECT_FOUR_ROW_COUNT
+        ) {
+          const current_token = state.columns[i].tokens[n];
+          if (token == ConnectFourGameSign.Pending) {
+            token = current_token;
+          } else if (current_token != token && n - m + 1 == 4) {
+            console.log('WINNER WINNER CHICKEN DINNER');
+            return this.determineWinner(token);
+          } else if (current_token != token) {
+            m = n;
+            token = current_token;
+          }
+          n++;
+        }
+        if (n - m + 1 == 4) {
+          console.log('WINNER WINNER CHICKEN DINNER');
+          return this.determineWinner(token);
+        }
+      }
+    }
+
+    return ConnectFourGameStatus.Pending;
   }
 
   public setStatus(timeout?: ConnectFourTimeout): void {
@@ -144,21 +173,7 @@ export class ConnectFourGame {
       ) {
         this.state.status = ConnectFourGameStatus.Unknown;
       } else {
-        const winner = this.determineWinner(this.state.player1Sign, this.state.player2Sign);
-        switch (winner) {
-          case ConnectFourWinner.Player1:
-            this.state.status = ConnectFourGameStatus.Player1Win;
-            break;
-          case ConnectFourWinner.Player2:
-            this.state.status = ConnectFourGameStatus.Player2Win;
-            break;
-          case ConnectFourWinner.Tie:
-            this.state.status = ConnectFourGameStatus.Draw;
-            break;
-          default:
-            this.state.status = ConnectFourGameStatus.Unknown;
-            break;
-        }
+        this.state.status = this.determineStatus(this.state);
       }
     } else if (timeout === ConnectFourTimeout.Player1) {
       this.state.status = ConnectFourGameStatus.Player1TimeOut;
@@ -307,6 +322,8 @@ export const updateColumn = (column: ConnectFourColumn, sign: ConnectFourGameSig
   console.log('%%%%% UPDATE COLUMN %%%%%');
   console.log(column);
   const fill: number = column.fill;
-  column.tokens[fill] = sign;
-  column.fill++;
+  if (fill < CONNECT_FOUR_ROW_COUNT) {
+    column.tokens[fill] = sign;
+    column.fill++;
+  }
 };
