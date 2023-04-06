@@ -1,9 +1,13 @@
 import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
 import { SapphireMessageResponse, SapphireSentMessageType } from '../../codeyCommand';
-import { adjustCoinBalanceByUserId, UserCoinEvent } from '../coin';
 import { openDB } from '../db';
 import { CodeyUserError } from '../../codeyUserError';
 import { getEmojiByName } from '../emojis';
+import { getRandomIntFrom1 } from '../../utils/num';
+
+const CONNECT_FOUR_COLUMN_COUNT = 7;
+const CONNECT_FOUR_ROW_COUNT = 6;
+
 class ConnectFourGameTracker {
   // Key = id, Value = game
   games: Map<number, ConnectFourGame>;
@@ -40,14 +44,24 @@ class ConnectFourGameTracker {
     // get last inserted ID
     const id = result.lastID;
     if (id) {
+      const columns: Array<ConnectFourColumn> = [];
+      for (let i = 0; i < CONNECT_FOUR_COLUMN_COUNT; i++) {
+        const column: ConnectFourColumn = { tokens: [], fill: 0 };
+        columns.push(column);
+        for (let j = 0; j < CONNECT_FOUR_ROW_COUNT; j++) {
+          column.tokens[j] = ConnectFourGameSign.Pending;
+        }
+      }
+
       const state: ConnectFourGameState = {
         player1Id: player1User.id,
         player1Username: player1User.username,
         player2Id: player2User?.id,
         player2Username: player2User?.username ?? `Codey ${getEmojiByName('codey_love')}`,
         status: ConnectFourGameStatus.Pending,
-        player1Sign: ConnectFourGameSign.Pending,
-        player2Sign: ConnectFourGameSign.Pending,
+        player1Sign: ConnectFourGameSign.Player1,
+        player2Sign: ConnectFourGameSign.Player2,
+        columns: columns,
       };
       const game = new ConnectFourGame(id!, channelId, state);
       this.games.set(id, game);
@@ -118,6 +132,7 @@ export class ConnectFourGame {
   }
 
   public setStatus(timeout?: ConnectFourTimeout): void {
+    console.log('--------------- Setting status ---------------');
     // Both players submitted a sign
     if (typeof timeout === 'undefined') {
       /*
@@ -170,7 +185,7 @@ export class ConnectFourGame {
   public getStatusAsString(): string {
     switch (this.state.status) {
       case ConnectFourGameStatus.Pending:
-        return 'Game in progress...';
+        return getStateAsString(this.state);
       case ConnectFourGameStatus.Player1Win:
         return `${this.state.player1Username} has won!`;
       case ConnectFourGameStatus.Player2Win:
@@ -190,31 +205,37 @@ export class ConnectFourGame {
       .setTitle('Connect4')
       .setDescription(
         `
-Players: ${this.state.player1Username} vs. ${this.state.player2Username}
+${this.state.player1Username} vs. ${this.state.player2Username}
 `,
       )
       .addFields([
         {
-          name: 'Game Info',
+          name: ' ',
           value: `
 ${this.getStatusAsString()}
 
-${this.state.player1Username} picked: ${getEmojiFromSign(this.state.player1Sign)}
-${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)}
+${this.state.player1Username}: ${getEmojiFromSign(this.state.player1Sign)}
+${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
 `,
         },
       ]);
     // Buttons
-    const row = new MessageActionRow().addComponents(
-      new MessageButton().setCustomId('col1').setLabel('1').setStyle('SECONDARY'),
-      new MessageButton().setCustomId('col2').setLabel('2').setStyle('SECONDARY'),
-      new MessageButton().setCustomId('col3').setLabel('3').setStyle('SECONDARY'),
-      new MessageButton().setCustomId('col4').setLabel('4').setStyle('SECONDARY'),
+    const row1 = new MessageActionRow().addComponents(
+      new MessageButton().setCustomId(`connect4-1-${this.id}`).setLabel('1').setStyle('SECONDARY'),
+      new MessageButton().setCustomId(`connect4-2-${this.id}`).setLabel('2').setStyle('SECONDARY'),
+      new MessageButton().setCustomId(`connect4-3-${this.id}`).setLabel('3').setStyle('SECONDARY'),
+      new MessageButton().setCustomId(`connect4-4-${this.id}`).setLabel('4').setStyle('SECONDARY'),
+      new MessageButton().setCustomId(`connect4-5-${this.id}`).setLabel('5').setStyle('SECONDARY'),
+    );
+
+    const row2 = new MessageActionRow().addComponents(
+      new MessageButton().setCustomId(`connect4-6-${this.id}`).setLabel('6').setStyle('SECONDARY'),
+      new MessageButton().setCustomId(`connect4-7-${this.id}`).setLabel('7').setStyle('SECONDARY'),
     );
 
     return {
       embeds: [embed],
-      components: this.state.status === ConnectFourGameStatus.Pending ? [row] : [],
+      components: this.state.status === ConnectFourGameStatus.Pending ? [row1, row2] : [],
     };
   }
 }
@@ -233,7 +254,7 @@ export enum ConnectFourGameStatus {
 export enum ConnectFourGameSign {
   Waiting = 0,
   Pending = 1,
-  Player1 = 1,
+  Player1 = 2,
   Player2 = 3,
 }
 
@@ -242,11 +263,11 @@ export const getEmojiFromSign = (sign: ConnectFourGameSign): string => {
     case ConnectFourGameSign.Waiting:
       return '⚔️';
     case ConnectFourGameSign.Pending:
-      return '❓';
+      return ':white_circle:';
     case ConnectFourGameSign.Player1:
       return '🔴';
     case ConnectFourGameSign.Player2:
-      return '🔵';
+      return '🟡';
   }
 };
 
@@ -258,4 +279,34 @@ export type ConnectFourGameState = {
   status: ConnectFourGameStatus;
   player1Sign: ConnectFourGameSign;
   player2Sign: ConnectFourGameSign;
+  columns: Array<ConnectFourColumn>;
+};
+
+export type ConnectFourColumn = {
+  tokens: Array<ConnectFourGameSign>;
+  fill: number;
+};
+
+export const getStateAsString = (state: ConnectFourGameState): string => {
+  const columns = state.columns;
+  let result = '';
+  for (let i = CONNECT_FOUR_ROW_COUNT - 1; i >= 0; i--) {
+    for (let j = 0; j < CONNECT_FOUR_COLUMN_COUNT; j++) {
+      result += getEmojiFromSign(columns[j].tokens[i]);
+    }
+    result += '\n';
+  }
+  return result;
+};
+
+export const getCodeyConnectFourSign = (): ConnectFourGameSign => {
+  return getRandomIntFrom1(7);
+};
+
+export const updateColumn = (column: ConnectFourColumn, sign: ConnectFourGameSign): void => {
+  console.log('%%%%% UPDATE COLUMN %%%%%');
+  console.log(column);
+  const fill: number = column.fill;
+  column.tokens[fill] = sign;
+  column.fill++;
 };

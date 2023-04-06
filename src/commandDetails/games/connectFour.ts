@@ -52,6 +52,7 @@ const connectFourAfterMessageReply: SapphireAfterReplyType = async (result, sent
   if (typeof result.metadata.gameId === 'undefined') return;
   // Store the message which the game takes place in the game object
   connectFourGameTracker.runFuncOnGame(<number>result.metadata.gameId, (game) => {
+    console.log('!!!!!!!! ' + sentMessage);
     game.gameMessage = sentMessage;
   });
 };
