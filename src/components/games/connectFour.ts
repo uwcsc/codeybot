@@ -124,43 +124,117 @@ export class ConnectFourGame {
     }
   }
 
-  private determineStatus(state: ConnectFourGameState): ConnectFourGameStatus {
-    console.log('--------------- Determining status ---------------');
+  private determineStatus(state: ConnectFourGameState, columnIndex: number): ConnectFourGameStatus {
+    // Instead of exhaustively checking every combination of tokens we can simply use the fact that
+    //  as of this point the user hasn't won yet, so we just need to check if the token that was just placed
+    //  is part of a winning combination
+    // newly placed token
+    const horizontalIndex = columnIndex;
+    const verticalIndex = state.columns[columnIndex].fill - 1;
+    const column = state.columns[columnIndex];
+    const sign: ConnectFourGameSign = state.columns[columnIndex].tokens[verticalIndex];
     // Check for vertical win
-    for (let i = 0; i < CONNECT_FOUR_COLUMN_COUNT; i++) {
-      if (state.columns[i].fill >= 4) {
-        // check if there are 4 of one player in a row
-        // sliding window
-        let token = ConnectFourGameSign.Pending;
-        let m = 0;
-        let n = 0;
-        while (
-          state.columns[i].tokens[n] != ConnectFourGameSign.Pending &&
-          n < CONNECT_FOUR_ROW_COUNT
-        ) {
-          const current_token = state.columns[i].tokens[n];
-          if (token == ConnectFourGameSign.Pending) {
-            token = current_token;
-          } else if (current_token != token && n - m + 1 == 4) {
-            console.log('WINNER WINNER CHICKEN DINNER');
-            return this.determineWinner(token);
-          } else if (current_token != token) {
-            m = n;
-            token = current_token;
-          }
-          n++;
+    //  only way to win vertically is to have 4 tokens in a row, so let's check the three tokens directly below it
+    if (verticalIndex >= 3) {
+      let flag = true;
+      for (let i = verticalIndex - 1; i > verticalIndex - 4; i--) {
+        if (column.tokens[i] != sign) {
+          flag = false;
+          break;
         }
-        if (n - m + 1 == 4) {
-          console.log('WINNER WINNER CHICKEN DINNER');
-          return this.determineWinner(token);
+      }
+      if (flag) {
+        console.log('vertical win');
+        return this.determineWinner(sign);
+      }
+    }
+    // Check for horizontal win
+    // only way to win horizontally is to have 4 tokens in a row, so let's check the three tokens directly to the left/right of it
+    if (horizontalIndex >= 3) {
+      // left
+      let flag = true;
+      for (let i = horizontalIndex - 3; i > horizontalIndex - 4; i--) {
+        if (state.columns[i].tokens[verticalIndex] != sign) {
+          flag = false;
+          break;
         }
+      }
+      if (flag) {
+        return this.determineWinner(sign);
+      }
+    } else if (horizontalIndex < 4) {
+      // right
+      let flag = true;
+      for (let i = horizontalIndex + 1; i < horizontalIndex + 4; i++) {
+        if (state.columns[i].tokens[verticalIndex] != sign) {
+          flag = false;
+          break;
+        }
+      }
+      if (flag) {
+        console.log('horizontal win');
+        return this.determineWinner(sign);
+      }
+    }
+    // Check for diagonal win
+    if (horizontalIndex >= 3 && verticalIndex >= 3) {
+      // bottom left to top right
+      let flag = true;
+      for (let i = 1; i < 4; i++) {
+        if (state.columns[horizontalIndex - i].tokens[verticalIndex - i] != sign) {
+          flag = false;
+          break;
+        }
+      }
+      if (flag) {
+        console.log('diagonal win: bottom left to top right');
+        return this.determineWinner(sign);
+      }
+    } else if (horizontalIndex >= 3 && verticalIndex < 3) {
+      // top left to bottom right
+      let flag = true;
+      for (let i = 1; i < 4; i++) {
+        if (state.columns[horizontalIndex - i].tokens[verticalIndex + i] != sign) {
+          flag = false;
+          break;
+        }
+      }
+      if (flag) {
+        console.log('diagonal win: top left to bottom right');
+        return this.determineWinner(sign);
+      }
+    } else if (horizontalIndex < 4 && verticalIndex >= 3) {
+      // bottom right to top left
+      let flag = true;
+      for (let i = 1; i < 4; i++) {
+        if (state.columns[horizontalIndex + i].tokens[verticalIndex - i] != sign) {
+          flag = false;
+          break;
+        }
+      }
+      if (flag) {
+        console.log('diagonal win: bottom right to top left');
+        return this.determineWinner(sign);
+      }
+    } else if (horizontalIndex < 4 && verticalIndex < 3) {
+      // top right to bottom left
+      let flag = true;
+      for (let i = 1; i < 4; i++) {
+        if (state.columns[horizontalIndex + i].tokens[verticalIndex + i] != sign) {
+          flag = false;
+          break;
+        }
+      }
+      if (flag) {
+        console.log('diagonal win: top right to bottom left');
+        return this.determineWinner(sign);
       }
     }
 
     return ConnectFourGameStatus.Pending;
   }
 
-  public setStatus(timeout?: ConnectFourTimeout): void {
+  public setStatus(column_index: number, timeout?: ConnectFourTimeout): void {
     console.log('--------------- Setting status ---------------');
     // Both players submitted a sign
     if (typeof timeout === 'undefined') {
@@ -173,7 +247,7 @@ export class ConnectFourGame {
       ) {
         this.state.status = ConnectFourGameStatus.Unknown;
       } else {
-        this.state.status = this.determineStatus(this.state);
+        this.state.status = this.determineStatus(this.state, column_index);
       }
     } else if (timeout === ConnectFourTimeout.Player1) {
       this.state.status = ConnectFourGameStatus.Player1TimeOut;
@@ -318,12 +392,14 @@ export const getCodeyConnectFourSign = (): ConnectFourGameSign => {
   return getRandomIntFrom1(7);
 };
 
-export const updateColumn = (column: ConnectFourColumn, sign: ConnectFourGameSign): void => {
+export const updateColumn = (column: ConnectFourColumn, sign: ConnectFourGameSign): boolean => {
   console.log('%%%%% UPDATE COLUMN %%%%%');
-  console.log(column);
   const fill: number = column.fill;
   if (fill < CONNECT_FOUR_ROW_COUNT) {
     column.tokens[fill] = sign;
     column.fill++;
+    return true;
+  } else {
+    return false;
   }
 };
