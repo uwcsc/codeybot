@@ -62,6 +62,7 @@ class ConnectFourGameTracker {
         player1Sign: ConnectFourGameSign.Player1,
         player2Sign: ConnectFourGameSign.Player2,
         columns: columns,
+        winType: ConnectFourWinType.None,
       };
       const game = new ConnectFourGame(id!, channelId, state);
       this.games.set(id, game);
@@ -145,38 +146,29 @@ export class ConnectFourGame {
         }
       }
       if (flag) {
-        console.log('vertical win');
+        state.winType = ConnectFourWinType.Vertical;
         return this.determineWinner(sign);
       }
     }
     // Check for horizontal win
     // only way to win horizontally is to have 4 tokens in a row, so let's check the three tokens directly to the left/right of it
-    if (horizontalIndex >= 3) {
-      // left
-      let flag = true;
-      for (let i = horizontalIndex - 3; i > horizontalIndex - 4; i--) {
-        if (state.columns[i].tokens[verticalIndex] != sign) {
-          flag = false;
-          break;
-        }
-      }
-      if (flag) {
-        return this.determineWinner(sign);
-      }
-    } else if (horizontalIndex < 4) {
-      // right
-      let flag = true;
-      for (let i = horizontalIndex + 1; i < horizontalIndex + 4; i++) {
-        if (state.columns[i].tokens[verticalIndex] != sign) {
-          flag = false;
-          break;
-        }
-      }
-      if (flag) {
-        console.log('horizontal win');
-        return this.determineWinner(sign);
-      }
+    let left_pointer = horizontalIndex;
+    let right_pointer = horizontalIndex;
+
+    while (left_pointer >= 0 && state.columns[left_pointer].tokens[verticalIndex] == sign) {
+      left_pointer--;
     }
+    while (
+      right_pointer < CONNECT_FOUR_COLUMN_COUNT &&
+      state.columns[right_pointer].tokens[verticalIndex] == sign
+    ) {
+      right_pointer++;
+    }
+    if (right_pointer - left_pointer - 1 >= 4) {
+      state.winType = ConnectFourWinType.Horizontal;
+      return this.determineWinner(sign);
+    }
+
     // Check for diagonal win
     if (horizontalIndex >= 3 && verticalIndex >= 3) {
       // bottom left to top right
@@ -188,7 +180,7 @@ export class ConnectFourGame {
         }
       }
       if (flag) {
-        console.log('diagonal win: bottom left to top right');
+        state.winType = ConnectFourWinType.DiagonalLBRT;
         return this.determineWinner(sign);
       }
     } else if (horizontalIndex >= 3 && verticalIndex < 3) {
@@ -201,7 +193,7 @@ export class ConnectFourGame {
         }
       }
       if (flag) {
-        console.log('diagonal win: top left to bottom right');
+        state.winType = ConnectFourWinType.DiagonalLTBR;
         return this.determineWinner(sign);
       }
     } else if (horizontalIndex < 4 && verticalIndex >= 3) {
@@ -214,7 +206,7 @@ export class ConnectFourGame {
         }
       }
       if (flag) {
-        console.log('diagonal win: bottom right to top left');
+        state.winType = ConnectFourWinType.DiagonalLTBR;
         return this.determineWinner(sign);
       }
     } else if (horizontalIndex < 4 && verticalIndex < 3) {
@@ -227,7 +219,7 @@ export class ConnectFourGame {
         }
       }
       if (flag) {
-        console.log('diagonal win: top right to bottom left');
+        state.winType = ConnectFourWinType.DiagonalLBRT;
         return this.determineWinner(sign);
       }
     }
@@ -257,13 +249,28 @@ export class ConnectFourGame {
   public getEmbedColor(): ColorResolvable {
     switch (this.state.status) {
       case ConnectFourGameStatus.Player1Win:
-        return 'GREEN';
+        return 'RED';
       case ConnectFourGameStatus.Player2Win:
-        return this.state.player2Id ? 'GREEN' : 'RED';
+        return 'YELLOW';
       case ConnectFourGameStatus.Draw:
         return 'ORANGE';
       default:
-        return 'YELLOW';
+        return 'BLUE';
+    }
+  }
+
+  private parseWin(state: ConnectFourGameState): string {
+    switch (state.winType) {
+      case ConnectFourWinType.Vertical:
+        return 'vertical';
+      case ConnectFourWinType.Horizontal:
+        return 'horizontal';
+      case ConnectFourWinType.DiagonalLBRT:
+        return 'diagonal (bottom left to top right)';
+      case ConnectFourWinType.DiagonalLTBR:
+        return 'diagonal (top left to bottom right)';
+      default:
+        return 'unknown';
     }
   }
 
@@ -272,9 +279,17 @@ export class ConnectFourGame {
       case ConnectFourGameStatus.Pending:
         return getStateAsString(this.state);
       case ConnectFourGameStatus.Player1Win:
-        return getStateAsString(this.state) + `\n${this.state.player1Username} has won!`;
+        return (
+          '**' +
+          getStateAsString(this.state) +
+          `\n${this.state.player1Username} has won with a ${this.parseWin(this.state)} connect 4!**`
+        );
       case ConnectFourGameStatus.Player2Win:
-        return getStateAsString(this.state) + `\n${this.state.player2Username} has won!`;
+        return (
+          '**' +
+          getStateAsString(this.state) +
+          `\n${this.state.player2Username} has won with a ${this.parseWin(this.state)} connect 4**`
+        );
       case ConnectFourGameStatus.Draw:
         return `The match ended in a draw!`;
       // Timeout can be implemented later
@@ -356,6 +371,15 @@ export const getEmojiFromSign = (sign: ConnectFourGameSign): string => {
   }
 };
 
+export enum ConnectFourWinType {
+  Horizontal = 0,
+  Vertical = 1,
+  DiagonalLTBR = 2,
+  DiagonalLBRT = 3,
+  Draw = 4,
+  None = 5,
+}
+
 export type ConnectFourGameState = {
   player1Id: string;
   player1Username: string;
@@ -365,6 +389,7 @@ export type ConnectFourGameState = {
   player1Sign: ConnectFourGameSign;
   player2Sign: ConnectFourGameSign;
   columns: Array<ConnectFourColumn>;
+  winType: ConnectFourWinType;
 };
 
 export type ConnectFourColumn = {
@@ -375,6 +400,7 @@ export type ConnectFourColumn = {
 export const getStateAsString = (state: ConnectFourGameState): string => {
   const columns = state.columns;
   let result = '';
+  result += '1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣\n';
   for (let i = CONNECT_FOUR_ROW_COUNT - 1; i >= 0; i--) {
     for (let j = 0; j < CONNECT_FOUR_COLUMN_COUNT; j++) {
       result += getEmojiFromSign(columns[j].tokens[i]);

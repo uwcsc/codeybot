@@ -71,8 +71,9 @@ export class ConnectFourHandler extends InteractionHandler {
           }
           game.setStatus(codeySign - 1, undefined);
         }
+      } else {
+        game.setStatus(result.sign - 1, undefined);
       }
-      game.setStatus(result.sign - 1, undefined);
       updateMessageEmbed(game.gameMessage, game.getGameResponse());
     });
     connectFourGameTracker.endGame(result.gameId);
