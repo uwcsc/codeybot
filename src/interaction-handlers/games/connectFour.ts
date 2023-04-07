@@ -8,6 +8,7 @@ import { ButtonInteraction } from 'discord.js';
 import { getEmojiByName } from '../../components/emojis';
 import {
   getCodeyConnectFourSign,
+  ConnectFourGameStatus,
   ConnectFourGameSign,
   connectFourGameTracker,
   updateColumn,
@@ -52,26 +53,26 @@ export class ConnectFourHandler extends InteractionHandler {
         ephemeral: true,
       });
     }
-
+    await interaction.deferUpdate();
     connectFourGameTracker.runFuncOnGame(result.gameId, (game) => {
-      console.log('@@@@@@@@@');
-      console.log(game.state.columns);
       if (!updateColumn(game.state.columns[result.sign - 1], game.state.player1Sign)) {
         return interaction.reply({
           content: `This column is full! ${getEmojiByName('codey_angry')}`,
           ephemeral: true,
         });
-      }
-      // If single player, get Codey's sig
-      if (!game.state.player2Id) {
-        let codeySign = getCodeyConnectFourSign();
-        console.log(codeySign);
-        while (!updateColumn(game.state.columns[codeySign - 1], game.state.player2Sign)) {
-          codeySign = getCodeyConnectFourSign();
+      } else if (
+        game.determineStatus(game.state, result.sign - 1) == ConnectFourGameStatus.Pending
+      ) {
+        console.log("game isn't over yet");
+        if (!game.state.player2Id) {
+          let codeySign = getCodeyConnectFourSign();
+          while (!updateColumn(game.state.columns[codeySign - 1], game.state.player2Sign)) {
+            codeySign = getCodeyConnectFourSign();
+          }
+          game.setStatus(codeySign - 1, undefined);
         }
-        game.setStatus(result.sign - 1, undefined);
       }
-      console.log(game.state.columns);
+      game.setStatus(result.sign - 1, undefined);
       updateMessageEmbed(game.gameMessage, game.getGameResponse());
     });
     connectFourGameTracker.endGame(result.gameId);

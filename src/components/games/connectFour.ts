@@ -76,6 +76,7 @@ class ConnectFourGameTracker {
     if (!game) {
       throw new CodeyUserError(undefined, `No game with game ID ${gameId} found`);
     }
+    console.log('END GAME');
     // Don't do anything if game status is still pending
     if (game.state.status === ConnectFourGameStatus.Pending) return;
     // Update winnings
@@ -124,7 +125,7 @@ export class ConnectFourGame {
     }
   }
 
-  private determineStatus(state: ConnectFourGameState, columnIndex: number): ConnectFourGameStatus {
+  public determineStatus(state: ConnectFourGameState, columnIndex: number): ConnectFourGameStatus {
     // Instead of exhaustively checking every combination of tokens we can simply use the fact that
     //  as of this point the user hasn't won yet, so we just need to check if the token that was just placed
     //  is part of a winning combination
@@ -231,6 +232,11 @@ export class ConnectFourGame {
       }
     }
 
+    // check for draw
+    if (state.columns.every((column) => column.fill === 6)) {
+      return ConnectFourGameStatus.Draw;
+    }
+
     return ConnectFourGameStatus.Pending;
   }
 
@@ -238,17 +244,7 @@ export class ConnectFourGame {
     console.log('--------------- Setting status ---------------');
     // Both players submitted a sign
     if (typeof timeout === 'undefined') {
-      /*
-        If one of the players' signs is still pending, something went wrong
-      */
-      if (
-        this.state.player1Sign === ConnectFourGameSign.Pending ||
-        this.state.player2Sign === ConnectFourGameSign.Pending
-      ) {
-        this.state.status = ConnectFourGameStatus.Unknown;
-      } else {
-        this.state.status = this.determineStatus(this.state, column_index);
-      }
+      this.state.status = this.determineStatus(this.state, column_index);
     } else if (timeout === ConnectFourTimeout.Player1) {
       this.state.status = ConnectFourGameStatus.Player1TimeOut;
     } else if (timeout === ConnectFourTimeout.Player2) {
@@ -276,9 +272,9 @@ export class ConnectFourGame {
       case ConnectFourGameStatus.Pending:
         return getStateAsString(this.state);
       case ConnectFourGameStatus.Player1Win:
-        return `${this.state.player1Username} has won!`;
+        return getStateAsString(this.state) + `\n${this.state.player1Username} has won!`;
       case ConnectFourGameStatus.Player2Win:
-        return `${this.state.player2Username} has won!`;
+        return getStateAsString(this.state) + `\n${this.state.player2Username} has won!`;
       case ConnectFourGameStatus.Draw:
         return `The match ended in a draw!`;
       // Timeout can be implemented later

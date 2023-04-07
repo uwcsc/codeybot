@@ -21,21 +21,8 @@ const connectFourExecuteCommand: SapphireMessageExecuteType = async (
     executeCommand sends the initial connectFour embed;
     the subsequent interactionHandlers handle the rest of the logic
   */
-  // The user can challenge another user in the server
-  // once we get that user's id we get the User object
+
   const challenger = args['challenger'] as User;
-  console.log(challenger);
-  // const challengerUser = getUserFromId(challenger);
-  // const balance = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
-  // if (bet > balance) {
-  //   return new SapphireMessageResponseWithMetadata(
-  //     `You don't have enough ${getCoinEmoji()} to place that bet.`,
-  //     {},
-  //   );
-  // }
-  // if (bet < 10) {
-  //   return new SapphireMessageResponseWithMetadata(`Minimum bet is 10 ${getCoinEmoji()}.`, {});
-  // }
 
   const game = await connectFourGameTracker.startGame(
     messageFromUser.channelId,
@@ -52,7 +39,6 @@ const connectFourAfterMessageReply: SapphireAfterReplyType = async (result, sent
   if (typeof result.metadata.gameId === 'undefined') return;
   // Store the message which the game takes place in the game object
   connectFourGameTracker.runFuncOnGame(<number>result.metadata.gameId, (game) => {
-    console.log('!!!!!!!! ' + sentMessage);
     game.gameMessage = sentMessage;
   });
 };
