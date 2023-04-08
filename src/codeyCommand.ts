@@ -299,13 +299,14 @@ export class CodeyCommand extends SapphireCommand {
         return await message.reply(<string | MessagePayload>successResponse);
       }
     } catch (e) {
-      logger.error(e);
       if (e instanceof CodeyUserError) {
         if (!e.message) {
           e.message = message;
         }
+        logger.error(e.errorMessage);
         e.sendToUser();
       } else {
+        logger.error(e);
         message.reply(commandDetails.messageIfFailure ?? defaultBackendErrorMessage);
       }
     }
@@ -390,13 +391,14 @@ export class CodeyCommand extends SapphireCommand {
         }
       }
     } catch (e) {
-      logger.error(e);
       if (e instanceof CodeyUserError) {
+        logger.error(e.errorMessage);
         if (!e.message) {
           e.message = interaction;
         }
         e.sendToUser();
       } else {
+        logger.error(e);
         return await interaction.editReply(
           commandDetails.messageIfFailure ?? defaultBackendErrorMessage,
         );
