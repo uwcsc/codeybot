@@ -130,9 +130,10 @@ export class ConnectFourGame {
     verticalIndex: number,
     sign: ConnectFourGameSign,
   ): boolean {
-    console.log(`CHECKING FOR VERTICAL WIN: ${verticalIndex} ${sign}`);
+    console.log(`CHECKING FOR VERTICAL WIN // index: ${verticalIndex}`);
     if (verticalIndex >= 3) {
       for (let i = verticalIndex - 1; i > verticalIndex - 4; i--) {
+        console.log(`CHECKING FOR VERTICAL WIN // token @ ${i}: ${column.tokens[i]}`);
         if (column.tokens[i] != sign) {
           return false;
         }
@@ -148,19 +149,19 @@ export class ConnectFourGame {
     verticalIndex: number,
     sign: ConnectFourGameSign,
   ): boolean {
-    let left_pointer = horizontalIndex - 1;
-    let right_pointer = horizontalIndex + 1;
+    let left_pointer = horizontalIndex;
+    let right_pointer = horizontalIndex;
 
-    while (left_pointer >= 0 && state.columns[left_pointer].tokens[verticalIndex] == sign) {
+    while (left_pointer - 1 >= 0 && state.columns[left_pointer - 1].tokens[verticalIndex] == sign) {
       left_pointer--;
     }
     while (
-      right_pointer < CONNECT_FOUR_COLUMN_COUNT &&
-      state.columns[right_pointer].tokens[verticalIndex] == sign
+      right_pointer + 1 < CONNECT_FOUR_COLUMN_COUNT &&
+      state.columns[right_pointer + 1].tokens[verticalIndex] == sign
     ) {
       right_pointer++;
     }
-    if (right_pointer - left_pointer - 1 >= 4) {
+    if (right_pointer - left_pointer + 1 >= 4) {
       return true;
     } else {
       return false;
@@ -174,31 +175,29 @@ export class ConnectFourGame {
     sign: ConnectFourGameSign,
   ): boolean {
     console.log(`CHECKING FOR DIAGONAL WIN: ${horizontalIndex} ${verticalIndex} ${sign}`);
-    let left_pointer_x = horizontalIndex - 1;
-    let left_pointer_y = verticalIndex - 1;
-    let right_pointer_x = horizontalIndex + 1;
-    let right_pointer_y = verticalIndex + 1;
+    let left_pointer_x = horizontalIndex;
+    let left_pointer_y = verticalIndex;
+    let right_pointer_x = horizontalIndex;
+    let right_pointer_y = verticalIndex;
 
     while (
-      left_pointer_x > 0 &&
-      left_pointer_y > 0 &&
-      state.columns[left_pointer_x].tokens[left_pointer_y] == sign
+      left_pointer_x - 1 >= 0 &&
+      left_pointer_y - 1 >= 0 &&
+      state.columns[left_pointer_x - 1].tokens[left_pointer_y - 1] == sign
     ) {
       left_pointer_x--;
       left_pointer_y--;
-      console.log(`LEFT POINTER X: ${left_pointer_x} LEFT POINTER Y: ${left_pointer_y}`);
     }
     while (
-      right_pointer_x < CONNECT_FOUR_COLUMN_COUNT - 1 &&
-      right_pointer_y < CONNECT_FOUR_ROW_COUNT - 1 &&
-      state.columns[right_pointer_x].tokens[right_pointer_y] == sign
+      right_pointer_x + 1 < CONNECT_FOUR_COLUMN_COUNT &&
+      right_pointer_y + 1 < CONNECT_FOUR_ROW_COUNT &&
+      state.columns[right_pointer_x + 1].tokens[right_pointer_y + 1] == sign
     ) {
       right_pointer_x++;
       right_pointer_y++;
-      console.log(`RIGHT POINTER X: ${right_pointer_x} RIGHT POINTER Y: ${right_pointer_y}`);
     }
 
-    if (right_pointer_x - left_pointer_x - 1 >= 4) {
+    if (right_pointer_x - left_pointer_x + 1 >= 4) {
       return true;
     } else {
       console.log(
@@ -215,29 +214,29 @@ export class ConnectFourGame {
     verticalIndex: number,
     sign: ConnectFourGameSign,
   ): boolean {
-    let left_pointer_x = horizontalIndex - 1;
-    let left_pointer_y = verticalIndex + 1;
-    let right_pointer_x = horizontalIndex + 1;
-    let right_pointer_y = verticalIndex - 1;
+    let left_pointer_x = horizontalIndex;
+    let left_pointer_y = verticalIndex;
+    let right_pointer_x = horizontalIndex;
+    let right_pointer_y = verticalIndex;
 
     while (
-      left_pointer_x > 0 &&
-      left_pointer_y > CONNECT_FOUR_ROW_COUNT &&
-      state.columns[left_pointer_x].tokens[left_pointer_y] == sign
+      left_pointer_x - 1 >= 0 &&
+      left_pointer_y + 1 < CONNECT_FOUR_ROW_COUNT &&
+      state.columns[left_pointer_x - 1].tokens[left_pointer_y + 1] == sign
     ) {
       left_pointer_x--;
       left_pointer_y++;
     }
     while (
-      right_pointer_x < CONNECT_FOUR_COLUMN_COUNT - 1 &&
-      right_pointer_y > 0 &&
-      state.columns[right_pointer_x].tokens[right_pointer_y] == sign
+      right_pointer_x + 1 < CONNECT_FOUR_COLUMN_COUNT - 1 &&
+      right_pointer_y - 1 >= 0 &&
+      state.columns[right_pointer_x + 1].tokens[right_pointer_y - 1] == sign
     ) {
       right_pointer_x++;
       right_pointer_y--;
     }
 
-    if (right_pointer_x - left_pointer_x - 1 >= 4) {
+    if (right_pointer_x - left_pointer_x + 1 >= 4) {
       return true;
     } else {
       console.log(
@@ -256,6 +255,7 @@ export class ConnectFourGame {
     //  as of this point the user hasn't won yet, so we just need to check if the token that was just placed
     //  is part of a winning combination
     // newly placed token
+    console.log('-------!!!!!!!--!!!!!!--------');
     const horizontalIndex = columnIndex;
     const verticalIndex = state.columns[columnIndex].fill - 1;
     const column = state.columns[columnIndex];
@@ -280,9 +280,10 @@ export class ConnectFourGame {
     } else if (state.columns.every((column) => column.fill === 6)) {
       // Check for draw
       state.status = ConnectFourGameStatus.Draw;
+    } else {
+      state.status = ConnectFourGameStatus.Pending;
     }
 
-    state.status = ConnectFourGameStatus.Pending;
     return state.status;
   }
 
