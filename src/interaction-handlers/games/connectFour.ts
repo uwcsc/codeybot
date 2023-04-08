@@ -33,8 +33,6 @@ export class ConnectFourHandler extends InteractionHandler {
     const sign = parseInt(parsedCustomId[1]);
     const gameId = parseInt(parsedCustomId[2]);
 
-    console.log('sign: ---' + parsedCustomId[1]);
-
     return this.some({
       gameId: gameId,
       sign: sign,
@@ -63,10 +61,7 @@ export class ConnectFourHandler extends InteractionHandler {
       } else {
         await interaction.deferUpdate();
         const status = await game.setStatus(game.state, result.sign - 1);
-        console.log(`!!!!!! status: ${status}`);
         if (status == ConnectFourGameStatus.Pending) {
-          console.log("game isn't over yet");
-
           if (!game.state.player2Id) {
             let codeySign = getCodeyConnectFourSign();
             while (!updateColumn(game.state.columns[codeySign - 1], game.state.player2Sign)) {

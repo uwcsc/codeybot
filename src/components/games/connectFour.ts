@@ -130,10 +130,8 @@ export class ConnectFourGame {
     verticalIndex: number,
     sign: ConnectFourGameSign,
   ): boolean {
-    console.log(`CHECKING FOR VERTICAL WIN // index: ${verticalIndex}`);
     if (verticalIndex >= 3) {
       for (let i = verticalIndex - 1; i > verticalIndex - 4; i--) {
-        console.log(`CHECKING FOR VERTICAL WIN // token @ ${i}: ${column.tokens[i]}`);
         if (column.tokens[i] != sign) {
           return false;
         }
@@ -174,7 +172,6 @@ export class ConnectFourGame {
     verticalIndex: number,
     sign: ConnectFourGameSign,
   ): boolean {
-    console.log(`CHECKING FOR DIAGONAL WIN: ${horizontalIndex} ${verticalIndex} ${sign}`);
     let left_pointer_x = horizontalIndex;
     let left_pointer_y = verticalIndex;
     let right_pointer_x = horizontalIndex;
@@ -199,10 +196,6 @@ export class ConnectFourGame {
 
     if (right_pointer_x - left_pointer_x + 1 >= 4) {
       return true;
-    } else {
-      console.log(
-        `LEFT BOTTOM TOP RIGHT right_pointer_x: ${right_pointer_x} left_pointer_x ${left_pointer_x}`,
-      );
     }
 
     return false;
@@ -238,10 +231,6 @@ export class ConnectFourGame {
 
     if (right_pointer_x - left_pointer_x + 1 >= 4) {
       return true;
-    } else {
-      console.log(
-        `LEFT TOP RIGHT BOTTOM: right_pointer_x: ${right_pointer_x} left_pointer_x ${left_pointer_x}`,
-      );
     }
 
     return false;
@@ -255,7 +244,6 @@ export class ConnectFourGame {
     //  as of this point the user hasn't won yet, so we just need to check if the token that was just placed
     //  is part of a winning combination
     // newly placed token
-    console.log('-------!!!!!!!--!!!!!!--------');
     const horizontalIndex = columnIndex;
     const verticalIndex = state.columns[columnIndex].fill - 1;
     const column = state.columns[columnIndex];
@@ -456,7 +444,6 @@ export const getCodeyConnectFourSign = (): ConnectFourGameSign => {
 };
 
 export const updateColumn = (column: ConnectFourColumn, sign: ConnectFourGameSign): boolean => {
-  console.log('%%%%% UPDATE COLUMN %%%%%');
   const fill: number = column.fill;
   if (fill < CONNECT_FOUR_ROW_COUNT) {
     column.tokens[fill] = sign;

@@ -1,5 +1,4 @@
 import { container } from '@sapphire/framework';
-import { User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -8,21 +7,17 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponseWithMetadata,
 } from '../../codeyCommand';
-import { getCoinBalanceByUserId } from '../../components/coin';
-import { getCoinEmoji } from '../../components/emojis';
 import { connectFourGameTracker } from '../../components/games/connectFour';
 
 const connectFourExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
-  args,
+  _args,
 ): Promise<SapphireMessageResponseWithMetadata> => {
   /*
     executeCommand sends the initial connectFour embed;
     the subsequent interactionHandlers handle the rest of the logic
   */
-
-  const challenger = args['challenger'] as User;
 
   const game = await connectFourGameTracker.startGame(
     messageFromUser.channelId,
