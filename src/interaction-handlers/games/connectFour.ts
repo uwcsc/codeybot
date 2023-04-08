@@ -53,26 +53,28 @@ export class ConnectFourHandler extends InteractionHandler {
         ephemeral: true,
       });
     }
-    await interaction.deferUpdate();
-    connectFourGameTracker.runFuncOnGame(result.gameId, (game) => {
+
+    connectFourGameTracker.runFuncOnGame(result.gameId, async (game) => {
       if (!updateColumn(game.state.columns[result.sign - 1], game.state.player1Sign)) {
         return interaction.reply({
           content: `This column is full! ${getEmojiByName('codey_angry')}`,
           ephemeral: true,
         });
-      } else if (
-        game.determineStatus(game.state, result.sign - 1) == ConnectFourGameStatus.Pending
-      ) {
-        console.log("game isn't over yet");
-        if (!game.state.player2Id) {
-          let codeySign = getCodeyConnectFourSign();
-          while (!updateColumn(game.state.columns[codeySign - 1], game.state.player2Sign)) {
-            codeySign = getCodeyConnectFourSign();
-          }
-          game.setStatus(codeySign - 1, undefined);
-        }
       } else {
-        game.setStatus(result.sign - 1, undefined);
+        await interaction.deferUpdate();
+        const status = await game.setStatus(game.state, result.sign - 1);
+        console.log(`!!!!!! status: ${status}`);
+        if (status == ConnectFourGameStatus.Pending) {
+          console.log("game isn't over yet");
+
+          if (!game.state.player2Id) {
+            let codeySign = getCodeyConnectFourSign();
+            while (!updateColumn(game.state.columns[codeySign - 1], game.state.player2Sign)) {
+              codeySign = getCodeyConnectFourSign();
+            }
+            game.setStatus(game.state, codeySign - 1);
+          }
+        }
       }
       updateMessageEmbed(game.gameMessage, game.getGameResponse());
     });

@@ -77,7 +77,6 @@ class ConnectFourGameTracker {
     if (!game) {
       throw new CodeyUserError(undefined, `No game with game ID ${gameId} found`);
     }
-    console.log('END GAME');
     // Don't do anything if game status is still pending
     if (game.state.status === ConnectFourGameStatus.Pending) return;
     // Update winnings
@@ -126,34 +125,31 @@ export class ConnectFourGame {
     }
   }
 
-  public determineStatus(state: ConnectFourGameState, columnIndex: number): ConnectFourGameStatus {
-    // Instead of exhaustively checking every combination of tokens we can simply use the fact that
-    //  as of this point the user hasn't won yet, so we just need to check if the token that was just placed
-    //  is part of a winning combination
-    // newly placed token
-    const horizontalIndex = columnIndex;
-    const verticalIndex = state.columns[columnIndex].fill - 1;
-    const column = state.columns[columnIndex];
-    const sign: ConnectFourGameSign = state.columns[columnIndex].tokens[verticalIndex];
-    // Check for vertical win
-    //  only way to win vertically is to have 4 tokens in a row, so let's check the three tokens directly below it
+  private checkForVerticalWin(
+    column: ConnectFourColumn,
+    verticalIndex: number,
+    sign: ConnectFourGameSign,
+  ): boolean {
+    console.log(`CHECKING FOR VERTICAL WIN: ${verticalIndex} ${sign}`);
     if (verticalIndex >= 3) {
-      let flag = true;
       for (let i = verticalIndex - 1; i > verticalIndex - 4; i--) {
         if (column.tokens[i] != sign) {
-          flag = false;
-          break;
+          return false;
         }
       }
-      if (flag) {
-        state.winType = ConnectFourWinType.Vertical;
-        return this.determineWinner(sign);
-      }
+      return true;
     }
-    // Check for horizontal win
-    // only way to win horizontally is to have 4 tokens in a row, so let's check the three tokens directly to the left/right of it
-    let left_pointer = horizontalIndex;
-    let right_pointer = horizontalIndex;
+    return false;
+  }
+
+  private checkForHorizontalWin(
+    state: ConnectFourGameState,
+    horizontalIndex: number,
+    verticalIndex: number,
+    sign: ConnectFourGameSign,
+  ): boolean {
+    let left_pointer = horizontalIndex - 1;
+    let right_pointer = horizontalIndex + 1;
 
     while (left_pointer >= 0 && state.columns[left_pointer].tokens[verticalIndex] == sign) {
       left_pointer--;
@@ -165,85 +161,129 @@ export class ConnectFourGame {
       right_pointer++;
     }
     if (right_pointer - left_pointer - 1 >= 4) {
-      state.winType = ConnectFourWinType.Horizontal;
-      return this.determineWinner(sign);
+      return true;
+    } else {
+      return false;
     }
-
-    // Check for diagonal win
-    if (horizontalIndex >= 3 && verticalIndex >= 3) {
-      // bottom left to top right
-      let flag = true;
-      for (let i = 1; i < 4; i++) {
-        if (state.columns[horizontalIndex - i].tokens[verticalIndex - i] != sign) {
-          flag = false;
-          break;
-        }
-      }
-      if (flag) {
-        state.winType = ConnectFourWinType.DiagonalLBRT;
-        return this.determineWinner(sign);
-      }
-    } else if (horizontalIndex >= 3 && verticalIndex < 3) {
-      // top left to bottom right
-      let flag = true;
-      for (let i = 1; i < 4; i++) {
-        if (state.columns[horizontalIndex - i].tokens[verticalIndex + i] != sign) {
-          flag = false;
-          break;
-        }
-      }
-      if (flag) {
-        state.winType = ConnectFourWinType.DiagonalLTBR;
-        return this.determineWinner(sign);
-      }
-    } else if (horizontalIndex < 4 && verticalIndex >= 3) {
-      // bottom right to top left
-      let flag = true;
-      for (let i = 1; i < 4; i++) {
-        if (state.columns[horizontalIndex + i].tokens[verticalIndex - i] != sign) {
-          flag = false;
-          break;
-        }
-      }
-      if (flag) {
-        state.winType = ConnectFourWinType.DiagonalLTBR;
-        return this.determineWinner(sign);
-      }
-    } else if (horizontalIndex < 4 && verticalIndex < 3) {
-      // top right to bottom left
-      let flag = true;
-      for (let i = 1; i < 4; i++) {
-        if (state.columns[horizontalIndex + i].tokens[verticalIndex + i] != sign) {
-          flag = false;
-          break;
-        }
-      }
-      if (flag) {
-        state.winType = ConnectFourWinType.DiagonalLBRT;
-        return this.determineWinner(sign);
-      }
-    }
-
-    // check for draw
-    if (state.columns.every((column) => column.fill === 6)) {
-      return ConnectFourGameStatus.Draw;
-    }
-
-    return ConnectFourGameStatus.Pending;
   }
 
-  public setStatus(column_index: number, timeout?: ConnectFourTimeout): void {
-    console.log('--------------- Setting status ---------------');
-    // Both players submitted a sign
-    if (typeof timeout === 'undefined') {
-      this.state.status = this.determineStatus(this.state, column_index);
-    } else if (timeout === ConnectFourTimeout.Player1) {
-      this.state.status = ConnectFourGameStatus.Player1TimeOut;
-    } else if (timeout === ConnectFourTimeout.Player2) {
-      this.state.status = ConnectFourGameStatus.Player2TimeOut;
-    } else {
-      this.state.status = ConnectFourGameStatus.Unknown;
+  private checkForDiagonalLBRTWin(
+    state: ConnectFourGameState,
+    horizontalIndex: number,
+    verticalIndex: number,
+    sign: ConnectFourGameSign,
+  ): boolean {
+    console.log(`CHECKING FOR DIAGONAL WIN: ${horizontalIndex} ${verticalIndex} ${sign}`);
+    let left_pointer_x = horizontalIndex - 1;
+    let left_pointer_y = verticalIndex - 1;
+    let right_pointer_x = horizontalIndex + 1;
+    let right_pointer_y = verticalIndex + 1;
+
+    while (
+      left_pointer_x > 0 &&
+      left_pointer_y > 0 &&
+      state.columns[left_pointer_x].tokens[left_pointer_y] == sign
+    ) {
+      left_pointer_x--;
+      left_pointer_y--;
+      console.log(`LEFT POINTER X: ${left_pointer_x} LEFT POINTER Y: ${left_pointer_y}`);
     }
+    while (
+      right_pointer_x < CONNECT_FOUR_COLUMN_COUNT - 1 &&
+      right_pointer_y < CONNECT_FOUR_ROW_COUNT - 1 &&
+      state.columns[right_pointer_x].tokens[right_pointer_y] == sign
+    ) {
+      right_pointer_x++;
+      right_pointer_y++;
+      console.log(`RIGHT POINTER X: ${right_pointer_x} RIGHT POINTER Y: ${right_pointer_y}`);
+    }
+
+    if (right_pointer_x - left_pointer_x - 1 >= 4) {
+      return true;
+    } else {
+      console.log(
+        `LEFT BOTTOM TOP RIGHT right_pointer_x: ${right_pointer_x} left_pointer_x ${left_pointer_x}`,
+      );
+    }
+
+    return false;
+  }
+
+  private checkForDiagonalLTRBWin(
+    state: ConnectFourGameState,
+    horizontalIndex: number,
+    verticalIndex: number,
+    sign: ConnectFourGameSign,
+  ): boolean {
+    let left_pointer_x = horizontalIndex - 1;
+    let left_pointer_y = verticalIndex + 1;
+    let right_pointer_x = horizontalIndex + 1;
+    let right_pointer_y = verticalIndex - 1;
+
+    while (
+      left_pointer_x > 0 &&
+      left_pointer_y > CONNECT_FOUR_ROW_COUNT &&
+      state.columns[left_pointer_x].tokens[left_pointer_y] == sign
+    ) {
+      left_pointer_x--;
+      left_pointer_y++;
+    }
+    while (
+      right_pointer_x < CONNECT_FOUR_COLUMN_COUNT - 1 &&
+      right_pointer_y > 0 &&
+      state.columns[right_pointer_x].tokens[right_pointer_y] == sign
+    ) {
+      right_pointer_x++;
+      right_pointer_y--;
+    }
+
+    if (right_pointer_x - left_pointer_x - 1 >= 4) {
+      return true;
+    } else {
+      console.log(
+        `LEFT TOP RIGHT BOTTOM: right_pointer_x: ${right_pointer_x} left_pointer_x ${left_pointer_x}`,
+      );
+    }
+
+    return false;
+  }
+
+  public async setStatus(
+    state: ConnectFourGameState,
+    columnIndex: number,
+  ): Promise<ConnectFourGameStatus> {
+    // Instead of exhaustively checking every combination of tokens we can simply use the fact that
+    //  as of this point the user hasn't won yet, so we just need to check if the token that was just placed
+    //  is part of a winning combination
+    // newly placed token
+    const horizontalIndex = columnIndex;
+    const verticalIndex = state.columns[columnIndex].fill - 1;
+    const column = state.columns[columnIndex];
+    const sign: ConnectFourGameSign = state.columns[columnIndex].tokens[verticalIndex];
+
+    if (this.checkForVerticalWin(column, verticalIndex, sign)) {
+      // Check for vertical win
+      state.winType = ConnectFourWinType.Vertical;
+      state.status = this.determineWinner(sign);
+    } else if (this.checkForHorizontalWin(state, horizontalIndex, verticalIndex, sign)) {
+      // Check for horizontal win
+      state.winType = ConnectFourWinType.Horizontal;
+      state.status = this.determineWinner(sign);
+    } else if (this.checkForDiagonalLBRTWin(state, horizontalIndex, verticalIndex, sign)) {
+      // Check for diagonal win (left top right bottom)
+      state.winType = ConnectFourWinType.DiagonalLBRT;
+      state.status = this.determineWinner(sign);
+    } else if (this.checkForDiagonalLTRBWin(state, horizontalIndex, verticalIndex, sign)) {
+      // Check for diagonal win (left bottom right top)
+      state.winType = ConnectFourWinType.DiagonalLTRB;
+      state.status = this.determineWinner(sign);
+    } else if (state.columns.every((column) => column.fill === 6)) {
+      // Check for draw
+      state.status = ConnectFourGameStatus.Draw;
+    }
+
+    state.status = ConnectFourGameStatus.Pending;
+    return state.status;
   }
 
   public getEmbedColor(): ColorResolvable {
@@ -267,7 +307,7 @@ export class ConnectFourGame {
         return 'horizontal';
       case ConnectFourWinType.DiagonalLBRT:
         return 'diagonal (bottom left to top right)';
-      case ConnectFourWinType.DiagonalLTBR:
+      case ConnectFourWinType.DiagonalLTRB:
         return 'diagonal (top left to bottom right)';
       default:
         return 'unknown';
@@ -374,7 +414,7 @@ export const getEmojiFromSign = (sign: ConnectFourGameSign): string => {
 export enum ConnectFourWinType {
   Horizontal = 0,
   Vertical = 1,
-  DiagonalLTBR = 2,
+  DiagonalLTRB = 2,
   DiagonalLBRT = 3,
   Draw = 4,
   None = 5,
