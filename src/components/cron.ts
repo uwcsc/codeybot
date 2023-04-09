@@ -138,6 +138,7 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
   new CronJob('0 0 0 */1 * *', async function () {
     const leaderboard = await getCoinLeaderboard(NUMBER_USERS_TO_ASSIGN_ROLE);
+    const leaderboardIds: Set<string> = new Set(leaderboard.map((entry) => entry.user_id));
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
       throw new CodeyUserError(undefined, 'guild not found');
@@ -145,15 +146,18 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
     const members = await guild.members.fetch();
     // Removing role from previous members
     const guildMembersPreviousRole = await loadRoleMembers(CODEY_COIN_ROLE_ID);
+    const previousIds: Set<string> = new Set(guildMembersPreviousRole.map((member) => member.id));
+    const roleName: string = await getRoleName(CODEY_COIN_ROLE_ID);
+
     guildMembersPreviousRole.forEach(async (member) => {
-      if (member) {
-        await updateMemberRole(member, await getRoleName(CODEY_COIN_ROLE_ID), false);
+      if (member && !leaderboardIds.has(member.id)) {
+        await updateMemberRole(member, roleName, false);
       }
     });
-    leaderboard.forEach(async (lbUserCoinEntry) => {
-      const memberToUpdate = members.get(lbUserCoinEntry.user_id);
-      if (memberToUpdate) {
-        await updateMemberRole(memberToUpdate, await getRoleName(CODEY_COIN_ROLE_ID), true);
+    leaderboardIds.forEach(async (user_id) => {
+      const memberToUpdate = members.get(user_id);
+      if (memberToUpdate && !previousIds.has(user_id)) {
+        await updateMemberRole(memberToUpdate, roleName, true);
       }
     });
   });
