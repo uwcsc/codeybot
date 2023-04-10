@@ -50,13 +50,6 @@ export const connectFourCommandDetails: CodeyCommandDetails = {
   messageWhenExecutingCommand: 'Setting up your Connect 4 game...',
   executeCommand: connectFourExecuteCommand,
   afterMessageReply: connectFourAfterMessageReply,
-  options: [
-    {
-      name: 'challenger',
-      description: 'Challenge someone to a game of Connect 4.',
-      type: CodeyCommandOptionType.USER,
-      required: false,
-    },
-  ],
+  options: [],
   subcommandDetails: {},
 };
