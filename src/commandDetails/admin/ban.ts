@@ -1,6 +1,6 @@
 import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { Permissions, User } from 'discord.js';
+import { PermissionsBitField, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -12,7 +12,11 @@ import { vars } from '../../config';
 // Ban a user
 const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
   try {
-    if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('BAN_MEMBERS')) {
+    if (
+      !(<Readonly<PermissionsBitField>>messageFromUser.member?.permissions).has(
+        PermissionsBitField.Flags.BanMembers,
+      )
+    ) {
       throw new CodeyUserError(messageFromUser, `You do not have permission to use this command.`);
     }
     const user = <User>args['user'];

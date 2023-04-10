@@ -1,6 +1,6 @@
 import { assignDecadeAndPruneYearRoles, assignAlumniRole } from '../../components/profile';
 import { container } from '@sapphire/framework';
-import { Permissions } from 'discord.js';
+import { PermissionsBitField } from 'discord.js';
 import {
   CodeyCommandDetails,
   SapphireMessageExecuteType,
@@ -13,7 +13,11 @@ const profileGradExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   _args,
 ): Promise<SapphireMessageResponse> => {
-  if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) {
+  if (
+    !(<Readonly<PermissionsBitField>>messageFromUser.member?.permissions).has(
+      PermissionsBitField.Flags.Administrator,
+    )
+  ) {
     return;
   }
   await assignDecadeAndPruneYearRoles();

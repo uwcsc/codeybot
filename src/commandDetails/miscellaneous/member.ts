@@ -1,5 +1,5 @@
 import { container } from '@sapphire/framework';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import fetch from 'node-fetch';
 import {
   CodeyCommandDetails,
@@ -22,11 +22,11 @@ type UwIdType = string | undefined;
 /*
  * Get member embed
  */
-const getMemberEmbed = async (uwid: UwIdType): Promise<MessageEmbed> => {
+const getMemberEmbed = async (uwid: UwIdType): Promise<EmbedBuilder> => {
   const title = 'CSC Membership Information';
   if (!uwid) {
-    return new MessageEmbed()
-      .setColor('RED')
+    return new EmbedBuilder()
+      .setColor('Red')
       .setTitle(title)
       .setDescription('Please provide a UW ID!');
   }
@@ -35,8 +35,8 @@ const getMemberEmbed = async (uwid: UwIdType): Promise<MessageEmbed> => {
   const foundMember = members.filter((m) => m.id == uwid).length > 0;
 
   if (foundMember) {
-    return new MessageEmbed()
-      .setColor('GREEN')
+    return new EmbedBuilder()
+      .setColor('Green')
       .setTitle(title)
       .setDescription(`You're a CSC member! Hooray! ${getEmojiByName('codey_love')}`);
   }
@@ -46,7 +46,7 @@ const getMemberEmbed = async (uwid: UwIdType): Promise<MessageEmbed> => {
 Being a CSC member comes with gaining access to CSC machines, cloud, email, web hosting, and more! Additional details can be found here! https://csclub.uwaterloo.ca/resources/services/
 
 To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/get-involved/`;
-  return new MessageEmbed().setColor('RED').setTitle(title).setDescription(NOT_MEMBER_DESCRIPTION);
+  return new EmbedBuilder().setColor('Red').setTitle(title).setDescription(NOT_MEMBER_DESCRIPTION);
 };
 
 const memberExecuteCommand: SapphireMessageExecuteType = async (

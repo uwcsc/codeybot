@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { GatewayIntentBits, Partials } from 'discord.js';
 import { container, LogLevel, SapphireClient, SapphirePrefix } from '@sapphire/framework';
 import '@sapphire/plugin-logger/register';
 import * as colorette from 'colorette';
@@ -27,17 +28,24 @@ const client = new SapphireClient({
   },
   shards: 'auto',
   intents: [
-    'GUILDS',
-    'GUILD_MEMBERS',
-    'GUILD_BANS',
-    'GUILD_EMOJIS_AND_STICKERS',
-    'GUILD_VOICE_STATES',
-    'GUILD_MESSAGES',
-    'GUILD_MESSAGE_REACTIONS',
-    'DIRECT_MESSAGES',
-    'DIRECT_MESSAGE_REACTIONS',
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildModeration,
+    GatewayIntentBits.GuildEmojisAndStickers,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.DirectMessageReactions,
+    GatewayIntentBits.MessageContent,
   ],
-  partials: ['CHANNEL', 'GUILD_MEMBER', 'MESSAGE', 'REACTION', 'USER'],
+  partials: [
+    Partials.Channel,
+    Partials.GuildMember,
+    Partials.Message,
+    Partials.Reaction,
+    Partials.User,
+  ],
 });
 
 container.botPrefix = client.options.defaultPrefix!;

@@ -1,5 +1,5 @@
 import { SapphireClient, container } from '@sapphire/framework';
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 import {
   CodeyCommandDetails,
@@ -30,15 +30,17 @@ const getCompanyFindEmbed = async (
       };
     }),
   );
-  const companyEmbed = new MessageEmbed()
+  const companyEmbed = new EmbedBuilder()
     .setColor(DEFAULT_EMBED_COLOUR)
     .setTitle(companyInfo.name)
     .setDescription(companyInfo.description);
   companyEmbed.setThumbnail(`${CRUNCHBASE_IMAGE_CDN}/${companyInfo.image_id}`);
-  companyEmbed.addField(
-    'Previous Employees',
-    formattedUsers.map((user) => `${user.tag} - ${user.role}`).join(', '),
-  );
+  companyEmbed.addFields([
+    {
+      name: 'Previous Employees',
+      value: formattedUsers.map((user) => `${user.tag} - ${user.role}`).join(', '),
+    },
+  ]);
 
   return companyEmbed;
 };

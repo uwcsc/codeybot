@@ -1,5 +1,5 @@
 import { container } from '@sapphire/framework';
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import {
   CodeyCommandDetails,
   SapphireMessageExecuteType,
@@ -11,10 +11,10 @@ import { getRepositoryInfo, getRepositoryReleases } from '../../utils/github';
 /*
  * Get info embed
  */
-const getInfoEmbed = async (): Promise<MessageEmbed> => {
+const getInfoEmbed = async (): Promise<EmbedBuilder> => {
   const githubRepositoryInfo = await getRepositoryInfo('uwcsc', 'codeybot');
   const githubRepositoryReleases = await getRepositoryReleases('uwcsc', 'codeybot');
-  const infoEmbed = new MessageEmbed()
+  const infoEmbed = new EmbedBuilder()
     .setColor(INFO_EMBED_COLOUR)
     .setTitle(githubRepositoryInfo.full_name)
     .setURL(githubRepositoryInfo.html_url)

@@ -1,8 +1,16 @@
 import _, { uniqueId } from 'lodash';
 import { openDB } from './db';
 import { SapphireClient } from '@sapphire/framework';
-import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
-import { SapphireMessageResponse, SapphireSentMessageType } from '../codeyCommand';
+import {
+  Colors,
+  ActionRowBuilder,
+  ButtonBuilder,
+  EmbedBuilder,
+  User,
+  ButtonStyle,
+  BaseMessageOptions,
+} from 'discord.js';
+import { SapphireSentMessageType } from '../codeyCommand';
 import { pluralize } from '../utils/pluralize';
 import { getCoinEmoji, getEmojiByName } from './emojis';
 
@@ -376,7 +384,7 @@ export class Transfer {
     this.transferId = transferId;
   }
 
-  // called if state is (believed to be) no longer pending. Transfers coins and updates balances if transfer is confirmed
+  // called if state is (bMessageActionRowelieved to be) no longer pending. Transfers coins and updates balances if transfer is confirmed
   // also checks if sender still has enough coins in their balance
   async handleTransaction(): Promise<void> {
     const senderBalance = await getCoinBalanceByUserId(this.state.sender.id);
@@ -403,16 +411,16 @@ export class Transfer {
     }
   }
 
-  public getEmbedColor(): ColorResolvable {
+  public getEmbedColor(): keyof typeof Colors {
     switch (this.state.result) {
       case TransferResult.Confirmed:
-        return 'GREEN';
+        return 'Green';
       case TransferResult.Rejected:
-        return 'RED';
+        return 'Red';
       case TransferResult.Invalid:
-        return 'DARK_BLUE';
+        return 'DarkBlue';
       default:
-        return 'YELLOW';
+        return 'Yellow';
     }
   }
 
@@ -443,8 +451,8 @@ export class Transfer {
     }
   }
 
-  public async getTransferResponse(): Promise<SapphireMessageResponse> {
-    const embed = new MessageEmbed()
+  public async getTransferResponse(): Promise<BaseMessageOptions> {
+    const embed = new EmbedBuilder()
       .setColor(this.getEmbedColor())
       .setTitle('Coin Transfer')
       .setDescription(
@@ -457,15 +465,15 @@ ${await this.getStatusAsString()}
 `,
       );
     // Buttons
-    const row = new MessageActionRow().addComponents(
-      new MessageButton()
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
         .setCustomId(`transfer-check-${this.transferId}`)
         .setLabel('Accept')
-        .setStyle('SUCCESS'),
-      new MessageButton()
+        .setStyle(ButtonStyle.Success),
+      new ButtonBuilder()
         .setCustomId(`transfer-x-${this.transferId}`)
         .setLabel('Reject')
-        .setStyle('DANGER'),
+        .setStyle(ButtonStyle.Danger),
     );
 
     return {

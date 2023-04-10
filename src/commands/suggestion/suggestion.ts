@@ -1,18 +1,11 @@
 import { CodeyUserError } from './../../codeyUserError';
 // Sapphire Specific:
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-import { ApplyOptions } from '@sapphire/decorators';
-// Sapphire Specific:
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { Args, container } from '@sapphire/framework';
 // Sapphire Specific:
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-import {
-  SubCommandPluginCommand,
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-  SubCommandPluginCommandOptions,
-} from '@sapphire/plugin-subcommands';
-import { Message, MessageEmbed } from 'discord.js';
+import { Subcommand } from '@sapphire/plugin-subcommands';
+import { Message, EmbedBuilder, PermissionsBitField } from 'discord.js';
 import _ from 'lodash';
 import {
   addSuggestion,
@@ -27,17 +20,26 @@ import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 const RESULTS_PER_PAGE = 15;
 
-@ApplyOptions<SubCommandPluginCommandOptions>({
-  aliases: ['suggestions', 'suggest'],
-  description: 'Handle suggestion functions.',
-  detailedDescription: `This command will forward a suggestion to the CSC Discord Mods. \
+export class SuggestionCommand extends Subcommand {
+  public constructor(context: Subcommand.Context, options: Subcommand.Options) {
+    super(context, {
+      ...options,
+      name: 'suggestions',
+      aliases: ['suggest'],
+      description: 'Handle suggestion functions.',
+      detailedDescription: `This command will forward a suggestion to the CSC Discord Mods. \
 Please note that your suggestion is not anonymous, your Discord username and ID will be recorded. \
 If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
 **Examples:**
 \`${container.botPrefix}suggestion I want a new Discord channel named #hobbies.\``,
-  subCommands: [{ input: 'list', default: true }, 'update', 'create'],
-})
-export class SuggestionCommand extends SubCommandPluginCommand {
+      subcommands: [
+        { name: 'list', messageRun: 'list', default: true },
+        { name: 'update', messageRun: 'update' },
+        { name: 'create', messageRun: 'create' },
+      ],
+    });
+  }
+
   public async create(message: Message, args: Args): Promise<Message | void> {
     try {
       const suggestion = await args.rest('string').catch(() => false);
@@ -62,7 +64,7 @@ export class SuggestionCommand extends SubCommandPluginCommand {
   }
 
   async list(message: Message, args: Args): Promise<Message | void> {
-    if (!message.member?.permissions.has('ADMINISTRATOR')) return;
+    if (!message.member?.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
     const state = args.finished ? null : (await args.rest('string')).toLowerCase();
     //validate state
@@ -82,14 +84,14 @@ export class SuggestionCommand extends SubCommandPluginCommand {
 
     // construct embed for display
     const title = state ? `${suggestionStatesReadable[state]} Suggestions` : 'Suggestions';
-    const outEmbed = new MessageEmbed().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
+    const outEmbed = new EmbedBuilder().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(suggestionsInfo.join(''));
     return message.channel.send({ embeds: [outEmbed] });
   }
 
   async update(message: Message, args: Args): Promise<Message | void> {
     try {
-      if (!message.member?.permissions.has('ADMINISTRATOR')) return;
+      if (!message.member?.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
       const state = (
         await args.pick('string').catch(() => {
@@ -118,7 +120,7 @@ export class SuggestionCommand extends SubCommandPluginCommand {
 
       // construct embed for display
       const title = `Suggestions Updated To ${suggestionStatesReadable[state]} State`;
-      const outEmbed = new MessageEmbed().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
+      const outEmbed = new EmbedBuilder().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
       outEmbed.setDescription(suggestionIds.join(', '));
       return message.channel.send({ embeds: [outEmbed] });
     } catch (e) {

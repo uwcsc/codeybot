@@ -1,4 +1,11 @@
-import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
+import {
+  Colors,
+  ActionRowBuilder,
+  ButtonBuilder,
+  EmbedBuilder,
+  User,
+  ButtonStyle,
+} from 'discord.js';
 import { SapphireMessageResponse, SapphireSentMessageType } from '../../codeyCommand';
 import { openDB } from '../db';
 import { CodeyUserError } from '../../codeyUserError';
@@ -275,16 +282,16 @@ export class ConnectFourGame {
     return state.status;
   }
 
-  public getEmbedColor(): ColorResolvable {
+  public getEmbedColor(): keyof typeof Colors {
     switch (this.state.status) {
       case ConnectFourGameStatus.Player1Win:
-        return 'RED';
+        return 'Red';
       case ConnectFourGameStatus.Player2Win:
-        return 'YELLOW';
+        return 'Yellow';
       case ConnectFourGameStatus.Draw:
-        return 'ORANGE';
+        return 'Orange';
       default:
-        return 'BLUE';
+        return 'Blue';
     }
   }
 
@@ -329,7 +336,7 @@ export class ConnectFourGame {
 
   // Prints embed and adds buttons for the game
   public getGameResponse(): SapphireMessageResponse {
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor(this.getEmbedColor())
       .setTitle('Connect4')
       .setDescription(
@@ -349,17 +356,38 @@ ${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
         },
       ]);
     // Buttons
-    const row1 = new MessageActionRow().addComponents(
-      new MessageButton().setCustomId(`connect4-1-${this.id}`).setLabel('1').setStyle('SECONDARY'),
-      new MessageButton().setCustomId(`connect4-2-${this.id}`).setLabel('2').setStyle('SECONDARY'),
-      new MessageButton().setCustomId(`connect4-3-${this.id}`).setLabel('3').setStyle('SECONDARY'),
-      new MessageButton().setCustomId(`connect4-4-${this.id}`).setLabel('4').setStyle('SECONDARY'),
-      new MessageButton().setCustomId(`connect4-5-${this.id}`).setLabel('5').setStyle('SECONDARY'),
+    const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`connect4-1-${this.id}`)
+        .setLabel('1')
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId(`connect4-2-${this.id}`)
+        .setLabel('2')
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId(`connect4-3-${this.id}`)
+        .setLabel('3')
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId(`connect4-4-${this.id}`)
+        .setLabel('4')
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId(`connect4-5-${this.id}`)
+        .setLabel('5')
+        .setStyle(ButtonStyle.Secondary),
     );
 
-    const row2 = new MessageActionRow().addComponents(
-      new MessageButton().setCustomId(`connect4-6-${this.id}`).setLabel('6').setStyle('SECONDARY'),
-      new MessageButton().setCustomId(`connect4-7-${this.id}`).setLabel('7').setStyle('SECONDARY'),
+    const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`connect4-6-${this.id}`)
+        .setLabel('6')
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId(`connect4-7-${this.id}`)
+        .setLabel('7')
+        .setStyle(ButtonStyle.Secondary),
     );
 
     return {
