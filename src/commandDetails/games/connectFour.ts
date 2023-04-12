@@ -1,7 +1,6 @@
 import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
-  CodeyCommandOptionType,
   getUserFromMessage,
   SapphireAfterReplyType,
   SapphireMessageExecuteType,
