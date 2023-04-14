@@ -384,7 +384,7 @@ export class Transfer {
     this.transferId = transferId;
   }
 
-  // called if state is (bMessageActionRowelieved to be) no longer pending. Transfers coins and updates balances if transfer is confirmed
+  // called if state is (believed to be) no longer pending. Transfers coins and updates balances if transfer is confirmed
   // also checks if sender still has enough coins in their balance
   async handleTransaction(): Promise<void> {
     const senderBalance = await getCoinBalanceByUserId(this.state.sender.id);
