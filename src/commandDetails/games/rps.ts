@@ -69,7 +69,7 @@ export const rpsCommandDetails: CodeyCommandDetails = {
     {
       name: 'bet',
       description: 'How much to bet - default is 10.',
-      type: CodeyCommandOptionType.NUMBER,
+      type: CodeyCommandOptionType.INTEGER,
       required: false,
     },
   ],
