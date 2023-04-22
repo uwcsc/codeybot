@@ -98,7 +98,7 @@ class RpsGameTracker {
         if (!game.state.player2Id) {
           await adjustCoinBalanceByUserId(
             game.state.player1Id,
-            -game.state.bet / 2,
+            -Math.floor(game.state.bet / 2),
             UserCoinEvent.RpsDrawAgainstCodey,
           );
         }
@@ -222,9 +222,11 @@ export class RpsGame {
         } ${getCoinEmoji()} from ${this.state.player1Username}!`;
       case RpsGameStatus.Draw:
         if (!this.state.player2Id) {
-          return `The match ended in a draw, so ${this.state.player2Username} has taken ${
-            this.state.bet / 2
-          } ${getCoinEmoji()} from ${this.state.player1Username}!`;
+          return `The match ended in a draw, so ${
+            this.state.player2Username
+          } has taken ${Math.floor(this.state.bet / 2)} ${getCoinEmoji()} from ${
+            this.state.player1Username
+          }!`;
         } else {
           return `The match ended in a draw!`;
         }
