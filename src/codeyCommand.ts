@@ -258,8 +258,8 @@ export class CodeyCommand extends SapphireCommand {
       }
     }
 
-    // Move the "argument picker" by one parameter if subcommand name is defined
-    if (subcommandName) {
+    // Move the "argument picker" by one parameter if subcommand name is a string
+    if (isNaN(parseInt(subcommandName))) {
       await commandArgs.pick('string');
     }
     const args: CodeyCommandArguments = {};
