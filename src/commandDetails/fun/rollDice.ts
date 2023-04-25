@@ -14,7 +14,7 @@ const rollDiceExecuteCommand: SapphireMessageExecuteType = (
 ): Promise<SapphireMessageResponse> => {
   const SIDES_LOWER_BOUND = 0;
   const SIDES_UPPER_BOUND = 1000000;
-  const sides = <number>args!['sides'];
+  const sides = (args['sides'] ?? 6) as number;
 
   if (sides <= SIDES_LOWER_BOUND) {
     return new Promise((resolve, _reject) => resolve(`I cannot compute ${sides} sides!`));
@@ -47,7 +47,7 @@ export const rollDiceCommandDetails: CodeyCommandDetails = {
     {
       name: 'sides',
       description: 'The number of sides on the die.',
-      required: true,
+      required: false,
       type: CodeyCommandOptionType.INTEGER,
     },
   ],
