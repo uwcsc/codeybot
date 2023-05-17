@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Client, Message } from 'discord.js';
+import { ChannelType, Client, Message, PermissionsBitField } from 'discord.js';
 import { readFileSync } from 'fs';
 import { writeFile } from 'fs/promises';
 import { PDFDocument } from 'pdf-lib';
@@ -17,7 +17,7 @@ const IRC_USER_ID: string = vars.IRC_USER_ID;
 /*
  * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
  * and add a check for a message's channel ID being equal to HONEYPOT_CHANNEL_ID
- */
+ *permissionsFor/
 
 /*
  * Detect spammers/trolls/people who got hacked, by detecting that the message
@@ -32,8 +32,10 @@ const detectSpammersAndTrolls = (message: Message): boolean => {
   return (
     pingWords.some((word) => message.content.includes(word)) &&
     punishableWords.some((word) => message.content.toLowerCase().includes(word)) &&
-    message.channel.type !== 'DM' &&
-    message.channel.permissionsFor(message.channel.guild.roles.everyone).has('VIEW_CHANNEL') &&
+    message.channel.type !== ChannelType.DM &&
+    message.channel
+      .permissionsFor(message.channel.guild.roles.everyone)
+      .has(PermissionsBitField.Flags.ViewChannel) &&
     message.channel.id !== ANNOUNCEMENTS_CHANNEL_ID
   );
 };
@@ -77,12 +79,11 @@ const convertResumePdfsIntoImages = async (
   message: Message,
 ): Promise<Message<boolean> | undefined> => {
   // If no resume pdf is provided, do nothing
-  const attachments = message.attachments;
-  if (attachments.size !== 1) return;
+  if (message.attachments.size !== 1) return;
   const db = await openDB();
 
   // Get resume pdf from message and write locally to tmp
-  const pdfLink = Array.from(attachments.values()).map((file) => file.attachment)[0];
+  const pdfLink = message.attachments.first()!.url;
   const pdfResponse = await axios.get(pdfLink, { responseType: 'stream' });
   const pdfContent = pdfResponse.data;
   await writeFile('tmp/resume.pdf', pdfContent);
@@ -135,7 +136,7 @@ export const initMessageCreate = async (
   }
 
   // Ignore DMs; include announcements, thread, and regular text channels
-  if (message.channel.type !== 'DM') {
+  if (message.channel.type !== ChannelType.DM) {
     await applyBonusByUserId(message.author.id);
   }
 };

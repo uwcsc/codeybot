@@ -1,10 +1,19 @@
-import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, User } from 'discord.js';
-import { SapphireMessageResponse, SapphireSentMessageType } from '../../codeyCommand';
+import {
+  ActionRowBuilder,
+  ButtonStyle,
+  Colors,
+  ButtonBuilder,
+  EmbedBuilder,
+  User,
+  BaseMessageOptions,
+} from 'discord.js';
+import { SapphireSentMessageType } from '../../codeyCommand';
 import { getRandomIntFrom1 } from '../../utils/num';
 import { adjustCoinBalanceByUserId, UserCoinEvent } from '../coin';
 import { openDB } from '../db';
 import { getCoinEmoji, getEmojiByName } from '../emojis';
 import { CodeyUserError } from '../../codeyUserError';
+
 class RpsGameTracker {
   // Key = id, Value = game
   games: Map<number, RpsGame>;
@@ -195,16 +204,16 @@ export class RpsGame {
     }
   }
 
-  public getEmbedColor(): ColorResolvable {
+  public getEmbedColor(): keyof typeof Colors {
     switch (this.state.status) {
       case RpsGameStatus.Player1Win:
-        return 'GREEN';
+        return 'Green';
       case RpsGameStatus.Player2Win:
-        return this.state.player2Id ? 'GREEN' : 'RED';
+        return this.state.player2Id ? 'Green' : 'Red';
       case RpsGameStatus.Draw:
-        return 'ORANGE';
+        return 'Orange';
       default:
-        return 'YELLOW';
+        return 'Yellow';
     }
   }
 
@@ -237,8 +246,8 @@ export class RpsGame {
   }
 
   // Prints embed and adds buttons for the game
-  public getGameResponse(): SapphireMessageResponse {
-    const embed = new MessageEmbed()
+  public getGameResponse(): BaseMessageOptions {
+    const embed = new EmbedBuilder()
       .setColor(this.getEmbedColor())
       .setTitle('Rock, Paper, Scissors!')
       .setDescription(
@@ -263,19 +272,19 @@ ${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)
         },
       ]);
     // Buttons
-    const row = new MessageActionRow().addComponents(
-      new MessageButton()
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
         .setCustomId(`rps-rock-${this.id}`)
         .setLabel(getEmojiFromSign(RpsGameSign.Rock))
-        .setStyle('SECONDARY'),
-      new MessageButton()
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
         .setCustomId(`rps-paper-${this.id}`)
         .setLabel(getEmojiFromSign(RpsGameSign.Paper))
-        .setStyle('SECONDARY'),
-      new MessageButton()
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
         .setCustomId(`rps-scissors-${this.id}`)
         .setLabel(getEmojiFromSign(RpsGameSign.Scissors))
-        .setStyle('SECONDARY'),
+        .setStyle(ButtonStyle.Secondary),
     );
 
     return {

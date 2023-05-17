@@ -1,5 +1,6 @@
 import { CronJob } from 'cron';
-import { Client, MessageEmbed, TextChannel } from 'discord.js';
+import { Client, EmbedBuilder, TextChannel } from 'discord.js';
+import { ChannelType } from 'discord-api-types/v10';
 import _ from 'lodash';
 import fetch from 'node-fetch';
 import { alertMatches } from '../components/coffeeChat';
@@ -51,7 +52,7 @@ export const createOfficeStatusCron = (client: Client): CronJob =>
 
     if (!messageChannel) {
       throw 'Bad channel ID';
-    } else if (messageChannel.type === 'GUILD_TEXT') {
+    } else if (messageChannel.type === ChannelType.GuildText) {
       // if there is an emoji, prune it, otherwise leave name as is
       const curName =
         (messageChannel as TextChannel).name.replace(/\p{Extended_Pictographic}+/gu, '') +
@@ -87,11 +88,11 @@ export const createSuggestionCron = (client: Client): CronJob =>
 
       if (!messageChannel) {
         throw 'Bad channel ID';
-      } else if (messageChannel.type === 'GUILD_TEXT') {
+      } else if (messageChannel.type === ChannelType.GuildText) {
         // construct embed for display
         const output = await getSuggestionPrintout(createdSuggestions);
         const title = 'New Suggestions';
-        const outEmbed = new MessageEmbed()
+        const outEmbed = new EmbedBuilder()
           .setColor(DEFAULT_EMBED_COLOUR)
           .setTitle(title)
           .setDescription(output);
@@ -127,7 +128,7 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
     const messageChannel = client.channels.cache.get(NOTIF_CHANNEL_ID);
     if (!messageChannel) {
       throw 'Bad channel ID';
-    } else if (messageChannel.type === 'GUILD_TEXT') {
+    } else if (messageChannel.type === ChannelType.GuildText) {
       (messageChannel as TextChannel).send(`Sent ${matches.length} match(es).`);
     } else {
       throw 'Bad channel type';

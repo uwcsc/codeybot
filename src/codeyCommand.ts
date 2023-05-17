@@ -17,11 +17,12 @@ import {
 } from '@sapphire/framework';
 import { APIMessage, APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
 import {
+  ApplicationCommandOptionType,
+  BaseMessageOptions,
   CommandInteraction,
   Message,
   MessagePayload,
   User,
-  WebhookEditMessageOptions,
 } from 'discord.js';
 import { logger } from './logger/default';
 import { CodeyUserError } from './codeyUserError';
@@ -30,7 +31,7 @@ export type SapphireSentMessageType = Message | CommandInteraction;
 export type SapphireMessageResponse =
   | string
   | MessagePayload
-  | WebhookEditMessageOptions
+  | BaseMessageOptions
   // void when the command handles sending a response on its own
   | void;
 export class SapphireMessageResponseWithMetadata {
@@ -45,8 +46,8 @@ export class SapphireMessageResponseWithMetadata {
 
 export type SapphireMessageExecuteType = (
   client: SapphireClient<boolean>,
-  // Message is for normal commands, ChatInputInteraction is for slash commands
-  messageFromUser: Message | SapphireCommand.ChatInputInteraction,
+  // Message is for normal commands, ChatInputCommandInteraction is for slash commands
+  messageFromUser: Message | SapphireCommand.ChatInputCommandInteraction,
   // Command arguments
   args: CodeyCommandArguments,
 ) => Promise<SapphireMessageResponse | SapphireMessageResponseWithMetadata>;
@@ -61,15 +62,15 @@ export type SapphireAfterReplyType = (
 // Command options
 /** The type of the codey command option */
 export enum CodeyCommandOptionType {
-  STRING = 'string',
-  INTEGER = 'integer',
-  BOOLEAN = 'boolean',
-  USER = 'user',
-  CHANNEL = 'channel',
-  ROLE = 'role',
-  MENTIONABLE = 'mentionable',
-  NUMBER = 'number',
-  ATTACHMENT = 'attachment',
+  STRING = ApplicationCommandOptionType.String,
+  INTEGER = ApplicationCommandOptionType.Integer,
+  BOOLEAN = ApplicationCommandOptionType.Boolean,
+  USER = ApplicationCommandOptionType.User,
+  CHANNEL = ApplicationCommandOptionType.Channel,
+  ROLE = ApplicationCommandOptionType.Role,
+  MENTIONABLE = ApplicationCommandOptionType.Mentionable,
+  NUMBER = ApplicationCommandOptionType.Number,
+  ATTACHMENT = ApplicationCommandOptionType.Attachment,
 }
 
 /** The codey command option */
@@ -188,7 +189,7 @@ const setCommandSubcommand = (
  * This method helps generalize this process.
  * */
 export const getUserFromMessage = (
-  message: Message | SapphireCommand.ChatInputInteraction,
+  message: Message | SapphireCommand.ChatInputCommandInteraction,
 ): User => {
   if (message instanceof Message) {
     return message.author;
@@ -269,11 +270,15 @@ export class CodeyCommand extends SapphireCommand {
         // take all remaining arguments given if this is the last argument option
         if (i == commandDetails.options!.length - 1) {
           args[commandOption.name] = <CodeyCommandArgumentValueType>(
-            await commandArgs.rest(<keyof ArgType>commandOption.type)
+            await commandArgs.rest(
+              <keyof ArgType>ApplicationCommandOptionType[commandOption.type].toLowerCase(),
+            )
           );
         } else {
           args[commandOption.name] = <CodeyCommandArgumentValueType>(
-            await commandArgs.pick(<keyof ArgType>commandOption.type)
+            await commandArgs.pick(
+              <keyof ArgType>ApplicationCommandOptionType[commandOption.type].toLowerCase(),
+            )
           );
         }
       } catch (e) {}
@@ -314,7 +319,7 @@ export class CodeyCommand extends SapphireCommand {
 
   // Slash command
   public async chatInputRun(
-    interaction: SapphireCommand.ChatInputInteraction,
+    interaction: SapphireCommand.ChatInputCommandInteraction,
   ): Promise<APIMessage | Message<boolean> | undefined> {
     const { client } = container;
 
@@ -337,7 +342,7 @@ export class CodeyCommand extends SapphireCommand {
           if (commandInteractionOption) {
             const type = commandInteractionOption.type;
             switch (type) {
-              case 'USER':
+              case ApplicationCommandOptionType.User:
                 return {
                   [commandOptionName]: commandInteractionOption.user,
                 };

@@ -1,9 +1,5 @@
-import {
-  InteractionHandler,
-  InteractionHandlerTypes,
-  Maybe,
-  PieceContext,
-} from '@sapphire/framework';
+import { InteractionHandler, InteractionHandlerTypes, PieceContext } from '@sapphire/framework';
+import { Option } from '@sapphire/result';
 import { ButtonInteraction } from 'discord.js';
 import { getEmojiByName } from '../components/emojis';
 import { TransferSign, TransferResult, transferTracker } from '../components/coin';
@@ -17,10 +13,12 @@ export class TransferHandler extends InteractionHandler {
     });
   }
   // Get the game info and the interaction type
-  public override parse(interaction: ButtonInteraction): Maybe<{
-    transferId: string;
-    sign: TransferSign;
-  }> {
+  public override parse(interaction: ButtonInteraction):
+    | Option.None
+    | Option.Some<{
+        transferId: string;
+        sign: TransferSign;
+      }> {
     // interaction.customId should be in the form "transfer-{check|x}-{transfer id} as in src/components/coin.ts"
     if (!interaction.customId.startsWith('transfer')) return this.none();
     const parsedCustomId = interaction.customId.split('-');
@@ -54,10 +52,11 @@ export class TransferHandler extends InteractionHandler {
     }
     // only receiver can confirm the transfer
     if (interaction.user.id !== transfer.state.receiver.id) {
-      return await interaction.reply({
+      await interaction.reply({
         content: `This isn't your transfer! ${getEmojiByName('codey_angry')}`,
         ephemeral: true, // other users do not see this message
       });
+      return;
     }
     transferTracker.runFuncOnTransfer(result.transferId, async (transfer) => {
       // set the result of the transfer

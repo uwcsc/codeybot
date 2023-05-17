@@ -1,4 +1,4 @@
-import { ColorResolvable, GuildMember, Role, RoleManager, User } from 'discord.js';
+import { Colors, GuildMember, Role, RoleManager, User } from 'discord.js';
 import { container } from '@sapphire/framework';
 import { vars } from '../config';
 import { CodeyUserError } from '../codeyUserError';
@@ -15,7 +15,7 @@ const createRole = async (roleName: string, roles: RoleManager): Promise<Role> =
     // create role object
     const role = {
       name: roleName,
-      color: 'GREY' as ColorResolvable,
+      color: 'Grey' as keyof typeof Colors,
       reason: `AUTOMATED: Creating the role ${roleName}.`,
     };
     return await roles.create(role);

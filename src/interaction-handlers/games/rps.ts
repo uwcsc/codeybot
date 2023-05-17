@@ -1,10 +1,6 @@
-import {
-  InteractionHandler,
-  InteractionHandlerTypes,
-  Maybe,
-  PieceContext,
-} from '@sapphire/framework';
+import { InteractionHandler, InteractionHandlerTypes, PieceContext } from '@sapphire/framework';
 import { ButtonInteraction } from 'discord.js';
+import { Option } from '@sapphire/result';
 import { getEmojiByName } from '../../components/emojis';
 import { getCodeyRpsSign, RpsGameSign, rpsGameTracker } from '../../components/games/rps';
 import { updateMessageEmbed } from '../../utils/embeds';
@@ -18,10 +14,12 @@ export class RpsHandler extends InteractionHandler {
   }
 
   // Get the game info and the interaction type
-  public override parse(interaction: ButtonInteraction): Maybe<{
-    gameId: number;
-    sign: RpsGameSign;
-  }> {
+  public override parse(interaction: ButtonInteraction):
+    | Option.None
+    | Option.Some<{
+        gameId: number;
+        sign: RpsGameSign;
+      }> {
     if (!interaction.customId.startsWith('rps')) return this.none();
     const parsedCustomId = interaction.customId.split('-');
     const sign = parsedCustomId[1];

@@ -1,5 +1,5 @@
 import { container, SapphireClient } from '@sapphire/framework';
-import { MessageEmbed, User } from 'discord.js';
+import { EmbedBuilder, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   getUserFromMessage,
@@ -18,7 +18,7 @@ const LEADERBOARD_LIMIT_FETCH = LEADERBOARD_LIMIT_DISPLAY * 2;
 const getCoinLeaderboardEmbed = async (
   client: SapphireClient<boolean>,
   userId: string,
-): Promise<MessageEmbed> => {
+): Promise<EmbedBuilder> => {
   // Get extra users to filter bots later
   let leaderboard = await getCoinLeaderboard(LEADERBOARD_LIMIT_FETCH);
   const leaderboardArray: string[] = [];
@@ -71,14 +71,16 @@ const getCoinLeaderboardEmbed = async (
     }
   }
   const leaderboardText = leaderboardArray.join('\n');
-  const leaderboardEmbed = new MessageEmbed()
+  const leaderboardEmbed = new EmbedBuilder()
     .setColor(DEFAULT_EMBED_COLOUR)
     .setTitle('Codey Coin Leaderboard')
     .setDescription(leaderboardText);
-  leaderboardEmbed.addFields({
-    name: 'Your Position',
-    value: `You are currently **#${position}** in the leaderboard with ${userBalance} ${getCoinEmoji()}.`,
-  });
+  leaderboardEmbed.addFields([
+    {
+      name: 'Your Position',
+      value: `You are currently **#${position}** in the leaderboard with ${userBalance} ${getCoinEmoji()}.`,
+    },
+  ]);
 
   return leaderboardEmbed;
 };

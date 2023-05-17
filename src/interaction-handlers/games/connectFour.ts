@@ -1,9 +1,5 @@
-import {
-  InteractionHandler,
-  InteractionHandlerTypes,
-  Maybe,
-  PieceContext,
-} from '@sapphire/framework';
+import { InteractionHandler, InteractionHandlerTypes, PieceContext } from '@sapphire/framework';
+import { Option } from '@sapphire/result';
 import { ButtonInteraction } from 'discord.js';
 import { getEmojiByName } from '../../components/emojis';
 import {
@@ -24,10 +20,12 @@ export class ConnectFourHandler extends InteractionHandler {
   }
 
   // Get the game info and the interaction type
-  public override parse(interaction: ButtonInteraction): Maybe<{
-    gameId: number;
-    sign: number;
-  }> {
+  public override parse(interaction: ButtonInteraction):
+    | Option.None
+    | Option.Some<{
+        gameId: number;
+        sign: number;
+      }> {
     if (!interaction.customId.startsWith('connect4')) return this.none();
     const parsedCustomId = interaction.customId.split('-');
     const sign = parseInt(parsedCustomId[1]);
@@ -46,10 +44,11 @@ export class ConnectFourHandler extends InteractionHandler {
     if (
       interaction.user.id !== connectFourGameTracker.getGameFromId(result.gameId)!.state.player1Id
     ) {
-      return await interaction.reply({
+      await interaction.reply({
         content: `This isn't your game! ${getEmojiByName('codey_angry')}`,
         ephemeral: true,
       });
+      return;
     }
 
     connectFourGameTracker.runFuncOnGame(result.gameId, async (game) => {
