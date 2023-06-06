@@ -137,7 +137,8 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
 // Gives Codey coin role to those on the leaderboard list everyday
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
   new CronJob('0 0 0 */1 * *', async function () {
-    const leaderboard = await getCoinLeaderboard(NUMBER_USERS_TO_ASSIGN_ROLE);
+    // extra 5 members in case there are 5 bots in the leaderboard (as per the production environment)
+    const leaderboard = await getCoinLeaderboard(NUMBER_USERS_TO_ASSIGN_ROLE + 5);
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
       throw new CodeyUserError(undefined, 'guild not found');
