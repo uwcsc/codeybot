@@ -277,6 +277,7 @@ export class GamesBlackjackCommand extends Command {
           // if player has not acted within time limit, consider it as quitting the game
           game = await performGameAction(author.id, BlackjackAction.QUIT);
           message.reply("you didn't act within the time limit, please start another game!");
+          if (game) game.stage = BlackjackStage.DONE;
         }
       }
       if (game) {
