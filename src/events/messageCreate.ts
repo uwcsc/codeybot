@@ -13,6 +13,7 @@ import { openDB } from '../components/db';
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;
 const IRC_USER_ID: string = vars.IRC_USER_ID;
+const PDF_FILE_PATH = 'tmp/resume.pdf';
 
 /*
  * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
@@ -78,18 +79,19 @@ const punishSpammersAndTrolls = async (
 const convertResumePdfsIntoImages = async (
   message: Message,
 ): Promise<Message<boolean> | undefined> => {
+  const attachment = message.attachments.first();
   // If no resume pdf is provided, do nothing
-  if (message.attachments.size !== 1) return;
+  if (!attachment || attachment.contentType !== 'application/pdf') return;
   const db = await openDB();
 
   // Get resume pdf from message and write locally to tmp
-  const pdfLink = message.attachments.first()!.url;
+  const pdfLink = attachment.url;
   const pdfResponse = await axios.get(pdfLink, { responseType: 'stream' });
   const pdfContent = pdfResponse.data;
-  await writeFile('tmp/resume.pdf', pdfContent);
+  await writeFile(PDF_FILE_PATH, pdfContent);
 
   // Get the size of the pdf
-  const pdfDocument = await PDFDocument.load(readFileSync('tmp/resume.pdf'));
+  const pdfDocument = await PDFDocument.load(readFileSync(PDF_FILE_PATH));
   const { width, height } = pdfDocument.getPage(0).getSize();
   if (pdfDocument.getPageCount() > 1) {
     return await message.channel.send('Resume must be 1 page.');
@@ -98,7 +100,7 @@ const convertResumePdfsIntoImages = async (
   const fileMatch = pdfLink.match('[^/]*$') || ['Resume'];
   const fileName = fileMatch[0];
   // Convert the resume pdf into image
-  const imgResponse = await convertPdfToPic('tmp/resume.pdf', 'resume', width * 2, height * 2);
+  const imgResponse = await convertPdfToPic(PDF_FILE_PATH, 'resume', width * 2, height * 2);
   // Send the image back to the channel as a thread
   const thread = await message.startThread({
     name: `${fileName}`,
