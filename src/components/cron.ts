@@ -151,10 +151,14 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
         await updateMemberRole(member, await getRoleName(CODEY_COIN_ROLE_ID), false);
       }
     });
-    leaderboard.forEach(async (lbUserCoinEntry) => {
-      const memberToUpdate = members.get(lbUserCoinEntry.user_id);
-      if (memberToUpdate && !memberToUpdate.user?.bot) {
-        await updateMemberRole(memberToUpdate, await getRoleName(CODEY_COIN_ROLE_ID), true);
-      }
-    });
+    let users = 0;
+    while (users < 10) {
+      leaderboard.forEach(async (lbUserCoinEntry) => {
+        const memberToUpdate = members.get(lbUserCoinEntry.user_id);
+        if (memberToUpdate && !memberToUpdate.user?.bot) {
+          await updateMemberRole(memberToUpdate, await getRoleName(CODEY_COIN_ROLE_ID), true);
+          users++;
+        }
+      });
+    }
   });
