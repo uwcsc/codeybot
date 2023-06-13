@@ -27,7 +27,7 @@ export const banUser = async (
   try {
     const user = member.user;
     await user.send(makeBanMessage(reason, days));
-    await member.ban({ reason, days });
+    await member.ban({ reason, deleteMessageDays: days });
     isSuccessful = true;
   } catch (err) {
     logger.error({

@@ -1,16 +1,7 @@
 import { CodeyUserError } from './../../codeyUserError';
-// Sapphire Specific:
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-import { ApplyOptions } from '@sapphire/decorators';
 import { Args, container } from '@sapphire/framework';
-// Sapphire Specific:
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-import {
-  SubCommandPluginCommand,
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-  SubCommandPluginCommandOptions,
-} from '@sapphire/plugin-subcommands';
-import { Message, MessageEmbed } from 'discord.js';
+import { Subcommand } from '@sapphire/plugin-subcommands';
+import { Message, EmbedBuilder } from 'discord.js';
 import _ from 'lodash';
 import { getEmojiByName } from '../../components/emojis';
 import {
@@ -33,24 +24,29 @@ import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 
 const RESULTS_PER_PAGE = 6;
 
-@ApplyOptions<SubCommandPluginCommandOptions>({
-  aliases: ['interviewers', 'int'],
-  description: 'Handle interviewer functions.',
-  detailedDescription: `**Examples:**
+export class InterviewerCommand extends Subcommand {
+  public constructor(context: Subcommand.Context, options: Subcommand.Options) {
+    super(context, {
+      ...options,
+      name: 'interviewers',
+      aliases: ['int'],
+      description: 'Handle interviewer functions.',
+      detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer\`
 \`${container.botPrefix}interviewer frontend\``,
-  subCommands: [
-    'clear',
-    'domain',
-    'pause',
-    'profile',
-    'resume',
-    'signup',
-    { input: 'list', default: true },
-  ],
-})
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-export class InterviewerCommand extends SubCommandPluginCommand {
+      subcommands: [
+        { name: 'clear', messageRun: 'clear' },
+        { name: 'domain', messageRun: 'domain' },
+        { name: 'pause', messageRun: 'pause' },
+        { name: 'profile', messageRun: 'profile' },
+        { name: 'resume', messageRun: 'resume' },
+        { name: 'signup', messageRun: 'signup' },
+        { name: 'signup', messageRun: 'signup' },
+        { name: 'list', messageRun: 'list', default: true },
+      ],
+    });
+  }
+
   public async clear(message: Message): Promise<Message | void> {
     try {
       const { id } = message.author;
@@ -132,11 +128,13 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     const domains = await getDomains(id);
 
     //build output embed
-    const profileEmbed = new MessageEmbed()
+    const profileEmbed = new EmbedBuilder()
       .setColor(DEFAULT_EMBED_COLOUR)
       .setTitle('Interviewer Profile');
-    profileEmbed.addField('**Link**', interviewer.link);
-    profileEmbed.addField('**Domains**', _.isEmpty(domains) ? 'None' : getDomainsString(domains));
+    profileEmbed.addFields([
+      { name: '**Link**', value: interviewer.link },
+      { name: '**Domains**', value: _.isEmpty(domains) ? 'None' : getDomainsString(domains) },
+    ]);
     return message.channel.send({ embeds: [profileEmbed] });
   }
 
@@ -189,7 +187,7 @@ export class InterviewerCommand extends SubCommandPluginCommand {
     const title = domain
       ? `Available Interviewers for ${availableDomains[domain]}`
       : 'Available Interviewers';
-    const outEmbed = new MessageEmbed().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
+    const outEmbed = new EmbedBuilder().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(interviewersInfo.join());
     return message.channel.send({ embeds: [outEmbed] });
   }

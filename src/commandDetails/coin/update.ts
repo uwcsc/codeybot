@@ -1,6 +1,6 @@
 import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { Permissions, User } from 'discord.js';
+import { PermissionsBitField, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -20,7 +20,11 @@ const coinUpdateExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ) => {
-  if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('ADMINISTRATOR')) {
+  if (
+    !(<Readonly<PermissionsBitField>>messageFromUser.member?.permissions).has(
+      PermissionsBitField.Flags.Administrator,
+    )
+  ) {
     throw new CodeyUserError(messageFromUser, `You do not have permission to use this command.`);
   }
 

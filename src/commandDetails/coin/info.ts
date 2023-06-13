@@ -1,5 +1,5 @@
 import { container } from '@sapphire/framework';
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import {
   CodeyCommandDetails,
   SapphireMessageExecuteType,
@@ -15,12 +15,12 @@ const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
 ): Promise<SapphireMessageResponse> => {
   // Get information about coin
   const COIN = getCoinEmoji();
-  const infoEmbed = new MessageEmbed()
+  const infoEmbed = new EmbedBuilder()
     .setColor(DEFAULT_EMBED_COLOUR)
     .setTitle(`${COIN}   About Codey Coin   ${COIN}`)
     .setThumbnail('https://cdn.discordapp.com/emojis/937096777180516453.webp')
     .setDescription(`Codey coins are rewarded for being active in CSC's events and discord!`)
-    .addFields(
+    .addFields([
       {
         name: `${COIN}   How Can I Obtain Codey Coins?`,
         value: `Earn Codey coins by:
@@ -35,7 +35,7 @@ const coinInfoExecuteCommand: SapphireMessageExecuteType = async (
           • Play Casino games such as Blackjack
           • Buy virtual CSC Swag in the server (more info to come!)`,
       },
-    );
+    ]);
   return { embeds: [infoEmbed] };
 };
 

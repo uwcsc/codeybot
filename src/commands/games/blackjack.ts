@@ -1,14 +1,11 @@
 // Sapphire Specific:
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-import { ApplyOptions } from '@sapphire/decorators';
-// Sapphire Specific:
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { Args, Command, CommandOptions, container } from '@sapphire/framework';
 import {
   Collection,
-  ColorResolvable,
+  Colors,
   Message,
-  MessageEmbed,
+  EmbedBuilder,
   MessageReaction,
   Snowflake,
   User,
@@ -42,16 +39,20 @@ const validateBetAmount = (amount: number): string => {
   return '';
 };
 
-@ApplyOptions<CommandOptions>({
-  aliases: ['blj', 'bj'],
-  description: 'Start a Blackjack game to win some Codey coins!',
-  detailedDescription: `**Examples:**
-\`${container.botPrefix}blackjack 100\`
-\`${container.botPrefix}blj 100\``,
-})
 // Sapphire Specific:
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export class GamesBlackjackCommand extends Command {
+  public constructor(context: Command.Context, options: Command.Options) {
+    super(context, {
+      ...options,
+      name: 'bj',
+      aliases: ['blj'],
+      description: 'Start a Blackjack game to win some Codey coins!',
+      detailedDescription: `**Examples:**
+\`${container.botPrefix}blackjack 100\`
+\`${container.botPrefix}blj 100\``,
+    });
+  }
   /*
     Returns the corresponding emoji given the card's suit
   */
@@ -135,21 +136,21 @@ export class GamesBlackjackCommand extends Command {
   /*
     Returns a colour depending on the game's state
   */
-  private getEmbedColourFromGame(game: GameState): ColorResolvable {
+  private getEmbedColourFromGame(game: GameState): keyof typeof Colors {
     if (game.stage === BlackjackStage.DONE) {
       if (this.getBalanceChange(game) < 0) {
         // player lost coins
-        return 'RED';
+        return 'Red';
       }
       if (this.getBalanceChange(game) > 0) {
         // player won coins
-        return 'GREEN';
+        return 'Green';
       }
       // player didn't lose any coins
-      return 'ORANGE';
+      return 'Orange';
     }
     // game in progress
-    return 'YELLOW';
+    return 'Yellow';
   }
 
   /*
@@ -194,20 +195,22 @@ export class GamesBlackjackCommand extends Command {
   /*
     Returns the game embed from the game's current state
   */
-  private getEmbedFromGame(game: GameState): MessageEmbed {
-    const embed = new MessageEmbed().setTitle('Blackjack');
+  private getEmbedFromGame(game: GameState): EmbedBuilder {
+    const embed = new EmbedBuilder().setTitle('Blackjack');
     embed.setColor(this.getEmbedColourFromGame(game));
-    // show bet amount and game description
-    embed.addField(`Bet: ${game.bet} ${getCoinEmoji()}`, this.getDescriptionFromGame(game));
-    // show player and dealer value and hands
-    embed.addField(
-      `Player: ${game.playerValue.join(' or ')}`,
-      this.getHandDisplayString(game.playerCards),
-    );
-    embed.addField(
-      `Dealer: ${game.dealerValue.join(' or ')}`,
-      this.getHandDisplayString(game.dealerCards),
-    );
+    embed.addFields([
+      // show bet amount and game description
+      { name: `Bet: ${game.bet} ${getCoinEmoji()}`, value: this.getDescriptionFromGame(game) },
+      // show player and dealer value and hands
+      {
+        name: `Player: ${game.playerValue.join(' or ')}`,
+        value: this.getHandDisplayString(game.playerCards),
+      },
+      {
+        name: `Dealer: ${game.dealerValue.join(' or ')}`,
+        value: this.getHandDisplayString(game.dealerCards),
+      },
+    ]);
 
     return embed;
   }
@@ -274,6 +277,7 @@ export class GamesBlackjackCommand extends Command {
           // if player has not acted within time limit, consider it as quitting the game
           game = await performGameAction(author.id, BlackjackAction.QUIT);
           message.reply("you didn't act within the time limit, please start another game!");
+          if (game) game.stage = BlackjackStage.DONE;
         }
       }
       if (game) {

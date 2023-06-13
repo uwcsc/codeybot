@@ -1,5 +1,6 @@
 import { CronJob } from 'cron';
-import { Client, MessageEmbed, TextChannel } from 'discord.js';
+import { Client, EmbedBuilder, TextChannel } from 'discord.js';
+import { ChannelType } from 'discord-api-types/v10';
 import _ from 'lodash';
 import fetch from 'node-fetch';
 import { alertMatches } from '../components/coffeeChat';
@@ -51,7 +52,7 @@ export const createOfficeStatusCron = (client: Client): CronJob =>
 
     if (!messageChannel) {
       throw 'Bad channel ID';
-    } else if (messageChannel.type === 'GUILD_TEXT') {
+    } else if (messageChannel.type === ChannelType.GuildText) {
       // if there is an emoji, prune it, otherwise leave name as is
       const curName =
         (messageChannel as TextChannel).name.replace(/\p{Extended_Pictographic}+/gu, '') +
@@ -87,11 +88,11 @@ export const createSuggestionCron = (client: Client): CronJob =>
 
       if (!messageChannel) {
         throw 'Bad channel ID';
-      } else if (messageChannel.type === 'GUILD_TEXT') {
+      } else if (messageChannel.type === ChannelType.GuildText) {
         // construct embed for display
         const output = await getSuggestionPrintout(createdSuggestions);
         const title = 'New Suggestions';
-        const outEmbed = new MessageEmbed()
+        const outEmbed = new EmbedBuilder()
           .setColor(DEFAULT_EMBED_COLOUR)
           .setTitle(title)
           .setDescription(output);
@@ -127,7 +128,7 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
     const messageChannel = client.channels.cache.get(NOTIF_CHANNEL_ID);
     if (!messageChannel) {
       throw 'Bad channel ID';
-    } else if (messageChannel.type === 'GUILD_TEXT') {
+    } else if (messageChannel.type === ChannelType.GuildText) {
       (messageChannel as TextChannel).send(`Sent ${matches.length} match(es).`);
     } else {
       throw 'Bad channel type';
@@ -137,8 +138,8 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
 // Gives Codey coin role to those on the leaderboard list everyday
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
   new CronJob('0 0 0 */1 * *', async function () {
-    // extra 5 members in case there are 5 bots in the leaderboard (as per the production environment)
     const leaderboard = await getCoinLeaderboard(NUMBER_USERS_TO_ASSIGN_ROLE + 5);
+    const leaderboardIds: Set<string> = new Set(leaderboard.map((entry) => entry.user_id));
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
       throw new CodeyUserError(undefined, 'guild not found');
@@ -146,17 +147,20 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
     const members = await guild.members.fetch();
     // Removing role from previous members
     const guildMembersPreviousRole = await loadRoleMembers(CODEY_COIN_ROLE_ID);
+    const previousIds: Set<string> = new Set(guildMembersPreviousRole.map((member) => member.id));
+    const roleName: string = await getRoleName(CODEY_COIN_ROLE_ID);
+
     guildMembersPreviousRole.forEach(async (member) => {
-      if (member) {
-        await updateMemberRole(member, await getRoleName(CODEY_COIN_ROLE_ID), false);
+      if (member && !leaderboardIds.has(member.id)) {
+        await updateMemberRole(member, roleName, false);
       }
     });
     let users = 0;
     while (users < 10) {
-      leaderboard.forEach(async (lbUserCoinEntry) => {
-        const memberToUpdate = members.get(lbUserCoinEntry.user_id);
-        if (memberToUpdate && !memberToUpdate.user?.bot) {
-          await updateMemberRole(memberToUpdate, await getRoleName(CODEY_COIN_ROLE_ID), true);
+      leaderboardIds.forEach(async (user_id) => {
+        const memberToUpdate = members.get(user_id);
+        if (memberToUpdate && !previousIds.has(user_id)) {
+          await updateMemberRole(memberToUpdate, roleName, true);
           users++;
         }
       });

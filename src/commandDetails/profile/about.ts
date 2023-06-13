@@ -1,7 +1,7 @@
 import { CodeyUserError } from '../../codeyUserError';
 import { getUserProfileById, prettyProfileDetails, UserProfile } from '../../components/profile';
 import { container } from '@sapphire/framework';
-import { User, MessageEmbed } from 'discord.js';
+import { User, EmbedBuilder } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -30,14 +30,12 @@ const profileAboutExecuteCommand: SapphireMessageExecuteType = async (
   } else {
     // fields that are fetched that we do not want to display to the user, or want to display later (last_updated)
     const notDisplay = ['user_id', 'last_updated'];
-    const profileDisplay = new MessageEmbed().setTitle(`${user.username}'s profile`);
+    const profileDisplay = new EmbedBuilder().setTitle(`${user.username}'s profile`);
     // setting profile colour might not be useful, but we should leave it to a separate discussion/ticket
     profileDisplay.setColor(DEFAULT_EMBED_COLOUR);
     if (user.avatar) {
       profileDisplay.setImage(
         user.displayAvatarURL({
-          dynamic: true,
-          format: 'png',
           size: 4096,
         }),
       );
