@@ -26,6 +26,7 @@ interface historic_match {
 export const getMatch = async (): Promise<string[][]> => {
   // Gets the list of users that are currently "enrolled" in role
   const userList = await loadRoleUsers(COFFEE_ROLE_ID);
+  if (userList.length <= 1) return [];
 
   // Assigns each user ID a unique index
   const notMatched: Map<string, number> = new Map();

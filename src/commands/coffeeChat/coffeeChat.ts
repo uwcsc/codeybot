@@ -17,9 +17,7 @@ export class CoffeeChatCommand extends Subcommand {
       name: 'coffee',
       description: 'Handle coffee chat functions.',
       detailedDescription: `**Examples:**
-\`${container.botPrefix}coffeechat match\`
 \`${container.botPrefix}coffee match\`
-\`${container.botPrefix}coffeechat test 5\`
 \`${container.botPrefix}coffee test 10\``,
       subcommands: [
         { name: 'match', messageRun: 'match' },
@@ -32,6 +30,8 @@ export class CoffeeChatCommand extends Subcommand {
   async match(message: Message): Promise<Message> {
     //makes sure future matches are valid (made for the current group / still has matches left)
     const matches = await getMatch();
+    if (!matches.length)
+      return message.reply(`Not enough members with coffee chat role to generate matches.`);
     await alertMatches(matches);
     await writeHistoricMatches(matches);
     return message.reply(`Sent ${matches.length} match(es).`);
