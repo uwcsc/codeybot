@@ -65,11 +65,10 @@ const getCoinLeaderboardEmbed = async (
         .join('\\_')
         .split('`')
         .join('\\`');
-      if (cleanUserTag.endsWith("#0")) {
-      	sanitizedTag = cleanUserTag.substring(0, cleanUserTag.length - 2);
-      }
-      else {
-      	sanitizedTag = cleanUserTag;
+      if (cleanUserTag.endsWith('#0')) {
+        sanitizedTag = cleanUserTag.substring(0, cleanUserTag.length - 2);
+      } else {
+        sanitizedTag = cleanUserTag;
       }
       const userCoinEntryText = `${rank}. ${sanitizedTag} - ${
         userCoinEntry.balance
