@@ -122,16 +122,19 @@ export const createBonusInterviewerListCron = (): CronJob =>
 export const createCoffeeChatCron = (client: Client): CronJob =>
   new CronJob('0 0 14 * * 5', async function () {
     const matches = await getMatch();
-    await alertMatches(matches);
-    await writeHistoricMatches(matches);
 
-    const messageChannel = client.channels.cache.get(NOTIF_CHANNEL_ID);
-    if (!messageChannel) {
-      throw 'Bad channel ID';
-    } else if (messageChannel.type === ChannelType.GuildText) {
-      (messageChannel as TextChannel).send(`Sent ${matches.length} match(es).`);
-    } else {
-      throw 'Bad channel type';
+    if (!matches.length) throw `Not enough members with coffee chat role to generate matches.`;
+    else {
+      await alertMatches(matches);
+      await writeHistoricMatches(matches);
+      const messageChannel = client.channels.cache.get(NOTIF_CHANNEL_ID);
+      if (!messageChannel) {
+        throw 'Bad channel ID';
+      } else if (messageChannel.type === ChannelType.GuildText) {
+        (messageChannel as TextChannel).send(`Sent ${matches.length} match(es).`);
+      } else {
+        throw 'Bad channel type';
+      }
     }
   });
 
