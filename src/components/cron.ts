@@ -22,7 +22,7 @@ import { logger } from '../logger/default';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
-const OFFICE_HOURS_STATUS_API = 'https://csclub.ca/office-status/json';
+const OFFICE_HOURS_STATUS_API = 'https://csclub.uwaterloo.ca/~webcom/office-status.json';
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 const CODEY_COIN_ROLE_ID: string = vars.CODEY_COIN_ROLE_ID;
 const NUMBER_USERS_TO_ASSIGN_ROLE = 10;
