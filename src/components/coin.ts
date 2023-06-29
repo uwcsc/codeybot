@@ -13,6 +13,7 @@ import {
 import { SapphireSentMessageType } from '../codeyCommand';
 import { pluralize } from '../utils/pluralize';
 import { getCoinEmoji, getEmojiByName } from './emojis';
+import { updateMessageEmbed } from '../utils/embeds';
 
 export enum BonusType {
   Daily = 0,
@@ -307,6 +308,7 @@ export enum TransferResult {
   Rejected,
   Confirmed,
   Invalid,
+  Timeout,
 }
 
 type TransferState = {
@@ -316,6 +318,8 @@ type TransferState = {
   amount: number;
   reason: string;
 };
+
+const TransferTimeout = 600000; // in ms (600000 ms == 10 mins)
 
 class TransferTracker {
   transfers: Map<string, Transfer>; // id, transfer
@@ -349,6 +353,14 @@ class TransferTracker {
     };
     const transfer = new Transfer(channelId, client, transferId, transferState);
     this.transfers.set(transferId, transfer);
+    setTimeout(async () => {
+      if (transfer.state.result === TransferResult.Pending) {
+        transfer.state.result = TransferResult.Timeout;
+        await this.endTransfer(transfer.transferId);
+        const message = await transfer.getTransferResponse();
+        updateMessageEmbed(transfer.transferMessage, message);
+      }
+    }, TransferTimeout);
     return transfer;
   }
 
@@ -419,6 +431,8 @@ export class Transfer {
         return 'Red';
       case TransferResult.Invalid:
         return 'DarkBlue';
+      case TransferResult.Timeout:
+        return 'DarkGrey';
       default:
         return 'Yellow';
     }
@@ -446,6 +460,8 @@ export class Transfer {
         return 'Please choose whether you would like to accept this transfer.';
       case TransferResult.Invalid:
         return 'This transfer has become invalid.';
+      case TransferResult.Timeout:
+        return 'This transfer has timed out.';
       default:
         return `Something went wrong! ${getEmojiByName('codey_sad')}`;
     }
@@ -458,8 +474,8 @@ export class Transfer {
       .setDescription(
         `
 Amount: ${this.state.amount} ${getCoinEmoji()}
-From: ${this.state.sender.username}
-To: ${this.state.receiver.username}
+From: ${this.state.sender.toString()}
+To: ${this.state.receiver.toString()}
 ${this.state.reason ? `Reason: ${this.state.reason}\n` : ''}
 ${await this.getStatusAsString()}
 `,
