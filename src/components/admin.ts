@@ -15,7 +15,7 @@ const makeBanMessage = (reason: string, days?: number): string =>
 > ${reason}
 
 If you believe you have been wrongfully banned and wish to appeal your ban, please DM <@${MOD_USER_ID_FOR_BAN_APPEAL}> with \
-a reason why you think you should be unbanned.
+a reason why you think you should be unbanned. 
 `;
 
 /* Ban a user, returns whether ban was successful */
