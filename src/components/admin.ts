@@ -9,7 +9,7 @@ const MOD_USER_ID_FOR_BAN_APPEAL: string = vars.MOD_USER_ID_FOR_BAN_APPEAL;
 const makeBanMessage = (reason: string, days?: number): string =>
   `
 Uh oh, you have been banned from the UW Computer Science Club server ${
-    days && `and your messages in the past ${days} ${pluralize('day', days)} have been deleted`
+    days ? `and your messages in the past ${days} ${pluralize('day', days)} have been deleted ` : ''
   }for the following reason:
 
 > ${reason}
