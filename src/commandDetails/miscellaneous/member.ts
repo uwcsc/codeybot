@@ -24,11 +24,16 @@ type UwIdType = string | undefined;
  */
 const getMemberEmbed = async (uwid: UwIdType): Promise<EmbedBuilder> => {
   const title = 'CSC Membership Information';
+  const NOT_MEMBER_DESCRIPTION = `You're not a CSC member! ${getEmojiByName('codey_sad')}
+
+  Being a CSC member comes with gaining access to CSC machines, cloud, email, web hosting, and more! Additional details can be found here! https://csclub.uwaterloo.ca/resources/services/
+  
+  To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/get-involved/`;
   if (!uwid) {
     return new EmbedBuilder()
       .setColor('Red')
       .setTitle(title)
-      .setDescription('Please provide a UW ID!');
+      .setDescription(NOT_MEMBER_DESCRIPTION);
   }
 
   const members = (await (await fetch(MEMBER_API)).json()).members as memberStatus[];
@@ -41,11 +46,6 @@ const getMemberEmbed = async (uwid: UwIdType): Promise<EmbedBuilder> => {
       .setDescription(`You're a CSC member! Hooray! ${getEmojiByName('codey_love')}`);
   }
 
-  const NOT_MEMBER_DESCRIPTION = `You're not a CSC member! ${getEmojiByName('codey_sad')}
-
-Being a CSC member comes with gaining access to CSC machines, cloud, email, web hosting, and more! Additional details can be found here! https://csclub.uwaterloo.ca/resources/services/
-
-To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/get-involved/`;
   return new EmbedBuilder().setColor('Red').setTitle(title).setDescription(NOT_MEMBER_DESCRIPTION);
 };
 
