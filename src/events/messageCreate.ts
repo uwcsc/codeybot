@@ -98,12 +98,12 @@ const convertResumePdfsIntoImages = async (
   }
 
   const fileMatch = pdfLink.match('[^/]*$') || ['Resume'];
-  const fileName = fileMatch[0];
+  const fileName = fileMatch[0].split('?')[0];
   // Convert the resume pdf into image
   const imgResponse = await convertPdfToPic(PDF_FILE_PATH, 'resume', width * 2, height * 2);
   // Send the image back to the channel as a thread
   const thread = await message.startThread({
-    name: `${fileName}`,
+    name: fileName.length < 100 ? fileName : 'Resume',
     autoArchiveDuration: 60,
   });
   const preview_message = await thread.send({
