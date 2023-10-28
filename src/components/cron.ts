@@ -38,7 +38,6 @@ export const initCrons = async (client: Client): Promise<void> => {
   createCoffeeChatCron(client).start();
   createOfficeStatusCron(client).start();
   assignCodeyRoleForLeaderboard(client).start();
-  // createCoinDecayCron().start();
 };
 
 interface officeStatus {
@@ -165,11 +164,4 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
         await updateMemberRole(memberToUpdate, roleName, true);
       }
     });
-  });
-
-// Decays the Codey Coin Balances on January 1, May 1, and September 1
-export const createCoinDecayCron = (): CronJob =>
-  new CronJob('0 0 1 1,5,9 *', async function () {
-    const db = await openDB();
-    await db.run('UPDATE user_coin SET balance = ROUND(balance / 3)');
   });

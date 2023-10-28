@@ -12,7 +12,6 @@ import { initMessageDelete } from './events/messageDelete';
 import { initReady } from './events/ready';
 import { logger } from './logger/default';
 import { validateEnvironmentVariables } from './validateEnvVars';
-import { decayCoinBalances } from './components/coin';
 
 // Set default inspection depth
 inspect.defaultOptions.depth = 3;
@@ -52,7 +51,6 @@ const client = new SapphireClient({
 container.botPrefix = client.options.defaultPrefix!;
 
 export const startBot = async (): Promise<void> => {
-  decayCoinBalances;
   try {
     validateEnvironmentVariables();
     logger.info({
