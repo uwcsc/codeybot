@@ -53,6 +53,7 @@ const getCoinLeaderboardEmbed = async (
     if (userCoinEntry.user_id === userId) {
       position = rank;
     }
+    let sanitizedTag: string;
     if (leaderboardArray.length < LEADERBOARD_LIMIT_DISPLAY) {
       const userTag = user?.tag ?? '<unknown>';
       const cleanUserTag = userTag
@@ -64,7 +65,12 @@ const getCoinLeaderboardEmbed = async (
         .join('\\_')
         .split('`')
         .join('\\`');
-      const userCoinEntryText = `${rank}. ${cleanUserTag} - ${
+      if (cleanUserTag.endsWith('#0')) {
+        sanitizedTag = cleanUserTag.substring(0, cleanUserTag.length - 2);
+      } else {
+        sanitizedTag = cleanUserTag;
+      }
+      const userCoinEntryText = `${rank}. ${sanitizedTag} - ${
         userCoinEntry.balance
       } ${getCoinEmoji()}`;
       leaderboardArray.push(userCoinEntryText);
