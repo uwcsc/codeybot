@@ -98,6 +98,7 @@ const convertResumePdfsIntoImages = async (
   }
 
   const fileMatch = pdfLink.match('[^/]*$') || ['Resume'];
+  // Remove url parameters by calling `.split(?)[0]`
   const fileName = fileMatch[0].split('?')[0];
   // Convert the resume pdf into image
   const imgResponse = await convertPdfToPic(PDF_FILE_PATH, 'resume', width * 2, height * 2);
