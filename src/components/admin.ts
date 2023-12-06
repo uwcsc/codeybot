@@ -1,4 +1,4 @@
-import { GuildMember } from 'discord.js';
+import { Guild, User } from 'discord.js';
 import { vars } from '../config';
 import { logger } from '../logger/default';
 import { pluralize } from '../utils/pluralize';
@@ -19,16 +19,28 @@ a reason why you think you should be unbanned.
 `;
 
 /* Ban a user, returns whether ban was successful */
+// Bans user from guild even if they are not in server
+// makeBanMessage is only sent to User if they are in server (in Discord, you cannot send direct messages to users who are not in any mutual servers)
 export const banUser = async (
-  member: GuildMember,
+  guild: Guild,
+  user: User,
   reason: string,
   days?: number,
 ): Promise<boolean> => {
   let isSuccessful = false;
   try {
-    const user = member.user;
-    await user.send(makeBanMessage(reason, days));
-    await member.ban({ reason, deleteMessageDays: days });
+    try {
+      await user.send(makeBanMessage(reason, days));
+    } catch (err) {
+      logger.error({
+        event: "Can't send message to user not in server",
+        error: (err as Error).toString(),
+      });
+    }
+    await guild.members.ban(user, {
+      reason: reason,
+      deleteMessageSeconds: days == null ? 0 : days * 86400,
+    });
     isSuccessful = true;
   } catch (err) {
     logger.error({

@@ -8,6 +8,7 @@ import {
 } from '../../codeyCommand';
 import { banUser } from '../../components/admin';
 import { vars } from '../../config';
+import { pluralize } from '../../utils/pluralize';
 
 // Ban a user
 const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
@@ -31,13 +32,11 @@ const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFrom
       );
     }
     const days = <number>args['days'];
-    // Get the GuildMember object corresponding to the user in the guild
-    // This is needed because we can only ban GuildMembers, not Users
+    // get Guild object corresponding to server
     const guild = await client.guilds.fetch(vars.TARGET_GUILD_ID);
-    const memberInGuild = await guild.members.fetch({ user });
-    if (await banUser(memberInGuild, reason, days)) {
+    if (await banUser(guild, user, reason, days)) {
       return `Successfully banned user ${user.tag} (id: ${user.id}) ${
-        days ? `and deleted their messages in the past ${days} days ` : ``
+        days ? `and deleted their messages in the past ${days} ${pluralize('day', days)} ` : ``
       }for the following reason: ${reason}`;
     } else {
       throw new CodeyUserError(
