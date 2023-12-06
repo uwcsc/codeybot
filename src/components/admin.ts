@@ -31,13 +31,16 @@ export const banUser = async (
   try {
     try {
       await user.send(makeBanMessage(reason, days));
-    } catch(err){
+    } catch (err) {
       logger.error({
-      event: "Can't send message to user not in server",
-      error: (err as Error).toString(),
+        event: "Can't send message to user not in server",
+        error: (err as Error).toString(),
       });
     }
-    await guild.members.ban(user, {reason: reason, deleteMessageSeconds: (days==null? 0: days * 86400)});
+    await guild.members.ban(user, {
+      reason: reason,
+      deleteMessageSeconds: days == null ? 0 : days * 86400,
+    });
     isSuccessful = true;
   } catch (err) {
     logger.error({

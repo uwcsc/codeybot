@@ -1,6 +1,6 @@
 import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { PermissionsBitField, User, GuildMemberManager } from 'discord.js';
+import { PermissionsBitField, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
