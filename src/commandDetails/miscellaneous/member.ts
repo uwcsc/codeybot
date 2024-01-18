@@ -24,11 +24,20 @@ type UwIdType = string | undefined;
  */
 const getMemberEmbed = async (uwid: UwIdType): Promise<EmbedBuilder> => {
   const title = 'CSC Membership Information';
+  const EXPLAIN_MEMBERSHIP = `Oops! You didn't provide a UW ID.
+
+  If you're already a CSC member, please provide a UW ID.
+
+  If not, perhaps you're interested in becoming one?
+
+  Being a CSC member comes with gaining access to CSC machines, cloud, email, web hosting, and more! Additional details can be found here! https://csclub.uwaterloo.ca/resources/services/
+    
+  To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/get-involved/`;
   if (!uwid) {
     return new EmbedBuilder()
       .setColor('Red')
       .setTitle(title)
-      .setDescription('Please provide a UW ID!');
+      .setDescription(EXPLAIN_MEMBERSHIP);
   }
 
   const members = (await (await fetch(MEMBER_API)).json()).members as memberStatus[];
@@ -82,7 +91,7 @@ export const memberCommandDetails: CodeyCommandDetails = {
       name: 'uwid',
       description: 'The Quest ID of the user.',
       type: CodeyCommandOptionType.STRING,
-      required: true,
+      required: false,
     },
   ],
   subcommandDetails: {},
