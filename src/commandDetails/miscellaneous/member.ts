@@ -26,18 +26,22 @@ const getMemberEmbed = async (uwid: UwIdType): Promise<EmbedBuilder> => {
   const title = 'CSC Membership Information';
   const EXPLAIN_MEMBERSHIP = `Oops! You didn't provide a UW ID.
 
-  If you're already a CSC member, please provide a UW ID.
+  Please provide a UW ID to check if you are a CSC member.
 
-  If not, perhaps you're interested in becoming one?
+  If you are not, are you interested in being one?
 
   Being a CSC member comes with gaining access to CSC machines, cloud, email, web hosting, and more! Additional details can be found here! https://csclub.uwaterloo.ca/resources/services/
     
   To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/get-involved/`;
+  const IS_MEMBER_DESCRIPTION = `You're a CSC member! Hooray! ${getEmojiByName('codey_love')}`;
+  const NOT_MEMBER_DESCRIPTION = `You're not a CSC member! ${getEmojiByName('codey_sad')}
+
+  Being a CSC member comes with gaining access to CSC machines, cloud, email, web hosting, and more! Additional details can be found here! https://csclub.uwaterloo.ca/resources/services/
+
+  To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/get-involved/`;
+
   if (!uwid) {
-    return new EmbedBuilder()
-      .setColor('Red')
-      .setTitle(title)
-      .setDescription(EXPLAIN_MEMBERSHIP);
+    return new EmbedBuilder().setColor('Blue').setTitle(title).setDescription(EXPLAIN_MEMBERSHIP);
   }
 
   const members = (await (await fetch(MEMBER_API)).json()).members as memberStatus[];
@@ -47,14 +51,9 @@ const getMemberEmbed = async (uwid: UwIdType): Promise<EmbedBuilder> => {
     return new EmbedBuilder()
       .setColor('Green')
       .setTitle(title)
-      .setDescription(`You're a CSC member! Hooray! ${getEmojiByName('codey_love')}`);
+      .setDescription(IS_MEMBER_DESCRIPTION);
   }
 
-  const NOT_MEMBER_DESCRIPTION = `You're not a CSC member! ${getEmojiByName('codey_sad')}
-
-Being a CSC member comes with gaining access to CSC machines, cloud, email, web hosting, and more! Additional details can be found here! https://csclub.uwaterloo.ca/resources/services/
-
-To sign up, you can follow the instructions here! https://csclub.uwaterloo.ca/get-involved/`;
   return new EmbedBuilder().setColor('Red').setTitle(title).setDescription(NOT_MEMBER_DESCRIPTION);
 };
 
