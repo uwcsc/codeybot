@@ -1,5 +1,13 @@
 import axios from 'axios';
-import { ChannelType, Client, Message, PermissionsBitField } from 'discord.js';
+import {
+  ChannelType,
+  Client,
+  Message,
+  PermissionsBitField,
+  channelMention,
+  userMention,
+  EmbedBuilder,
+} from 'discord.js';
 import { readFileSync } from 'fs';
 import { writeFile } from 'fs/promises';
 import { PDFDocument } from 'pdf-lib';
@@ -74,14 +82,39 @@ const punishSpammersAndTrolls = async (
 };
 
 /**
- * Convert any pdfs sent in the #resumes channel to an image.
+ * Convert any pdfs sent in the #resumes channel to an image,
+ * nuke message and DM user if no attachment is found or attachment is not PDF
  */
 const convertResumePdfsIntoImages = async (
+  client: Client,
   message: Message,
 ): Promise<Message<boolean> | undefined> => {
   const attachment = message.attachments.first();
-  // If no resume pdf is provided, do nothing
-  if (!attachment || attachment.contentType !== 'application/pdf') return;
+
+  // If no resume pdf is provided, nuke message and DM user about why their message got nuked
+  if (!attachment || attachment.contentType !== 'application/pdf') {
+    const user = message.author.id;
+    const channel = message.channelId;
+
+    const mentionUser = userMention(user);
+    const mentionChannel = channelMention(channel);
+
+    const explainMessage = `Hey ${mentionUser}, we've removed your message from ${mentionChannel} since only messages with PDFs are allowed there. 
+
+    If you want critiques on your resume, please attach a PDF when sending messages in ${mentionChannel}.
+    
+    If you want to make critiques on a specific resume, please go to the corresponding thread in ${mentionChannel}.`;
+    const explainEmbed = new EmbedBuilder()
+      .setColor('Red')
+      .setTitle('Invalid Message Detected')
+      .setDescription(explainMessage);
+
+    await message.delete();
+    await client.users.send(user, { embeds: [explainEmbed] });
+
+    return;
+  }
+
   const db = await openDB();
 
   // Get resume pdf from message and write locally to tmp
@@ -135,7 +168,7 @@ export const initMessageCreate = async (
 
   // If channel is in resumes, convert the message attachment to an image
   if (message.channelId === RESUME_CHANNEL_ID) {
-    await convertResumePdfsIntoImages(message);
+    await convertResumePdfsIntoImages(client, message);
   }
 
   // Ignore DMs; include announcements, thread, and regular text channels
