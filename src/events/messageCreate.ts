@@ -90,18 +90,22 @@ const convertResumePdfsIntoImages = async (
   message: Message,
 ): Promise<Message<boolean> | undefined> => {
   const attachment = message.attachments.first();
+  const hasAttachment = attachment;
+  const isPDF = attachment && attachment.contentType === 'application/pdf';
+  const isImage =
+    attachment && attachment.contentType && attachment.contentType.startsWith('image');
 
   // If no resume pdf is provided, nuke message and DM user about why their message got nuked
-  if (!attachment || attachment.contentType !== 'application/pdf') {
+  if (!(hasAttachment && (isPDF || isImage))) {
     const user = message.author.id;
     const channel = message.channelId;
 
     const mentionUser = userMention(user);
     const mentionChannel = channelMention(channel);
 
-    const explainMessage = `Hey ${mentionUser}, we've removed your message from ${mentionChannel} since only messages with PDFs are allowed there. 
+    const explainMessage = `Hey ${mentionUser}, we've removed your message from ${mentionChannel} since only messages with PDFs/images are allowed there. 
 
-    If you want critiques on your resume, please attach a PDF when sending messages in ${mentionChannel}.
+    If you want critiques on your resume, please attach PDF/image when sending messages in ${mentionChannel}.
     
     If you want to make critiques on a specific resume, please go to the corresponding thread in ${mentionChannel}.`;
     const explainEmbed = new EmbedBuilder()
@@ -117,39 +121,59 @@ const convertResumePdfsIntoImages = async (
 
   const db = await openDB();
 
-  // Get resume pdf from message and write locally to tmp
-  const pdfLink = attachment.url;
-  const pdfResponse = await axios.get(pdfLink, { responseType: 'stream' });
-  const pdfContent = pdfResponse.data;
-  await writeFile(PDF_FILE_PATH, pdfContent);
+  if (isPDF) {
+    // Get resume pdf from message and write locally to tmp
+    const pdfLink = attachment.url;
+    const pdfResponse = await axios.get(pdfLink, { responseType: 'stream' });
+    const pdfContent = pdfResponse.data;
+    await writeFile(PDF_FILE_PATH, pdfContent);
 
-  // Get the size of the pdf
-  const pdfDocument = await PDFDocument.load(readFileSync(PDF_FILE_PATH));
-  const { width, height } = pdfDocument.getPage(0).getSize();
-  if (pdfDocument.getPageCount() > 1) {
-    return await message.channel.send('Resume must be 1 page.');
+    // Get the size of the pdf
+    const pdfDocument = await PDFDocument.load(readFileSync(PDF_FILE_PATH));
+    const { width, height } = pdfDocument.getPage(0).getSize();
+    if (pdfDocument.getPageCount() > 1) {
+      return await message.channel.send('Resume must be 1 page.');
+    }
+
+    const fileMatch = pdfLink.match('[^/]*$') || ['Resume'];
+    // Remove url parameters by calling `.split(?)[0]`
+    const fileName = fileMatch[0].split('?')[0];
+    // Convert the resume pdf into image
+    const imgResponse = await convertPdfToPic(PDF_FILE_PATH, 'resume', width * 2, height * 2);
+    // Send the image back to the channel as a thread
+    const thread = await message.startThread({
+      name: fileName.length < 100 ? fileName : 'Resume',
+      autoArchiveDuration: 60,
+    });
+    const preview_message = await thread.send({
+      files: imgResponse.map((img) => img.path),
+    });
+    // Inserting the pdf and preview message IDs into the DB
+    await db.run(
+      'INSERT INTO resume_preview_info (initial_pdf_id, preview_id) VALUES(?, ?)',
+      message.id,
+      preview_message.id,
+    );
+    return preview_message;
+  } else if (isImage) {
+    // Create a thread with the resume image
+    const imageName = attachment.name;
+    const thread = await message.startThread({
+      name: imageName.length < 100 ? imageName : 'Resume',
+      autoArchiveDuration: 60,
+    });
+
+    const preview_message = await thread.send('See resume above');
+
+    // Inserting the image and preview message IDs into the DB
+    await db.run(
+      'INSERT INTO resume_preview_info (initial_pdf_id, preview_id) VALUES(?, ?)',
+      message.id,
+      preview_message.id,
+    );
+
+    return preview_message;
   }
-
-  const fileMatch = pdfLink.match('[^/]*$') || ['Resume'];
-  // Remove url parameters by calling `.split(?)[0]`
-  const fileName = fileMatch[0].split('?')[0];
-  // Convert the resume pdf into image
-  const imgResponse = await convertPdfToPic(PDF_FILE_PATH, 'resume', width * 2, height * 2);
-  // Send the image back to the channel as a thread
-  const thread = await message.startThread({
-    name: fileName.length < 100 ? fileName : 'Resume',
-    autoArchiveDuration: 60,
-  });
-  const preview_message = await thread.send({
-    files: imgResponse.map((img) => img.path),
-  });
-  // Inserting the pdf and preview message IDs into the DB
-  await db.run(
-    'INSERT INTO resume_preview_info (initial_pdf_id, preview_id) VALUES(?, ?)',
-    message.id,
-    preview_message.id,
-  );
-  return preview_message;
 };
 
 export const initMessageCreate = async (
