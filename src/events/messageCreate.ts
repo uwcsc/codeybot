@@ -95,7 +95,8 @@ const convertResumePdfsIntoImages = async (
   const attachment = message.attachments.first();
   const hasAttachment = attachment;
   const isPDF = attachment && attachment.contentType === 'application/pdf';
-  const isImage = attachment && attachment.contentType && attachment.contentType.startsWith('image');
+  const isImage =
+    attachment && attachment.contentType && attachment.contentType.startsWith('image');
 
   // If no resume pdf is provided, nuke message and DM user about why their message got nuked
   if (!(hasAttachment && (isPDF || isImage))) {
@@ -161,7 +162,9 @@ const convertResumePdfsIntoImages = async (
     let imageLink = attachment.url;
 
     // Convert HEIC/HEIF to JPG
-    const isHEIC: Boolean = attachment && (attachment.contentType === 'image/heic' || attachment.contentType === 'image/heif');
+    const isHEIC: boolean =
+      attachment &&
+      (attachment.contentType === 'image/heic' || attachment.contentType === 'image/heif');
     if (isHEIC) {
       const heicResponse = await axios.get(imageLink, { responseType: 'stream' });
       const heicContent = heicResponse.data;
