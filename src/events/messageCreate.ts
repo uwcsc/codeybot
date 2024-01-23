@@ -17,11 +17,14 @@ import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
 import { convertPdfToPic } from '../utils/pdfToPic';
 import { openDB } from '../components/db';
+import { spawnSync } from 'child_process';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;
 const IRC_USER_ID: string = vars.IRC_USER_ID;
 const PDF_FILE_PATH = 'tmp/resume.pdf';
+const HEIC_FILE_PATH = 'tmp/img.heic';
+const CONVERTED_IMG_PATH = 'tmp/img.jpg';
 
 /*
  * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
@@ -92,8 +95,7 @@ const convertResumePdfsIntoImages = async (
   const attachment = message.attachments.first();
   const hasAttachment = attachment;
   const isPDF = attachment && attachment.contentType === 'application/pdf';
-  const isImage =
-    attachment && attachment.contentType && attachment.contentType.startsWith('image');
+  const isImage = attachment && attachment.contentType && attachment.contentType.startsWith('image');
 
   // If no resume pdf is provided, nuke message and DM user about why their message got nuked
   if (!(hasAttachment && (isPDF || isImage))) {
@@ -156,6 +158,23 @@ const convertResumePdfsIntoImages = async (
     );
     return preview_message;
   } else if (isImage) {
+    let imageLink = attachment.url;
+
+    // Convert HEIC/HEIF to JPG
+    const isHEIC: Boolean = attachment && (attachment.contentType === 'image/heic' || attachment.contentType === 'image/heif');
+    if (isHEIC) {
+      const heicResponse = await axios.get(imageLink, { responseType: 'stream' });
+      const heicContent = heicResponse.data;
+      await writeFile(HEIC_FILE_PATH, heicContent);
+
+      const convertCommand = `npx heic2jpg ${HEIC_FILE_PATH}`;
+
+      spawnSync('sh', ['-c', convertCommand], { stdio: 'inherit' });
+      spawnSync('sh', ['-c', 'mv img.jpg tmp'], { stdio: 'inherit' });
+
+      imageLink = CONVERTED_IMG_PATH;
+    }
+
     // Create a thread with the resume image
     const imageName = attachment.name;
     const thread = await message.startThread({
@@ -163,7 +182,9 @@ const convertResumePdfsIntoImages = async (
       autoArchiveDuration: 60,
     });
 
-    const preview_message = await thread.send('See resume above');
+    const preview_message = await thread.send({
+      files: [imageLink],
+    });
 
     // Inserting the image and preview message IDs into the DB
     await db.run(
