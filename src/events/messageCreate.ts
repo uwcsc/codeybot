@@ -1,5 +1,13 @@
 import axios from 'axios';
-import { ChannelType, Client, Message, PermissionsBitField } from 'discord.js';
+import {
+  ChannelType,
+  Client,
+  Message,
+  PermissionsBitField,
+  channelMention,
+  userMention,
+  EmbedBuilder,
+} from 'discord.js';
 import { readFileSync } from 'fs';
 import { writeFile } from 'fs/promises';
 import { PDFDocument } from 'pdf-lib';
@@ -9,11 +17,14 @@ import { vars } from '../config';
 import { sendKickEmbed } from '../utils/embeds';
 import { convertPdfToPic } from '../utils/pdfToPic';
 import { openDB } from '../components/db';
+import { spawnSync } from 'child_process';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;
 const IRC_USER_ID: string = vars.IRC_USER_ID;
 const PDF_FILE_PATH = 'tmp/resume.pdf';
+const HEIC_FILE_PATH = 'tmp/img.heic';
+const CONVERTED_IMG_PATH = 'tmp/img.jpg';
 
 /*
  * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
@@ -74,49 +85,119 @@ const punishSpammersAndTrolls = async (
 };
 
 /**
- * Convert any pdfs sent in the #resumes channel to an image.
+ * Convert any pdfs sent in the #resumes channel to an image,
+ * nuke message and DM user if no attachment is found or attachment is not PDF
  */
 const convertResumePdfsIntoImages = async (
+  client: Client,
   message: Message,
 ): Promise<Message<boolean> | undefined> => {
   const attachment = message.attachments.first();
-  // If no resume pdf is provided, do nothing
-  if (!attachment || attachment.contentType !== 'application/pdf') return;
-  const db = await openDB();
+  const hasAttachment = attachment;
+  const isPDF = attachment && attachment.contentType === 'application/pdf';
+  const isImage =
+    attachment && attachment.contentType && attachment.contentType.startsWith('image');
 
-  // Get resume pdf from message and write locally to tmp
-  const pdfLink = attachment.url;
-  const pdfResponse = await axios.get(pdfLink, { responseType: 'stream' });
-  const pdfContent = pdfResponse.data;
-  await writeFile(PDF_FILE_PATH, pdfContent);
+  // If no resume pdf is provided, nuke message and DM user about why their message got nuked
+  if (!(hasAttachment && (isPDF || isImage))) {
+    const user = message.author.id;
+    const channel = message.channelId;
 
-  // Get the size of the pdf
-  const pdfDocument = await PDFDocument.load(readFileSync(PDF_FILE_PATH));
-  const { width, height } = pdfDocument.getPage(0).getSize();
-  if (pdfDocument.getPageCount() > 1) {
-    return await message.channel.send('Resume must be 1 page.');
+    const mentionUser = userMention(user);
+    const mentionChannel = channelMention(channel);
+
+    const explainMessage = `Hey ${mentionUser}, we've removed your message from ${mentionChannel} since only messages with PDFs/images are allowed there. 
+
+    If you want critiques on your resume, please attach PDF/image when sending messages in ${mentionChannel}.
+    
+    If you want to make critiques on a specific resume, please go to the corresponding thread in ${mentionChannel}.`;
+    const explainEmbed = new EmbedBuilder()
+      .setColor('Red')
+      .setTitle('Invalid Message Detected')
+      .setDescription(explainMessage);
+
+    await message.delete();
+    await client.users.send(user, { embeds: [explainEmbed] });
+
+    return;
   }
 
-  const fileMatch = pdfLink.match('[^/]*$') || ['Resume'];
-  // Remove url parameters by calling `.split(?)[0]`
-  const fileName = fileMatch[0].split('?')[0];
-  // Convert the resume pdf into image
-  const imgResponse = await convertPdfToPic(PDF_FILE_PATH, 'resume', width * 2, height * 2);
-  // Send the image back to the channel as a thread
-  const thread = await message.startThread({
-    name: fileName.length < 100 ? fileName : 'Resume',
-    autoArchiveDuration: 60,
-  });
-  const preview_message = await thread.send({
-    files: imgResponse.map((img) => img.path),
-  });
-  // Inserting the pdf and preview message IDs into the DB
-  await db.run(
-    'INSERT INTO resume_preview_info (initial_pdf_id, preview_id) VALUES(?, ?)',
-    message.id,
-    preview_message.id,
-  );
-  return preview_message;
+  const db = await openDB();
+
+  if (isPDF) {
+    // Get resume pdf from message and write locally to tmp
+    const pdfLink = attachment.url;
+    const pdfResponse = await axios.get(pdfLink, { responseType: 'stream' });
+    const pdfContent = pdfResponse.data;
+    await writeFile(PDF_FILE_PATH, pdfContent);
+
+    // Get the size of the pdf
+    const pdfDocument = await PDFDocument.load(readFileSync(PDF_FILE_PATH));
+    const { width, height } = pdfDocument.getPage(0).getSize();
+    if (pdfDocument.getPageCount() > 1) {
+      return await message.channel.send('Resume must be 1 page.');
+    }
+
+    const fileMatch = pdfLink.match('[^/]*$') || ['Resume'];
+    // Remove url parameters by calling `.split(?)[0]`
+    const fileName = fileMatch[0].split('?')[0];
+    // Convert the resume pdf into image
+    const imgResponse = await convertPdfToPic(PDF_FILE_PATH, 'resume', width * 2, height * 2);
+    // Send the image back to the channel as a thread
+    const thread = await message.startThread({
+      name: fileName.length < 100 ? fileName : 'Resume',
+      autoArchiveDuration: 60,
+    });
+    const preview_message = await thread.send({
+      files: imgResponse.map((img) => img.path),
+    });
+    // Inserting the pdf and preview message IDs into the DB
+    await db.run(
+      'INSERT INTO resume_preview_info (initial_pdf_id, preview_id) VALUES(?, ?)',
+      message.id,
+      preview_message.id,
+    );
+    return preview_message;
+  } else if (isImage) {
+    let imageLink = attachment.url;
+
+    // Convert HEIC/HEIF to JPG
+    const isHEIC: boolean =
+      attachment &&
+      (attachment.contentType === 'image/heic' || attachment.contentType === 'image/heif');
+    if (isHEIC) {
+      const heicResponse = await axios.get(imageLink, { responseType: 'stream' });
+      const heicContent = heicResponse.data;
+      await writeFile(HEIC_FILE_PATH, heicContent);
+
+      const convertCommand = `npx heic2jpg ${HEIC_FILE_PATH}`;
+
+      spawnSync('sh', ['-c', convertCommand], { stdio: 'inherit' });
+      spawnSync('sh', ['-c', 'mv img.jpg tmp'], { stdio: 'inherit' });
+
+      imageLink = CONVERTED_IMG_PATH;
+    }
+
+    // Create a thread with the resume image
+    const imageName = attachment.name;
+    const thread = await message.startThread({
+      name: imageName.length < 100 ? imageName : 'Resume',
+      autoArchiveDuration: 60,
+    });
+
+    const preview_message = await thread.send({
+      files: [imageLink],
+    });
+
+    // Inserting the image and preview message IDs into the DB
+    await db.run(
+      'INSERT INTO resume_preview_info (initial_pdf_id, preview_id) VALUES(?, ?)',
+      message.id,
+      preview_message.id,
+    );
+
+    return preview_message;
+  }
 };
 
 export const initMessageCreate = async (
@@ -135,7 +216,7 @@ export const initMessageCreate = async (
 
   // If channel is in resumes, convert the message attachment to an image
   if (message.channelId === RESUME_CHANNEL_ID) {
-    await convertResumePdfsIntoImages(message);
+    await convertResumePdfsIntoImages(client, message);
   }
 
   // Ignore DMs; include announcements, thread, and regular text channels
