@@ -1,5 +1,5 @@
 import { SapphireClient, container } from '@sapphire/framework';
-import { CommandInteraction, Embed, EmbedBuilder, Message, User, userMention } from 'discord.js';
+import { EmbedBuilder, Message, User, userMention } from 'discord.js';
 import {
   CodeyCommandOptionType,
   CodeyCommandDetails,
@@ -10,7 +10,6 @@ import {
 } from '../../codeyCommand';
 import { getCoinBalanceByUserId, transferTracker } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
-import { receiveMessageOnPort } from 'worker_threads';
 
 const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
   client,
