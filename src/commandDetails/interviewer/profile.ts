@@ -15,7 +15,7 @@ import {
     SapphireMessageResponse,
 } from '../../codeyCommand';
 
-const profileExecuteCommand: SapphireMessageExecuteType = async (
+const interviewerProfileExecuteCommand: SapphireMessageExecuteType = async (
     _client,
     messageFromUser,
     _args,
@@ -47,7 +47,7 @@ const profileExecuteCommand: SapphireMessageExecuteType = async (
     return message.channel.send({ embeds: [profileEmbed] });
 };
 
-export const profileCommandDetails: CodeyCommandDetails = {
+export const interviewerProfileCommandDetails: CodeyCommandDetails = {
     name: 'profile',
     aliases: [],
     description: 'Placeholder',
@@ -56,7 +56,7 @@ export const profileCommandDetails: CodeyCommandDetails = {
 
     isCommandResponseEphemeral: false,
     messageWhenExecutingCommand: 'Placeholder',
-    executeCommand: profileExecuteCommand,
+    executeCommand: interviewerProfileExecuteCommand,
     messageIfFailure: 'Placeholder',
     options: [],
     subcommandDetails: {},

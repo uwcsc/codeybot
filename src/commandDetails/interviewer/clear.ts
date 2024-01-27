@@ -10,7 +10,7 @@ import {
     SapphireMessageResponse,
 } from '../../codeyCommand';
 
-const clearExecuteCommand: SapphireMessageExecuteType = async (
+const interviewerClearExecuteCommand: SapphireMessageExecuteType = async (
     _client,
     messageFromUser,
     _args,
@@ -37,7 +37,7 @@ const clearExecuteCommand: SapphireMessageExecuteType = async (
     }
 };
 
-export const clearCommandDetails: CodeyCommandDetails = {
+export const interviewerClearCommandDetails: CodeyCommandDetails = {
     name: 'clear',
     aliases: ['cls'],
     description: 'Placeholder',
@@ -46,7 +46,7 @@ export const clearCommandDetails: CodeyCommandDetails = {
 
     isCommandResponseEphemeral: false,
     messageWhenExecutingCommand: 'Placeholder',
-    executeCommand: clearExecuteCommand,
+    executeCommand: interviewerClearExecuteCommand,
     messageIfFailure: 'Placeholder',
     options: [],
     subcommandDetails: {},

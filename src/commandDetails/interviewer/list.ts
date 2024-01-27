@@ -30,7 +30,7 @@ const getInterviewerDisplayInfo = async(interviewer: Interviewer): Promise<strin
     }
 }
 
-const listExecuteCommand: SapphireMessageExecuteType = async (
+const interviewerListExecuteCommand: SapphireMessageExecuteType = async (
     _client,
     messageFromUser,
     args,
@@ -68,7 +68,7 @@ const listExecuteCommand: SapphireMessageExecuteType = async (
     return message.channel.send({ embeds: [outEmbed] });
 };
 
-export const listCommandDetails: CodeyCommandDetails = {
+export const interviewerListCommandDetails: CodeyCommandDetails = {
     name: 'list',
     aliases: [],
     description: 'Placeholder',
@@ -77,7 +77,7 @@ export const listCommandDetails: CodeyCommandDetails = {
 
     isCommandResponseEphemeral: false,
     messageWhenExecutingCommand: 'Placeholder',
-    executeCommand: listExecuteCommand,
+    executeCommand: interviewerListExecuteCommand,
     messageIfFailure: 'Placeholder',
     options: [],
     subcommandDetails: {},

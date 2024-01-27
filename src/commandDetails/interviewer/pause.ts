@@ -10,7 +10,7 @@ import {
     SapphireMessageResponse,
 } from '../../codeyCommand';
 
-const pauseExecuteCommand: SapphireMessageExecuteType = async (
+const interviewerPauseExecuteCommand: SapphireMessageExecuteType = async (
     _client,
     messageFromUser,
     _args,
@@ -33,7 +33,7 @@ const pauseExecuteCommand: SapphireMessageExecuteType = async (
     );
 };
 
-export const pauseCommandDetails: CodeyCommandDetails = {
+export const interviewerPauseCommandDetails: CodeyCommandDetails = {
     name: 'pause',
     aliases: [],
     description: 'Placeholder',
@@ -42,7 +42,7 @@ export const pauseCommandDetails: CodeyCommandDetails = {
 
     isCommandResponseEphemeral: false,
     messageWhenExecutingCommand: 'Placeholder',
-    executeCommand: pauseExecuteCommand,
+    executeCommand: interviewerPauseExecuteCommand,
     messageIfFailure: 'Placeholder',
     options: [],
     subcommandDetails: {},

@@ -10,7 +10,7 @@ import {
     SapphireMessageResponse,
 } from '../../codeyCommand';
 
-const resumeExecuteCommand: SapphireMessageExecuteType = async (
+const interviewerResumeExecuteCommand: SapphireMessageExecuteType = async (
     _client,
     messageFromUser,
     _args,
@@ -31,7 +31,7 @@ const resumeExecuteCommand: SapphireMessageExecuteType = async (
     return message.reply('Your interviewer profile has been resumed!');
 };
 
-export const resumeCommandDetails: CodeyCommandDetails = {
+export const interviewerResumeCommandDetails: CodeyCommandDetails = {
     name: 'resume',
     aliases: [],
     description: 'Placeholder',
@@ -40,7 +40,7 @@ export const resumeCommandDetails: CodeyCommandDetails = {
 
     isCommandResponseEphemeral: false,
     messageWhenExecutingCommand: 'Placeholder',
-    executeCommand: resumeExecuteCommand,
+    executeCommand: interviewerResumeExecuteCommand,
     messageIfFailure: 'Placeholder',
     options: [],
     subcommandDetails: {},

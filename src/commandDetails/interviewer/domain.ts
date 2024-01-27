@@ -15,7 +15,7 @@ import {
     SapphireMessageResponse,
 } from '../../codeyCommand';
 
-const domainExecuteCommand: SapphireMessageExecuteType = async (
+const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
     _client,
     messageFromUser,
     args,
@@ -51,7 +51,7 @@ const domainExecuteCommand: SapphireMessageExecuteType = async (
     );
 };
 
-export const domainCommandDetails: CodeyCommandDetails = {
+export const interviewerDomainCommandDetails: CodeyCommandDetails = {
     name: 'domain',
     aliases: [],
     description: 'Placeholder',
@@ -60,7 +60,7 @@ export const domainCommandDetails: CodeyCommandDetails = {
 
     isCommandResponseEphemeral: false,
     messageWhenExecutingCommand: 'Placeholder',
-    executeCommand: domainExecuteCommand,
+    executeCommand: interviewerDomainExecuteCommand,
     messageIfFailure: 'Placeholder',
     options: [],
     subcommandDetails: {},
