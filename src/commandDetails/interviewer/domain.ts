@@ -1,6 +1,4 @@
-import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { Message } from 'discord.js';
 import _ from 'lodash';
 import {
   availableDomains,
@@ -10,9 +8,9 @@ import {
 } from '../../components/interviewer';
 import {
     CodeyCommandDetails,
-    CodeyCommandOptionType,
     SapphireMessageExecuteType,
     SapphireMessageResponse,
+    getUserFromMessage,
 } from '../../codeyCommand';
 
 const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
@@ -20,48 +18,39 @@ const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
     messageFromUser,
     args,
 ): Promise<SapphireMessageResponse> => {
-    const message = <Message>messageFromUser;
     const domain = args[0];
     if (domain !== 'string') {
         console.log('Error');
     } 
     else if (!(domain.toLowerCase() in availableDomains)) {
-        throw new CodeyUserError(
-            message,
-            `You entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`,
-        );
+        return `You entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`;
     }
 
     const domainString = <string>domain
-    const { id } = message.author;
+    const id = getUserFromMessage(messageFromUser).id;
     // Check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
-        throw new CodeyUserError(
-            message,
-            `You don't seem to have signed up yet. Please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`,
-        );
+        return `You don't seem to have signed up yet. Please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`;
     }
 
     // Add or remove domain to/from interviewer
     const inDomain = await toggleDomain(id, domainString);
-    return message.reply(
-        inDomain
+    return inDomain
         ? `You have been successfully removed from ${availableDomains[domainString]}`
-        : `You have been successfully added to ${availableDomains[domainString]}`,
-    );
+        : `You have been successfully added to ${availableDomains[domainString]}`;
 };
 
 export const interviewerDomainCommandDetails: CodeyCommandDetails = {
     name: 'domain',
-    aliases: [],
-    description: 'Placeholder',
+    aliases: ['dom'],
+    description: 'Modify domain data',
     detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer domain\``,
 
     isCommandResponseEphemeral: false,
-    messageWhenExecutingCommand: 'Placeholder',
+    messageWhenExecutingCommand: 'Modifying domain data...',
     executeCommand: interviewerDomainExecuteCommand,
-    messageIfFailure: 'Placeholder',
+    messageIfFailure: 'Could not modify domain data',
     options: [],
     subcommandDetails: {},
 };
