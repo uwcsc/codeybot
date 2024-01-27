@@ -1,6 +1,5 @@
-import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { Message, EmbedBuilder } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import _ from 'lodash';
 import {
   getDomains,
@@ -10,9 +9,9 @@ import {
 import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds';
 import {
     CodeyCommandDetails,
-    CodeyCommandOptionType,
     SapphireMessageExecuteType,
     SapphireMessageResponse,
+    getUserFromMessage,
 } from '../../codeyCommand';
 
 const interviewerProfileExecuteCommand: SapphireMessageExecuteType = async (
@@ -20,16 +19,12 @@ const interviewerProfileExecuteCommand: SapphireMessageExecuteType = async (
     messageFromUser,
     _args,
 ): Promise<SapphireMessageResponse> => {
-    const message = <Message>messageFromUser;
-    const { id } = message.author;
+    const id = getUserFromMessage(messageFromUser).id;
 
     // Check if user signed up to be interviewer
     const interviewer = await getInterviewer(id);
     if (!interviewer) {
-        throw new CodeyUserError(
-            message,
-            `You don't seem to have signed up yet. Please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`,
-      );
+        return `You don't seem to have signed up yet. Please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`;
     }
 
     // Get domains
@@ -44,20 +39,20 @@ const interviewerProfileExecuteCommand: SapphireMessageExecuteType = async (
         { name: '**Domains**', value: _.isEmpty(domains) ? 'None' : getDomainsString(domains) },
     ]);
 
-    return message.channel.send({ embeds: [profileEmbed] });
+    return { embeds: [profileEmbed] };
 };
 
 export const interviewerProfileCommandDetails: CodeyCommandDetails = {
     name: 'profile',
-    aliases: [],
-    description: 'Placeholder',
+    aliases: ['pf'],
+    description: 'Modify profile data',
     detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer profile\``,
 
     isCommandResponseEphemeral: false,
-    messageWhenExecutingCommand: 'Placeholder',
+    messageWhenExecutingCommand: 'Modifying profile...',
     executeCommand: interviewerProfileExecuteCommand,
-    messageIfFailure: 'Placeholder',
+    messageIfFailure: 'Could not modify profile',
     options: [],
     subcommandDetails: {},
 };
