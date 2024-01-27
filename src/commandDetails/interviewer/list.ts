@@ -1,6 +1,5 @@
-import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { Message, EmbedBuilder } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import _ from 'lodash';
 import {
   availableDomains,
@@ -32,24 +31,16 @@ const getInterviewerDisplayInfo = async(interviewer: Interviewer): Promise<strin
 
 const interviewerListExecuteCommand: SapphireMessageExecuteType = async (
     _client,
-    messageFromUser,
+    _messageFromUser,
     args,
 ): Promise<SapphireMessageResponse> => {
-    const message = <Message>messageFromUser;
-    const domain = args[0];
-    if (domain !== 'string') {
-        console.log('Error');
-    } 
-    else if (!(domain.toLowerCase() in availableDomains)) {
-        throw new CodeyUserError(
-            message,
-            `You entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`,
-        );
+    const domain: string | undefined = <string>args['domain'];
+    if (domain && !(domain.toLowerCase() in availableDomains)) {
+        return `You entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`;
     }
 
-    const domainString = <string>domain
     // Query interviewers
-    const interviewers = await getInterviewers(domainString);
+    const interviewers = await getInterviewers(domain);
     // Shuffles interviewers to load balance
     const shuffledInterviewers = _.shuffle(interviewers);
     // Only show up to page limit
@@ -61,24 +52,32 @@ const interviewerListExecuteCommand: SapphireMessageExecuteType = async (
 
     // Construct embed for display
     const title = domain
-        ? `Available Interviewers for ${availableDomains[domainString]}`
+        ? `Available Interviewers for ${availableDomains[domain]}`
         : 'Available Interviewers';
     const outEmbed = new EmbedBuilder().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
     outEmbed.setDescription(interviewersInfo.join());
-    return message.channel.send({ embeds: [outEmbed] });
+    return { embeds: [outEmbed] };
 };
 
 export const interviewerListCommandDetails: CodeyCommandDetails = {
     name: 'list',
-    aliases: [],
-    description: 'Placeholder',
+    aliases: ['ls'],
+    description: 'List all interviewers or those under a specific domain',
     detailedDescription: `**Examples:**
-\`${container.botPrefix}interviewer list\``,
+\`${container.botPrefix}interviewer list\`
+\`${container.botPrefix}interviewer list backend\``,
 
     isCommandResponseEphemeral: false,
-    messageWhenExecutingCommand: 'Placeholder',
+    messageWhenExecutingCommand: 'Listing interviewers...',
     executeCommand: interviewerListExecuteCommand,
-    messageIfFailure: 'Placeholder',
-    options: [],
+    messageIfFailure: 'Could not list interviewers',
+    options: [
+        {
+            name: 'domain',
+            description: 'The domain to be examined',
+            type: CodeyCommandOptionType.STRING,
+            required: false,
+        },
+    ],
     subcommandDetails: {},
 };
