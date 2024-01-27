@@ -1,13 +1,11 @@
-import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { Message } from 'discord.js';
 import _ from 'lodash';
 import { clearProfile, getInterviewer } from '../../components/interviewer';
 import {
     CodeyCommandDetails,
-    CodeyCommandOptionType,
     SapphireMessageExecuteType,
     SapphireMessageResponse,
+    getUserFromMessage,
 } from '../../codeyCommand';
 
 const interviewerClearExecuteCommand: SapphireMessageExecuteType = async (
@@ -15,39 +13,29 @@ const interviewerClearExecuteCommand: SapphireMessageExecuteType = async (
     messageFromUser,
     _args,
 ): Promise<SapphireMessageResponse> => {
-    try {
-        const message = <Message>messageFromUser;
-        const { id } = message.author;     
+    const id = getUserFromMessage(messageFromUser).id;   
 
-        // check if user signed up to be interviewer
-        if (!(await getInterviewer(id))) {
-            throw new CodeyUserError(
-                message,
-                `You don't seem to have signed up yet. Please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`,
-            );
-        }
-        
-        // clear interviewer data
-        await clearProfile(id);
-        return message.reply('your interviewer profile has been cleared!');
-    } catch (e) {
-        if (e instanceof CodeyUserError) {
-            e.sendToUser();
-        }
+    // Check if user signed up to be interviewer
+    if (!(await getInterviewer(id))) {
+        return `You don't seem to have signed up yet. Please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`;
     }
+    
+    // Clear interviewer data
+    await clearProfile(id);
+    return 'Your interviewer profile has been cleared!';
 };
 
 export const interviewerClearCommandDetails: CodeyCommandDetails = {
     name: 'clear',
-    aliases: ['cls'],
-    description: 'Placeholder',
+    aliases: ['clr'],
+    description: 'Clear interviewer data',
     detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer clear\``,
 
     isCommandResponseEphemeral: false,
-    messageWhenExecutingCommand: 'Placeholder',
+    messageWhenExecutingCommand: 'Clearing interviewer profile...',
     executeCommand: interviewerClearExecuteCommand,
-    messageIfFailure: 'Placeholder',
+    messageIfFailure: 'Could not clear interviewer profile',
     options: [],
     subcommandDetails: {},
 };
