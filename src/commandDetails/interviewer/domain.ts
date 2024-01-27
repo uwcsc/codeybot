@@ -8,6 +8,7 @@ import {
 } from '../../components/interviewer';
 import {
     CodeyCommandDetails,
+    CodeyCommandOptionType,
     SapphireMessageExecuteType,
     SapphireMessageResponse,
     getUserFromMessage,
@@ -18,15 +19,11 @@ const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
     messageFromUser,
     args,
 ): Promise<SapphireMessageResponse> => {
-    const domain = args[0];
-    if (domain !== 'string') {
-        console.log('Error');
-    } 
-    else if (!(domain.toLowerCase() in availableDomains)) {
+    const domain: string | undefined = <string>args['domain_name'];
+    if (domain && !(domain.toLowerCase() in availableDomains)) {
         return `You entered an invalid domain. Please enter one of ${getAvailableDomainsString()}.`;
     }
 
-    const domainString = <string>domain
     const id = getUserFromMessage(messageFromUser).id;
     // Check if user signed up to be interviewer
     if (!(await getInterviewer(id))) {
@@ -34,15 +31,15 @@ const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
     }
 
     // Add or remove domain to/from interviewer
-    const inDomain = await toggleDomain(id, domainString);
+    const inDomain = await toggleDomain(id, domain);
     return inDomain
-        ? `You have been successfully removed from ${availableDomains[domainString]}`
-        : `You have been successfully added to ${availableDomains[domainString]}`;
+        ? `You have been successfully removed from ${availableDomains[domain]}`
+        : `You have been successfully added to ${availableDomains[domain]}`;
 };
 
 export const interviewerDomainCommandDetails: CodeyCommandDetails = {
     name: 'domain',
-    aliases: ['dom'],
+    aliases: ['domain'],
     description: 'Modify domain data',
     detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer domain\``,
@@ -51,6 +48,13 @@ export const interviewerDomainCommandDetails: CodeyCommandDetails = {
     messageWhenExecutingCommand: 'Modifying domain data...',
     executeCommand: interviewerDomainExecuteCommand,
     messageIfFailure: 'Could not modify domain data',
-    options: [],
+    options: [
+        {
+            name: 'domain_name',
+            description: 'A valid domain name',
+            type: CodeyCommandOptionType.STRING,
+            required: true
+        }
+    ],
     subcommandDetails: {},
 };
