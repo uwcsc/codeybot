@@ -1,6 +1,4 @@
-import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { Message } from 'discord.js';
 import _ from 'lodash';
 import { getEmojiByName } from '../../components/emojis';
 import {
@@ -12,6 +10,7 @@ import {
     CodeyCommandOptionType,
     SapphireMessageExecuteType,
     SapphireMessageResponse,
+    getUserFromMessage,
 } from '../../codeyCommand';
 
 const interviewerSignupExecuteCommand: SapphireMessageExecuteType = async (
@@ -19,43 +18,40 @@ const interviewerSignupExecuteCommand: SapphireMessageExecuteType = async (
     messageFromUser,
     args,
 ): Promise<SapphireMessageResponse> => {
-    const message = <Message>messageFromUser;
-    const { id } = message.author;
+    const id = getUserFromMessage(messageFromUser).id;
 
     // Get calendar URL from the 1st capture group
-    const calendarUrl = args[0];
-    if (calendarUrl !== 'string') {
-        console.log('Error');
-    } 
+    const calendarUrl = <string>args['calendar_url'];
 
     // Parse link and checks for validity
-    const calendarUrlString = <string>calendarUrl
-    const parsedUrl = parseLink(calendarUrlString);
+    const parsedUrl = parseLink(calendarUrl);
     if (!parsedUrl) {
-        throw new CodeyUserError(
-            message,
-            `I don't seem to recognize your meeting link. Be sure to use calendly or x.ai.`,
-        );
+        return `I don't seem to recognize your meeting link. Be sure to use calendly or x.ai.`;
     }
 
     // Add or update interviewer info
     await upsertInterviewer(id, parsedUrl);
-    return message.reply(
-        `Your info has been updated. Thanks for helping out! ${getEmojiByName('codey_love')?.toString()}`,
-    );
+    return `Your info has been updated. Thanks for helping out! ${getEmojiByName('codey_love')?.toString()}`;
 };
 
 export const interviewerSignupCommandDetails: CodeyCommandDetails = {
     name: 'signup',
-    aliases: [],
-    description: 'Placeholder',
+    aliases: ['signup'],
+    description: 'Sign users up to be interviewers',
     detailedDescription: `**Examples:**
-\`${container.botPrefix}interviewer signup\``,
+\`${container.botPrefix}interviewer signup www.calendly.com\``,
 
     isCommandResponseEphemeral: false,
-    messageWhenExecutingCommand: 'Placeholder',
+    messageWhenExecutingCommand: 'Signing up for a profile...',
     executeCommand: interviewerSignupExecuteCommand,
-    messageIfFailure: 'Placeholder',
-    options: [],
+    messageIfFailure: 'Could not sign up for a profile',
+    options: [
+        {
+            name: 'calendar_url',
+            description: 'A valid calendly.com or x.ai calendar link',
+            type: CodeyCommandOptionType.STRING,
+            required: true
+        }
+    ],
     subcommandDetails: {},
 };
