@@ -1,5 +1,5 @@
-import { container } from '@sapphire/framework';
-import { User } from 'discord.js';
+import { SapphireClient, container } from '@sapphire/framework';
+import { CommandInteraction, EmbedBuilder, Message, User, userMention } from 'discord.js';
 import {
   CodeyCommandOptionType,
   CodeyCommandDetails,
@@ -41,6 +41,11 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
     return new SapphireMessageResponseWithMetadata(`You can't transfer to yourself.`, {});
   }
 
+  // Ensure the transfer involves a non-bot recipient
+  if (receivingUser.bot) {
+    return new SapphireMessageResponseWithMetadata(`You can't transfer to bots.`, {});
+  }
+
   // Retrieve sending user balance and ensure transferred amount is valid
   const senderBalance = await getCoinBalanceByUserId(sendingUser.id);
   if (amount > senderBalance) {
@@ -63,12 +68,38 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
 
   return new SapphireMessageResponseWithMetadata(await transfer.getTransferResponse(), {
     transferId: transfer.transferId,
+    _client: client,
+    receiver: receivingUser,
   });
 };
 
 const transferAfterMessageReply: SapphireAfterReplyType = async (result, sentMessage) => {
   if (typeof result.metadata.transferId === 'undefined') return;
-  // Store the message which the game takes place in the game object
+
+  // Send a dm to the transfer receiver
+  const receivingUser = <User>result.metadata['receiver'];
+  const client = <SapphireClient>result.metadata['_client'];
+
+  const mentionUser = userMention(receivingUser.id);
+
+  const message = <Message>sentMessage;
+  let messageLink = message.url;
+  if (!messageLink) {
+    // if command was run as a slash command, the above will fail
+    const commandInteraction = <CommandInteraction>sentMessage;
+    const messageReply = await commandInteraction.fetchReply();
+    messageLink = messageReply.url;
+  }
+  const transferPingMessage = `Hey ${mentionUser}, you've received a CodeyCoin transfer! 
+
+Check it out here: ${messageLink}`;
+
+  const transferPingEmbed = new EmbedBuilder()
+    .setColor('Green')
+    .setTitle('New CodeyCoin Transfer!')
+    .setDescription(transferPingMessage);
+  client.users.send(receivingUser, { embeds: [transferPingEmbed] });
+
   transferTracker.runFuncOnTransfer(<string>result.metadata.transferId, (transfer) => {
     transfer.transferMessage = sentMessage;
   });
@@ -83,7 +114,7 @@ export const coinTransferCommandDetails: CodeyCommandDetails = {
   \`${container.botPrefix}coin transfer @Codey 10 Lost a bet to @Codey\``,
 
   isCommandResponseEphemeral: false,
-  messageWhenExecutingCommand: 'Transferring coins...',
+  messageWhenExecutingCommand: 'Setting up the transaction...',
   afterMessageReply: transferAfterMessageReply,
   executeCommand: coinTransferExecuteCommand,
   options: [
