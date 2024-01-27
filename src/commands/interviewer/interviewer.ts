@@ -22,14 +22,15 @@ export const interviewerCommandDetails: CodeyCommandDetails = {
   messageIfFailure: 'Could not retrieve interviewer information.',
   options: [],
   subcommandDetails: {
-      ['clear']: interviewerClearCommandDetails,
-      ['domain']: interviewerDomainCommandDetails,
-      ['pause']: interviewerPauseCommandDetails,
-      ['profile']: interviewerProfileCommandDetails,
-      ['resume']: interviewerResumeCommandDetails,
-      ['signup']: interviewerSignupCommandDetails,
-      ['list']: interviewerListCommandDetails,
+      clear: interviewerClearCommandDetails,
+      domain: interviewerDomainCommandDetails,
+      pause: interviewerPauseCommandDetails,
+      profile: interviewerProfileCommandDetails,
+      resume: interviewerResumeCommandDetails,
+      signup: interviewerSignupCommandDetails,
+      list: interviewerListCommandDetails,
   },
+  defaultSubcommandDetails: interviewerListCommandDetails,
 };
 
 export class MiscellaneousInterviewerCommand extends CodeyCommand {

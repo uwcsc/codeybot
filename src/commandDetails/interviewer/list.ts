@@ -50,12 +50,19 @@ const interviewerListExecuteCommand: SapphireMessageExecuteType = async (
         interviewersToShow.map((interviewer) => getInterviewerDisplayInfo(interviewer)),
     );
 
+    // If there's no data, then interviewersInfo is an array of undefined, which messed things up
+    // Thus need to display something else instead of interviewersInfo.join()
+    const embedDescription = (interviewersInfo[0] === undefined) 
+                            ? "No data to display" 
+                            : interviewersInfo.join()
+
     // Construct embed for display
     const title = domain
         ? `Available Interviewers for ${availableDomains[domain]}`
         : 'Available Interviewers';
-    const outEmbed = new EmbedBuilder().setColor(DEFAULT_EMBED_COLOUR).setTitle(title);
-    outEmbed.setDescription(interviewersInfo.join());
+    const outEmbed = new EmbedBuilder().setColor(DEFAULT_EMBED_COLOUR)
+                                    .setTitle(title)
+                                    .setDescription(embedDescription);
     return { embeds: [outEmbed] };
 };
 
