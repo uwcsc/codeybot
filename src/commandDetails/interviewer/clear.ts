@@ -1,41 +1,40 @@
 import { container } from '@sapphire/framework';
-import _ from 'lodash';
 import { clearProfile, getInterviewer } from '../../components/interviewer';
 import {
-    CodeyCommandDetails,
-    SapphireMessageExecuteType,
-    SapphireMessageResponse,
-    getUserFromMessage,
+  CodeyCommandDetails,
+  SapphireMessageExecuteType,
+  SapphireMessageResponse,
+  getUserFromMessage,
 } from '../../codeyCommand';
 
 const interviewerClearExecuteCommand: SapphireMessageExecuteType = async (
-    _client,
-    messageFromUser,
-    _args,
+  _client,
+  messageFromUser,
+  _args,
 ): Promise<SapphireMessageResponse> => {
-    const id = getUserFromMessage(messageFromUser).id;   
+  const id = getUserFromMessage(messageFromUser).id;
 
-    // Check if user signed up to be interviewer
-    if (!(await getInterviewer(id))) {
-        return `You don't seem to have signed up yet. Please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`;
-    }
-    
-    // Clear interviewer data
-    await clearProfile(id);
-    return 'Your interviewer profile has been cleared!';
+  // Check if user signed up to be interviewer
+  if (!(await getInterviewer(id))) {
+    return `You don't seem to have signed up yet. Please sign up using \`${container.botPrefix}interviewer signup <calendarUrl>\`!`;
+  }
+
+  // Clear interviewer data
+  await clearProfile(id);
+  return 'Your interviewer profile has been cleared!';
 };
 
 export const interviewerClearCommandDetails: CodeyCommandDetails = {
-    name: 'clear',
-    aliases: ['clr'],
-    description: 'Clear interviewer data',
-    detailedDescription: `**Examples:**
+  name: 'clear',
+  aliases: ['clr'],
+  description: 'Clear interviewer data',
+  detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer clear\``,
 
-    isCommandResponseEphemeral: false,
-    messageWhenExecutingCommand: 'Clearing interviewer profile...',
-    executeCommand: interviewerClearExecuteCommand,
-    messageIfFailure: 'Could not clear interviewer profile',
-    options: [],
-    subcommandDetails: {},
+  isCommandResponseEphemeral: false,
+  messageWhenExecutingCommand: 'Clearing interviewer profile...',
+  executeCommand: interviewerClearExecuteCommand,
+  messageIfFailure: 'Could not clear interviewer profile',
+  options: [],
+  subcommandDetails: {},
 };
