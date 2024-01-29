@@ -11,7 +11,7 @@ import { interviewerListCommandDetails } from '../../commandDetails/interviewer/
 
 export const interviewerCommandDetails: CodeyCommandDetails = {
   name: 'interviewers',
-  aliases: ['int'],
+  aliases: ['int', 'interviewer'],
   description: 'Handle interviewer functions.',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer\`

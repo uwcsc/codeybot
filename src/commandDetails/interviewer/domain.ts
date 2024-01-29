@@ -39,9 +39,9 @@ const interviewerDomainExecuteCommand: SapphireMessageExecuteType = async (
 export const interviewerDomainCommandDetails: CodeyCommandDetails = {
   name: 'domain',
   aliases: ['domain'],
-  description: 'Modify domain data',
+  description: 'Add/remove a domain of your choice',
   detailedDescription: `**Examples:**
-\`${container.botPrefix}interviewer domain\``,
+\`${container.botPrefix}interviewer domain frontend\``,
 
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Modifying domain data...',

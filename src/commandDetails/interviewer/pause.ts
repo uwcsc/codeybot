@@ -27,7 +27,7 @@ const interviewerPauseExecuteCommand: SapphireMessageExecuteType = async (
 export const interviewerPauseCommandDetails: CodeyCommandDetails = {
   name: 'pause',
   aliases: ['ps'],
-  description: 'Put a profile on pause',
+  description: 'Put your interviewer profile on pause',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer pause\``,
 

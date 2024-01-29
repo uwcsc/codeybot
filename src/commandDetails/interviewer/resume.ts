@@ -27,7 +27,7 @@ const interviewerResumeExecuteCommand: SapphireMessageExecuteType = async (
 export const interviewerResumeCommandDetails: CodeyCommandDetails = {
   name: 'resume',
   aliases: ['resume'],
-  description: 'Resume an interviewer profile',
+  description: 'Resume your interviewer profile',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer resume\``,
 

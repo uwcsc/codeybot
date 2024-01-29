@@ -35,7 +35,7 @@ const interviewerSignupExecuteCommand: SapphireMessageExecuteType = async (
 export const interviewerSignupCommandDetails: CodeyCommandDetails = {
   name: 'signup',
   aliases: ['signup'],
-  description: 'Sign users up to be interviewers',
+  description: 'Sign yourself up to be an interviewer!',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer signup www.calendly.com\``,
 

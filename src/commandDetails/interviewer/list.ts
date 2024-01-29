@@ -53,7 +53,7 @@ const interviewerListExecuteCommand: SapphireMessageExecuteType = async (
   // If there's no data, then interviewersInfo is an array of undefined, which messed things up
   // Thus need to display something else instead of interviewersInfo.join()
   const embedDescription =
-    interviewersInfo[0] === undefined ? 'No data to display' : interviewersInfo.join();
+    interviewersInfo[0] === undefined ? 'No data to display' : interviewersInfo.join('');
 
   // Construct embed for display
   const title = domain

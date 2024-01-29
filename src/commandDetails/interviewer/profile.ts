@@ -41,14 +41,14 @@ const interviewerProfileExecuteCommand: SapphireMessageExecuteType = async (
 export const interviewerProfileCommandDetails: CodeyCommandDetails = {
   name: 'profile',
   aliases: ['pf'],
-  description: 'Modify profile data',
+  description: 'Display your interviewer profile data',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer profile\``,
 
   isCommandResponseEphemeral: false,
-  messageWhenExecutingCommand: 'Modifying profile...',
+  messageWhenExecutingCommand: 'Displaying profile...',
   executeCommand: interviewerProfileExecuteCommand,
-  messageIfFailure: 'Could not modify profile',
+  messageIfFailure: 'Could not display profile',
   options: [],
   subcommandDetails: {},
 };

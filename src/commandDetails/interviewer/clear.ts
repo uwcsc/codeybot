@@ -27,14 +27,14 @@ const interviewerClearExecuteCommand: SapphireMessageExecuteType = async (
 export const interviewerClearCommandDetails: CodeyCommandDetails = {
   name: 'clear',
   aliases: ['clr'],
-  description: 'Clear interviewer data',
+  description: 'Clear all your interviewer data',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}interviewer clear\``,
 
   isCommandResponseEphemeral: false,
-  messageWhenExecutingCommand: 'Clearing interviewer profile...',
+  messageWhenExecutingCommand: 'Clearing your interviewer profile...',
   executeCommand: interviewerClearExecuteCommand,
-  messageIfFailure: 'Could not clear interviewer profile',
+  messageIfFailure: 'Could not clear your interviewer profile',
   options: [],
   subcommandDetails: {},
 };
