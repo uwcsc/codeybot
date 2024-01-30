@@ -2,14 +2,14 @@
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { container } from '@sapphire/framework';
 import {
-  Collection,
   Colors,
-  Message,
   EmbedBuilder,
-  MessageReaction,
-  Snowflake,
-  User,
   ChatInputCommandInteraction,
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowBuilder,
+  ButtonInteraction,
+  ComponentType,
 } from 'discord.js';
 import {
   adjustCoinBalanceByUserId,
@@ -35,9 +35,22 @@ import {
   SapphireMessageResponse,
 } from '../../codeyCommand';
 
+// CodeyCoin constants
 const DEFAULT_BET = 10;
 const MIN_BET = 10;
 const MAX_BET = 1000000;
+
+// Game buttons: Hit, Stand, Quit
+const hit = new ButtonBuilder().setCustomId('hit').setLabel('Hit 🇭').setStyle(ButtonStyle.Primary);
+const stand = new ButtonBuilder()
+  .setCustomId('stand')
+  .setLabel('Stand 🇸')
+  .setStyle(ButtonStyle.Primary);
+const quit = new ButtonBuilder()
+  .setCustomId('quit')
+  .setLabel('Quit 🇶')
+  .setStyle(ButtonStyle.Danger);
+const optionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(hit, stand, quit);
 
 // ----------------------------------- START OF UTILITY FUNCTIONS ---------------------------- //
 
@@ -70,54 +83,27 @@ const getHandDisplayString = (hand: BlackjackHand): string => {
   return `Hand: ${cards}`;
 };
 
-// Ensure no one else besides player can interact with the game
-const reactFilter = (reaction: MessageReaction, user: User, authorId: string): boolean => {
-  return (
-    reaction.emoji.name !== null &&
-    ['🇸', '🇭', '🇶'].includes(reaction.emoji.name) &&
-    user.id === authorId
-  );
-};
-
-// Collect player's reaction and progress the game based on that reaction
+// Collect player's action and progress the game based on that reaction
 const performActionFromReaction = async (
-  collected: Collection<string | Snowflake, MessageReaction>,
-  gameMessage: Message,
+  reaction: ButtonInteraction,
   playerId: string,
 ): Promise<GameState | null> => {
-  // Collect the first reaction
-  const reaction = collected.first();
-
-  // Remove the user's reaction once we've received it
-  if (reaction) await gameMessage.reactions.resolve(reaction)?.users.remove(playerId);
-
-  // Perform action according to reaction
-  switch (reaction?.emoji.name) {
-    case '🇸':
-      return performGameAction(playerId, BlackjackAction.STAND);
-    case '🇭':
+  const action = reaction.customId;
+  // Progress game according to action
+  switch (action) {
+    case 'hit': {
       return performGameAction(playerId, BlackjackAction.HIT);
-    case '🇶':
+    }
+    case 'stand': {
+      return performGameAction(playerId, BlackjackAction.STAND);
+    }
+    case 'quit': {
       return performGameAction(playerId, BlackjackAction.QUIT);
-    default:
+    }
+    default: {
       return null;
+    }
   }
-};
-
-const handlePlayerAction = async (gameMessage: Message, playerId: string) => {
-  const reactFilterResult = (reaction: MessageReaction, user: User) =>
-    reactFilter(reaction, user, playerId);
-
-  // Only waits for 1 valid reaction from the player, with a time limit of 1 minute.
-  const reactCollector = await gameMessage.awaitReactions({
-    filter: reactFilterResult,
-    max: 1,
-    time: 60000,
-    errors: ['time'],
-  });
-
-  // Perform action corresponding to reaction
-  return await performActionFromReaction(reactCollector, gameMessage, playerId);
 };
 
 // Calculate new CodeyCoin balance
@@ -201,8 +187,7 @@ const getEmbedFromGame = (game: GameState): EmbedBuilder => {
 };
 
 // End the game
-const closeGame = (gameMessage: Message, playerId: string, balanceChange = 0) => {
-  gameMessage.reactions.removeAll();
+const closeGame = (playerId: string, balanceChange = 0) => {
   endGame(playerId);
   adjustCoinBalanceByUserId(playerId, balanceChange, UserCoinEvent.Blackjack);
 };
@@ -241,23 +226,37 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
   }
 
   // Show game initial state and setup reactions
-  const msg = await message.reply({ embeds: [getEmbedFromGame(game)], fetchReply: true });
-  if (game?.stage != BlackjackStage.DONE) {
-    msg.react('🇭');
-    msg.react('🇸');
-    msg.react('🇶');
-  }
+  const msg = await message.reply({
+    embeds: [getEmbedFromGame(game)],
+    components: game?.stage != BlackjackStage.DONE ? [optionRow] : [],
+    fetchReply: true,
+  });
 
   // Keep handling player action until game is done
   while (game && game?.stage != BlackjackStage.DONE) {
     try {
+      // Make sure no one else besides OG player can interact with the game
+      const reactFilter = (reaction: ButtonInteraction) => reaction.user.id === author;
+
+      // Collect first valid action from the player, with a time limit of 1 minute.
+      const reactCollector = await msg.awaitMessageComponent({
+        filter: reactFilter,
+        componentType: ComponentType.Button,
+        time: 60000,
+      });
+
       // Wait for user action
-      game = await handlePlayerAction(msg, author);
+      game = await performActionFromReaction(reactCollector, author);
+
+      // Return next game state
       await msg.edit({ embeds: [getEmbedFromGame(game!)] });
+      await reactCollector.update({ components: [optionRow] });
     } catch {
       // If player has not acted within time limit, consider it as quitting the game
       game = performGameAction(author, BlackjackAction.QUIT);
-      message.reply("You didn't act within the time limit, please start another game!");
+      msg.edit(
+        "You didn't act within the time limit. Unfortunately, this counts as a quit. Please start another game!",
+      );
       if (game) {
         game.stage = BlackjackStage.DONE;
       }
@@ -265,9 +264,9 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
   }
   if (game) {
     // Update game embed
-    await msg.edit({ embeds: [getEmbedFromGame(game)] });
+    await msg.edit({ embeds: [getEmbedFromGame(game)], components: [] });
     // End the game
-    closeGame(msg, author, getBalanceChange(game));
+    closeGame(author, getBalanceChange(game));
     return msg;
   }
 };
