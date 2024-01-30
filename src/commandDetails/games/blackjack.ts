@@ -1,5 +1,3 @@
-// Sapphire Specific:
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { container } from '@sapphire/framework';
 import {
   Colors,
@@ -41,14 +39,20 @@ const MIN_BET = 10;
 const MAX_BET = 1000000;
 
 // Game buttons: Hit, Stand, Quit
-const hit = new ButtonBuilder().setCustomId('hit').setLabel('Hit 🇭').setStyle(ButtonStyle.Primary);
+const hit = new ButtonBuilder()
+  .setCustomId('hit')
+  .setLabel('Hit')
+  .setEmoji('🇭')
+  .setStyle(ButtonStyle.Success);
 const stand = new ButtonBuilder()
   .setCustomId('stand')
-  .setLabel('Stand 🇸')
-  .setStyle(ButtonStyle.Primary);
+  .setLabel('Stand')
+  .setEmoji('🇸')
+  .setStyle(ButtonStyle.Secondary);
 const quit = new ButtonBuilder()
   .setCustomId('quit')
-  .setLabel('Quit 🇶')
+  .setLabel('Quit')
+  .setEmoji('🇶')
   .setStyle(ButtonStyle.Danger);
 const optionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(hit, stand, quit);
 
@@ -273,7 +277,7 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
 
 export const blackjackCommandDetails: CodeyCommandDetails = {
   name: 'bj',
-  aliases: ['blj'],
+  aliases: ['blj', 'blackjack'],
   description: 'Play a Blackjack game to win some Codey coins!',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}bj 100\`
