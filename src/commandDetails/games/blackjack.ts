@@ -31,6 +31,7 @@ import {
   CodeyCommandOptionType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
+  getUserFromMessage,
 } from '../../codeyCommand';
 
 // CodeyCoin constants
@@ -203,12 +204,12 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-  const message = <ChatInputCommandInteraction>messageFromUser;
+  const message = messageFromUser;
   // If there are no arguments, then resolve to the default bet amount; if there is only one argument and it is an
   // integer, then this is the bet amount; otherwise, reply that a valid bet amount must be entered
   const bet = args['bet'] === undefined ? DEFAULT_BET : <number>args['bet'];
 
-  const author = message.user.id;
+  const author = getUserFromMessage(message).id;
   const channel = message.channelId;
 
   const validateRes = validateBetAmount(bet);
@@ -271,13 +272,12 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
     await msg.edit({ embeds: [getEmbedFromGame(game)], components: [] });
     // End the game
     closeGame(author, getBalanceChange(game));
-    return msg;
   }
 };
 
 export const blackjackCommandDetails: CodeyCommandDetails = {
   name: 'bj',
-  aliases: ['blj', 'blackjack'],
+  aliases: ['blj', 'blackjack', '21'],
   description: 'Play a Blackjack game to win some Codey coins!',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}bj 100\`
