@@ -2,7 +2,6 @@ import { container } from '@sapphire/framework';
 import {
   Colors,
   EmbedBuilder,
-  ChatInputCommandInteraction,
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
