@@ -231,4 +231,15 @@ export const updateWiki = async () => {
     await appendFile(wikiPath, `- **Options:** \n`);
     await appendFile(wikiPath, `    - \`\`details\`\`: Details of your suggestion\n`);
     await appendFile(wikiPath, `- **Subcommands:** \`\`list\`\`, \`\`update\`\`, \`\`create\`\`\n\n`);
+
+    // Harcoding info for coffechat until it can be migrated to CodeyCommand framework
+    await appendFile(wikiPath, `# coffee \n`);
+    await appendFile(wikiPath, `## coffee \n`);
+    await appendFile(wikiPath, `- **Aliases:** None\n`);
+    await appendFile(wikiPath, `- **Description:** Handle coffee chat functions.\n`);
+    await appendFile(wikiPath, `- **Examples:**
+    \`.coffee match\`
+    \`.coffee test 10\`\n`);
+    await appendFile(wikiPath, `- **Options:** None\n`);
+    await appendFile(wikiPath, `- **Subcommands:** \`\`match\`\`, \`\`test\`\`\n\n`);
 };
