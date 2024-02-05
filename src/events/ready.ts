@@ -5,6 +5,7 @@ import { initEmojis } from '../components/emojis';
 import { vars } from '../config';
 import { logger } from '../logger/default';
 import { getRepositoryReleases } from '../utils/github';
+import { updateWiki } from '../utils/updateWiki';
 
 const dev = process.env.NODE_ENV !== 'production';
 
@@ -45,4 +46,5 @@ export const initReady = (client: Client): void => {
   sendReady(client);
   initCrons(client);
   initEmojis(client);
+  updateWiki();
 };
