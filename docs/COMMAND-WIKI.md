@@ -304,7 +304,7 @@
     - ``description``: The description of the customization to be set for the user.
 - **Subcommands:** None
 
-# Suggestion 
+# SUGGESTION 
 ## suggestion 
 - **Aliases:** suggest
 - **Description:** Handle suggestion functions.
@@ -315,7 +315,7 @@
     - ``details``: Details of your suggestion
 - **Subcommands:** ``list``, ``update``, ``create``
 
-# coffee 
+# COFFEE CHAT 
 ## coffee 
 - **Aliases:** None
 - **Description:** Handle coffee chat functions.

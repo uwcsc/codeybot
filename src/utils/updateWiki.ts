@@ -221,7 +221,7 @@ export const updateWiki = async (): Promise<void> => {
   }
 
   // Harcoding info for suggestion until it can be migrated to CodeyCommand framework
-  await appendFile(wikiPath, `# Suggestion \n`);
+  await appendFile(wikiPath, `# SUGGESTION \n`);
   await appendFile(wikiPath, `## suggestion \n`);
   await appendFile(wikiPath, `- **Aliases:** suggest\n`);
   await appendFile(wikiPath, `- **Description:** Handle suggestion functions.\n`);
@@ -238,7 +238,7 @@ export const updateWiki = async (): Promise<void> => {
   await appendFile(wikiPath, `- **Subcommands:** \`\`list\`\`, \`\`update\`\`, \`\`create\`\`\n\n`);
 
   // Harcoding info for coffechat until it can be migrated to CodeyCommand framework
-  await appendFile(wikiPath, `# coffee \n`);
+  await appendFile(wikiPath, `# COFFEE CHAT \n`);
   await appendFile(wikiPath, `## coffee \n`);
   await appendFile(wikiPath, `- **Aliases:** None\n`);
   await appendFile(wikiPath, `- **Description:** Handle coffee chat functions.\n`);
