@@ -1,4 +1,4 @@
-import { statSync } from 'fs';
+import { statSync, readdirSync } from 'fs';
 import { appendFile, writeFile, readdir, readFile } from 'fs/promises';
 
 // File Paths
@@ -7,7 +7,27 @@ const commandsDir = 'src/commands';
 const commandDetailsDir = 'src/commandDetails';
 
 // Commands with subcommands, to be handled separately
-const compoundCommands = ['coin', 'company', 'interviewer', 'leetcode', 'profile'];
+const retrieveCompoundCommands = (): string[] => {
+  let compoundCommands: string[] = [];
+
+  const filesAndDirs = readdirSync(commandsDir);
+  const directories = filesAndDirs.filter((file) =>
+    statSync(`${commandsDir}/${file}`).isDirectory(),
+  );
+
+  for (const dir of directories) {
+    const subDir = `${commandsDir}/${dir}`;
+    const files = readdirSync(subDir);
+    if (files.length === 1 && files[0] === `${dir}.ts`) {
+      compoundCommands.push(dir);
+    }
+  }
+
+  return compoundCommands;
+};
+
+// As of Feb 8 2024, this should be ['coin', 'company', 'interviewer', 'leetcode', 'profile'];
+const compoundCommands: string[] = retrieveCompoundCommands();
 
 // RegEx patterns to extract info
 const commandDetailsPattern = /.*const .+CommandDetails: CodeyCommandDetails = {([\s\S]*?)\n}/;
@@ -19,10 +39,6 @@ const optionsPattern = /options: \[([\s\S]*?)\]/;
 const subcommandDetailsPattern = /subcommandDetails: {([\s\S]*?)},/;
 
 // ----------------------------------- START OF UTILITY FUNCTIONS ---------------------------- //
-
-const refreshWiki = async () => {
-  await writeFile(wikiPath, '');
-};
 
 const formatCommandName = async (name: string | undefined) => {
   let formattedName = '';
@@ -123,7 +139,7 @@ const formatSubcommandDetails = async (subcommandDetails: string | undefined) =>
 
 export const updateWiki = async (): Promise<void> => {
   // Refresh COMMAND-WIKI.md
-  await refreshWiki();
+  await writeFile(wikiPath, '');
 
   const filesAndDirs = await readdir(commandDetailsDir);
   const directories = filesAndDirs.filter((file) =>
@@ -221,33 +237,27 @@ export const updateWiki = async (): Promise<void> => {
   }
 
   // Harcoding info for suggestion until it can be migrated to CodeyCommand framework
-  await appendFile(wikiPath, `# SUGGESTION \n`);
-  await appendFile(wikiPath, `## suggestion \n`);
-  await appendFile(wikiPath, `- **Aliases:** suggest\n`);
-  await appendFile(wikiPath, `- **Description:** Handle suggestion functions.\n`);
-  await appendFile(
-    wikiPath,
-    `- This command will forward a suggestion to the CSC Discord Mods. \
-    Please note that your suggestion is not anonymous, your Discord username and ID will be recorded. \
-    If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
-    **Examples:**
-    \`.suggestion I want a new Discord channel named #hobbies.\`\n`,
-  );
-  await appendFile(wikiPath, `- **Options:** \n`);
-  await appendFile(wikiPath, `    - \`\`details\`\`: Details of your suggestion\n`);
-  await appendFile(wikiPath, `- **Subcommands:** \`\`list\`\`, \`\`update\`\`, \`\`create\`\`\n\n`);
+  const suggestionContents = `# SUGGESTION 
+  ## suggestion 
+  - **Aliases:** suggest
+  - **Description:** Handle suggestion functions.
+  - This command will forward a suggestion to the CSC Discord Mods.     Please note that your suggestion is not anonymous, your Discord username and ID will be recorded.     If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
+      **Examples:**
+      \`\`.suggestion I want a new Discord channel named #hobbies.\`\`
+  - **Options:** 
+      - \`\`details\`\`: Details of your suggestion
+  - **Subcommands:** \`\`list\`\`, \`\`update\`\`, \`\`create\`\``;
+  await appendFile(wikiPath, `${suggestionContents}\n\n`);
 
   // Harcoding info for coffechat until it can be migrated to CodeyCommand framework
-  await appendFile(wikiPath, `# COFFEE CHAT \n`);
-  await appendFile(wikiPath, `## coffee \n`);
-  await appendFile(wikiPath, `- **Aliases:** None\n`);
-  await appendFile(wikiPath, `- **Description:** Handle coffee chat functions.\n`);
-  await appendFile(
-    wikiPath,
-    `- **Examples:**
-    \`.coffee match\`
-    \`.coffee test 10\`\n`,
-  );
-  await appendFile(wikiPath, `- **Options:** None\n`);
-  await appendFile(wikiPath, `- **Subcommands:** \`\`match\`\`, \`\`test\`\`\n\n`);
+  const coffeeContents = `# COFFEE CHAT 
+  ## coffee 
+  - **Aliases:** None
+  - **Description:** Handle coffee chat functions.
+  - **Examples:**
+      \`\`.coffee match\`\`
+      \`\`.coffee test 10\`\`
+  - **Options:** None
+  - **Subcommands:** \`\`match\`\`, \`\`test\`\``;
+  await appendFile(wikiPath, `${coffeeContents}\n\n`);
 };
