@@ -46,5 +46,11 @@ export const initReady = (client: Client): void => {
   sendReady(client);
   initCrons(client);
   initEmojis(client);
+  logger.info({
+    message: 'Updating wiki...',
+  });
   updateWiki();
+  logger.info({
+    message: 'Wiki successfully updated',
+  });
 };
