@@ -8,7 +8,7 @@ const commandDetailsDir = 'src/commandDetails';
 
 // Commands with subcommands, to be handled separately
 const retrieveCompoundCommands = (): string[] => {
-  let compoundCommands: string[] = [];
+  const compoundCommands: string[] = [];
 
   const filesAndDirs = readdirSync(commandsDir);
   const directories = filesAndDirs.filter((file) =>
