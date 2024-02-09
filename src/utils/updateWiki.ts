@@ -41,24 +41,22 @@ const subcommandDetailsPattern = /subcommandDetails: {([\s\S]*?)},/;
 
 // ----------------------------------- START OF UTILITY FUNCTIONS ---------------------------- //
 
-const formatCommandName = async (name: string | undefined) => {
+const formatCommandName = async (
+  name: string | undefined,
+  baseCmd: string | undefined = undefined,
+) => {
   let formattedName = '';
   if (name === undefined) {
     formattedName = 'None';
   } else {
     formattedName = name;
   }
-  await appendFile(wikiPath, `## ${formattedName}\n`);
-};
 
-const formatSubcommandName = async (name: string | undefined, basecmd: string) => {
-  let formattedName = '';
-  if (name === undefined) {
-    formattedName = 'None';
+  if (baseCmd === undefined) {
+    await appendFile(wikiPath, `## ${formattedName}\n`);
   } else {
-    formattedName = name;
+    await appendFile(wikiPath, `## ${baseCmd} ${formattedName}\n`);
   }
-  await appendFile(wikiPath, `## ${basecmd} ${formattedName}\n`);
 };
 
 const formatAliases = async (aliases: string | undefined) => {
@@ -136,6 +134,39 @@ const formatSubcommandDetails = async (subcommandDetails: string | undefined) =>
   await appendFile(wikiPath, `- **Subcommands:** ${formattedSubcommandDetails}\n\n`);
 };
 
+const extractAndFormat = async (
+  codeSection: string,
+  baseCmd: string | undefined = undefined,
+): Promise<void> => {
+  // Extract info pieces
+  const name = codeSection.match(namePattern)?.[1];
+  const aliases = codeSection.match(aliasesPattern)?.[1];
+  const description = codeSection.match(descriptionPattern)?.[1];
+  const detailedDescription = codeSection.match(detailedDescriptionPattern)?.[1];
+  const options = codeSection.match(optionsPattern)?.[1].split(', ');
+  const subcommandDetails = codeSection.match(subcommandDetailsPattern)?.[1];
+
+  // Just in case command name cannot be extracted, which is not to be expected
+  if (name === undefined) {
+    logger.error({
+      message: `Could not find command name from ${codeSection}`,
+    });
+    return;
+  }
+
+  // Format the info
+  if (baseCmd === undefined) {
+    await formatCommandName(name);
+  } else {
+    await formatCommandName(name, baseCmd);
+  }
+  await formatAliases(aliases);
+  await formatDescription(description);
+  await formatDetailedDescription(detailedDescription);
+  await formatOptions(options);
+  await formatSubcommandDetails(subcommandDetails);
+};
+
 // ----------------------------------- END OF UTILITY FUNCTIONS ---------------------------- //
 
 export const updateWiki = async (): Promise<void> => {
@@ -162,22 +193,7 @@ export const updateWiki = async (): Promise<void> => {
         const match = content.match(commandDetailsPattern);
         if (match) {
           const codeSection = match[1];
-
-          // Extract info pieces
-          const name = codeSection.match(namePattern)?.[1];
-          const aliases = codeSection.match(aliasesPattern)?.[1];
-          const description = codeSection.match(descriptionPattern)?.[1];
-          const detailedDescription = codeSection.match(detailedDescriptionPattern)?.[1];
-          const options = codeSection.match(optionsPattern)?.[1].split(', ');
-          const subcommandDetails = codeSection.match(subcommandDetailsPattern)?.[1];
-
-          // Format the info
-          await formatCommandName(name);
-          await formatAliases(aliases);
-          await formatDescription(description);
-          await formatDetailedDescription(detailedDescription);
-          await formatOptions(options);
-          await formatSubcommandDetails(subcommandDetails);
+          await extractAndFormat(codeSection);
         }
       }
     } else {
@@ -193,22 +209,7 @@ export const updateWiki = async (): Promise<void> => {
         const match = content.match(commandDetailsPattern);
         if (match) {
           const codeSection = match[1];
-
-          // Extract info pieces
-          const name = codeSection.match(namePattern)?.[1];
-          const aliases = codeSection.match(aliasesPattern)?.[1];
-          const description = codeSection.match(descriptionPattern)?.[1];
-          const detailedDescription = codeSection.match(detailedDescriptionPattern)?.[1];
-          const options = codeSection.match(optionsPattern)?.[1].split(', ');
-          const subcommandDetails = codeSection.match(subcommandDetailsPattern)?.[1];
-
-          // Format the info
-          await formatCommandName(name);
-          await formatAliases(aliases);
-          await formatDescription(description);
-          await formatDetailedDescription(detailedDescription);
-          await formatOptions(options);
-          await formatSubcommandDetails(subcommandDetails);
+          await extractAndFormat(codeSection);
         }
       }
 
@@ -220,22 +221,7 @@ export const updateWiki = async (): Promise<void> => {
         const match = content.match(commandDetailsPattern);
         if (match) {
           const codeSection = match[1];
-
-          // Extract info pieces
-          const name = codeSection.match(namePattern)?.[1];
-          const aliases = codeSection.match(aliasesPattern)?.[1];
-          const description = codeSection.match(descriptionPattern)?.[1];
-          const detailedDescription = codeSection.match(detailedDescriptionPattern)?.[1];
-          const options = codeSection.match(optionsPattern)?.[1].split(', ');
-          const subcommandDetails = codeSection.match(subcommandDetailsPattern)?.[1];
-
-          // Format the info
-          await formatSubcommandName(name, dir);
-          await formatAliases(aliases);
-          await formatDescription(description);
-          await formatDetailedDescription(detailedDescription);
-          await formatOptions(options);
-          await formatSubcommandDetails(subcommandDetails);
+          await extractAndFormat(codeSection, dir);
         }
       }
     }
