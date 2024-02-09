@@ -305,23 +305,23 @@
 - **Subcommands:** None
 
 # SUGGESTION 
-  ## suggestion 
-  - **Aliases:** suggest
-  - **Description:** Handle suggestion functions.
-  - This command will forward a suggestion to the CSC Discord Mods.     Please note that your suggestion is not anonymous, your Discord username and ID will be recorded.     If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
-      **Examples:**
-      ``.suggestion I want a new Discord channel named #hobbies.``
-  - **Options:** 
-      - ``details``: Details of your suggestion
-  - **Subcommands:** ``list``, ``update``, ``create``
+## suggestion 
+- **Aliases:** ``suggest``
+- **Description:** Handle suggestion functions.
+- This command will forward a suggestion to the CSC Discord Mods.     Please note that your suggestion is not anonymous, your Discord username and ID will be recorded.     If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
+    **Examples:**
+    ``.suggestion I want a new Discord channel named #hobbies.``
+- **Options:** 
+    - ``details``: Details of your suggestion
+- **Subcommands:** ``list``, ``update``, ``create``
 
 # COFFEE CHAT 
-  ## coffee 
-  - **Aliases:** None
-  - **Description:** Handle coffee chat functions.
-  - **Examples:**
-      ``.coffee match``
-      ``.coffee test 10``
-  - **Options:** None
-  - **Subcommands:** ``match``, ``test``
+## coffee 
+- **Aliases:** None
+- **Description:** Handle coffee chat functions.
+- **Examples:**
+    ``.coffee match``
+    ``.coffee test 10``
+- **Options:** None
+- **Subcommands:** ``match``, ``test``
 
