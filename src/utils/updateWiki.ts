@@ -1,5 +1,6 @@
 import { statSync, readdirSync } from 'fs';
 import { appendFile, writeFile, readdir, readFile } from 'fs/promises';
+import { logger } from '../logger/default';
 
 // File Paths
 const wikiPath = 'docs/COMMAND-WIKI.md';
@@ -138,6 +139,10 @@ const formatSubcommandDetails = async (subcommandDetails: string | undefined) =>
 // ----------------------------------- END OF UTILITY FUNCTIONS ---------------------------- //
 
 export const updateWiki = async (): Promise<void> => {
+  logger.info({
+    message: 'Updating wiki...',
+  });
+
   // Refresh COMMAND-WIKI.md
   await writeFile(wikiPath, '');
 
@@ -238,26 +243,30 @@ export const updateWiki = async (): Promise<void> => {
 
   // Harcoding info for suggestion until it can be migrated to CodeyCommand framework
   const suggestionContents = `# SUGGESTION 
-  ## suggestion 
-  - **Aliases:** suggest
-  - **Description:** Handle suggestion functions.
-  - This command will forward a suggestion to the CSC Discord Mods.     Please note that your suggestion is not anonymous, your Discord username and ID will be recorded.     If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
-      **Examples:**
-      \`\`.suggestion I want a new Discord channel named #hobbies.\`\`
-  - **Options:** 
-      - \`\`details\`\`: Details of your suggestion
-  - **Subcommands:** \`\`list\`\`, \`\`update\`\`, \`\`create\`\``;
+## suggestion 
+- **Aliases:** \`\`suggest\`\`
+- **Description:** Handle suggestion functions.
+- This command will forward a suggestion to the CSC Discord Mods.     Please note that your suggestion is not anonymous, your Discord username and ID will be recorded.     If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
+    **Examples:**
+    \`\`.suggestion I want a new Discord channel named #hobbies.\`\`
+- **Options:** 
+    - \`\`details\`\`: Details of your suggestion
+- **Subcommands:** \`\`list\`\`, \`\`update\`\`, \`\`create\`\``;
   await appendFile(wikiPath, `${suggestionContents}\n\n`);
 
   // Harcoding info for coffechat until it can be migrated to CodeyCommand framework
   const coffeeContents = `# COFFEE CHAT 
-  ## coffee 
-  - **Aliases:** None
-  - **Description:** Handle coffee chat functions.
-  - **Examples:**
-      \`\`.coffee match\`\`
-      \`\`.coffee test 10\`\`
-  - **Options:** None
-  - **Subcommands:** \`\`match\`\`, \`\`test\`\``;
+## coffee 
+- **Aliases:** None
+- **Description:** Handle coffee chat functions.
+- **Examples:**
+    \`\`.coffee match\`\`
+    \`\`.coffee test 10\`\`
+- **Options:** None
+- **Subcommands:** \`\`match\`\`, \`\`test\`\``;
   await appendFile(wikiPath, `${coffeeContents}\n\n`);
+
+  logger.info({
+    message: 'Wiki successfully updated.',
+  });
 };
