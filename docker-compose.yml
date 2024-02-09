@@ -10,3 +10,4 @@ services:
       - ./src:/usr/app/src
       - ./logs:/usr/app/logs
       - ./db:/usr/app/db
+      - ./docs:/usr/app/docs

@@ -45,6 +45,10 @@ You can follow the instructions outlined [in this document](docs/SETUP.md).
 
 You can follow the steps [in this document](docs/CONTRIBUTING.md).
 
+## Command Wiki
+
+Check out our [Command Wiki](docs/COMMAND-WIKI.md) for more details on CodeyBot commands!
+
 ## License
 
 All rights reserved for images.

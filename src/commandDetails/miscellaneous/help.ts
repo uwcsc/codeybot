@@ -5,7 +5,7 @@ import {
   SapphireMessageResponse,
 } from '../../codeyCommand';
 
-const wikiLink = 'https://github.com/uwcsc/codeybot/wiki/Command-Help';
+const wikiLink = 'https://github.com/uwcsc/codeybot/blob/main/docs/COMMAND-WIKI.md';
 
 const helpExecuteCommand: SapphireMessageExecuteType = (
   _client,
