@@ -27,9 +27,6 @@ const retrieveCompoundCommands = (): string[] => {
   return compoundCommands;
 };
 
-// As of Feb 8 2024, this should be ['coin', 'company', 'interviewer', 'leetcode', 'profile'];
-const compoundCommands: string[] = retrieveCompoundCommands();
-
 // RegEx patterns to extract info
 const commandDetailsPattern = /.*const .+CommandDetails: CodeyCommandDetails = {([\s\S]*?)\n}/;
 const namePattern = /name: '(.*?)'/;
@@ -181,6 +178,9 @@ export const updateWiki = async (): Promise<void> => {
   const directories = filesAndDirs.filter((file) =>
     statSync(`${commandDetailsDir}/${file}`).isDirectory(),
   );
+
+  // As of Feb 8 2024, this should be ['coin', 'company', 'interviewer', 'leetcode', 'profile'];
+  const compoundCommands: string[] = retrieveCompoundCommands();
 
   for (const dir of directories) {
     if (!compoundCommands.includes(dir)) {
