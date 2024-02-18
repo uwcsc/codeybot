@@ -225,6 +225,10 @@ export const updateWiki = async (): Promise<void> => {
         }
       }
     }
+    // Remove any carriage returns
+    const data = await readFile(wikiPath, 'utf-8');
+    const modifiedData = data.replace(/\r/g, '');
+    await writeFile(wikiPath, modifiedData);
   }
 
   // Harcoding info for suggestion until it can be migrated to CodeyCommand framework

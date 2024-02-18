@@ -13,8 +13,7 @@ const companyCommandDetails: CodeyCommandDetails = {
     'Add yourself to a database of internships/jobs, or look for individuals that have worked at a job .',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}company add coinbase SRE\`
-\`${container.botPrefix}company find coinbase\`
-`,
+\`${container.botPrefix}company find coinbase\``,
   options: [],
   subcommandDetails: {
     enroll: companyEnrollCommandDetails,
