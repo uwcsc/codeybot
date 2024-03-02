@@ -70,33 +70,23 @@ const getCoinLeaderboardEmbed = async (
         .join('\\_')
         .split('`')
         .join('\\`');
-        console.log("RANK:", rank);
-        console.log("Position:", position);
-        console.log("Previous Balance:", previousBalance);
-        console.log("offset:", offset);
-        console.log("User Coin Entry Balance:", userCoinEntry.balance);
       const userCoinEntryText = `${rank}\\. ${cleanUserTag} - ${
         userCoinEntry.balance
       } ${getCoinEmoji()}`;
-      console.log("userCoinEntry is: ", userCoinEntryText);
       leaderboardArray.push(userCoinEntryText);
     }
   }
   const leaderboardText = leaderboardArray.join('\n');
-  console.log("leaderboardtext is: ", leaderboardText);
   const leaderboardEmbed = new EmbedBuilder()
     .setColor(DEFAULT_EMBED_COLOUR)
     .setTitle('Codey Coin Leaderboard')
     .setDescription(leaderboardText);
-
-    console.log("leaderboard embed is: ", leaderboardEmbed);
   leaderboardEmbed.addFields([
     {
       name: 'Your Position',
       value: `You are currently **#${position}** in the leaderboard with ${userBalance} ${getCoinEmoji()}.`,
     },
   ]);
-  console.log("leaderboard embed is: ", leaderboardEmbed);
   return leaderboardEmbed;
 };
 
