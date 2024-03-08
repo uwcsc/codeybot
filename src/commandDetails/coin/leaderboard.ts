@@ -70,6 +70,7 @@ const getCoinLeaderboardEmbed = async (
         .join('\\_')
         .split('`')
         .join('\\`');
+      // added a "\\" below in ${rank}\\. ${cleanUserTag} so that Markdown does not automatically increment by 1 each time
       const userCoinEntryText = `${rank}\\. ${cleanUserTag} - ${
         userCoinEntry.balance
       } ${getCoinEmoji()}`;
