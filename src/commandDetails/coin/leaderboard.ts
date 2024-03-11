@@ -29,6 +29,7 @@ const getCoinLeaderboardEmbed = async (
   let rank = 0;
   let offset = 0;
   let i = 0;
+  let absoluteCount = 0;
   while (leaderboardArray.length < LEADERBOARD_LIMIT_DISPLAY || position === 0) {
     if (i === LEADERBOARD_LIMIT_FETCH) {
       offset += LEADERBOARD_LIMIT_FETCH;
@@ -46,10 +47,15 @@ const getCoinLeaderboardEmbed = async (
       continue;
     }
     if (user.bot) continue;
-    if (previousBalance !== userCoinEntry.balance) {
+    if (previousBalance === userCoinEntry.balance) {
       previousBalance = userCoinEntry.balance;
-      rank = rank + 1;
+      // rank does not change
+    } else {
+      previousBalance = userCoinEntry.balance;
+      rank = absoluteCount + 1;
     }
+    // count how many total users have been processed:
+    absoluteCount++;
     if (userCoinEntry.user_id === userId) {
       position = rank;
     }
@@ -64,7 +70,8 @@ const getCoinLeaderboardEmbed = async (
         .join('\\_')
         .split('`')
         .join('\\`');
-      const userCoinEntryText = `${rank}. ${cleanUserTag} - ${
+      // added a "\\" below in ${rank}\\. ${cleanUserTag} so that Markdown does not automatically increment by 1 each time
+      const userCoinEntryText = `${rank}\\. ${cleanUserTag} - ${
         userCoinEntry.balance
       } ${getCoinEmoji()}`;
       leaderboardArray.push(userCoinEntryText);
@@ -81,7 +88,6 @@ const getCoinLeaderboardEmbed = async (
       value: `You are currently **#${position}** in the leaderboard with ${userBalance} ${getCoinEmoji()}.`,
     },
   ]);
-
   return leaderboardEmbed;
 };
 
