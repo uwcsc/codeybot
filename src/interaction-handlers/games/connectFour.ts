@@ -3,7 +3,6 @@ import { Option } from '@sapphire/result';
 import { ButtonInteraction } from 'discord.js';
 import { getEmojiByName } from '../../components/emojis';
 import {
-  getCodeyConnectFourSign,
   ConnectFourGameStatus,
   ConnectFourGameSign,
   connectFourGameTracker,
@@ -62,16 +61,19 @@ export class ConnectFourHandler extends InteractionHandler {
         const status = await game.setStatus(game.state, result.sign - 1);
         if (status == ConnectFourGameStatus.Pending) {
           if (!game.state.player2Id) {
-            let codeySign = getCodeyConnectFourSign();
-            while (!updateColumn(game.state.columns[codeySign - 1], game.state.player2Sign)) {
-              codeySign = getCodeyConnectFourSign();
-            }
-            game.setStatus(game.state, codeySign - 1);
+            let bestMove = game.getBestMove(game.state);
+            // while (!updateColumn(game.state.columns[codeySign - 1], game.state.player2Sign)) {
+            //   codeySign = getCodeyConnectFourSign(game.state);
+            // }
+            updateColumn(game.state.columns[bestMove], game.state.player2Sign);
+            game.setStatus(game.state, bestMove);
+            
           }
         }
       }
       updateMessageEmbed(game.gameMessage, game.getGameResponse());
     });
+
     connectFourGameTracker.endGame(result.gameId);
   }
 }
