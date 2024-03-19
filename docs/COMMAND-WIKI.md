@@ -304,6 +304,21 @@
     - ``description``: The description of the customization to be set for the user.
 - **Subcommands:** None
 
+# UWFLOW
+## uwflow
+- **Aliases:** None
+- **Description:** Handle UWFlow commands.
+- **Examples:**
+- **Options:** None
+- **Subcommands:** `info`
+
+## uwflow info
+- **Aliases:** `information`, `i`
+- **Description:** Get info about courses using UWFlow.
+- **Examples:**<br>`.uwflow info`<br>`.uwflow information`<br>`.uwflow i`
+- **Options:** None
+- **Subcommands:** None
+
 # SUGGESTION 
 ## suggestion 
 - **Aliases:** ``suggest``
