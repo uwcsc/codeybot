@@ -16,10 +16,11 @@ const uwflowInfoExecuteCommand: SapphireMessageExecuteType = async (
   const courseCode = <string>args['course_code'];
   const courseInfo: courseInfo | string = await getCourseInfo(courseCode);
 
-  if (courseInfo === "Oops, course does not exist!") {
-    const courseEmbed = new EmbedBuilder().setColor('Red')
-                                        .setTitle(`Information for ${courseCode.toUpperCase()}`)
-                                        .setDescription(courseInfo);
+  if (courseInfo === 'Oops, course does not exist!') {
+    const courseEmbed = new EmbedBuilder()
+      .setColor('Red')
+      .setTitle(`Information for ${courseCode.toUpperCase()}`)
+      .setDescription(courseInfo);
     return { embeds: [courseEmbed] };
   }
 
@@ -34,9 +35,10 @@ const uwflowInfoExecuteCommand: SapphireMessageExecuteType = async (
 
   const embedDescription = `Course code: ${code} \n\n Course name: ${name} \n\n Course description: \n ${description} \n\n Like rate: ${liked}% \n\n Easy rate: ${easy}% \n\n Useful rate: ${useful}%`;
 
-  const courseEmbed = new EmbedBuilder().setColor('Blue')
-                                        .setTitle(`Information for ${code}`)
-                                        .setDescription(embedDescription);
+  const courseEmbed = new EmbedBuilder()
+    .setColor('Blue')
+    .setTitle(`Information for ${code}`)
+    .setDescription(embedDescription);
 
   return { embeds: [courseEmbed] };
 };
@@ -59,7 +61,7 @@ export const uwflowInfoCommandDetails: CodeyCommandDetails = {
       description: 'The code of the course, all lowercase, e.g. cs135',
       type: CodeyCommandOptionType.STRING,
       required: true,
-    }
+    },
   ],
   subcommandDetails: {},
 };
