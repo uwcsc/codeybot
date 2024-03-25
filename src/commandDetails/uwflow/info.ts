@@ -13,14 +13,28 @@ const uwflowInfoExecuteCommand: SapphireMessageExecuteType = async (
   _messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-  const courseCode = <string>args['course_code'];
+  const courseCodeArg = <string | undefined>args['course_code'];
+
+  // If no argument is passed, return default information
+  if (courseCodeArg === undefined) {
+    const defaultEmbed = new EmbedBuilder()
+      .setColor('Blue')
+      .setTitle('General Information')
+      .setDescription('UWFlow is a website where students can view course reviews and ratings.');
+    return { embeds: [defaultEmbed] };
+  }
+
+  const courseCode = <string>courseCodeArg;
   const courseInfo: courseInfo | string = await getCourseInfo(courseCode);
 
+  // If mistyped course code or course doesn't exist
   if (courseInfo === 'Oops, course does not exist!') {
+    const errorDesc =
+      'Either the course does not exist or you did not type the course code in the correct format';
     const courseEmbed = new EmbedBuilder()
       .setColor('Red')
       .setTitle(`Information for ${courseCode.toUpperCase()}`)
-      .setDescription(courseInfo);
+      .setDescription(errorDesc);
     return { embeds: [courseEmbed] };
   }
 
@@ -36,7 +50,7 @@ const uwflowInfoExecuteCommand: SapphireMessageExecuteType = async (
   const embedDescription = `Course code: ${code} \n\n Course name: ${name} \n\n Course description: \n ${description} \n\n Like rate: ${liked}% \n\n Easy rate: ${easy}% \n\n Useful rate: ${useful}%`;
 
   const courseEmbed = new EmbedBuilder()
-    .setColor('Blue')
+    .setColor('Green')
     .setTitle(`Information for ${code}`)
     .setDescription(embedDescription);
 
@@ -58,9 +72,9 @@ export const uwflowInfoCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'course_code',
-      description: 'The code of the course, all lowercase, e.g. cs135',
+      description: 'The course code, all lowercase, no spaces. Examples: cs135, amath351',
       type: CodeyCommandOptionType.STRING,
-      required: true,
+      required: false,
     },
   ],
   subcommandDetails: {},
