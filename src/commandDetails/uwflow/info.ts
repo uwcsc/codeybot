@@ -24,13 +24,14 @@ const uwflowInfoExecuteCommand: SapphireMessageExecuteType = async (
     return { embeds: [defaultEmbed] };
   }
 
-  const courseCode = <string>courseCodeArg;
+  // Standardize the course code (i.e. cs 135, CS135, CS 135 becomes cs135 for the GraphQL query)
+  const courseCode = <string>courseCodeArg.split(' ').join('').toLowerCase();
+
   const courseInfo: courseInfo | string = await getCourseInfo(courseCode);
 
   // If mistyped course code or course doesn't exist
   if (courseInfo === 'Oops, course does not exist!') {
-    const errorDesc =
-      'Either the course does not exist or you did not type the course code in the correct format';
+    const errorDesc = 'Oops, that course does not exist!';
     const courseEmbed = new EmbedBuilder()
       .setColor('Red')
       .setTitle(`Information for ${courseCode.toUpperCase()}`)
@@ -77,7 +78,7 @@ export const uwflowInfoCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'course_code',
-      description: 'The course code, all lowercase, no spaces. Examples: cs135, amath351',
+      description: 'The course code. Examples: cs135, cs 135, CS135, CS 135',
       type: CodeyCommandOptionType.STRING,
       required: false,
     },
