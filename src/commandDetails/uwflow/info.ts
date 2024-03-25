@@ -47,12 +47,17 @@ const uwflowInfoExecuteCommand: SapphireMessageExecuteType = async (
   const easy = (actualCourseInfo.easy * 100).toFixed(2);
   const useful = (actualCourseInfo.useful * 100).toFixed(2);
 
-  const embedDescription = `Course code: ${code} \n\n Course name: ${name} \n\n Course description: \n ${description} \n\n Like rate: ${liked}% \n\n Easy rate: ${easy}% \n\n Useful rate: ${useful}%`;
-
   const courseEmbed = new EmbedBuilder()
     .setColor('Green')
     .setTitle(`Information for ${code}`)
-    .setDescription(embedDescription);
+    .addFields(
+      { name: 'Course code', value: code, inline: false },
+      { name: 'Course name', value: name, inline: false },
+      { name: 'Course description', value: description, inline: false },
+      { name: 'Like ratings', value: `${liked}%`, inline: true },
+      { name: 'Easy ratings', value: `${easy}%`, inline: true },
+      { name: 'Useful ratings', value: `${useful}%`, inline: true },
+    );
 
   return { embeds: [courseEmbed] };
 };
