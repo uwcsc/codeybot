@@ -59,15 +59,11 @@ export class ConnectFourHandler extends InteractionHandler {
       } else {
         await interaction.deferUpdate();
         const status = await game.setStatus(game.state, result.sign - 1);
-        if (status == ConnectFourGameStatus.Pending) {
+        if (status === ConnectFourGameStatus.Pending) {
           if (!game.state.player2Id) {
             let bestMove = game.getBestMove(game.state);
-            // while (!updateColumn(game.state.columns[codeySign - 1], game.state.player2Sign)) {
-            //   codeySign = getCodeyConnectFourSign(game.state);
-            // }
             updateColumn(game.state.columns[bestMove], game.state.player2Sign);
             game.setStatus(game.state, bestMove);
-            
           }
         }
       }
@@ -77,3 +73,9 @@ export class ConnectFourHandler extends InteractionHandler {
     connectFourGameTracker.endGame(result.gameId);
   }
 }
+
+//Debug function to enable program to allow program to pause
+// async function sleep(ms: number): Promise<void> {
+//   return new Promise(
+//       (resolve) => setTimeout(resolve, ms));
+// }
