@@ -443,19 +443,15 @@ export class Transfer {
       case TransferResult.Confirmed:
         const newReceiverBalance = await getCoinBalanceByUserId(this.state.receiver.id);
         const newSenderBalance = await getCoinBalanceByUserId(this.state.sender.id);
-        return `${this.state.receiver.username} accepted the transfer. ${
-          this.state.receiver.username
-        } now has ${newReceiverBalance} Codey ${pluralize(
+        return `${this.state.receiver.toString()} accepted the transfer. ${this.state.receiver.toString()} now has ${newReceiverBalance} Codey ${pluralize(
           'coin',
           newReceiverBalance,
-        )} ${getCoinEmoji()}. ${
-          this.state.sender.username
-        } now has ${newSenderBalance} Codey ${pluralize(
+        )} ${getCoinEmoji()}. ${this.state.sender.toString()} now has ${newSenderBalance} Codey ${pluralize(
           'coin',
           newSenderBalance,
         )} ${getCoinEmoji()}.`;
       case TransferResult.Rejected:
-        return `This transfer was rejected by ${this.state.receiver.username}.`;
+        return `This transfer was rejected by ${this.state.receiver.toString()}.`;
       case TransferResult.Pending:
         return 'Please choose whether you would like to accept this transfer.';
       case TransferResult.Invalid:

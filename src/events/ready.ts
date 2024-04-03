@@ -5,8 +5,9 @@ import { initEmojis } from '../components/emojis';
 import { vars } from '../config';
 import { logger } from '../logger/default';
 import { getRepositoryReleases } from '../utils/github';
+import { updateWiki } from '../utils/updateWiki';
 
-const dev = process.env.NODE_ENV !== 'production';
+const dev = process.env.NODE_ENV === 'dev';
 
 const NOTIF_CHANNEL_ID = vars.NOTIF_CHANNEL_ID;
 
@@ -45,4 +46,5 @@ export const initReady = (client: Client): void => {
   sendReady(client);
   initCrons(client);
   initEmojis(client);
+  if (dev) updateWiki(); // will not run in staging/prod
 };
