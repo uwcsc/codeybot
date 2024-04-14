@@ -61,7 +61,7 @@ export class ConnectFourHandler extends InteractionHandler {
         const status = await game.setStatus(game.state, result.sign - 1);
         if (status === ConnectFourGameStatus.Pending) {
           if (!game.state.player2Id) {
-            let bestMove = game.getBestMove(game.state);
+            const bestMove = game.getBestMove(game.state);
             updateColumn(game.state.columns[bestMove], game.state.player2Sign);
             game.setStatus(game.state, bestMove);
           }
