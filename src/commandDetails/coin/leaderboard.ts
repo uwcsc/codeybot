@@ -1,5 +1,5 @@
 import { container, SapphireClient } from '@sapphire/framework';
-import { EmbedBuilder, User } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import {
   CodeyCommandDetails,
   getUserFromMessage,
@@ -40,13 +40,8 @@ const getCoinLeaderboardEmbed = async (
       break;
     }
     const userCoinEntry = leaderboard[i++];
-    let user: User;
-    try {
-      user = await client.users.fetch(userCoinEntry.user_id);
-    } catch (e) {
-      continue;
-    }
-    if (user.bot) continue;
+    const user = await client.users.fetch(userCoinEntry.user_id).catch(() => null);
+    if (user?.bot) continue;
     if (previousBalance === userCoinEntry.balance) {
       previousBalance = userCoinEntry.balance;
       // rank does not change
@@ -60,18 +55,7 @@ const getCoinLeaderboardEmbed = async (
       position = rank;
     }
     if (leaderboardArray.length < LEADERBOARD_LIMIT_DISPLAY) {
-      const userTag = user?.tag ?? '<unknown>';
-      const cleanUserTag = userTag
-        .split('~')
-        .join('\\~')
-        .split('*')
-        .join('\\*')
-        .split('_')
-        .join('\\_')
-        .split('`')
-        .join('\\`');
-      // added a "\\" below in ${rank}\\. ${cleanUserTag} so that Markdown does not automatically increment by 1 each time
-      const userCoinEntryText = `${rank}\\. ${cleanUserTag} - ${
+      const userCoinEntryText = `${rank}\\. <@${userCoinEntry.user_id}> - ${
         userCoinEntry.balance
       } ${getCoinEmoji()}`;
       leaderboardArray.push(userCoinEntryText);
