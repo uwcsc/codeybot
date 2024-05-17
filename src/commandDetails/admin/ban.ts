@@ -1,14 +1,18 @@
-import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { PermissionsBitField, User } from 'discord.js';
+import { EmbedBuilder, PermissionsBitField, TextChannel, User } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
   SapphireMessageExecuteType,
+  getUserFromMessage,
 } from '../../codeyCommand';
 import { banUser } from '../../components/admin';
 import { vars } from '../../config';
+import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds.js';
 import { pluralize } from '../../utils/pluralize';
+import { CodeyUserError } from './../../codeyUserError';
+
+const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 
 // Ban a user
 const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
@@ -35,6 +39,25 @@ const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFrom
     // get Guild object corresponding to server
     const guild = await client.guilds.fetch(vars.TARGET_GUILD_ID);
     if (await banUser(guild, user, reason, days)) {
+      const mod = getUserFromMessage(messageFromUser);
+      const banEmbed = new EmbedBuilder()
+        .setTitle('Ban')
+        .setColor(DEFAULT_EMBED_COLOUR)
+        .addFields([
+          { name: 'User', value: `${user.tag} (${user.id})` },
+          {
+            name: 'Banned By',
+            value: `${mod.tag} (${mod.id})`,
+          },
+          { name: 'Reason', value: reason },
+          {
+            name: 'Messages Purged',
+            value: !days ? 'None' : `Past ${days} ${pluralize('day', days)}`,
+          },
+        ]);
+      (client.channels.cache.get(NOTIF_CHANNEL_ID) as TextChannel).send({
+        embeds: [banEmbed],
+      });
       return `Successfully banned user ${user.tag} (id: ${user.id}) ${
         days ? `and deleted their messages in the past ${days} ${pluralize('day', days)} ` : ``
       }for the following reason: ${reason}`;
