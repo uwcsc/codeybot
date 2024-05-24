@@ -36,7 +36,7 @@ const getCoinLeaderboardEmbed = async (
       leaderboard = await getCoinLeaderboard(LEADERBOARD_LIMIT_FETCH, offset);
       i = 0;
     }
-    if (leaderboard.length === 0) {
+    if (i >= leaderboard.length) {
       break;
     }
     const userCoinEntry = leaderboard[i++];
