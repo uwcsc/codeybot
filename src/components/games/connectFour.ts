@@ -377,9 +377,9 @@ ${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
 
     const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-      .setCustomId(`connect4-5-${this.id}`)
-      .setLabel('5')
-      .setStyle(ButtonStyle.Secondary),
+        .setCustomId(`connect4-5-${this.id}`)
+        .setLabel('5')
+        .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId(`connect4-6-${this.id}`)
         .setLabel('6')
@@ -555,7 +555,7 @@ ${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
         this.setStatus(newState, i);
         // need to check if there is more than one possible guaranteed win
         // in that case, if there exists an immediate win, we want the bot to choose that column
-        if (newState.status === ConnectFourGameStatus.Player2Win){
+        if (newState.status === ConnectFourGameStatus.Player2Win) {
           return i;
         }
         column_scores[i] = this.miniMax(newState, 4, ConnectFourGameSign.Player1);
