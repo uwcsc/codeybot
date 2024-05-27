@@ -318,13 +318,13 @@ export class ConnectFourGame {
         return (
           '**' +
           getStateAsString(this.state) +
-          `\n${this.state.player1Username} has won with a ${this.parseWin(this.state)} connect 4!**`
+          `\n<@${this.state.player1Id}> has won with a ${this.parseWin(this.state)} connect 4!**`
         );
       case ConnectFourGameStatus.Player2Win:
         return (
           '**' +
           getStateAsString(this.state) +
-          `\n${this.state.player2Username} has won with a ${this.parseWin(this.state)} connect 4**`
+          `\n${this.state.player2Username} has won with a ${this.parseWin(this.state)} connect 4!**`
         );
       case ConnectFourGameStatus.Draw:
         return `The match ended in a draw!`;
