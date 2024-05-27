@@ -373,13 +373,13 @@ ${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
         .setCustomId(`connect4-4-${this.id}`)
         .setLabel('4')
         .setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder()
-        .setCustomId(`connect4-5-${this.id}`)
-        .setLabel('5')
-        .setStyle(ButtonStyle.Secondary),
     );
 
     const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+      .setCustomId(`connect4-5-${this.id}`)
+      .setLabel('5')
+      .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId(`connect4-6-${this.id}`)
         .setLabel('6')
@@ -515,7 +515,7 @@ ${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
       let value = -Infinity;
       for (const column_choice of column_choices) {
         if (state.columns[column_choice].fill < CONNECT_FOUR_ROW_COUNT) {
-          const newState: ConnectFourGameState = JSON.parse(JSON.stringify(state));
+          const newState: ConnectFourGameState = JSON.parse(JSON.stringify(state)); // create a deep copy
           this.updateState(newState, column_choice, turn);
           this.setStatus(newState, column_choice); // setStatus assumes newState has already been updated with chip
           value = Math.max(value, this.miniMax(newState, depth - 1, ConnectFourGameSign.Player1));
@@ -553,6 +553,11 @@ ${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
         const newState: ConnectFourGameState = JSON.parse(JSON.stringify(state)); // make a deep copy of game state
         this.updateState(newState, i, ConnectFourGameSign.Player2);
         this.setStatus(newState, i);
+        // need to check if there is more than one possible guaranteed win
+        // in that case, if there exists an immediate win, we want the bot to choose that column
+        if (newState.status === ConnectFourGameStatus.Player2Win){
+          return i;
+        }
         column_scores[i] = this.miniMax(newState, 4, ConnectFourGameSign.Player1);
       }
     }
