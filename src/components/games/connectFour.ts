@@ -341,7 +341,7 @@ export class ConnectFourGame {
       .setTitle('Connect4')
       .setDescription(
         `
-${this.state.player1Username} vs. ${this.state.player2Username}
+<@${this.state.player1Id}> vs. ${this.state.player2Username}
 `,
       )
       .addFields([
@@ -350,7 +350,7 @@ ${this.state.player1Username} vs. ${this.state.player2Username}
           value: `
 ${this.getStatusAsString()}
 
-${this.state.player1Username}: ${getEmojiFromSign(this.state.player1Sign)}
+<@${this.state.player1Id}>: ${getEmojiFromSign(this.state.player1Sign)}
 ${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
 `,
         },
