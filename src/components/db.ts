@@ -122,6 +122,20 @@ const initUserProfileTable = async (db: Database): Promise<void> => {
   await addSQLColumnIfNotExists(db, 'user_profile_table', 'profile_emoji', 'VARCHAR(32)');
 };
 
+const initBlackackGameTable = async (db: Database): Promise<void> => {
+  await db.run(
+    `
+    CREATE TABLE IF NOT EXISTS blackjack_game_info (
+      id INTEGER PRIMARY KEY NOT NULL,
+      net_result INTEGER NOT NULL DEFAULT 0,
+      games_played INTEGER NOT NULL DEFAULT 0
+      games_won INTEGER NOT NULL DEFAULT 0
+    )
+    `,
+  );
+
+}
+
 const initRpsGameInfo = async (db: Database): Promise<void> => {
   // If player 2 ID is null, the game was against Codey
   await db.run(
