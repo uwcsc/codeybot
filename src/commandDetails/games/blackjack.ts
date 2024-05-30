@@ -1,4 +1,5 @@
 import { container } from '@sapphire/framework';
+import { openDB } from '../../components/db';
 import {
   Colors,
   EmbedBuilder,
@@ -57,6 +58,10 @@ const quit = new ButtonBuilder()
 const optionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(hit, stand, quit);
 
 // ----------------------------------- START OF UTILITY FUNCTIONS ---------------------------- //
+export interface UserBlackjackWinRateEntry {
+  user_id: string;
+  win_rate: number;
+}
 
 // Ensure bet amount is within set limit
 const validateBetAmount = (amount: number): string => {
@@ -273,6 +278,47 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
     closeGame(author, getBalanceChange(game));
   }
 };
+
+export const getBlackjackLeaderboard = async (limit: number, offset = 0): Promise<UserBlackjackWinRateEntry[]> => {
+  const db = await openDB();
+  const res = await db.all(
+    `
+      SELECT user_id, win_rate
+      FROM blackjack_game_info
+      ORDER BY win_rate DESC
+      LIMIT ? OFFSET ?
+    `,
+    limit,
+    offset,
+  );
+  return res; 
+};
+
+export const getBlackjackWinRateByUserId = async (userId: string): Promise<number> => {
+  const db = await openDB();
+  const res = await db.get(
+    `
+      SELECT win_rate
+      FROM blackjack_game_info
+      WHERE user_id = ?
+    `,
+    userId,
+  );
+  return res?.win_rate ?? 0;
+};
+
+export const getBlackjackTotalWinsByUserId = async (userId: string): Promise<number> => {
+  const db = await openDB();
+  const res = await db.get(
+    `
+      SELECT games_won
+      FROM blackjack_game_info
+      WHERE user_id = ?
+    `,
+    userId,
+  );
+  return res?.games_won ?? 0;
+}
 
 export const blackjackCommandDetails: CodeyCommandDetails = {
   name: 'bj',

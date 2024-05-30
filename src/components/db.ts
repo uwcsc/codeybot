@@ -127,13 +127,12 @@ const initBlackackGameTable = async (db: Database): Promise<void> => {
     `
     CREATE TABLE IF NOT EXISTS blackjack_game_info (
       id INTEGER PRIMARY KEY NOT NULL,
-      net_result INTEGER NOT NULL DEFAULT 0,
+      win_rate INTEGER NOT NULL DEFAULT 0,
       games_played INTEGER NOT NULL DEFAULT 0
       games_won INTEGER NOT NULL DEFAULT 0
     )
     `,
   );
-
 }
 
 const initRpsGameInfo = async (db: Database): Promise<void> => {
