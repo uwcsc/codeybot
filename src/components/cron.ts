@@ -8,7 +8,13 @@ import { alertUsers } from './officeOpenDM';
 import { vars } from '../config';
 import { DEFAULT_EMBED_COLOUR } from '../utils/embeds';
 import { getMatch, writeHistoricMatches } from '../components/coffeeChat';
-import { adjustCoinBalanceByUserId, BonusType, coinBonusMap, getCoinLeaderboard } from './coin';
+import {
+  adjustCoinBalanceByUserId,
+  BonusType,
+  coinBonusMap,
+  getCoinLeaderboard,
+  UserCoinEntry,
+} from './coin';
 import { getInterviewers } from './interviewer';
 import {
   getSuggestionPrintout,
@@ -146,12 +152,34 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
 // Gives Codey coin role to those on the leaderboard list everyday
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
   new CronJob('0 0 0 */1 * *', async function () {
-    const leaderboard = await getCoinLeaderboard(NUMBER_USERS_TO_ASSIGN_ROLE);
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
       throw new CodeyUserError(undefined, 'guild not found');
     }
+
     const members = await guild.members.fetch();
+    const leaderboard: UserCoinEntry[] = [];
+    let fetchAttempts = 0;
+
+    // Fetch leaderboard until we have enough human members to assign roles to
+    while (leaderboard.length < NUMBER_USERS_TO_ASSIGN_ROLE) {
+      const leaderboardBuffer = await getCoinLeaderboard(
+        NUMBER_USERS_TO_ASSIGN_ROLE,
+        fetchAttempts * NUMBER_USERS_TO_ASSIGN_ROLE,
+      );
+
+      for (const entry of leaderboardBuffer) {
+        if (members.get(entry.user_id)?.user?.bot) {
+          continue;
+        }
+        leaderboard.push(entry);
+        if (leaderboard.length >= NUMBER_USERS_TO_ASSIGN_ROLE) {
+          break;
+        }
+      }
+
+      fetchAttempts++;
+    }
 
     // Create slices of the leaderboard to assign roles to
     const topSlices: string[][] = [];
