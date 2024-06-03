@@ -168,6 +168,10 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
         fetchAttempts * NUMBER_USERS_TO_ASSIGN_ROLE,
       );
 
+      if (leaderboardBuffer.length <= 0) {
+        break;
+      }
+
       for (const entry of leaderboardBuffer) {
         if (members.get(entry.user_id)?.user?.bot) {
           continue;
