@@ -38,7 +38,7 @@ export enum CardSuit {
 }
 
 // keeps track of games by player's Discord IDs
-const gamesByPlayerId = new Map<string, BlackjackGame>();
+export const gamesByPlayerId = new Map<string, BlackjackGame>();
 
 // maps action Enum to game action
 const gameActionsMap = new Map<BlackjackAction, () => Action>([

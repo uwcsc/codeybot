@@ -1,15 +1,16 @@
 import { SapphireClient, container } from '@sapphire/framework';
 import { CommandInteraction, EmbedBuilder, Message, User, userMention } from 'discord.js';
 import {
-  CodeyCommandOptionType,
   CodeyCommandDetails,
-  SapphireMessageExecuteType,
-  getUserFromMessage,
-  SapphireMessageResponseWithMetadata,
+  CodeyCommandOptionType,
   SapphireAfterReplyType,
+  SapphireMessageExecuteType,
+  SapphireMessageResponseWithMetadata,
+  getUserFromMessage,
 } from '../../codeyCommand';
 import { getCoinBalanceByUserId, transferTracker } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
+import { gamesByPlayerId } from '../../components/games/blackjack.js';
 
 const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
   client,
@@ -55,6 +56,20 @@ const coinTransferExecuteCommand: SapphireMessageExecuteType = async (
     );
   } else if (amount < 1) {
     return new SapphireMessageResponseWithMetadata(`You can't transfer less than 1 coin.`, {});
+  }
+
+  if (transferTracker.transferringUsers.has(sendingUser.id)) {
+    return new SapphireMessageResponseWithMetadata(
+      `Please finish your current transfer first.`,
+      {},
+    );
+  }
+
+  if (gamesByPlayerId.has(sendingUser.id)) {
+    return new SapphireMessageResponseWithMetadata(
+      `Please finish your current blackjack game before transferring coins.`,
+      {},
+    );
   }
 
   const transfer = await transferTracker.startTransfer(

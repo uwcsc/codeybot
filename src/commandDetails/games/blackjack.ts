@@ -1,30 +1,13 @@
 import { container } from '@sapphire/framework';
 import {
-  Colors,
-  EmbedBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ActionRowBuilder,
+  ButtonBuilder,
   ButtonInteraction,
+  ButtonStyle,
+  Colors,
   ComponentType,
+  EmbedBuilder,
 } from 'discord.js';
-import {
-  adjustCoinBalanceByUserId,
-  getCoinBalanceByUserId,
-  UserCoinEvent,
-} from '../../components/coin';
-import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
-import {
-  BlackjackAction,
-  BlackjackHand,
-  BlackjackStage,
-  CardSuit,
-  endGame,
-  GameState,
-  performGameAction,
-  startGame,
-} from '../../components/games/blackjack';
-import { pluralize } from '../../utils/pluralize';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -32,6 +15,25 @@ import {
   SapphireMessageResponse,
   getUserFromMessage,
 } from '../../codeyCommand';
+import {
+  UserCoinEvent,
+  adjustCoinBalanceByUserId,
+  getCoinBalanceByUserId,
+  transferTracker,
+} from '../../components/coin';
+import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
+import {
+  BlackjackAction,
+  BlackjackHand,
+  BlackjackStage,
+  CardSuit,
+  GameState,
+  endGame,
+  gamesByPlayerId,
+  performGameAction,
+  startGame,
+} from '../../components/games/blackjack';
+import { pluralize } from '../../utils/pluralize';
 
 // CodeyCoin constants
 const DEFAULT_BET = 10;
@@ -221,6 +223,14 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
   const playerBalance = await getCoinBalanceByUserId(author);
   if (playerBalance! < bet) {
     return `You don't have enough coins to place that bet. ${getEmojiByName('codey_sad')}`;
+  }
+
+  if (transferTracker.transferringUsers.has(author)) {
+    return `Please finish your current coin transfer before starting a game.`;
+  }
+
+  if (gamesByPlayerId.has(author)) {
+    return `Please finish your current game before starting another one!`;
   }
 
   // Initialize the game
