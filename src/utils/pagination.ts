@@ -5,20 +5,26 @@ import {
   ActionRowBuilder,
   ButtonInteraction,
   ComponentType,
-  Message
+  Message,
+  ChatInputCommandInteraction,
+  CacheType,
 } from 'discord.js';
-  
-const COLLECTOR_TIMEOUT = 60000;
-  
+
+const COLLECTOR_TIMEOUT = 120000;
+
 export const PaginationBuilder = async (
-  message: Message,
-  reactFilter: (reaction: ButtonInteraction) => boolean,
+  originalMessage: Message<boolean> | ChatInputCommandInteraction<CacheType>,
+  author: string,
   embedPages: EmbedBuilder[],
 ): Promise<Message<boolean> | undefined> => {
   try {
-    if (!message || !embedPages || !embedPages.length) return;
-      
-    var currentPage = 0;
+    if (!embedPages || !embedPages.length) {
+      await originalMessage.reply({
+        embeds: [new EmbedBuilder().setColor(0xff0000).setDescription('No pages to display.')],
+      });
+      return;
+    }
+    let currentPage = 0;
     const firstButton = new ButtonBuilder()
       .setCustomId('first')
       .setEmoji('⏮️')
@@ -56,13 +62,19 @@ export const PaginationBuilder = async (
       lastButton,
     );
 
+    const message = await originalMessage.reply({
+      embeds: [embedPages[currentPage]],
+      components: [actionRow],
+      fetchReply: true,
+    });
+
     await message.edit({
       embeds: [embedPages[currentPage]],
       components: [actionRow],
     });
 
     const collector = message.createMessageComponentCollector({
-      filter: reactFilter,
+      filter: (interaction) => interaction.user.id === author,
       componentType: ComponentType.Button,
       time: COLLECTOR_TIMEOUT,
     });
@@ -99,14 +111,12 @@ export const PaginationBuilder = async (
 
     collector.on('end', async () => {
       await message.edit({
-        components: []
+        components: [],
       });
     });
 
     return message;
   } catch (error) {
-    console.error('An error occurred:', error);
     return undefined;
   }
 };
-  
