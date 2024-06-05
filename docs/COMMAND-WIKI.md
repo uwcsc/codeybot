@@ -258,6 +258,13 @@
     - ``uwid``: The Quest ID of the user.
 - **Subcommands:** None
 
+## pg
+- **Aliases:** `pagination`, `paginationtest`, `pgtest`
+- **Description:** Test the pagination feature.
+- **Examples:**<br>  `.pg`<br>  `.pagination`<br>  `.pagination`<br>  `.pgtest`
+- **Options:** None
+- **Subcommands:** None
+
 ## ping
 - **Aliases:** `pong`
 - **Description:** Ping the bot to see if it is alive. :ping_pong:
