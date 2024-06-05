@@ -1,5 +1,4 @@
 import {
-  Colors,
   EmbedBuilder,
   ButtonBuilder,
   ButtonStyle,
@@ -23,13 +22,13 @@ export const PaginationBuilder = async (
     const firstButton = new ButtonBuilder()
       .setCustomId('first')
       .setEmoji('⏮️')
-      .setLabel('First')
+      // .setLabel('First')
       .setStyle(ButtonStyle.Primary)
       .setDisabled(true);
     const previousButton = new ButtonBuilder()
       .setCustomId('previous')
       .setEmoji('⬅️')
-      .setLabel('Previous')
+      // .setLabel('Previous')
       .setStyle(ButtonStyle.Primary)
       .setDisabled(true);
     const pageCount = new ButtonBuilder()
@@ -40,13 +39,15 @@ export const PaginationBuilder = async (
     const nextButton = new ButtonBuilder()
       .setCustomId('next')
       .setEmoji('➡️')
-      .setLabel('Next')
-      .setStyle(ButtonStyle.Primary);
+      // .setLabel('Next')
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(embedPages.length <= 1);
     const lastButton = new ButtonBuilder()
       .setCustomId('last')
       .setEmoji('⏭️')
-      .setLabel('Last')
-      .setStyle(ButtonStyle.Primary);
+      // .setLabel('Last')
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(embedPages.length <= 1);
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       firstButton,
       previousButton,
@@ -84,14 +85,12 @@ export const PaginationBuilder = async (
           break;
       }
 
-      // Update button states based on the current page
       firstButton.setDisabled(currentPage === 0);
       previousButton.setDisabled(currentPage === 0);
       nextButton.setDisabled(currentPage === embedPages.length - 1);
       lastButton.setDisabled(currentPage === embedPages.length - 1);
       pageCount.setLabel(`${currentPage + 1}/${embedPages.length}`);
 
-      // Update the message with the new embed and button states
       await message.edit({
         embeds: [embedPages[currentPage]],
         components: [actionRow],
