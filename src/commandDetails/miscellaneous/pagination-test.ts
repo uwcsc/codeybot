@@ -50,7 +50,7 @@ const PaginationTestExecuteCommand: SapphireMessageExecuteType = async (
   );
 
   try {
-    await PaginationBuilder(message, author, embeds);
+    await PaginationBuilder(message, author, embeds, 10000);
   } catch (error) {
     await message.reply('Error or timeout occurred during navigation.');
   }

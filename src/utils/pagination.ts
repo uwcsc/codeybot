@@ -16,6 +16,7 @@ export const PaginationBuilder = async (
   originalMessage: Message<boolean> | ChatInputCommandInteraction<CacheType>,
   author: string,
   embedPages: EmbedBuilder[],
+  timeout: number = COLLECTOR_TIMEOUT
 ): Promise<Message<boolean> | undefined> => {
   try {
     if (!embedPages || !embedPages.length) {
@@ -76,7 +77,7 @@ export const PaginationBuilder = async (
     const collector = message.createMessageComponentCollector({
       filter: (interaction) => interaction.user.id === author,
       componentType: ComponentType.Button,
-      time: COLLECTOR_TIMEOUT,
+      idle: timeout,
     });
 
     collector.on('collect', async (buttonInteraction: ButtonInteraction) => {
