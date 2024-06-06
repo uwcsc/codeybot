@@ -16,7 +16,7 @@ export const PaginationBuilder = async (
   originalMessage: Message<boolean> | ChatInputCommandInteraction<CacheType>,
   author: string,
   embedPages: EmbedBuilder[],
-  timeout: number = COLLECTOR_TIMEOUT
+  timeout: number = COLLECTOR_TIMEOUT,
 ): Promise<Message<boolean> | undefined> => {
   try {
     if (!embedPages || !embedPages.length) {
