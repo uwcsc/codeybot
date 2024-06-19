@@ -52,7 +52,9 @@ export const PaginationBuilder = async (
     if (embedPages.length > MAX_PAGES) {
       await originalMessage.reply({
         embeds: [
-          new EmbedBuilder().setColor(0xff0000).setDescription(
+          new EmbedBuilder()
+            .setColor(0xff0000)
+            .setDescription(
               `Too much content to display. Limit is ${MAX_PAGES} pages. \nCurrent content produces ${embedPages.length} pages.`,
             ),
         ],
