@@ -10,7 +10,6 @@ import { SapphireMessageResponse, SapphireSentMessageType } from '../../codeyCom
 import { openDB } from '../db';
 import { CodeyUserError } from '../../codeyUserError';
 import { getEmojiByName } from '../emojis';
-import { getRandomIntFrom1 } from '../../utils/num';
 
 const CONNECT_FOUR_COLUMN_COUNT = 7;
 const CONNECT_FOUR_ROW_COUNT = 6;
@@ -228,14 +227,13 @@ export class ConnectFourGame {
       left_pointer_y++;
     }
     while (
-      right_pointer_x + 1 < CONNECT_FOUR_COLUMN_COUNT - 1 &&
+      right_pointer_x + 1 < CONNECT_FOUR_COLUMN_COUNT && // used to be an extra -1, fixed bug
       right_pointer_y - 1 >= 0 &&
       state.columns[right_pointer_x + 1].tokens[right_pointer_y - 1] == sign
     ) {
       right_pointer_x++;
       right_pointer_y--;
     }
-
     if (right_pointer_x - left_pointer_x + 1 >= 4) {
       return true;
     }
@@ -253,6 +251,8 @@ export class ConnectFourGame {
     // newly placed token
     const horizontalIndex = columnIndex;
     const verticalIndex = state.columns[columnIndex].fill - 1;
+    //console.log(horizontalIndex);
+    //console.log(verticalIndex);
     const column = state.columns[columnIndex];
     const sign: ConnectFourGameSign = state.columns[columnIndex].tokens[verticalIndex];
 
@@ -265,11 +265,11 @@ export class ConnectFourGame {
       state.winType = ConnectFourWinType.Horizontal;
       state.status = this.determineWinner(sign);
     } else if (this.checkForDiagonalLBRTWin(state, horizontalIndex, verticalIndex, sign)) {
-      // Check for diagonal win (left top right bottom)
+      // Check for diagonal win (left bottom right top)
       state.winType = ConnectFourWinType.DiagonalLBRT;
       state.status = this.determineWinner(sign);
     } else if (this.checkForDiagonalLTRBWin(state, horizontalIndex, verticalIndex, sign)) {
-      // Check for diagonal win (left bottom right top)
+      // Check for diagonal win (left top right bottom)
       state.winType = ConnectFourWinType.DiagonalLTRB;
       state.status = this.determineWinner(sign);
     } else if (state.columns.every((column) => column.fill === 6)) {
@@ -318,13 +318,13 @@ export class ConnectFourGame {
         return (
           '**' +
           getStateAsString(this.state) +
-          `\n${this.state.player1Username} has won with a ${this.parseWin(this.state)} connect 4!**`
+          `\n<@${this.state.player1Id}> has won with a ${this.parseWin(this.state)} connect 4!**`
         );
       case ConnectFourGameStatus.Player2Win:
         return (
           '**' +
           getStateAsString(this.state) +
-          `\n${this.state.player2Username} has won with a ${this.parseWin(this.state)} connect 4**`
+          `\n${this.state.player2Username} has won with a ${this.parseWin(this.state)} connect 4!**`
         );
       case ConnectFourGameStatus.Draw:
         return `The match ended in a draw!`;
@@ -341,7 +341,7 @@ export class ConnectFourGame {
       .setTitle('Connect4')
       .setDescription(
         `
-${this.state.player1Username} vs. ${this.state.player2Username}
+<@${this.state.player1Id}> vs. ${this.state.player2Username}
 `,
       )
       .addFields([
@@ -350,7 +350,7 @@ ${this.state.player1Username} vs. ${this.state.player2Username}
           value: `
 ${this.getStatusAsString()}
 
-${this.state.player1Username}: ${getEmojiFromSign(this.state.player1Sign)}
+<@${this.state.player1Id}>: ${getEmojiFromSign(this.state.player1Sign)}
 ${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
 `,
         },
@@ -373,13 +373,13 @@ ${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
         .setCustomId(`connect4-4-${this.id}`)
         .setLabel('4')
         .setStyle(ButtonStyle.Secondary),
+    );
+
+    const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(`connect4-5-${this.id}`)
         .setLabel('5')
         .setStyle(ButtonStyle.Secondary),
-    );
-
-    const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(`connect4-6-${this.id}`)
         .setLabel('6')
@@ -395,6 +395,195 @@ ${this.state.player2Username}: ${getEmojiFromSign(this.state.player2Sign)}
       components: this.state.status === ConnectFourGameStatus.Pending ? [row1, row2] : [],
     };
   }
+
+  // ConnectFourGameState
+  // Waiting = 0,
+  // Pending = 1,
+  // Draw = 2,
+  // Player1Win = 3,
+  // Player2Win = 4,
+  // Player1TimeOut = 5,
+  // Player2TimeOut = 6,
+  // Unknown = 7,
+  private updateState = (
+    state: ConnectFourGameState,
+    columnNumber: number,
+    turn: ConnectFourGameSign,
+  ): ConnectFourGameState => {
+    const fill: number = state.columns[columnNumber].fill;
+    if (turn === ConnectFourGameSign.Player2) {
+      state.columns[columnNumber].tokens[fill] = ConnectFourGameSign.Player2;
+    } else {
+      state.columns[columnNumber].tokens[fill] = ConnectFourGameSign.Player1;
+    }
+    state.columns[columnNumber].fill = state.columns[columnNumber].fill + 1;
+    return state;
+  };
+
+  // returns number of possible wins remaining
+  private possibleWins = (
+    state: ConnectFourGameState,
+    opponentSign: ConnectFourGameSign,
+  ): number => {
+    let possibleWins = 0;
+    // check vertical
+    for (let i = 0; i < CONNECT_FOUR_COLUMN_COUNT; i++) {
+      for (let j = 3; j < CONNECT_FOUR_ROW_COUNT; j++) {
+        if (
+          state.columns[i].tokens[j] !== opponentSign &&
+          state.columns[i].tokens[j - 1] !== opponentSign &&
+          state.columns[i].tokens[j - 2] !== opponentSign &&
+          state.columns[i].tokens[j - 3] !== opponentSign
+        ) {
+          possibleWins = possibleWins + 1;
+        }
+      }
+    }
+    // check horizonal
+    for (let j = 0; j < CONNECT_FOUR_ROW_COUNT; j++) {
+      for (let i = 3; i < CONNECT_FOUR_COLUMN_COUNT; i++) {
+        if (
+          state.columns[i].tokens[j] !== opponentSign &&
+          state.columns[i - 1].tokens[j] !== opponentSign &&
+          state.columns[i - 2].tokens[j] !== opponentSign &&
+          state.columns[i - 3].tokens[j] !== opponentSign
+        ) {
+          possibleWins = possibleWins + 1;
+        }
+      }
+    }
+    // check diagonal up
+    for (let i = 0; i <= 3; i++) {
+      for (let j = 0; j <= 2; j++) {
+        if (
+          state.columns[i].tokens[j] !== opponentSign &&
+          state.columns[i + 1].tokens[j + 1] !== opponentSign &&
+          state.columns[i + 2].tokens[j + 2] !== opponentSign &&
+          state.columns[i + 3].tokens[j + 3] !== opponentSign
+        ) {
+          possibleWins = possibleWins + 1;
+        }
+      }
+    }
+
+    //check diagonal down
+    for (let i = 3; i < CONNECT_FOUR_COLUMN_COUNT; i++) {
+      for (let j = 0; j <= 2; j++) {
+        if (
+          state.columns[i].tokens[j] !== opponentSign &&
+          state.columns[i - 1].tokens[j + 1] !== opponentSign &&
+          state.columns[i - 2].tokens[j + 2] !== opponentSign &&
+          state.columns[i - 3].tokens[j + 3] !== opponentSign
+        ) {
+          possibleWins = possibleWins + 1;
+        }
+      }
+    }
+    return possibleWins;
+  };
+
+  // takes a ConnectFourGameState and evaluates it according to heuristic function
+  private evaluate = (state: ConnectFourGameState): number => {
+    const codeyPoints: number = this.possibleWins(state, ConnectFourGameSign.Player1); // 3 represents Codeybot sign
+    const opponentPoints: number = this.possibleWins(state, ConnectFourGameSign.Player2); // 2 represents player1 sign
+    return codeyPoints - opponentPoints;
+  };
+
+  // from perspective of Codeybot, +infinity means Codeybot win, -infinity means Player1 wins
+  // returns the best possible score that can be achieved, given that Player1 plays optimally
+  private miniMax = (
+    state: ConnectFourGameState,
+    depth: number,
+    turn: ConnectFourGameSign,
+  ): number => {
+    if (state.status === ConnectFourGameStatus.Draw) {
+      return 0;
+    }
+    if (state.status === ConnectFourGameStatus.Player1Win) {
+      return -Infinity;
+    }
+    if (state.status === ConnectFourGameStatus.Player2Win) {
+      return Infinity;
+    }
+    if (depth === 0) {
+      return this.evaluate(state); //heuristic function to evaluate state of game
+    }
+
+    // if it is Codeybot's turn, we want to find move that maximizes score
+    const column_choices: number[] = [0, 1, 2, 3, 4, 5, 6];
+    if (turn === ConnectFourGameSign.Player2) {
+      let value = -Infinity;
+      for (const column_choice of column_choices) {
+        if (state.columns[column_choice].fill < CONNECT_FOUR_ROW_COUNT) {
+          const newState: ConnectFourGameState = JSON.parse(JSON.stringify(state)); // create a deep copy
+          this.updateState(newState, column_choice, turn);
+          this.setStatus(newState, column_choice); // setStatus assumes newState has already been updated with chip
+          value = Math.max(value, this.miniMax(newState, depth - 1, ConnectFourGameSign.Player1));
+        }
+      }
+      return value;
+    } else {
+      //it is Player 1's turn, so we want to find minimum score (this assumes Player 1 plays optimally)
+      let value = Infinity;
+      for (const column_choice of column_choices) {
+        // if selected column is not already full, recurse down the branch
+        if (state.columns[column_choice].fill < CONNECT_FOUR_ROW_COUNT) {
+          const newState: ConnectFourGameState = JSON.parse(JSON.stringify(state));
+          this.updateState(newState, column_choice, turn);
+          this.setStatus(newState, column_choice);
+          value = Math.min(value, this.miniMax(newState, depth - 1, ConnectFourGameSign.Player2));
+        }
+      }
+      return value;
+    }
+  };
+
+  private findBestColumn = (state: ConnectFourGameState): number => {
+    const column_scores: number[] = [
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity,
+    ];
+    for (let i = 0; i < 7; i++) {
+      if (state.columns[i].fill < CONNECT_FOUR_ROW_COUNT) {
+        const newState: ConnectFourGameState = JSON.parse(JSON.stringify(state)); // make a deep copy of game state
+        this.updateState(newState, i, ConnectFourGameSign.Player2);
+        this.setStatus(newState, i);
+        // need to check if there is more than one possible guaranteed win
+        // in that case, if there exists an immediate win, we want the bot to choose that column
+        if (newState.status === ConnectFourGameStatus.Player2Win) {
+          return i;
+        }
+        column_scores[i] = this.miniMax(newState, 4, ConnectFourGameSign.Player1);
+      }
+    }
+    let value = -Infinity;
+    let best_column = -1;
+    for (let i = 0; i < 7; i++) {
+      if (column_scores[i] > value) {
+        value = column_scores[i];
+        best_column = i;
+      }
+    }
+    // if best_column = -1, then that means all posible moves lead to certain loss
+    if (best_column === -1) {
+      for (let i = 0; i < 7; i++) {
+        if (state.columns[i].fill < CONNECT_FOUR_ROW_COUNT) {
+          return i;
+        }
+      }
+    }
+    return best_column;
+  };
+
+  // takes in ConnectFourGameState, returns best column for Codeybot to play in
+  public getBestMove = (state: ConnectFourGameState): number => {
+    return this.findBestColumn(state);
+  };
 }
 
 export enum ConnectFourGameStatus {
@@ -465,10 +654,6 @@ export const getStateAsString = (state: ConnectFourGameState): string => {
     result += '\n';
   }
   return result;
-};
-
-export const getCodeyConnectFourSign = (): ConnectFourGameSign => {
-  return getRandomIntFrom1(7);
 };
 
 export const updateColumn = (column: ConnectFourColumn, sign: ConnectFourGameSign): boolean => {
