@@ -1,19 +1,19 @@
-import _, { uniqueId } from 'lodash';
-import { openDB } from './db';
 import { SapphireClient } from '@sapphire/framework';
 import {
-  Colors,
   ActionRowBuilder,
+  BaseMessageOptions,
   ButtonBuilder,
+  ButtonStyle,
+  Colors,
   EmbedBuilder,
   User,
-  ButtonStyle,
-  BaseMessageOptions,
 } from 'discord.js';
+import _, { uniqueId } from 'lodash';
 import { SapphireSentMessageType } from '../codeyCommand';
-import { pluralize } from '../utils/pluralize';
-import { getCoinEmoji, getEmojiByName } from './emojis';
 import { updateMessageEmbed } from '../utils/embeds';
+import { pluralize } from '../utils/pluralize';
+import { openDB } from './db';
+import { getCoinEmoji, getEmojiByName } from './emojis';
 
 export enum BonusType {
   Daily = 0,
@@ -323,9 +323,11 @@ const TransferTimeout = 600000; // in ms (600000 ms == 10 mins)
 
 class TransferTracker {
   transfers: Map<string, Transfer>; // id, transfer
+  transferringUsers: Set<string>;
 
   constructor() {
     this.transfers = new Map<string, Transfer>();
+    this.transferringUsers = new Set<string>();
   }
   getTransferFromId(id: string): Transfer | undefined {
     return this.transfers.get(id);
@@ -351,8 +353,9 @@ class TransferTracker {
       reason: reason,
       result: TransferResult.Pending,
     };
-    const transfer = new Transfer(channelId, client, transferId, transferState);
+    const transfer = new Transfer(channelId, client, transferId, transferState, this);
     this.transfers.set(transferId, transfer);
+    this.transferringUsers.add(sender.id);
     setTimeout(async () => {
       if (transfer.state.result === TransferResult.Pending) {
         transfer.state.result = TransferResult.Timeout;
@@ -370,6 +373,7 @@ class TransferTracker {
       throw new Error(`No transfer with transfer ID ${transferId} found`);
     }
 
+    this.transferringUsers.delete(transfer.state.sender.id);
     if (transfer.state.result === TransferResult.Pending) return;
     await transfer.handleTransaction();
   }
@@ -383,17 +387,20 @@ export class Transfer {
   state: TransferState;
   transferId: string;
   transferMessage!: SapphireSentMessageType;
+  tracker: TransferTracker;
 
   constructor(
     channelId: string,
     client: SapphireClient<boolean>,
     transferId: string,
     transferState: TransferState,
+    tracker: TransferTracker,
   ) {
     this.channelId = channelId;
     this.state = transferState;
     this.client = client;
     this.transferId = transferId;
+    this.tracker = tracker;
   }
 
   // called if state is (believed to be) no longer pending. Transfers coins and updates balances if transfer is confirmed
@@ -420,6 +427,8 @@ export class Transfer {
         <string>(this.state.reason ?? ''),
         this.client.user?.id,
       );
+
+      this.tracker.transferringUsers.delete(this.state.sender.id);
     }
   }
 
