@@ -10,7 +10,31 @@ import {
   CacheType,
 } from 'discord.js';
 
-const COLLECTOR_TIMEOUT = 120000;
+const COLLECTOR_TIMEOUT = 300000;
+const MAX_CHARS_PER_PAGE = 2048;
+const MAX_PAGES = 25;
+const getRandomColor = (): number => Math.floor(Math.random() * 16777215);
+
+const textToPages = (text: string, maxChars: number): string[] => {
+  const pages: string[] = [];
+  let currentPage = '';
+  let charCount = 0;
+
+  for (let i = 0; i < text.length; i++) {
+    currentPage += text[i];
+    charCount++;
+    if (text[i] === '\n' || charCount >= maxChars) {
+      pages.push(currentPage.trim());
+      currentPage = '';
+      charCount = 0;
+    }
+  }
+
+  if (currentPage.trim()) {
+    pages.push(currentPage.trim());
+  }
+  return pages;
+};
 
 export const PaginationBuilder = async (
   originalMessage: Message<boolean> | ChatInputCommandInteraction<CacheType>,
@@ -22,6 +46,16 @@ export const PaginationBuilder = async (
     if (!embedPages || !embedPages.length) {
       await originalMessage.reply({
         embeds: [new EmbedBuilder().setColor(0xff0000).setDescription('No pages to display.')],
+      });
+      return;
+    }
+    if (embedPages.length > MAX_PAGES) {
+      await originalMessage.reply({
+        embeds: [
+          new EmbedBuilder().setColor(0xff0000).setDescription(
+              `Too much content to display. Limit is ${MAX_PAGES} pages. \nCurrent content produces ${embedPages.length} pages.`,
+            ),
+        ],
       });
       return;
     }
@@ -111,12 +145,46 @@ export const PaginationBuilder = async (
     });
 
     collector.on('end', async () => {
+      firstButton.setDisabled(true);
+      previousButton.setDisabled(true);
+      nextButton.setDisabled(true);
+      lastButton.setDisabled(true);
+      pageCount.setDisabled(true);
+
       await message.edit({
-        components: [],
+        components: [actionRow],
       });
+
+      setTimeout(async () => {
+        await message.edit({
+          components: [],
+        });
+      }, 3000);
     });
 
     return message;
+  } catch (error) {
+    return undefined;
+  }
+};
+
+export const PaginationBuilderFromText = async (
+  originalMessage: Message<boolean> | ChatInputCommandInteraction<CacheType>,
+  author: string,
+  text: string,
+  textPageSize: number = MAX_CHARS_PER_PAGE,
+  timeout: number = COLLECTOR_TIMEOUT,
+): Promise<Message<boolean> | undefined> => {
+  try {
+    const textPages = textToPages(text, textPageSize);
+    const embedPages = textPages.map((text, index) =>
+      new EmbedBuilder()
+        .setColor(getRandomColor())
+        .setTitle('Page ' + (index + 1))
+        .setDescription(text),
+    );
+
+    return PaginationBuilder(originalMessage, author, embedPages, timeout);
   } catch (error) {
     return undefined;
   }
