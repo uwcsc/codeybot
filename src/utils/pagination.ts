@@ -16,7 +16,7 @@ const MAX_PAGES = 25;
 const MAX_NEWLINES_PER_PAGE = 10;
 const getRandomColor = (): number => Math.floor(Math.random() * 16777215);
 
-const textToPages = (text: string, maxChars: number, ignoreNewLines: boolean = false): string[] => {
+const textToPages = (text: string, maxChars: number, ignoreNewLines: boolean): string[] => {
   const pages: string[] = [];
   let currentPage = '';
   let newLineCount = 0;
@@ -185,7 +185,7 @@ export const PaginationBuilderFromText = async (
   originalMessage: Message<boolean> | ChatInputCommandInteraction<CacheType>,
   author: string,
   text: string,
-  ignoreNewLines: boolean = false,
+  ignoreNewLines = false,
   textPageSize: number = MAX_CHARS_PER_PAGE,
   timeout: number = COLLECTOR_TIMEOUT,
 ): Promise<Message<boolean> | undefined> => {
