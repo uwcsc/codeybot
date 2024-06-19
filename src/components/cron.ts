@@ -141,7 +141,7 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
 // Gives Codey coin role to those on the leaderboard list everyday
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
   new CronJob('0 0 0 */1 * *', async function () {
-    const leaderboard = await getCoinLeaderboard(NUMBER_USERS_TO_ASSIGN_ROLE);
+    const leaderboard = await getCoinLeaderboard(NUMBER_USERS_TO_ASSIGN_ROLE + 5);
     const leaderboardIds: Set<string> = new Set(leaderboard.map((entry) => entry.user_id));
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
@@ -158,10 +158,14 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
         await updateMemberRole(member, roleName, false);
       }
     });
-    leaderboardIds.forEach(async (user_id) => {
-      const memberToUpdate = members.get(user_id);
-      if (memberToUpdate && !previousIds.has(user_id)) {
-        await updateMemberRole(memberToUpdate, roleName, true);
-      }
-    });
+    let users = 0;
+    while (users < 10) {
+      leaderboardIds.forEach(async (user_id) => {
+        const memberToUpdate = members.get(user_id);
+        if (memberToUpdate && !previousIds.has(user_id)) {
+          await updateMemberRole(memberToUpdate, roleName, true);
+          users++;
+        }
+      });
+    }
   });
