@@ -13,20 +13,31 @@ import {
 const COLLECTOR_TIMEOUT = 300000;
 const MAX_CHARS_PER_PAGE = 2048;
 const MAX_PAGES = 25;
+const MAX_NEWLINES_PER_PAGE = 10;
 const getRandomColor = (): number => Math.floor(Math.random() * 16777215);
 
-const textToPages = (text: string, maxChars: number): string[] => {
+const textToPages = (text: string, maxChars: number, ignoreNewLines: boolean = false): string[] => {
   const pages: string[] = [];
   let currentPage = '';
+  let newLineCount = 0;
   let charCount = 0;
 
   for (let i = 0; i < text.length; i++) {
     currentPage += text[i];
     charCount++;
-    if (text[i] === '\n' || charCount >= maxChars) {
+    if (text[i] === '\n') {
+      newLineCount++;
+    }
+
+    if (
+      (text[i] === '\n' && !ignoreNewLines) ||
+      charCount >= maxChars ||
+      newLineCount === MAX_NEWLINES_PER_PAGE
+    ) {
       pages.push(currentPage.trim());
       currentPage = '';
       charCount = 0;
+      newLineCount = 0;
     }
   }
 
@@ -174,11 +185,12 @@ export const PaginationBuilderFromText = async (
   originalMessage: Message<boolean> | ChatInputCommandInteraction<CacheType>,
   author: string,
   text: string,
+  ignoreNewLines: boolean = false,
   textPageSize: number = MAX_CHARS_PER_PAGE,
   timeout: number = COLLECTOR_TIMEOUT,
 ): Promise<Message<boolean> | undefined> => {
   try {
-    const textPages = textToPages(text, textPageSize);
+    const textPages = textToPages(text, textPageSize, ignoreNewLines);
     const embedPages = textPages.map((text, index) =>
       new EmbedBuilder()
         .setColor(getRandomColor())

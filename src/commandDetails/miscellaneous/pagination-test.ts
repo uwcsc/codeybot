@@ -50,8 +50,9 @@ const PaginationTestExecuteCommand: SapphireMessageExecuteType = async (
   );
 
   try {
-    await PaginationBuilder(message, author, embeds);
+    await PaginationBuilder(message, author, embeds); // 1. Test Embed List Pagination
 
+    // 2. Test Large Text Pagination
     // await PaginationBuilderFromText(
     //   message,
     //   author,
@@ -71,9 +72,10 @@ const PaginationTestExecuteCommand: SapphireMessageExecuteType = async (
     //   line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.`,
     // );
 
+    // 3. Test Empty String Case
     // await PaginationBuilderFromText(message, author, "") // no content test case
 
-    // too much content test case, spaces are necessary after slash!!
+    // 4. Test Large Text Pagination without ignoreNewLines (Spaces needed after \)
     await PaginationBuilderFromText(
       message,
       author,
@@ -101,6 +103,37 @@ const PaginationTestExecuteCommand: SapphireMessageExecuteType = async (
       very popular \ 
       during the Renaissance. The first \ 
       line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.`,
+    );
+
+    // 5. Test Leaderboard Text Pagination with ignoreNewLines
+    await PaginationBuilderFromText(
+      message,
+      author,
+      `1. palepinkroses#0 - 69749 :codey_coin: \ 
+2. cho_c0.#0 - 49700 :codey_coin: \ 
+3. infinit3e#0 - 47952 :codey_coin: \ 
+4. picowchew#0 - 29696 :codey_coin: \ 
+5. redapple410#0 - 20237 :codey_coin: \ 
+6. mcpenguin6194#0 - 19240 :codey_coin: \ 
+7. fylixz#0 - 18580 :codey_coin: \ 
+8. antangelo#0 - 16037 :codey_coin: \ 
+9. elegy2333#0 - 15842 :codey_coin: \ 
+10. icanc#0 - 15828 :codey_coin: \ 
+11. sagar1#0 - 15700 :codey_coin: \ 
+12. sagar2#0 - 15600 :codey_coin: \ 
+13. sagar3#0 - 15500 :codey_coin: \ 
+14. sagar4#0 - 15400 :codey_coin: \ 
+15. sagar5#0 - 15300 :codey_coin: \ 
+16. sagar6#0 - 15200 :codey_coin: \ 
+17. sagar7#0 - 15100 :codey_coin: \ 
+18. sagar8#0 - 15000 :codey_coin: \ 
+19. sagar9#0 - 14900 :codey_coin: \ 
+20. sagar10#0 - 14800 :codey_coin: \ 
+21. sagar11#0 - 14700 :codey_coin: \ 
+22. sagar12#0 - 14600 :codey_coin: \ 
+Your Position \ 
+You are currently #213 in the leaderboard with 553 :codey_coin:.`,
+      true,
     );
   } catch (error) {
     await message.reply('Error or timeout occurred during navigation.');
