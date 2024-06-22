@@ -86,7 +86,7 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
       - name: Pull image and start container in deploy host
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ env.DEPLOYMENT_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
