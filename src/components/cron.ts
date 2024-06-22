@@ -8,7 +8,13 @@ import { alertUsers } from './officeOpenDM';
 import { vars } from '../config';
 import { DEFAULT_EMBED_COLOUR } from '../utils/embeds';
 import { getMatch, writeHistoricMatches } from '../components/coffeeChat';
-import { adjustCoinBalanceByUserId, BonusType, coinBonusMap, getCoinLeaderboard } from './coin';
+import {
+  adjustCoinBalanceByUserId,
+  BonusType,
+  coinBonusMap,
+  getCoinLeaderboard,
+  UserCoinEntry,
+} from './coin';
 import { getInterviewers } from './interviewer';
 import {
   getSuggestionPrintout,
@@ -24,8 +30,13 @@ const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
 const OFFICE_HOURS_STATUS_API = 'https://csclub.uwaterloo.ca/~webcom/office-status.json';
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
-const CODEY_COIN_ROLE_ID: string = vars.CODEY_COIN_ROLE_ID;
-const NUMBER_USERS_TO_ASSIGN_ROLE = 10;
+const NUMBER_USERS_TO_ASSIGN_ROLE = 20;
+const CODEY_COIN_ROLES: string[] = [
+  vars.CODEY_COIN_T5_ROLE_ID,
+  vars.CODEY_COIN_T10_ROLE_ID,
+  vars.CODEY_COIN_T20_ROLE_ID,
+];
+const CODEY_COIN_INTERVALS: number[] = [5, 10, 20];
 
 // The last known status of the office
 //  false if closed
@@ -141,27 +152,69 @@ export const createCoffeeChatCron = (client: Client): CronJob =>
 // Gives Codey coin role to those on the leaderboard list everyday
 export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
   new CronJob('0 0 0 */1 * *', async function () {
-    const leaderboard = await getCoinLeaderboard(NUMBER_USERS_TO_ASSIGN_ROLE);
-    const leaderboardIds: Set<string> = new Set(leaderboard.map((entry) => entry.user_id));
     const guild = client.guilds.resolve(TARGET_GUILD_ID);
     if (!guild) {
       throw new CodeyUserError(undefined, 'guild not found');
     }
-    const members = await guild.members.fetch();
-    // Removing role from previous members
-    const guildMembersPreviousRole = await loadRoleMembers(CODEY_COIN_ROLE_ID);
-    const previousIds: Set<string> = new Set(guildMembersPreviousRole.map((member) => member.id));
-    const roleName: string = await getRoleName(CODEY_COIN_ROLE_ID);
 
-    guildMembersPreviousRole.forEach(async (member) => {
-      if (member && !leaderboardIds.has(member.id)) {
-        await updateMemberRole(member, roleName, false);
+    const members = await guild.members.fetch();
+    const leaderboard: UserCoinEntry[] = [];
+    let fetchAttempts = 0;
+
+    // Fetch leaderboard until we have enough human members to assign roles to
+    while (leaderboard.length < NUMBER_USERS_TO_ASSIGN_ROLE) {
+      const leaderboardBuffer = await getCoinLeaderboard(
+        NUMBER_USERS_TO_ASSIGN_ROLE,
+        fetchAttempts * NUMBER_USERS_TO_ASSIGN_ROLE,
+      );
+
+      if (leaderboardBuffer.length <= 0) {
+        break;
       }
-    });
-    leaderboardIds.forEach(async (user_id) => {
-      const memberToUpdate = members.get(user_id);
-      if (memberToUpdate && !previousIds.has(user_id)) {
-        await updateMemberRole(memberToUpdate, roleName, true);
+
+      for (const entry of leaderboardBuffer) {
+        if (members.get(entry.user_id)?.user?.bot) {
+          continue;
+        }
+        leaderboard.push(entry);
+        if (leaderboard.length >= NUMBER_USERS_TO_ASSIGN_ROLE) {
+          break;
+        }
       }
+
+      fetchAttempts++;
+    }
+
+    // Create slices of the leaderboard to assign roles to
+    const topSlices: string[][] = [];
+    for (let i = 0; i < CODEY_COIN_INTERVALS.length; i++) {
+      topSlices.push(
+        leaderboard
+          // Slice the leaderboard into intervals -> {[0,i), [i-1, i), [i-1, end|i)}
+          .slice(i === 0 ? 0 : CODEY_COIN_INTERVALS[i - 1], CODEY_COIN_INTERVALS[i])
+          .map((entry) => entry.user_id),
+      );
+    }
+
+    CODEY_COIN_ROLES.forEach(async (roleId, idx) => {
+      const roleName: string = await getRoleName(roleId);
+      const guildMembersPreviousRole = await loadRoleMembers(roleId);
+      const previousIds: Set<string> = new Set(guildMembersPreviousRole.map((member) => member.id));
+      const leaderboardIds = new Set(topSlices[idx]);
+
+      // Removing role from former members
+      guildMembersPreviousRole.forEach(async (member) => {
+        if (member && !leaderboardIds.has(member.id)) {
+          await updateMemberRole(member, roleName, false);
+        }
+      });
+
+      // Adding role to new members
+      leaderboardIds.forEach(async (user_id) => {
+        const memberToUpdate = members.get(user_id);
+        if (memberToUpdate && !previousIds.has(user_id)) {
+          await updateMemberRole(memberToUpdate, roleName, true);
+        }
+      });
     });
   });
