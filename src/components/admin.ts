@@ -1,15 +1,20 @@
 import { Guild, User } from 'discord.js';
 import { vars } from '../config';
 import { logger } from '../logger/default';
-import { pluralize } from '../utils/pluralize';
+import { DurationStyle, formatDuration } from '../utils/formatDuration.js';
 
 const MOD_USER_ID_FOR_BAN_APPEAL: string = vars.MOD_USER_ID_FOR_BAN_APPEAL;
 
 /* Make ban message */
-const makeBanMessage = (reason: string, days?: number): string =>
+const makeBanMessage = (reason: string, duration?: number): string =>
   `
 Uh oh, you have been banned from the UW Computer Science Club server ${
-    days ? `and your messages in the past ${days} ${pluralize('day', days)} have been deleted ` : ''
+    duration
+      ? `and your messages in the past ${formatDuration(
+          duration,
+          DurationStyle.Blank,
+        )} have been deleted `
+      : ''
   }for the following reason:
 
 > ${reason}
@@ -25,12 +30,12 @@ export const banUser = async (
   guild: Guild,
   user: User,
   reason: string,
-  days?: number,
+  duration?: number,
 ): Promise<boolean> => {
   let isSuccessful = false;
   try {
     try {
-      await user.send(makeBanMessage(reason, days));
+      await user.send(makeBanMessage(reason, duration));
     } catch (err) {
       logger.error({
         event: "Can't send message to user not in server",
@@ -39,7 +44,7 @@ export const banUser = async (
     }
     await guild.members.ban(user, {
       reason: reason,
-      deleteMessageSeconds: days == null ? 0 : days * 86400,
+      deleteMessageSeconds: duration === undefined ? 0 : Math.floor(duration / 1000),
     });
     isSuccessful = true;
   } catch (err) {

@@ -9,7 +9,8 @@ import {
 import { banUser } from '../../components/admin';
 import { vars } from '../../config';
 import { DEFAULT_EMBED_COLOUR } from '../../utils/embeds.js';
-import { pluralize } from '../../utils/pluralize';
+import { DurationStyle, formatDuration } from '../../utils/formatDuration.js';
+import { parseDuration } from '../../utils/parseDuration.js';
 import { CodeyUserError } from './../../codeyUserError';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
@@ -35,10 +36,22 @@ const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFrom
         'please enter a valid reason why you are banning the user.',
       );
     }
-    const days = <number>args['days'];
+    const duration = parseDuration(<string>args['duration']);
+
+    if (duration === null) {
+      throw new CodeyUserError(
+        messageFromUser,
+        'please enter a valid duration (e.g. 7d, 3h, 1h30m).',
+      );
+    }
+
+    if (duration > 7 * 24 * 60 * 60 * 1000) {
+      throw new CodeyUserError(messageFromUser, 'cannot purge more than 7 days of messages.');
+    }
+
     // get Guild object corresponding to server
     const guild = await client.guilds.fetch(vars.TARGET_GUILD_ID);
-    if (await banUser(guild, user, reason, days)) {
+    if (await banUser(guild, user, reason, duration)) {
       const mod = getUserFromMessage(messageFromUser);
       const banEmbed = new EmbedBuilder()
         .setTitle('Ban')
@@ -52,14 +65,19 @@ const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFrom
           { name: 'Reason', value: reason },
           {
             name: 'Messages Purged',
-            value: !days ? 'None' : `Past ${days} ${pluralize('day', days)}`,
+            value: !duration ? 'None' : `Past ${formatDuration(duration, DurationStyle.Blank)}`,
           },
         ]);
       (client.channels.cache.get(NOTIF_CHANNEL_ID) as TextChannel).send({
         embeds: [banEmbed],
       });
       return `Successfully banned user ${user.tag} (id: ${user.id}) ${
-        days ? `and deleted their messages in the past ${days} ${pluralize('day', days)} ` : ``
+        duration
+          ? `and deleted their messages in the past ${formatDuration(
+              duration,
+              DurationStyle.Blank,
+            )} `
+          : ``
       }for the following reason: ${reason}`;
     } else {
       throw new CodeyUserError(
@@ -98,9 +116,10 @@ export const banCommandDetails: CodeyCommandDetails = {
       required: true,
     },
     {
-      name: 'days',
-      description: "Messages in last 'days' days from user are deleted. Default is 0 days.",
-      type: CodeyCommandOptionType.INTEGER,
+      name: 'duration',
+      description:
+        'Messages within the specified time (e.g. 1 day, 2h30m) from user are deleted. Default 0d, max 7d.',
+      type: CodeyCommandOptionType.STRING,
       required: false,
     },
   ],
