@@ -310,12 +310,19 @@
 - **Description:** Handle UWFlow commands.
 - **Examples:**
 - **Options:** None
-- **Subcommands:** `info`
+- **Subcommands:** `info`, `req`
 
 ## uwflow info
 - **Aliases:** `information`, `i`
 - **Description:** Get info about courses using UWFlow.
 - **Examples:**<br>`.uwflow info cs135`<br>`.uwflow information cs246`<br>`.uwflow i cs240`
+- **Options:** 
+- **Subcommands:** None
+
+## uwflow req
+- **Aliases:** `requisite`
+- **Description:** Get course requisites
+- **Examples:**<br>`.uwflow req cs135`<br>`.uwflow requisite cs246`
 - **Options:** 
 - **Subcommands:** None
 

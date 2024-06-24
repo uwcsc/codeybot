@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+// UWFlow API URL
 const uwflowApiUrl = 'https://uwflow.com/graphql';
 
+// Course info interface for UWFlow
 interface courseInfoFromUrl {
   data: {
     course: [
@@ -21,6 +23,7 @@ interface courseInfoFromUrl {
   };
 }
 
+// Course info interface for CodeyBot
 export interface courseInfo {
   code: string;
   name: string;
@@ -32,6 +35,39 @@ export interface courseInfo {
   comment_count: number;
 }
 
+// Course requisites interface for UWFlow
+interface courseReqsFromUrl {
+  data: {
+    course: [
+      {
+        code: string;
+        id: number;
+        antireqs: string | null;
+        prereqs: string | null;
+        coreqs: string | null;
+      },
+    ];
+  };
+}
+
+// Course requisites interface for CodeyBot
+export interface courseReqs {
+  code: string;
+  antireqs: string;
+  prereqs: string;
+  coreqs: string;
+}
+
+// Format string
+const formatInput = (input: string | null): string => {
+  if (input === null) {
+    return "None";
+  }
+
+  return input;
+}
+
+// Retrieve course info
 export const getCourseInfo = async (courseCode: string): Promise<courseInfo | number> => {
   const resultFromUWFLow: courseInfoFromUrl = (
     await axios.post(uwflowApiUrl, {
@@ -57,6 +93,7 @@ export const getCourseInfo = async (courseCode: string): Promise<courseInfo | nu
     })
   ).data;
 
+  // If no data is found, return -1 to signal error
   if (resultFromUWFLow.data.course.length < 1) {
     return -1;
   }
@@ -74,3 +111,39 @@ export const getCourseInfo = async (courseCode: string): Promise<courseInfo | nu
 
   return result;
 };
+
+// Retrieve course requisites
+export const getCourseReqs = async (courseCode: string): Promise<courseReqs | number> => {
+  const resultFromUWFLow: courseReqsFromUrl = (
+    await axios.post(uwflowApiUrl, {
+      operationName: 'getCourse',
+      variables: {
+        code: courseCode,
+      },
+      query:
+        `query getCourse($code: String) {
+            course(where: { code: { _eq: $code }}) {
+                code
+                id
+                antireqs
+                prereqs
+                coreqs
+            }
+        }`,
+    })
+  ).data;
+
+  // If no data is found, return -1 to signal error
+  if (resultFromUWFLow.data.course.length < 1) {
+    return -1;
+  }
+
+  const result: courseReqs = {
+    code: resultFromUWFLow.data.course[0].code,
+    antireqs: formatInput(resultFromUWFLow.data.course[0].antireqs),
+    prereqs: formatInput(resultFromUWFLow.data.course[0].prereqs),
+    coreqs: formatInput(resultFromUWFLow.data.course[0].coreqs),
+  };
+
+  return result;
+}

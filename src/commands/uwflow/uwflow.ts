@@ -1,5 +1,6 @@
 import { Command } from '@sapphire/framework';
 import { uwflowInfoCommandDetails } from '../../commandDetails/uwflow/info';
+import { uwflowReqCommandDetails } from '../../commandDetails/uwflow/req';
 import { CodeyCommand, CodeyCommandDetails } from '../../codeyCommand';
 
 const uwflowCommandDetails: CodeyCommandDetails = {
@@ -10,6 +11,7 @@ const uwflowCommandDetails: CodeyCommandDetails = {
   options: [],
   subcommandDetails: {
     info: uwflowInfoCommandDetails,
+    req: uwflowReqCommandDetails,
   },
   defaultSubcommandDetails: uwflowInfoCommandDetails,
 };
