@@ -314,7 +314,7 @@
 
 ## uwflow info
 - **Aliases:** `information`, `i`
-- **Description:** Get info about courses using UWFlow.
+- **Description:** Get course information
 - **Examples:**<br>`.uwflow info cs135`<br>`.uwflow information cs246`<br>`.uwflow i cs240`
 - **Options:** 
 - **Subcommands:** None

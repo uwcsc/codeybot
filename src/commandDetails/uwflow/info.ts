@@ -27,10 +27,10 @@ const uwflowInfoExecuteCommand: SapphireMessageExecuteType = async (
   // Standardize the course code (i.e. cs 135, CS135, CS 135 becomes cs135 for the GraphQL query)
   const courseCode = <string>courseCodeArg.split(' ').join('').toLowerCase();
 
-  const courseInfo: courseInfo | number = await getCourseInfo(courseCode);
+  const result: courseInfo | number = await getCourseInfo(courseCode);
 
   // If mistyped course code or course doesn't exist
-  if (courseInfo === -1) {
+  if (result === -1) {
     const errorDesc = 'Oops, that course does not exist!';
     const courseEmbed = new EmbedBuilder()
       .setColor('Red')
@@ -39,14 +39,14 @@ const uwflowInfoExecuteCommand: SapphireMessageExecuteType = async (
     return { embeds: [courseEmbed] };
   }
 
-  const actualCourseInfo = <courseInfo>courseInfo;
+  const info = <courseInfo>result;
 
-  const code = actualCourseInfo.code.toUpperCase();
-  const name = actualCourseInfo.name;
-  const description = actualCourseInfo.description;
-  const liked = (actualCourseInfo.liked * 100).toFixed(2);
-  const easy = (actualCourseInfo.easy * 100).toFixed(2);
-  const useful = (actualCourseInfo.useful * 100).toFixed(2);
+  const code = info.code.toUpperCase();
+  const name = info.name;
+  const description = info.description;
+  const liked = (info.liked * 100).toFixed(2);
+  const easy = (info.easy * 100).toFixed(2);
+  const useful = (info.useful * 100).toFixed(2);
 
   const courseEmbed = new EmbedBuilder()
     .setColor('Green')
@@ -66,7 +66,7 @@ const uwflowInfoExecuteCommand: SapphireMessageExecuteType = async (
 export const uwflowInfoCommandDetails: CodeyCommandDetails = {
   name: 'info',
   aliases: ['information', 'i'],
-  description: 'Get info about courses using UWFlow.',
+  description: 'Get course information',
   detailedDescription: `**Examples:**
 \`${container.botPrefix}uwflow info cs135\`
 \`${container.botPrefix}uwflow information cs246\`
