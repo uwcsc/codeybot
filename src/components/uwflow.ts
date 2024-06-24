@@ -32,7 +32,7 @@ export interface courseInfo {
   comment_count: number;
 }
 
-export const getCourseInfo = async (courseCode: string): Promise<courseInfo | string> => {
+export const getCourseInfo = async (courseCode: string): Promise<courseInfo | number> => {
   const resultFromUWFLow: courseInfoFromUrl = (
     await axios.post(uwflowApiUrl, {
       operationName: 'getCourse',
@@ -40,12 +40,25 @@ export const getCourseInfo = async (courseCode: string): Promise<courseInfo | st
         code: courseCode,
       },
       query:
-        'query getCourse($code: String) {\n course(where: { code: { _eq: $code } }) {\n code\n name\n description\n rating {\n liked\n easy\n useful\n filled_count\n comment_count\n}\n}\n}\n',
+        `query getCourse($code: String) {
+            course(where: { code: { _eq: $code } }) {
+                code
+                name
+                description
+                rating {
+                    liked
+                    easy
+                    useful
+                    filled_count
+                    comment_count
+                }
+            }
+        }`,
     })
   ).data;
 
   if (resultFromUWFLow.data.course.length < 1) {
-    return 'Oops, course does not exist!';
+    return -1;
   }
 
   const result: courseInfo = {

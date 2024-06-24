@@ -27,10 +27,10 @@ const uwflowInfoExecuteCommand: SapphireMessageExecuteType = async (
   // Standardize the course code (i.e. cs 135, CS135, CS 135 becomes cs135 for the GraphQL query)
   const courseCode = <string>courseCodeArg.split(' ').join('').toLowerCase();
 
-  const courseInfo: courseInfo | string = await getCourseInfo(courseCode);
+  const courseInfo: courseInfo | number = await getCourseInfo(courseCode);
 
   // If mistyped course code or course doesn't exist
-  if (courseInfo === 'Oops, course does not exist!') {
+  if (courseInfo === -1) {
     const errorDesc = 'Oops, that course does not exist!';
     const courseEmbed = new EmbedBuilder()
       .setColor('Red')
