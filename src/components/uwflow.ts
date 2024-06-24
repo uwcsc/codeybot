@@ -61,11 +61,11 @@ export interface courseReqs {
 // Format string
 const formatInput = (input: string | null): string => {
   if (input === null) {
-    return "None";
+    return 'None';
   }
 
   return input;
-}
+};
 
 // Retrieve course info
 export const getCourseInfo = async (courseCode: string): Promise<courseInfo | number> => {
@@ -75,8 +75,7 @@ export const getCourseInfo = async (courseCode: string): Promise<courseInfo | nu
       variables: {
         code: courseCode,
       },
-      query:
-        `query getCourse($code: String) {
+      query: `query getCourse($code: String) {
             course(where: { code: { _eq: $code } }) {
                 code
                 name
@@ -120,8 +119,7 @@ export const getCourseReqs = async (courseCode: string): Promise<courseReqs | nu
       variables: {
         code: courseCode,
       },
-      query:
-        `query getCourse($code: String) {
+      query: `query getCourse($code: String) {
             course(where: { code: { _eq: $code }}) {
                 code
                 id
@@ -146,4 +144,4 @@ export const getCourseReqs = async (courseCode: string): Promise<courseReqs | nu
   };
 
   return result;
-}
+};
