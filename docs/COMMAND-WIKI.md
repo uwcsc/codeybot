@@ -151,6 +151,13 @@
     - ``bet``: How much to bet - default is 10.
 - **Subcommands:** None
 
+## wordle
+- **Aliases:** `wd`
+- **Description:** Play a random Wordle game to win some Codey coins!
+- **Examples:**<br>`.wordle`<br>`.wd`
+- **Options:** None
+- **Subcommands:** None
+
 # INTERVIEWER
 ## interviewers
 - **Aliases:** `int`, `interviewer`
