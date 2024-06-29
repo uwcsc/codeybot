@@ -22,6 +22,7 @@ RUN yarn global add pm2
 COPY --from=ts-build /usr/app/dist ./dist
 COPY ./config ./config
 COPY ./db ./db
+COPY ./data ./data
 COPY ./logs ./logs
 
 CMD [ "pm2-runtime", "--raw", "./dist/index.js" ]
