@@ -58,6 +58,26 @@ export interface courseReqs {
   coreqs: string;
 }
 
+// Search results interface for UWflow
+interface searchResultsFromUrl {
+  data: {
+    search_courses: [
+      {
+        name: string;
+        code: string;
+        has_prereqs: boolean;
+      },
+    ];
+  };
+}
+
+// Search results interface for CodeyBot
+export interface searchResults {
+  name: string;
+  code: string;
+  has_prereqs: boolean;
+}
+
 // Format string
 const formatInput = (input: string | null): string => {
   if (input === null) {
@@ -144,4 +164,51 @@ export const getCourseReqs = async (courseCode: string): Promise<courseReqs | nu
   };
 
   return result;
+};
+
+// Retrieve courses in range of course code
+export const getSearchResults = async (
+  course: string,
+  min: number,
+  max: number,
+): Promise<searchResults[] | number> => {
+  const resultFromUWFLow: searchResultsFromUrl = (
+    await axios.post(uwflowApiUrl, {
+      operationName: 'explore',
+      variables: {
+        query: course,
+        code_only: true,
+      },
+      query: `query explore($query: String, $code_only: Boolean) {
+                search_courses(args: { query: $query, code_only: $code_only })  {
+                    name
+                    code
+                    has_prereqs
+                }
+            }`,
+    })
+  ).data;
+
+  // If no data is found, return -1 to signal error
+  if (resultFromUWFLow.data.search_courses.length < 1) {
+    return -1;
+  }
+
+  // Search results
+  const results = resultFromUWFLow.data.search_courses;
+
+  // Array of courses in range [min, max]
+  const resultArray: searchResults[] = results.filter((result) => {
+    const code = result.code;
+    let numString = '';
+    for (const char of code) {
+      if (!isNaN(parseInt(char))) {
+        numString += char;
+      }
+    }
+    const num = parseInt(numString, 10);
+    return min <= num && num <= max;
+  });
+
+  return resultArray;
 };
