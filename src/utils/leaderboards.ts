@@ -33,9 +33,6 @@ const getLeaderboardEmbed = async (
   let i = 0;
   let absoluteCount = 0;
 
-  const emojiString =
-    typeof leaderboardEmoji === 'string' ? leaderboardEmoji : leaderboardEmoji.toString();
-
   while (leaderboardArray.length < LEADERBOARD_LIMIT_DISPLAY || position === 0) {
     if (i === LEADERBOARD_LIMIT_FETCH) {
       offset += LEADERBOARD_LIMIT_FETCH;
@@ -70,7 +67,7 @@ const getLeaderboardEmbed = async (
   leaderboardEmbed.addFields([
     {
       name: 'Your Position',
-      value: `You are currently **#${position}** in the leaderboard with ${userBalance} ${emojiString}.`,
+      value: `You are currently **#${position}** in the leaderboard with ${userBalance} ${leaderboardEmoji}.`,
     },
   ]);
   return leaderboardEmbed;
