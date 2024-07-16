@@ -1,4 +1,4 @@
-import { container, SapphireClient } from '@sapphire/framework';
+import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
   SapphireMessageExecuteType,

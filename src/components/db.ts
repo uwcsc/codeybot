@@ -133,7 +133,6 @@ const initBlackjackPlayerStats = async (db: Database): Promise<void> => {
   );
 };
 
-
 const initUserProfileTable = async (db: Database): Promise<void> => {
   await db.run(
     `

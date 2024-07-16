@@ -5,8 +5,13 @@ import { DEFAULT_EMBED_COLOUR } from '../utils/embeds';
 const LEADERBOARD_LIMIT_DISPLAY = 10;
 const LEADERBOARD_LIMIT_FETCH = LEADERBOARD_LIMIT_DISPLAY * 2;
 
-type GetLeaderboardData = (limit: number, offset?: number) => Promise<any[]>;
-type FormatLeaderboardEntry = (entry: any, rank: number) => string;
+interface LeaderboardEntry {
+  user_id: string;
+  balance: number;
+}
+
+type GetLeaderboardData = (limit: number, offset?: number) => Promise<LeaderboardEntry[]>;
+type FormatLeaderboardEntry = (entry: LeaderboardEntry, rank: number) => string;
 type GetUserBalance = (userId: string) => Promise<number>;
 
 const getLeaderboardEmbed = async (
@@ -27,8 +32,10 @@ const getLeaderboardEmbed = async (
   let offset = 0;
   let i = 0;
   let absoluteCount = 0;
-  const emojiString = typeof leaderboardEmoji === 'string' ? leaderboardEmoji : leaderboardEmoji.toString();
-  
+
+  const emojiString =
+    typeof leaderboardEmoji === 'string' ? leaderboardEmoji : leaderboardEmoji.toString();
+
   while (leaderboardArray.length < LEADERBOARD_LIMIT_DISPLAY || position === 0) {
     if (i === LEADERBOARD_LIMIT_FETCH) {
       offset += LEADERBOARD_LIMIT_FETCH;
