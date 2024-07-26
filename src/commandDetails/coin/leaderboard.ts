@@ -19,9 +19,9 @@ const coinLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
     client,
     userId,
     getCoinLeaderboard,
-    (entry, rank) => `${rank}\\. <@${entry.user_id}> - ${entry.balance} ${getCoinEmoji()}`,
+    (entry, rank) => `${rank}\\. <@${entry.user_id}> - ${entry.balance} coins`,
     getCoinBalanceByUserId,
-    'Codey Coin Leaderboard',
+    'Coin Leaderboard',
     getCoinEmoji(),
   );
   return { embeds: [leaderboardEmbed] };

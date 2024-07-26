@@ -7,26 +7,28 @@ const LEADERBOARD_LIMIT_FETCH = LEADERBOARD_LIMIT_DISPLAY * 2;
 
 interface LeaderboardEntry {
   user_id: string;
-  balance: number;
+  balance?: number;
+  winrate?: number;
+  net_gain_loss?: number;
 }
 
 type GetLeaderboardData = (limit: number, offset?: number) => Promise<LeaderboardEntry[]>;
 type FormatLeaderboardEntry = (entry: LeaderboardEntry, rank: number) => string;
-type GetUserBalance = (userId: string) => Promise<number>;
+type GetUserStatistic = (userId: string) => Promise<number | string>;
 
 const getLeaderboardEmbed = async (
   client: SapphireClient<boolean>,
   userId: string,
   getLeaderboardData: GetLeaderboardData,
   formatLeaderboardEntry: FormatLeaderboardEntry,
-  getUserBalance: GetUserBalance,
+  getUserStatistic: GetUserStatistic,
   leaderboardTitle: string,
   leaderboardEmoji: string | Emoji,
 ): Promise<EmbedBuilder> => {
   let leaderboard = await getLeaderboardData(LEADERBOARD_LIMIT_FETCH);
   const leaderboardArray: string[] = [];
-  const userBalance = await getUserBalance(userId);
-  let previousBalance = -1;
+  const userStatistic = await getUserStatistic(userId);
+  let previousValue: number | undefined = undefined;
   let position = 0;
   let rank = 0;
   let offset = 0;
@@ -45,10 +47,12 @@ const getLeaderboardEmbed = async (
     const entry = leaderboard[i++];
     const user = await client.users.fetch(entry.user_id).catch(() => null);
     if (user?.bot) continue;
-    if (previousBalance === entry.balance) {
-      previousBalance = entry.balance;
+
+    const currentValue = entry.balance ?? entry.winrate ?? entry.net_gain_loss;
+    if (previousValue === currentValue) {
+      previousValue = currentValue;
     } else {
-      previousBalance = entry.balance;
+      previousValue = currentValue;
       rank = absoluteCount + 1;
     }
     absoluteCount++;
@@ -59,7 +63,8 @@ const getLeaderboardEmbed = async (
       leaderboardArray.push(formatLeaderboardEntry(entry, rank));
     }
   }
-  const leaderboardText = leaderboardArray.join('\n');
+
+  const leaderboardText = leaderboardArray.join('\n') || 'No entries available.';
   const leaderboardEmbed = new EmbedBuilder()
     .setColor(DEFAULT_EMBED_COLOUR)
     .setTitle(leaderboardTitle)
@@ -67,9 +72,10 @@ const getLeaderboardEmbed = async (
   leaderboardEmbed.addFields([
     {
       name: 'Your Position',
-      value: `You are currently **#${position}** in the leaderboard with ${userBalance} ${leaderboardEmoji}.`,
+      value: `You are currently **#${position}** in the leaderboard with ${userStatistic} ${leaderboardEmoji}.`,
     },
   ]);
+
   return leaderboardEmbed;
 };
 
