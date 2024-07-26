@@ -122,7 +122,7 @@ const getBalanceChange = (game: GameState): number => {
 const getEmbedColourFromGame = (game: GameState): keyof typeof Colors => {
   if (game.stage === BlackjackStage.DONE) {
     const balance = getBalanceChange(game);
-    
+
     // Player lost coins
     if (balance < 0) {
       return 'Red';
@@ -195,7 +195,6 @@ const getEmbedFromGame = async (game: GameState, author: string): Promise<EmbedB
 
   return embed;
 };
-
 
 // End the game
 const closeGame = (playerId: string, balanceChange = 0) => {

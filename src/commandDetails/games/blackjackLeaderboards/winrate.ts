@@ -6,7 +6,10 @@ import {
   getUserFromMessage,
 } from '../../../codeyCommand';
 import { getLeaderboardEmbed } from '../../../utils/leaderboards';
-import { getWinrateBlackjackByUserId, getBlackjackWinrateLeaderboard } from '../../../components/games/blackjackLeaderboards';
+import {
+  getWinrateBlackjackByUserId,
+  getBlackjackWinrateLeaderboard,
+} from '../../../components/games/blackjackLeaderboards';
 
 const blackjackWinrateLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
   client,
@@ -20,7 +23,7 @@ const blackjackWinrateLeaderboardExecuteCommand: SapphireMessageExecuteType = as
     getBlackjackWinrateLeaderboard,
     (entry, rank) => {
       const formattedWinrate = entry.winrate ? (entry.winrate * 100).toFixed(2) + ' %' : 'N/A';
-      return `${rank}\\. <@${entry.user_id}> - ${formattedWinrate}`
+      return `${rank}\\. <@${entry.user_id}> - ${formattedWinrate}`;
     },
     async (id) => {
       const winrate = await getWinrateBlackjackByUserId(id);

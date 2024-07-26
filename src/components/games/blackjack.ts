@@ -10,7 +10,7 @@ export type BlackjackHand = Card[];
 export type GameState = {
   stage: BlackjackStage;
   playerCards: BlackjackHand;
-  playerValue: number[];  
+  playerValue: number[];
   dealerCards: BlackjackHand;
   dealerValue: number[];
   bet: number;

@@ -188,7 +188,8 @@ export const updateWiki = async (): Promise<void> => {
       const subDir = `${commandDetailsDir}/${dir}`;
       const files = await readdir(subDir);
       for (const file of files) {
-        if (file === 'blackjackLeaderboards') { // Skip blackjackLeaderboards until it can be fixed in this wiki!
+        if (file === 'blackjackLeaderboards') {
+          // Skip blackjackLeaderboards until it can be fixed in this wiki!
           continue;
         }
         const filePath = `${subDir}/${file}`;

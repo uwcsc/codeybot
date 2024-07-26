@@ -7,7 +7,10 @@ import {
 } from '../../../codeyCommand';
 import { getCoinEmoji } from '../../../components/emojis';
 import { getLeaderboardEmbed } from '../../../utils/leaderboards';
-import { getNetTotalBlackjackBalanceByUserId,getBlackjackNetTotalLeaderboard } from '../../../components/games/blackjackLeaderboards';
+import {
+  getNetTotalBlackjackBalanceByUserId,
+  getBlackjackNetTotalLeaderboard,
+} from '../../../components/games/blackjackLeaderboards';
 
 const blackjackNetTotalLeaderboardExecuteCommand: SapphireMessageExecuteType = async (
   client,
