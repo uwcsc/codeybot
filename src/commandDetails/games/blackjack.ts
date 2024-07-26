@@ -34,6 +34,7 @@ import {
   startGame,
 } from '../../components/games/blackjack';
 import { pluralize } from '../../utils/pluralize';
+import { logBlackjackGameResult } from '../../components/games/blackjackLeaderboards';
 
 // CodeyCoin constants
 const DEFAULT_BET = 10;
@@ -121,6 +122,7 @@ const getBalanceChange = (game: GameState): number => {
 const getEmbedColourFromGame = (game: GameState): keyof typeof Colors => {
   if (game.stage === BlackjackStage.DONE) {
     const balance = getBalanceChange(game);
+    
     // Player lost coins
     if (balance < 0) {
       return 'Red';
@@ -138,9 +140,10 @@ const getEmbedColourFromGame = (game: GameState): keyof typeof Colors => {
 };
 
 // Retrieve game status at different states
-const getDescriptionFromGame = (game: GameState): string => {
+const getDescriptionFromGame = async (game: GameState, author: string): Promise<string> => {
   const amountDiff = Math.abs(getBalanceChange(game));
   if (game.stage === BlackjackStage.DONE) {
+    await logBlackjackGameResult(author, game.bet, getBalanceChange(game), game.surrendered);
     // Player surrendered
     if (game.surrendered) {
       return `You surrendered and lost **${amountDiff}** Codey ${pluralize(
@@ -170,14 +173,15 @@ const getDescriptionFromGame = (game: GameState): string => {
 };
 
 // Display embed to play game
-const getEmbedFromGame = (game: GameState): EmbedBuilder => {
+const getEmbedFromGame = async (game: GameState, author: string): Promise<EmbedBuilder> => {
   const embed = new EmbedBuilder().setTitle('Blackjack');
 
   embed.setColor(getEmbedColourFromGame(game));
 
+  const description = await getDescriptionFromGame(game, author);
   embed.addFields([
     // Show bet amount and game description
-    { name: `Bet: ${game.bet} ${getCoinEmoji()}`, value: getDescriptionFromGame(game) },
+    { name: `Bet: ${game.bet} ${getCoinEmoji()}`, value: description },
     // Show player and dealer value and hands
     {
       name: `Player: ${game.playerValue.join(' or ')}`,
@@ -191,6 +195,7 @@ const getEmbedFromGame = (game: GameState): EmbedBuilder => {
 
   return embed;
 };
+
 
 // End the game
 const closeGame = (playerId: string, balanceChange = 0) => {
@@ -239,9 +244,10 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
     return 'Please finish your current game before starting another one!';
   }
 
+  const embed = await getEmbedFromGame(game, author);
   // Show game initial state and setup reactions
   const msg = await message.reply({
-    embeds: [getEmbedFromGame(game)],
+    embeds: [embed],
     components: game?.stage != BlackjackStage.DONE ? [optionRow] : [],
     fetchReply: true,
   });
@@ -261,9 +267,10 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
 
       // Wait for user action
       game = await performActionFromReaction(reactCollector, author);
+      const updatedEmbed = await getEmbedFromGame(game!, author);
 
       // Return next game state
-      await msg.edit({ embeds: [getEmbedFromGame(game!)] });
+      await msg.edit({ embeds: [updatedEmbed] });
       await reactCollector.update({ components: [optionRow] });
     } catch {
       // If player has not acted within time limit, consider it as quitting the game
@@ -278,7 +285,8 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
   }
   if (game) {
     // Update game embed
-    await msg.edit({ embeds: [getEmbedFromGame(game)], components: [] });
+    const finalEmbed = await getEmbedFromGame(game, author);
+    await msg.edit({ embeds: [finalEmbed], components: [] });
     // End the game
     closeGame(author, getBalanceChange(game));
   }

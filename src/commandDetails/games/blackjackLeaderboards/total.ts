@@ -19,8 +19,15 @@ const blackjackNetTotalLeaderboardExecuteCommand: SapphireMessageExecuteType = a
     client,
     userId,
     getBlackjackNetTotalLeaderboard,
-    (entry, rank) => `${rank}\\. <@${entry.user_id}> - ${entry.net_gain_loss ?? 0} coins`,
-    getNetTotalBlackjackBalanceByUserId,
+    (entry, rank) => {
+      const netGainLoss = entry.net_gain_loss ?? 0;
+      const formattedNetGainLoss = netGainLoss < 0 ? `(${netGainLoss})` : netGainLoss.toString();
+      return `${rank}\\. <@${entry.user_id}> - ${formattedNetGainLoss} coins`;
+    },
+    async (id) => {
+      const netGainLoss = await getNetTotalBlackjackBalanceByUserId(id);
+      return netGainLoss < 0 ? `(${netGainLoss})` : netGainLoss.toString();
+    },
     'Blackjack Net Total Leaderboard',
     getCoinEmoji(),
   );

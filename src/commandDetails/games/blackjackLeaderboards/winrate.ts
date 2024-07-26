@@ -5,7 +5,6 @@ import {
   SapphireMessageResponse,
   getUserFromMessage,
 } from '../../../codeyCommand';
-import { getCoinEmoji } from '../../../components/emojis';
 import { getLeaderboardEmbed } from '../../../utils/leaderboards';
 import { getWinrateBlackjackByUserId, getBlackjackWinrateLeaderboard } from '../../../components/games/blackjackLeaderboards';
 
@@ -19,10 +18,16 @@ const blackjackWinrateLeaderboardExecuteCommand: SapphireMessageExecuteType = as
     client,
     userId,
     getBlackjackWinrateLeaderboard,
-    (entry, rank) => `${rank}\\. <@${entry.user_id}> - ${entry.winrate} %`,
-    getWinrateBlackjackByUserId,
+    (entry, rank) => {
+      const formattedWinrate = entry.winrate ? (entry.winrate * 100).toFixed(2) + ' %' : 'N/A';
+      return `${rank}\\. <@${entry.user_id}> - ${formattedWinrate}`
+    },
+    async (id) => {
+      const winrate = await getWinrateBlackjackByUserId(id);
+      return winrate ? (winrate * 100).toFixed(2) + ' %' : 'N/A';
+    },
     'Blackjack Winrate Leaderboard',
-    '%',
+    '',
   );
   return { embeds: [leaderboardEmbed] };
 };

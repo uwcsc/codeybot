@@ -113,6 +113,12 @@ const initBlackjackPlayerStats = async (db: Database): Promise<void> => {
       )
     `,
   );
+  await db.run(
+    `CREATE INDEX IF NOT EXISTS idx_net_gain_loss ON blackjack_player_stats (net_gain_loss)`
+  );
+  await db.run(
+    `CREATE INDEX IF NOT EXISTS idx_winrate ON blackjack_player_stats (winrate)`
+  );
 };
 
 const initUserProfileTable = async (db: Database): Promise<void> => {
