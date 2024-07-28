@@ -34,7 +34,7 @@ import {
   startGame,
 } from '../../components/games/blackjack';
 import { pluralize } from '../../utils/pluralize';
-import { logBlackjackGameResult } from '../../components/games/blackjackLeaderboards';
+import { adjustBlackjackGameResult } from '../../components/games/blackjackLeaderboards';
 
 // CodeyCoin constants
 const DEFAULT_BET = 10;
@@ -140,10 +140,9 @@ const getEmbedColourFromGame = (game: GameState): keyof typeof Colors => {
 };
 
 // Retrieve game status at different states
-const getDescriptionFromGame = async (game: GameState, author: string): Promise<string> => {
+const getDescriptionFromGame = async (game: GameState): Promise<string> => {
   const amountDiff = Math.abs(getBalanceChange(game));
   if (game.stage === BlackjackStage.DONE) {
-    await logBlackjackGameResult(author, game.bet, getBalanceChange(game), game.surrendered);
     // Player surrendered
     if (game.surrendered) {
       return `You surrendered and lost **${amountDiff}** Codey ${pluralize(
@@ -197,7 +196,9 @@ const getEmbedFromGame = async (game: GameState, author: string): Promise<EmbedB
 };
 
 // End the game
-const closeGame = (playerId: string, balanceChange = 0) => {
+const closeGame = async (playerId: string, game: GameState) => {
+  const balanceChange = getBalanceChange(game);
+  adjustBlackjackGameResult(playerId, balanceChange);
   endGame(playerId);
   adjustCoinBalanceByUserId(playerId, balanceChange, UserCoinEvent.Blackjack);
 };
@@ -287,7 +288,7 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
     const finalEmbed = await getEmbedFromGame(game, author);
     await msg.edit({ embeds: [finalEmbed], components: [] });
     // End the game
-    closeGame(author, getBalanceChange(game));
+    closeGame(author, game);
   }
 };
 

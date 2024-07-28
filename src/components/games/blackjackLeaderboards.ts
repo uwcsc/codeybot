@@ -62,11 +62,9 @@ export const getBlackjackNetTotalLeaderboard = async (
   return res;
 };
 
-export const logBlackjackGameResult = async (
+export const adjustBlackjackGameResult = async (
   userId: string,
-  bet: number,
-  netGainLoss: number,
-  surrendered: boolean,
+  balanceChange: number,
 ): Promise<void> => {
   const db = await openDB();
   const playerStats = await db.get(
@@ -75,14 +73,15 @@ export const logBlackjackGameResult = async (
   );
 
   let gamesPlayed = 1;
-  let gamesWon = netGainLoss > 0 ? 1 : 0;
-  let gamesLost = netGainLoss < 0 || surrendered ? 1 : 0;
+  let gamesWon = balanceChange > 0 ? 1 : 0;
+  let gamesLost = balanceChange < 0 ? 1 : 0;
+  let netGainLoss = balanceChange;
 
   if (playerStats) {
     gamesPlayed += playerStats.games_played;
     gamesWon += playerStats.games_won;
     gamesLost += playerStats.games_lost;
-    netGainLoss = playerStats.net_gain_loss + netGainLoss;
+    netGainLoss += playerStats.net_gain_loss;
 
     const winrate = gamesWon / gamesPlayed;
 
