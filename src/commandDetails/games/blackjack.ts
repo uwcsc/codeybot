@@ -172,12 +172,12 @@ const getDescriptionFromGame = async (game: GameState): Promise<string> => {
 };
 
 // Display embed to play game
-const getEmbedFromGame = async (game: GameState, author: string): Promise<EmbedBuilder> => {
+const getEmbedFromGame = async (game: GameState): Promise<EmbedBuilder> => {
   const embed = new EmbedBuilder().setTitle('Blackjack');
 
   embed.setColor(getEmbedColourFromGame(game));
 
-  const description = await getDescriptionFromGame(game, author);
+  const description = await getDescriptionFromGame(game);
   embed.addFields([
     // Show bet amount and game description
     { name: `Bet: ${game.bet} ${getCoinEmoji()}`, value: description },
@@ -244,7 +244,7 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
     return 'Please finish your current game before starting another one!';
   }
 
-  const embed = await getEmbedFromGame(game, author);
+  const embed = await getEmbedFromGame(game);
   // Show game initial state and setup reactions
   const msg = await message.reply({
     embeds: [embed],
@@ -267,7 +267,7 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
 
       // Wait for user action
       game = await performActionFromReaction(reactCollector, author);
-      const updatedEmbed = await getEmbedFromGame(game!, author);
+      const updatedEmbed = await getEmbedFromGame(game!);
 
       // Return next game state
       await msg.edit({ embeds: [updatedEmbed] });
@@ -285,7 +285,7 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
   }
   if (game) {
     // Update game embed
-    const finalEmbed = await getEmbedFromGame(game, author);
+    const finalEmbed = await getEmbedFromGame(game);
     await msg.edit({ embeds: [finalEmbed], components: [] });
     // End the game
     closeGame(author, game);
