@@ -25,7 +25,7 @@ const getCoinLeaderboardEmbed = async (
   // Initialize user's coin balance if they have not already
   const userBalance = await getCoinBalanceByUserId(userId);
   let previousBalance = -1;
-  let position = 0;
+  let position = 0; 
   let rank = 0;
   let offset = 0;
   let i = 0;

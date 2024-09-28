@@ -20,6 +20,7 @@ import { openDB } from '../components/db';
 import { spawnSync } from 'child_process';
 import { User } from 'discord.js';
 import { getCoinEmoji } from '../components/emojis';
+import { adjustCoinBalanceByUserId, UserCoinEvent } from '../components/coin';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;
@@ -32,8 +33,9 @@ const CONVERTED_IMG_PATH = 'tmp/img.jpg';
 // Variables and constants associated with the counting game
 const coinsPerMessage: number = 0.1; // Number of coins awarded = coinsPerMessage * highest counting number * messages sent by user
 const countingAuthorDelay: number = 1; // The minimum number of users that must count for someone to go again 
-const previousCountingAuthors: Array<User> = [];
-const authorMessageCounts: Map<User, number> = new Map();
+const previousCountingAuthors: Array<User> = []; // Stores the most recent counters
+const authorMessageCounts: Map<User, number> = new Map(); // Stores how many messages each user sent
+const coinAwardNumberThreshold: number = 20; // The minimum number that must be reached for coins to be awarded
 let currentCountingNumber: number = 1;
 
 /*
@@ -248,25 +250,32 @@ const endCountingGame = async (
   message: Message,
   reasonForFailure: string
 ): Promise<Message<boolean> | undefined> => {
-  const sortedAuthorMessageCounts: Array<[User, number]> = Array.from(authorMessageCounts).sort((a, b) => b[1] - a[1]); // Turns map into descending sorted array
-  const coinsAwarded: Array<string> = ['**Coins awarded:**']; 
-  sortedAuthorMessageCounts.forEach((pair) => {
-    pair[1] *= coinsPerMessage * currentCountingNumber; // Changes number of messages sent to number of coins awarded
-    coinsAwarded.push(`<@${pair[0].id}> - ${pair[1]} ${getCoinEmoji()}`);
-  });
-
- // ** REMEMBER TO ACTUALLY AWARD COINS
-  
+  // Builds game over embed
   const endGameEmbed = new EmbedBuilder()
-  .setColor(DEFAULT_EMBED_COLOUR)
-  .setTitle('Counting Game Over')
-  .setDescription(coinsAwarded.join('\n'));
-  endGameEmbed.addFields([
+    .setColor(DEFAULT_EMBED_COLOUR)
+    .setTitle('Counting Game Over')
+    .addFields([
     {
       name: 'Reason for Game Over',
       value: reasonForFailure,
     },
   ]);
+
+  if (currentCountingNumber < coinAwardNumberThreshold) {
+    endGameEmbed.setDescription(`Coins will not be awarded because the threshold, ${coinAwardNumberThreshold}, was not reached.`);
+  }
+  else
+  {
+    const sortedAuthorMessageCounts: Array<[User, number]> = Array.from(authorMessageCounts).sort((a, b) => b[1] - a[1]); // Turns map into descending sorted array
+    const coinsAwarded: Array<string> = ['**Coins awarded:**']; 
+    for (let pair of sortedAuthorMessageCounts) {
+      pair[1] *= coinsPerMessage * currentCountingNumber; // Changes number of messages sent to number of coins awarded
+      coinsAwarded.push(`<@${pair[0].id}> - ${pair[1]} ${getCoinEmoji()}`);
+      await adjustCoinBalanceByUserId(message.author.id, pair[1], UserCoinEvent.Counting);
+    }
+    
+    endGameEmbed.setDescription(coinsAwarded.join('\n'));
+  }
 
   currentCountingNumber = 1;
   message.react('❌');

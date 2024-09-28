@@ -28,6 +28,7 @@ export enum UserCoinEvent {
   BonusActivity,
   BonusInterviewerList,
   Blackjack,
+  Counting,
   RpsLoss,
   RpsDrawAgainstCodey,
   RpsWin,
