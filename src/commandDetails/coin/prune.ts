@@ -1,6 +1,6 @@
 import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { ChatInputCommandInteraction, PermissionsBitField, User} from 'discord.js';
+import { ChatInputCommandInteraction, PermissionsBitField,} from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -12,10 +12,8 @@ import {
   getCoinBalanceByUserId,
   UserCoinEvent,
 } from '../../components/coin';
-import { getCoinEmoji } from '../../components/emojis'; 
-import { pluralize } from '../../utils/pluralize';
 
-// Divide everyone's coin counts by given divisor to promote more recent users
+// Divide everyone's coin counts by given divisor to ensure the leaderboard is populated with more active members
 // Designed to be used at the end of a term
 const coinPruneExecuteCommand: SapphireMessageExecuteType = async (
   client,
@@ -32,7 +30,7 @@ const coinPruneExecuteCommand: SapphireMessageExecuteType = async (
 
   // First and only mandatory argument is divisor
   const divisor = <number>args['divisor']; // Cast divisor to a number to allow arithmetic operations
-  if (!divisor || divisor < 1) {
+  if (!divisor || divisor <= 1) {
     throw new CodeyUserError(messageFromUser, 'Please enter a valid number to divide by.');
   }
 
