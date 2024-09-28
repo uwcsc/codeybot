@@ -1,6 +1,6 @@
 import { CodeyUserError } from './../../codeyUserError';
 import { container } from '@sapphire/framework';
-import { ChatInputCommandInteraction, PermissionsBitField,} from 'discord.js';
+import { ChatInputCommandInteraction, PermissionsBitField } from 'discord.js';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -44,7 +44,7 @@ const coinPruneExecuteCommand: SapphireMessageExecuteType = async (
   const allMembers = await messageFromUser.guild?.members.fetch();
   if (allMembers) {
     for (const member of allMembers.values()) {
-      let currentBalance: number = await getCoinBalanceByUserId(member.user.id);
+      const currentBalance: number = await getCoinBalanceByUserId(member.user.id);
       await updateCoinBalanceByUserId(
         member.user.id,
         <number>Math.round(currentBalance / divisor),
@@ -58,11 +58,8 @@ const coinPruneExecuteCommand: SapphireMessageExecuteType = async (
   const returnMessage = `Divided all users' coin balances by ${divisor}.`;
 
   if (messageFromUser instanceof ChatInputCommandInteraction) {
-    await(<ChatInputCommandInteraction>messageFromUser).editReply(
-      returnMessage,
-    );
-  }
-  else {
+    await (<ChatInputCommandInteraction>messageFromUser).editReply(returnMessage);
+  } else {
     await messageFromUser.channel?.send(returnMessage);
   }
   return;
@@ -71,7 +68,7 @@ const coinPruneExecuteCommand: SapphireMessageExecuteType = async (
 export const coinPruneCommandDetails: CodeyCommandDetails = {
   name: 'prune',
   aliases: ['p'],
-  description: 'Divide every users\' coin balance by the passed argument.',
+  description: "Divide every users' coin balance by the passed argument.",
   detailedDescription: `**Examples:**
 \`${container.botPrefix}coin prune @Codey 100\`
 \`${container.botPrefix}coin prune @Codey -100 Codey broke.\``,
@@ -82,7 +79,7 @@ export const coinPruneCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: 'divisor',
-      description: 'The number to divide all users\' coin balances by.',
+      description: "The number to divide all users' coin balances by.",
       type: CodeyCommandOptionType.NUMBER,
       required: true,
     },

@@ -32,7 +32,7 @@ const coinCommandDetails: CodeyCommandDetails = {
     update: coinUpdateCommandDetails,
     leaderboard: coinLeaderboardCommandDetails,
     transfer: coinTransferCommandDetails,
-    prune: coinPruneCommandDetails
+    prune: coinPruneCommandDetails,
   },
   defaultSubcommandDetails: coinCheckCommandDetails,
 };
