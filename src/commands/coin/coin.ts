@@ -6,6 +6,7 @@ import { coinInfoCommandDetails } from '../../commandDetails/coin/info';
 import { coinLeaderboardCommandDetails } from '../../commandDetails/coin/leaderboard';
 import { coinTransferCommandDetails } from '../../commandDetails/coin/transfer';
 import { coinUpdateCommandDetails } from '../../commandDetails/coin/update';
+import { coinPruneCommandDetails } from '../../commandDetails/coin/prune';
 
 const coinCommandDetails: CodeyCommandDetails = {
   name: 'coin',
@@ -31,6 +32,7 @@ const coinCommandDetails: CodeyCommandDetails = {
     update: coinUpdateCommandDetails,
     leaderboard: coinLeaderboardCommandDetails,
     transfer: coinTransferCommandDetails,
+    prune: coinPruneCommandDetails
   },
   defaultSubcommandDetails: coinCheckCommandDetails,
 };

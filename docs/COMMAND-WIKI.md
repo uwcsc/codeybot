@@ -14,7 +14,7 @@
 - **Description:** Handle coin functions.
 - **Examples:**<br>`.coin adjust @Codey 100`<br>`.coin adjust @Codey -100 Codey broke.`<br>`.coin`<br>`.coin check @Codey`<br>`.coin c @Codey`<br>`.coin info`<br>`.coin i`<br>`.coin update @Codey 100`<br>`.coin update @Codey 0 Reset Codey's balance.`<br>`.coin transfer @Codey 10`<br>`.coin transfer @Codey 15 Lost a bet to Codey `
 - **Options:** None
-- **Subcommands:** `adjust`, `check`, `info`, `update`, `leaderboard`, `transfer`
+- **Subcommands:** `adjust`, `check`, `info`, `update`, `leaderboard`, `transfer`, `prune`
 
 ## coin adjust
 - **Aliases:** `a`
@@ -46,6 +46,15 @@
 - **Description:** Get the current coin leaderboard.
 - **Examples:**<br>`.coin lb`<br>`.coin leaderboard`
 - **Options:** None
+- **Subcommands:** None
+
+## coin prune
+- **Aliases:** `p`
+- **Description:** Divide every users\
+- **Examples:**<br>`.coin prune @Codey 100`<br>`.coin prune @Codey -100 Codey broke.`
+- **Options:** 
+    - ``divisor``: The number to divide all users\
+    - ``reason``: The reason why we are pruning the balances.
 - **Subcommands:** None
 
 ## coin transfer

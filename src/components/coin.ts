@@ -23,6 +23,7 @@ export enum BonusType {
 
 export enum UserCoinEvent {
   AdminCoinAdjust,
+  AdminCoinPrune,
   AdminCoinUpdate,
   BonusDaily,
   BonusActivity,
