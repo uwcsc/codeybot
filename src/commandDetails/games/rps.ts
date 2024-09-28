@@ -10,6 +10,7 @@ import {
 import { getCoinBalanceByUserId } from '../../components/coin';
 import { getCoinEmoji } from '../../components/emojis';
 import { rpsGameTracker } from '../../components/games/rps';
+import { User } from 'discord.js';
 
 const rpsExecuteCommand: SapphireMessageExecuteType = async (
   _client,
@@ -32,11 +33,12 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
     return new SapphireMessageResponseWithMetadata(`Minimum bet is 10 ${getCoinEmoji()}.`, {});
   }
 
+  const player2 = (args['player 2']) as User ?? undefined;
   const game = await rpsGameTracker.startGame(
     bet,
     messageFromUser.channelId,
     getUserFromMessage(messageFromUser),
-    undefined, // We should change this when we implement 2 players
+    player2,
   );
 
   // Return initial response
@@ -70,6 +72,12 @@ export const rpsCommandDetails: CodeyCommandDetails = {
       name: 'bet',
       description: 'How much to bet - default is 10.',
       type: CodeyCommandOptionType.INTEGER,
+      required: false,
+    },
+    {
+      name: 'player 2',
+      description: 'Invite someone to play you in a duel!',
+      type: CodeyCommandOptionType.USER,
       required: false,
     },
   ],
