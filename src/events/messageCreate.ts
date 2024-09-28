@@ -31,12 +31,12 @@ const HEIC_FILE_PATH = 'tmp/img.heic';
 const CONVERTED_IMG_PATH = 'tmp/img.jpg';
 
 // Variables and constants associated with the counting game
-const coinsPerMessage: number = 0.1; // Number of coins awarded = coinsPerMessage * highest counting number * messages sent by user
-const countingAuthorDelay: number = 1; // The minimum number of users that must count for someone to go again 
+const coinsPerMessage = 0.1; // Number of coins awarded = coinsPerMessage * highest counting number * messages sent by user
+const countingAuthorDelay = 1; // The minimum number of users that must count for someone to go again
 const previousCountingAuthors: Array<User> = []; // Stores the most recent counters
 const authorMessageCounts: Map<User, number> = new Map(); // Stores how many messages each user sent
-const coinAwardNumberThreshold: number = 20; // The minimum number that must be reached for coins to be awarded
-let currentCountingNumber: number = 1;
+const coinAwardNumberThreshold = 20; // The minimum number that must be reached for coins to be awarded
+let currentCountingNumber = 1;
 
 /*
  * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
@@ -215,16 +215,16 @@ const countingGameLogic = async (
   client: Client,
   message: Message,
 ): Promise<Message<boolean> | undefined> => {
-
   // Check to see if game should end
   let reasonForFailure = '';
-  if (isNaN(Number(message.content))) { // Message was not a number
+  if (isNaN(Number(message.content))) {
+    // Message was not a number
     reasonForFailure = `"${message.content}" is not a number!`;
-  }
-  else if (previousCountingAuthors.find((author) => author === message.author)) { // Author is still on cooldown
+  } else if (previousCountingAuthors.find((author) => author === message.author)) {
+    // Author is still on cooldown
     reasonForFailure = `<@${message.author.id}> counted too recently!`;
-  }
-  else if (Number(message.content) != currentCountingNumber) { // Wrong number was sent
+  } else if (Number(message.content) != currentCountingNumber) {
+    // Wrong number was sent
     reasonForFailure = `${message.content} is not the next number! The next number was ${currentCountingNumber}.`;
   }
 
@@ -243,37 +243,39 @@ const countingGameLogic = async (
   authorMessageCounts.set(message.author, currentAuthorCount ? currentAuthorCount + 1 : 1);
 
   return;
-}
+};
 
 const endCountingGame = async (
   client: Client,
   message: Message,
-  reasonForFailure: string
+  reasonForFailure: string,
 ): Promise<Message<boolean> | undefined> => {
   // Builds game over embed
   const endGameEmbed = new EmbedBuilder()
     .setColor(DEFAULT_EMBED_COLOUR)
     .setTitle('Counting Game Over')
     .addFields([
-    {
-      name: 'Reason for Game Over',
-      value: reasonForFailure,
-    },
-  ]);
+      {
+        name: 'Reason for Game Over',
+        value: reasonForFailure,
+      },
+    ]);
 
   if (currentCountingNumber < coinAwardNumberThreshold) {
-    endGameEmbed.setDescription(`Coins will not be awarded because the threshold, ${coinAwardNumberThreshold}, was not reached.`);
-  }
-  else
-  {
-    const sortedAuthorMessageCounts: Array<[User, number]> = Array.from(authorMessageCounts).sort((a, b) => b[1] - a[1]); // Turns map into descending sorted array
-    const coinsAwarded: Array<string> = ['**Coins awarded:**']; 
-    for (let pair of sortedAuthorMessageCounts) {
+    endGameEmbed.setDescription(
+      `Coins will not be awarded because the threshold, ${coinAwardNumberThreshold}, was not reached.`,
+    );
+  } else {
+    const sortedAuthorMessageCounts: Array<[User, number]> = Array.from(authorMessageCounts).sort(
+      (a, b) => b[1] - a[1],
+    ); // Turns map into descending sorted array
+    const coinsAwarded: Array<string> = ['**Coins awarded:**'];
+    for (const pair of sortedAuthorMessageCounts) {
       pair[1] *= coinsPerMessage * currentCountingNumber; // Changes number of messages sent to number of coins awarded
       coinsAwarded.push(`<@${pair[0].id}> - ${pair[1]} ${getCoinEmoji()}`);
       await adjustCoinBalanceByUserId(message.author.id, pair[1], UserCoinEvent.Counting);
     }
-    
+
     endGameEmbed.setDescription(coinsAwarded.join('\n'));
   }
 
@@ -281,10 +283,9 @@ const endCountingGame = async (
   message.react('❌');
   previousCountingAuthors.length = 0;
   authorMessageCounts.clear();
-  
-  return await message.channel?.send({embeds: [endGameEmbed]});
-};
 
+  return await message.channel?.send({ embeds: [endGameEmbed] });
+};
 
 export const initMessageCreate = async (
   client: Client,
