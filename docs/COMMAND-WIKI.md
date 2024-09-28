@@ -50,10 +50,9 @@
 
 ## coin prune
 - **Aliases:** `p`
-- **Description:** Divide every users\
+- **Description:** The reason why we are pruning the balances.
 - **Examples:**<br>`.coin prune @Codey 100`<br>`.coin prune @Codey -100 Codey broke.`
 - **Options:** 
-    - ``divisor``: The number to divide all users\
     - ``reason``: The reason why we are pruning the balances.
 - **Subcommands:** None
 
