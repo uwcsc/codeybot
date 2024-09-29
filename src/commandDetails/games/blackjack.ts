@@ -277,7 +277,7 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
         }
       } else {
         // Handling Unexpected Errors
-        await msg.edit("An unexpected error occured. The game has been aborted.");
+        await msg.edit('An unexpected error occured. The game has been aborted.');
 
         closeGame(author, 0); // No change to balance
         return 'An unexpected error occured. The game has been aborted.';
