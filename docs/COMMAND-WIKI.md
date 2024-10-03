@@ -258,6 +258,13 @@
     - ``uwid``: The Quest ID of the user.
 - **Subcommands:** None
 
+## office
+- **Aliases:** None
+- **Description:** Get information about the CSC office.
+- no detailed description yet
+- **Options:** None
+- **Subcommands:** None
+
 ## ping
 - **Aliases:** `pong`
 - **Description:** Ping the bot to see if it is alive. :ping_pong:
