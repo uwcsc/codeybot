@@ -100,6 +100,25 @@ const initUserCoinTable = async (db: Database): Promise<void> => {
   );
 };
 
+const initBlackjackPlayerStats = async (db: Database): Promise<void> => {
+  await db.run(
+    `
+      CREATE TABLE IF NOT EXISTS blackjack_player_stats (
+        user_id VARCHAR(255) PRIMARY KEY NOT NULL,
+        games_played INTEGER NOT NULL DEFAULT 0,
+        games_won INTEGER NOT NULL DEFAULT 0,
+        games_lost INTEGER NOT NULL DEFAULT 0,
+        net_gain_loss INTEGER NOT NULL DEFAULT 0,
+        winrate REAL NOT NULL DEFAULT 0.0
+      )
+    `,
+  );
+  await db.run(
+    `CREATE INDEX IF NOT EXISTS idx_net_gain_loss ON blackjack_player_stats (net_gain_loss)`,
+  );
+  await db.run(`CREATE INDEX IF NOT EXISTS idx_winrate ON blackjack_player_stats (winrate)`);
+};
+
 const initUserProfileTable = async (db: Database): Promise<void> => {
   await db.run(
     `
@@ -230,6 +249,7 @@ const initTables = async (db: Database): Promise<void> => {
   await initUserCoinBonusTable(db);
   await initUserCoinLedgerTable(db);
   await initUserCoinTable(db);
+  await initBlackjackPlayerStats(db);
   await initUserProfileTable(db);
   await initRpsGameInfo(db);
   await initConnectFourGameInfo(db);
