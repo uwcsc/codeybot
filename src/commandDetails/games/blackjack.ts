@@ -265,17 +265,26 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
       // Return next game state
       await msg.edit({ embeds: [getEmbedFromGame(game!)] });
       await reactCollector.update({ components: [optionRow] });
-    } catch {
-      // If player has not acted within time limit, consider it as quitting the game
-      game = performGameAction(author, BlackjackAction.QUIT);
-      msg.edit(
-        "You didn't act within the time limit. Unfortunately, this counts as a quit. Please start another game!",
-      );
-      if (game) {
-        game.stage = BlackjackStage.DONE;
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('time')) {
+        // If player has not acted within time limit, consider it as quitting the game
+        game = performGameAction(author, BlackjackAction.QUIT);
+        await msg.edit(
+          "You didn't act within the time limit. Unfortunately, this counts as a quit. Please start another game!",
+        );
+        if (game) {
+          game.stage = BlackjackStage.DONE;
+        }
+      } else {
+        // Handling Unexpected Errors
+        await msg.edit('An unexpected error occured. The game has been aborted.');
+
+        closeGame(author, 0); // No change to balance
+        return 'An unexpected error occured. The game has been aborted.';
       }
     }
   }
+
   if (game) {
     // Update game embed
     await msg.edit({ embeds: [getEmbedFromGame(game)], components: [] });
