@@ -31,11 +31,13 @@ const HEIC_FILE_PATH = 'tmp/img.heic';
 const CONVERTED_IMG_PATH = 'tmp/img.jpg';
 
 // Variables and constants associated with the counting game
-const coinsPerMessage = 0.1; // Number of coins awarded = coinsPerMessage * highest counting number * messages sent by user
-const countingAuthorDelay = 1; // The minimum number of users that must count for someone to go again
+const COINS_PER_MESSAGE = 0.1; // Number of coins awarded = COINS_PER_MESSAGE * highest counting number * number of messages sent by user
+const COUNTING_AUTHOR_DELAY = 1; // The minimum number of users that must count for someone to go again
 const previousCountingAuthors: Array<User> = []; // Stores the most recent counters
 const authorMessageCounts: Map<User, number> = new Map(); // Stores how many messages each user sent
-const coinAwardNumberThreshold = 20; // The minimum number that must be reached for coins to be awarded
+const COIN_AWARD_NUMBER_THRESHOLD: number = 20; // The minimum number that must be reached for coins to be awarded
+const MAX_COINS_PER_NUMBER_COUNTED: number = 2; // The maximum number of coins a user can receive every 100 numbers counted
+const MAX_COINS_PER_MESSAGE_SENT: number = 20;
 let currentCountingNumber = 1;
 
 /*
@@ -236,7 +238,7 @@ const countingGameLogic = async (
   currentCountingNumber++;
   message.react('✅');
   previousCountingAuthors.unshift(message.author); // Add current author to list of authors on cooldown
-  while (previousCountingAuthors.length > countingAuthorDelay) {
+  while (previousCountingAuthors.length > COUNTING_AUTHOR_DELAY) {
     previousCountingAuthors.pop(); // Remove last author from cooldown
   }
   const currentAuthorCount: number | undefined = authorMessageCounts.get(message.author);
@@ -250,6 +252,7 @@ const endCountingGame = async (
   message: Message,
   reasonForFailure: string,
 ): Promise<Message<boolean> | undefined> => {
+  currentCountingNumber--; // since the current counting number wasn't reached, decrement the value
   // Builds game over embed
   const endGameEmbed = new EmbedBuilder()
     .setColor(DEFAULT_EMBED_COLOUR)
@@ -261,9 +264,9 @@ const endCountingGame = async (
       },
     ]);
 
-  if (currentCountingNumber < coinAwardNumberThreshold) {
+  if (currentCountingNumber < COIN_AWARD_NUMBER_THRESHOLD) {
     endGameEmbed.setDescription(
-      `Coins will not be awarded because the threshold, ${coinAwardNumberThreshold}, was not reached.`,
+      `Coins will not be awarded because the threshold, ${COIN_AWARD_NUMBER_THRESHOLD}, was not reached.`,
     );
   } else {
     const sortedAuthorMessageCounts: Array<[User, number]> = Array.from(authorMessageCounts).sort(
@@ -271,7 +274,12 @@ const endCountingGame = async (
     ); // Turns map into descending sorted array
     const coinsAwarded: Array<string> = ['**Coins awarded:**'];
     for (const pair of sortedAuthorMessageCounts) {
-      pair[1] *= coinsPerMessage * currentCountingNumber; // Changes number of messages sent to number of coins awarded
+      // Changes number of messages sent to number of coins awarded
+      // Multiplication and division of 100 should prevent floating point errors
+      pair[1] = Math.min(Math.round((pair[1] * Math.round(1000 * COINS_PER_MESSAGE) * currentCountingNumber) / 100) / 10, 
+                         MAX_COINS_PER_NUMBER_COUNTED * currentCountingNumber,
+                        MAX_COINS_PER_MESSAGE_SENT * pair[1]);
+      
       coinsAwarded.push(`<@${pair[0].id}> - ${pair[1]} ${getCoinEmoji()}`);
       await adjustCoinBalanceByUserId(message.author.id, pair[1], UserCoinEvent.Counting);
     }
