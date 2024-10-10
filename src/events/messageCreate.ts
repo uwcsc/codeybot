@@ -35,9 +35,9 @@ const COINS_PER_MESSAGE = 0.1; // Number of coins awarded = COINS_PER_MESSAGE * 
 const COUNTING_AUTHOR_DELAY = 1; // The minimum number of users that must count for someone to go again
 const previousCountingAuthors: Array<User> = []; // Stores the most recent counters
 const authorMessageCounts: Map<User, number> = new Map(); // Stores how many messages each user sent
-const COIN_AWARD_NUMBER_THRESHOLD: number = 20; // The minimum number that must be reached for coins to be awarded
-const MAX_COINS_PER_NUMBER_COUNTED: number = 2; // The maximum number of coins a user can receive every 100 numbers counted
-const MAX_COINS_PER_MESSAGE_SENT: number = 20;
+const COIN_AWARD_NUMBER_THRESHOLD = 20; // The minimum number that must be reached for coins to be awarded
+const MAX_COINS_PER_NUMBER_COUNTED = 2; // The maximum number of coins a user can receive every 100 numbers counted
+const MAX_COINS_PER_MESSAGE_SENT = 20;
 let currentCountingNumber = 1;
 
 /*
@@ -276,10 +276,13 @@ const endCountingGame = async (
     for (const pair of sortedAuthorMessageCounts) {
       // Changes number of messages sent to number of coins awarded
       // Multiplication and division of 100 should prevent floating point errors
-      pair[1] = Math.min(Math.round((pair[1] * Math.round(1000 * COINS_PER_MESSAGE) * currentCountingNumber) / 100) / 10, 
-                         MAX_COINS_PER_NUMBER_COUNTED * currentCountingNumber,
-                        MAX_COINS_PER_MESSAGE_SENT * pair[1]);
-      
+      pair[1] = Math.min(
+        Math.round((pair[1] * Math.round(1000 * COINS_PER_MESSAGE) * currentCountingNumber) / 100) /
+          10,
+        MAX_COINS_PER_NUMBER_COUNTED * currentCountingNumber,
+        MAX_COINS_PER_MESSAGE_SENT * pair[1],
+      );
+
       coinsAwarded.push(`<@${pair[0].id}> - ${pair[1]} ${getCoinEmoji()}`);
       await adjustCoinBalanceByUserId(message.author.id, pair[1], UserCoinEvent.Counting);
     }
