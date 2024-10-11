@@ -50,23 +50,33 @@ export class RpsHandler extends InteractionHandler {
     interaction: ButtonInteraction,
     result: { gameId: number; sign: RpsGameSign },
   ): Promise<void> {
-    if (interaction.user.id !== rpsGameTracker.getGameFromId(result.gameId)!.state.player1Id) {
+    if (
+      interaction.user.id !== rpsGameTracker.getGameFromId(result.gameId)!.state.player1Id &&
+      interaction.user.id !== rpsGameTracker.getGameFromId(result.gameId)!.state.player2Id
+    ) {
       await interaction.reply({
         content: `This isn't your game! ${getEmojiByName('codey_angry')}`,
         ephemeral: true,
       });
-
+      
       await interaction.deferUpdate();
     }
+    
     rpsGameTracker.runFuncOnGame(result.gameId, (game) => {
-      game.state.player1Sign = result.sign;
-      // If single player, get Codey's sign
-      if (!game.state.player2Id) {
-        game.state.player2Sign = getCodeyRpsSign();
-        game.setStatus(undefined);
+      if (interaction.user.id === rpsGameTracker.getGameFromId(result.gameId)!.state.player1Id) {
+        game.state.player1Sign = result.sign;
+        // If single player, get Codey's sign
+        if (!game.state.player2Id) {
+          game.state.player2Sign = getCodeyRpsSign();
+        }
+      } else { 
+        game.state.player2Sign = result.sign;
       }
+
       updateMessageEmbed(game.gameMessage, game.getGameResponse());
+      game.setStatus(undefined);
     });
+
     rpsGameTracker.endGame(result.gameId);
   }
 }

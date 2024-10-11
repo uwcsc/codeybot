@@ -171,13 +171,13 @@ export class RpsGame {
     // Both players submitted a sign
     if (typeof timeout === 'undefined') {
       /*
-        If one of the players' signs is still pending, something went wrong
+        If one of the players' signs is still pending, game is still pending
       */
       if (
         this.state.player1Sign === RpsGameSign.Pending ||
         this.state.player2Sign === RpsGameSign.Pending
       ) {
-        this.state.status = RpsGameStatus.Unknown;
+        this.state.status = RpsGameStatus.Pending;
       } else {
         const winner = this.determineWinner(this.state.player1Sign, this.state.player2Sign);
         switch (winner) {
@@ -247,30 +247,73 @@ export class RpsGame {
 
   // Prints embed and adds buttons for the game
   public getGameResponse(): BaseMessageOptions {
+    // Check to see if only one player has selected an option
+    const awaitingPlayer =
+      (this.state.player1Sign === RpsGameSign.Pending &&
+        this.state.player2Sign !== RpsGameSign.Pending) ||
+      (this.state.player1Sign !== RpsGameSign.Pending &&
+        this.state.player2Sign === RpsGameSign.Pending);
+
     const embed = new EmbedBuilder()
       .setColor(this.getEmbedColor())
       .setTitle('Rock, Paper, Scissors!')
-      .setDescription(
-        `
-Bet: ${this.state.bet} ${getCoinEmoji()}
-Players: ${this.state.player1Username} vs. ${this.state.player2Username}
 
-If you win, you win your bet.
-If you lose, you lose your entire bet to Codey.
-If you draw, Codey takes 50% of your bet.
-`,
-      )
-      .addFields([
+    if (awaitingPlayer) {
+      embed.addFields([
         {
           name: 'Game Info',
           value: `
-${this.getStatusAsString()}
+            ${this.getStatusAsString()}
 
-${this.state.player1Username} picked: ${getEmojiFromSign(this.state.player1Sign)}
-${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)}
-`,
+            ${this.state.player1Username} picked: ${
+            this.state.player1Sign === RpsGameSign.Pending
+              ? getEmojiFromSign(this.state.player1Sign)
+              : getEmojiFromSign(RpsGameSign.Selected)
+          }
+            ${this.state.player2Username} picked: ${
+            this.state.player2Sign === RpsGameSign.Pending
+              ? getEmojiFromSign(this.state.player2Sign)
+              : getEmojiFromSign(RpsGameSign.Selected)
+          }
+          `,
         },
       ]);
+    } else {
+      embed.addFields([
+        {
+          name: 'Game Info',
+          value: `
+            ${this.getStatusAsString()}
+            ${this.state.player1Username} picked: ${getEmojiFromSign(this.state.player1Sign)}
+            ${this.state.player2Username} picked: ${getEmojiFromSign(this.state.player2Sign)}
+          `,
+        },
+      ]);
+    }
+      // If player2 is NOT codey
+    if (this.state.player2Id) {
+      embed.setDescription(
+        `
+          Bet: ${this.state.bet} ${getCoinEmoji()}
+          Players: ${this.state.player1Username} vs. ${this.state.player2Username}
+
+          The loser will pay the winner the amount specified in the bet.
+          In the event of a draw, no money will be exchanged.
+        `,
+      ); // someone please set a better description i cannot think of anything rn - ryann
+    } else {
+      embed.setDescription(
+        `
+          Bet: ${this.state.bet} ${getCoinEmoji()}
+          Players: ${this.state.player1Username} vs. ${this.state.player2Username}
+
+          If you win, you win your bet.
+          If you lose, you lose your entire bet to Codey.
+          If you draw, Codey takes 50% of your bet. 
+          `,
+      );
+    }
+      
     // Buttons
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
@@ -309,6 +352,7 @@ export enum RpsGameSign {
   Rock = 1,
   Paper = 2,
   Scissors = 3,
+  Selected = 4,
 }
 
 export const getEmojiFromSign = (sign: RpsGameSign): string => {
@@ -321,6 +365,8 @@ export const getEmojiFromSign = (sign: RpsGameSign): string => {
       return '📰';
     case RpsGameSign.Scissors:
       return '✂️';
+    case RpsGameSign.Selected:
+      return '✅';
   }
 };
 

@@ -34,6 +34,12 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
   }
 
   const player2 = (args['player 2']) as User ?? undefined;
+
+  // Prevents players from challenging themselves
+  if (player2 && player2.id === getUserFromMessage(messageFromUser).id) {
+    return new SapphireMessageResponseWithMetadata(`You can't duel yourself!`, {});
+  }
+
   const game = await rpsGameTracker.startGame(
     bet,
     messageFromUser.channelId,
@@ -76,7 +82,7 @@ export const rpsCommandDetails: CodeyCommandDetails = {
     },
     {
       name: 'player 2',
-      description: 'Invite someone to play you in a duel!',
+      description: 'Invite someone to duel you!',
       type: CodeyCommandOptionType.USER,
       required: false,
     },

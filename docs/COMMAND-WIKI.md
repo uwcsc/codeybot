@@ -149,6 +149,7 @@
 - **Examples:**<br>`.rps`<br>`.rps 10`
 - **Options:** 
     - ``bet``: How much to bet - default is 10.
+    - ``player 2``: Invite someone to duel you!
 - **Subcommands:** None
 
 # INTERVIEWER
