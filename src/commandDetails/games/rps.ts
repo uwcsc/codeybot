@@ -22,10 +22,18 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
     the subsequent interactionHandlers handle the rest of the logic
   */
   const bet = (args['bet'] ?? 10) as number;
-  const balance = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
-  if (bet > balance) {
+  const player2 = (args['player 2']) as User ?? undefined;
+  const balance1 = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
+  const balance2 = player2 ? await getCoinBalanceByUserId(player2.id) : bet + 1;
+  if (bet > balance1) {
     return new SapphireMessageResponseWithMetadata(
       `You don't have enough ${getCoinEmoji()} to place that bet.`,
+      {},
+    );
+  }
+  if (bet > balance2) {
+    return new SapphireMessageResponseWithMetadata(
+      `${player2} doesn't have enough ${getCoinEmoji()} to take that bet.`,
       {},
     );
   }
@@ -33,7 +41,6 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
     return new SapphireMessageResponseWithMetadata(`Minimum bet is 10 ${getCoinEmoji()}.`, {});
   }
 
-  const player2 = (args['player 2']) as User ?? undefined;
 
   // Prevents players from challenging themselves
   if (player2 && player2.id === getUserFromMessage(messageFromUser).id) {

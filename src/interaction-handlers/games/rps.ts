@@ -58,25 +58,46 @@ export class RpsHandler extends InteractionHandler {
         content: `This isn't your game! ${getEmojiByName('codey_angry')}`,
         ephemeral: true,
       });
-      
+
       await interaction.deferUpdate();
     }
-    
+
+    let denySignChange = false;
+
     rpsGameTracker.runFuncOnGame(result.gameId, (game) => {
       if (interaction.user.id === rpsGameTracker.getGameFromId(result.gameId)!.state.player1Id) {
+        if (game.state.player1Sign !== RpsGameSign.Pending) {
+          denySignChange = true;
+          return;
+        }
         game.state.player1Sign = result.sign;
         // If single player, get Codey's sign
         if (!game.state.player2Id) {
           game.state.player2Sign = getCodeyRpsSign();
         }
-      } else { 
-        game.state.player2Sign = result.sign;
+      } else {
+        if (game.state.player2Sign !== RpsGameSign.Pending) {
+          denySignChange = true;
+          return;
+        } else {
+          game.state.player2Sign = result.sign;
+        }
       }
-
-      updateMessageEmbed(game.gameMessage, game.getGameResponse());
       game.setStatus(undefined);
+      updateMessageEmbed(game.gameMessage, game.getGameResponse());
     });
 
-    rpsGameTracker.endGame(result.gameId);
+    // Denies the interaction from changing anything if the user already picked an option
+    if (denySignChange) {
+      console.log("sign changed denied");
+      await interaction.reply({
+        content: `You already picked your move! ${getEmojiByName('codey_angry')}`,
+        ephemeral: true,
+      });
+    } else {
+      interaction.deferUpdate();
+      rpsGameTracker.endGame(result.gameId);
+    }
   }
 }
+
