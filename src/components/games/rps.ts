@@ -59,8 +59,8 @@ class RpsGameTracker {
         player2Username: player2User?.username ?? `Codey ${getEmojiByName('codey_love')}`,
         bet: bet,
         status: RpsGameStatus.Pending,
-        player1Sign: RpsGameSign.Pending,
-        player2Sign: RpsGameSign.Pending,
+        player1Sign: RpsGameAction.Pending,
+        player2Sign: RpsGameAction.Pending,
       };
       const game = new RpsGame(id!, channelId, state);
       this.games.set(id, game);
@@ -136,9 +136,11 @@ export enum RpsWinner {
   Tie,
 }
 
-export enum RpsTimeout {
-  Player1,
-  Player2,
+export enum RpsGameEndReason {
+  Player1TimeOut,
+  Player2TimeOut,
+  DuelRejected,
+  GameCompleted,
 }
 
 export class RpsGame {
@@ -153,54 +155,62 @@ export class RpsGame {
     this.state = state;
   }
 
-  private determineWinner(player1Sign: RpsGameSign, player2Sign: RpsGameSign): RpsWinner {
+  private determineWinner(player1Sign: RpsGameAction, player2Sign: RpsGameAction): RpsWinner {
     if (player1Sign === player2Sign) {
       return RpsWinner.Tie;
     }
     if (
-      (player1Sign === RpsGameSign.Paper && player2Sign === RpsGameSign.Rock) ||
-      (player1Sign === RpsGameSign.Scissors && player2Sign === RpsGameSign.Paper) ||
-      (player1Sign === RpsGameSign.Rock && player2Sign === RpsGameSign.Scissors)
+      (player1Sign === RpsGameAction.Paper && player2Sign === RpsGameAction.Rock) ||
+      (player1Sign === RpsGameAction.Scissors && player2Sign === RpsGameAction.Paper) ||
+      (player1Sign === RpsGameAction.Rock && player2Sign === RpsGameAction.Scissors)
     ) {
       return RpsWinner.Player1;
     }
     return RpsWinner.Player2;
   }
 
-  public setStatus(timeout?: RpsTimeout): void {
+  public setStatus(timeout?: RpsGameEndReason): void {
     // Both players submitted a sign
-    if (typeof timeout === 'undefined') {
-      /*
-        If one of the players' signs is still pending, game is still pending
-      */
-      if (
-        this.state.player1Sign === RpsGameSign.Pending ||
-        this.state.player2Sign === RpsGameSign.Pending
-      ) {
-        this.state.status = RpsGameStatus.Pending;
-      } else {
-        const winner = this.determineWinner(this.state.player1Sign, this.state.player2Sign);
-        switch (winner) {
-          case RpsWinner.Player1:
-            this.state.status = RpsGameStatus.Player1Win;
-            break;
-          case RpsWinner.Player2:
-            this.state.status = RpsGameStatus.Player2Win;
-            break;
-          case RpsWinner.Tie:
-            this.state.status = RpsGameStatus.Draw;
-            break;
-          default:
-            this.state.status = RpsGameStatus.Unknown;
-            break;
+    switch (timeout) {
+      case RpsGameEndReason.GameCompleted:
+        /*
+        If one of the players' signs is still (somehow) pending, game is still in progress
+        */
+        if (
+          this.state.player1Sign === RpsGameAction.Pending ||
+          this.state.player2Sign === RpsGameAction.Pending
+        ) {
+          this.state.status = RpsGameStatus.Pending;
+        } else {
+          const winner = this.determineWinner(this.state.player1Sign, this.state.player2Sign);
+          switch (winner) {
+            case RpsWinner.Player1:
+              this.state.status = RpsGameStatus.Player1Win;
+              break;
+            case RpsWinner.Player2:
+              this.state.status = RpsGameStatus.Player2Win;
+              break;
+            case RpsWinner.Tie:
+              this.state.status = RpsGameStatus.Draw;
+              break;
+            default:
+              this.state.status = RpsGameStatus.Unknown;
+              break;
+          }
         }
-      }
-    } else if (timeout === RpsTimeout.Player1) {
-      this.state.status = RpsGameStatus.Player1TimeOut;
-    } else if (timeout === RpsTimeout.Player2) {
-      this.state.status = RpsGameStatus.Player2TimeOut;
-    } else {
-      this.state.status = RpsGameStatus.Unknown;
+        break;
+      case RpsGameEndReason.DuelRejected:
+        this.state.status = RpsGameStatus.DuelRejected;
+        break;
+      case RpsGameEndReason.Player1TimeOut:
+        this.state.status = RpsGameStatus.Player1TimeOut;
+        break;
+      case RpsGameEndReason.Player2TimeOut:
+        this.state.status = RpsGameStatus.Player2TimeOut;
+        break;
+      default:
+        this.state.status = RpsGameStatus.Unknown;
+        break;
     }
   }
 
@@ -246,17 +256,17 @@ export class RpsGame {
   }
 
   // Prints embed and adds buttons for the game
-  public getGameResponse(): BaseMessageOptions {
+  public getGameEmbed(): BaseMessageOptions {
     // Check to see if only one player has selected an option
     const awaitingPlayer =
-      (this.state.player1Sign === RpsGameSign.Pending &&
-        this.state.player2Sign !== RpsGameSign.Pending) ||
-      (this.state.player1Sign !== RpsGameSign.Pending &&
-        this.state.player2Sign === RpsGameSign.Pending);
+      (this.state.player1Sign === RpsGameAction.Pending &&
+        this.state.player2Sign !== RpsGameAction.Pending) ||
+      (this.state.player1Sign !== RpsGameAction.Pending &&
+        this.state.player2Sign === RpsGameAction.Pending);
 
     const embed = new EmbedBuilder()
       .setColor(this.getEmbedColor())
-      .setTitle('Rock, Paper, Scissors!')
+      .setTitle('Rock, Paper, Scissors!');
 
     if (awaitingPlayer) {
       embed.addFields([
@@ -266,14 +276,14 @@ export class RpsGame {
             ${this.getStatusAsString()}
 
             ${this.state.player1Username} picked: ${
-            this.state.player1Sign === RpsGameSign.Pending
+            this.state.player1Sign === RpsGameAction.Pending
               ? getEmojiFromSign(this.state.player1Sign)
-              : getEmojiFromSign(RpsGameSign.Selected)
+              : getEmojiFromSign(RpsGameAction.Selected)
           }
             ${this.state.player2Username} picked: ${
-            this.state.player2Sign === RpsGameSign.Pending
+            this.state.player2Sign === RpsGameAction.Pending
               ? getEmojiFromSign(this.state.player2Sign)
-              : getEmojiFromSign(RpsGameSign.Selected)
+              : getEmojiFromSign(RpsGameAction.Selected)
           }
           `,
         },
@@ -290,7 +300,7 @@ export class RpsGame {
         },
       ]);
     }
-      // If player2 is NOT codey
+    // If player2 is NOT codey
     if (this.state.player2Id) {
       embed.setDescription(
         `
@@ -313,23 +323,66 @@ export class RpsGame {
           `,
       );
     }
-      
+
     // Buttons
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(`rps-rock-${this.id}`)
-        .setLabel(getEmojiFromSign(RpsGameSign.Rock))
+        .setLabel(getEmojiFromSign(RpsGameAction.Rock))
         .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId(`rps-paper-${this.id}`)
-        .setLabel(getEmojiFromSign(RpsGameSign.Paper))
+        .setLabel(getEmojiFromSign(RpsGameAction.Paper))
         .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId(`rps-scissors-${this.id}`)
-        .setLabel(getEmojiFromSign(RpsGameSign.Scissors))
+        .setLabel(getEmojiFromSign(RpsGameAction.Scissors))
         .setStyle(ButtonStyle.Secondary),
     );
 
+    return {
+      embeds: [embed],
+      components: this.state.status === RpsGameStatus.Pending ? [row] : [],
+    };
+  }
+
+  // Unlike getGameEmbed, this is to build the embed specifically for duel requests and rejections
+  public getDuelEmbed(): BaseMessageOptions {
+    const embed = new EmbedBuilder().setColor(this.getEmbedColor()).setTitle('RPS Duel Request!');
+
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`rps-acceptduel-${this.id}`)
+        .setLabel(getEmojiFromSign(RpsGameAction.AcceptDuel))
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId(`rps-rejectduel-${this.id}`)
+        .setLabel(getEmojiFromSign(RpsGameAction.RejectDuel))
+        .setStyle(ButtonStyle.Secondary),
+    );
+
+    if (this.state.status === RpsGameStatus.DuelRejected) {
+      embed.setDescription(
+        `
+          Bet: ${this.state.bet} ${getCoinEmoji()}
+          Players: ${this.state.player1Username} vs. ${this.state.player2Username}
+
+          ${this.state.player2Username} has rejected ${this.state.player1Username}'s RPS duel.
+          `,
+      );
+    } else {
+      embed.setDescription(
+        `
+          Bet: ${this.state.bet} ${getCoinEmoji()}
+          Players: ${this.state.player1Username} vs. ${this.state.player2Username}
+
+          ${this.state.player2Username}, ${
+          this.state.player1Username
+        } has challenged you to a RPS duel!
+          Will you accept?
+          `,
+      );
+    }
     return {
       embeds: [embed],
       components: this.state.status === RpsGameStatus.Pending ? [row] : [],
@@ -344,29 +397,35 @@ export enum RpsGameStatus {
   Player2Win = 3,
   Player1TimeOut = 4,
   Player2TimeOut = 5,
-  Unknown = 6,
+  DuelRejected = 6,
+  Unknown = 7,
 }
 
-export enum RpsGameSign {
+export enum RpsGameAction {
   Pending = 0,
   Rock = 1,
   Paper = 2,
   Scissors = 3,
   Selected = 4,
+  AcceptDuel = 5,
+  RejectDuel = 6,
 }
 
-export const getEmojiFromSign = (sign: RpsGameSign): string => {
+export const getEmojiFromSign = (sign: RpsGameAction): string => {
   switch (sign) {
-    case RpsGameSign.Pending:
+    case RpsGameAction.Pending:
       return '❓';
-    case RpsGameSign.Rock:
+    case RpsGameAction.Rock:
       return '🪨';
-    case RpsGameSign.Paper:
+    case RpsGameAction.Paper:
       return '📰';
-    case RpsGameSign.Scissors:
+    case RpsGameAction.Scissors:
       return '✂️';
-    case RpsGameSign.Selected:
+    case RpsGameAction.Selected:
+    case RpsGameAction.AcceptDuel:
       return '✅';
+    case RpsGameAction.RejectDuel:
+      return '❌';
   }
 };
 
@@ -377,11 +436,11 @@ export type RpsGameState = {
   player2Username: string;
   bet: number;
   status: RpsGameStatus;
-  player1Sign: RpsGameSign;
-  player2Sign: RpsGameSign;
+  player1Sign: RpsGameAction;
+  player2Sign: RpsGameAction;
 };
 
 // Algorithm to get RPS game sign for Codey
-export const getCodeyRpsSign = (): RpsGameSign => {
+export const getCodeyRpsSign = (): RpsGameAction => {
   return getRandomIntFrom1(3);
 };

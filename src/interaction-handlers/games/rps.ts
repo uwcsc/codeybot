@@ -2,7 +2,13 @@ import { InteractionHandler, InteractionHandlerTypes, PieceContext } from '@sapp
 import { ButtonInteraction } from 'discord.js';
 import { Option } from '@sapphire/result';
 import { getEmojiByName } from '../../components/emojis';
-import { getCodeyRpsSign, RpsGameSign, rpsGameTracker } from '../../components/games/rps';
+import {
+  getCodeyRpsSign,
+  RpsGameAction,
+  RpsGameEndReason,
+  RpsGameStatus,
+  rpsGameTracker,
+} from '../../components/games/rps';
 import { updateMessageEmbed } from '../../utils/embeds';
 
 export class RpsHandler extends InteractionHandler {
@@ -18,39 +24,69 @@ export class RpsHandler extends InteractionHandler {
     | Option.None
     | Option.Some<{
         gameId: number;
-        sign: RpsGameSign;
+        action: RpsGameAction;
       }> {
     if (!interaction.customId.startsWith('rps')) return this.none();
     const parsedCustomId = interaction.customId.split('-');
-    const sign = parsedCustomId[1];
+    const buttonID = parsedCustomId[1];
     const gameId = parseInt(parsedCustomId[2]);
 
-    let gameSign: RpsGameSign;
-    switch (sign) {
+    let gameAction: RpsGameAction;
+    switch (buttonID) {
       case 'rock':
-        gameSign = RpsGameSign.Rock;
+        gameAction = RpsGameAction.Rock;
         break;
       case 'paper':
-        gameSign = RpsGameSign.Paper;
+        gameAction = RpsGameAction.Paper;
         break;
       case 'scissors':
-        gameSign = RpsGameSign.Scissors;
+        gameAction = RpsGameAction.Scissors;
+        break;
+      case 'acceptduel':
+        gameAction = RpsGameAction.AcceptDuel;
+        break;
+      case 'rejectduel':
+        gameAction = RpsGameAction.RejectDuel;
         break;
       default:
-        gameSign = RpsGameSign.Pending;
+        gameAction = RpsGameAction.Pending;
         break;
     }
     return this.some({
       gameId: gameId,
-      sign: gameSign,
+      action: gameAction,
     });
   }
 
   public async run(
     interaction: ButtonInteraction,
-    result: { gameId: number; sign: RpsGameSign },
+    result: { gameId: number; action: RpsGameAction },
   ): Promise<void> {
-    if (
+    console.log(result.action);
+    if (result.action === RpsGameAction.AcceptDuel || result.action === RpsGameAction.RejectDuel) {
+      if (interaction.user.id !== rpsGameTracker.getGameFromId(result.gameId)!.state.player2Id) {
+        await interaction.reply({
+          content: `This isn't your duel! ${getEmojiByName('codey_angry')}`,
+          ephemeral: true,
+        });
+
+        await interaction.deferUpdate();
+      } else if (result.action === RpsGameAction.AcceptDuel) {
+        rpsGameTracker.runFuncOnGame(result.gameId, (game) => {
+          game.state.player1Sign = RpsGameAction.Pending;
+          game.state.player2Sign = RpsGameAction.Pending;
+          updateMessageEmbed(game.gameMessage, game.getGameEmbed());
+        });
+        interaction.deferUpdate();
+      } else {
+        rpsGameTracker.runFuncOnGame(result.gameId, (game) => {
+          game.state.status = RpsGameStatus.DuelRejected;
+          updateMessageEmbed(game.gameMessage, game.getDuelEmbed());
+        });
+        interaction.deferUpdate();
+        rpsGameTracker.endGame(result.gameId);
+      }
+    } else if (
       interaction.user.id !== rpsGameTracker.getGameFromId(result.gameId)!.state.player1Id &&
       interaction.user.id !== rpsGameTracker.getGameFromId(result.gameId)!.state.player2Id
     ) {
@@ -60,44 +96,42 @@ export class RpsHandler extends InteractionHandler {
       });
 
       await interaction.deferUpdate();
-    }
-
-    let denySignChange = false;
-
-    rpsGameTracker.runFuncOnGame(result.gameId, (game) => {
-      if (interaction.user.id === rpsGameTracker.getGameFromId(result.gameId)!.state.player1Id) {
-        if (game.state.player1Sign !== RpsGameSign.Pending) {
-          denySignChange = true;
-          return;
-        }
-        game.state.player1Sign = result.sign;
-        // If single player, get Codey's sign
-        if (!game.state.player2Id) {
-          game.state.player2Sign = getCodeyRpsSign();
-        }
-      } else {
-        if (game.state.player2Sign !== RpsGameSign.Pending) {
-          denySignChange = true;
-          return;
-        } else {
-          game.state.player2Sign = result.sign;
-        }
-      }
-      game.setStatus(undefined);
-      updateMessageEmbed(game.gameMessage, game.getGameResponse());
-    });
-
-    // Denies the interaction from changing anything if the user already picked an option
-    if (denySignChange) {
-      console.log("sign changed denied");
-      await interaction.reply({
-        content: `You already picked your move! ${getEmojiByName('codey_angry')}`,
-        ephemeral: true,
-      });
     } else {
-      interaction.deferUpdate();
-      rpsGameTracker.endGame(result.gameId);
+      let denySignChange = false;
+
+      rpsGameTracker.runFuncOnGame(result.gameId, (game) => {
+        if (interaction.user.id === rpsGameTracker.getGameFromId(result.gameId)!.state.player1Id) {
+          if (game.state.player1Sign !== RpsGameAction.Pending) {
+            denySignChange = true;
+            return;
+          }
+          game.state.player1Sign = result.action;
+          // If single player, get Codey's sign
+          if (!game.state.player2Id) {
+            game.state.player2Sign = getCodeyRpsSign();
+          }
+        } else {
+          if (game.state.player2Sign !== RpsGameAction.Pending) {
+            denySignChange = true;
+            return;
+          } else {
+            game.state.player2Sign = result.action;
+          }
+        }
+        game.setStatus(RpsGameEndReason.GameCompleted);
+        updateMessageEmbed(game.gameMessage, game.getGameEmbed());
+      });
+
+      // Denies the interaction from changing anything if the user already picked a move
+      if (denySignChange) {
+        await interaction.reply({
+          content: `You already picked your move! ${getEmojiByName('codey_angry')}`,
+          ephemeral: true,
+        });
+      } else {
+        interaction.deferUpdate();
+        rpsGameTracker.endGame(result.gameId);
+      }
     }
   }
 }
-

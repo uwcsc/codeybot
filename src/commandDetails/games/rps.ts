@@ -22,7 +22,7 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
     the subsequent interactionHandlers handle the rest of the logic
   */
   const bet = (args['bet'] ?? 10) as number;
-  const player2 = (args['player 2']) as User ?? undefined;
+  const player2 = (args['player 2'] as User) ?? undefined;
   const balance1 = await getCoinBalanceByUserId(getUserFromMessage(messageFromUser).id);
   const balance2 = player2 ? await getCoinBalanceByUserId(player2.id) : bet + 1;
   if (bet > balance1) {
@@ -41,7 +41,6 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
     return new SapphireMessageResponseWithMetadata(`Minimum bet is 10 ${getCoinEmoji()}.`, {});
   }
 
-
   // Prevents players from challenging themselves
   if (player2 && player2.id === getUserFromMessage(messageFromUser).id) {
     return new SapphireMessageResponseWithMetadata(`You can't duel yourself!`, {});
@@ -54,8 +53,14 @@ const rpsExecuteCommand: SapphireMessageExecuteType = async (
     player2,
   );
 
+  if (player2) {
+    return new SapphireMessageResponseWithMetadata(game.getDuelEmbed(), {
+      gameId: game.id,
+    });
+  }
+
   // Return initial response
-  return new SapphireMessageResponseWithMetadata(game.getGameResponse(), {
+  return new SapphireMessageResponseWithMetadata(game.getGameEmbed(), {
     gameId: game.id,
   });
 };
