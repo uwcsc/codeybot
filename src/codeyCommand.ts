@@ -1,21 +1,24 @@
 import {
+  ApplicationCommandOptionBase,
+  ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
   SlashCommandBuilder,
+  SlashCommandIntegerOption,
+  SlashCommandNumberOption,
+  SlashCommandStringOption,
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
-  ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
-  ApplicationCommandOptionBase,
 } from '@discordjs/builders';
 import {
   ApplicationCommandRegistries,
-  Args,
   ArgType,
+  Args,
   ChatInputCommand,
-  Command as SapphireCommand,
-  container,
   RegisterBehavior,
   SapphireClient,
+  Command as SapphireCommand,
+  container,
 } from '@sapphire/framework';
-import { APIMessage, APIApplicationCommandOptionChoice } from 'discord-api-types/v9';
+import { APIApplicationCommandOptionChoice, APIMessage } from 'discord-api-types/v9';
 import {
   ApplicationCommandOptionType,
   BaseMessageOptions,
@@ -24,8 +27,8 @@ import {
   MessagePayload,
   User,
 } from 'discord.js';
-import { logger } from './logger/default';
 import { CodeyUserError } from './codeyUserError';
+import { logger } from './logger/default';
 
 export type SapphireSentMessageType = Message | CommandInteraction;
 export type SapphireMessageResponse =
@@ -85,6 +88,13 @@ export interface CodeyCommandOption {
   required: boolean;
   /** Mention choices for the field if needed */
   choices?: APIApplicationCommandOptionChoice[];
+  /** Client-side validation options */
+  validation?: {
+    /** Minimum length or value */
+    min?: number;
+    /** Maximum length or value */
+    max?: number;
+  };
 }
 
 /** Sets the command option in the slash command builder */
@@ -93,10 +103,30 @@ const setCommandOption = (
   option: CodeyCommandOption,
 ): SlashCommandBuilder | SlashCommandSubcommandBuilder => {
   function setupCommand<T extends ApplicationCommandOptionBase>(commandOption: T): T {
-    return commandOption
+    let result = commandOption
       .setName(option.name)
       .setDescription(option.description)
       .setRequired(option.required);
+
+    if (result instanceof SlashCommandStringOption && option.validation?.min !== undefined)
+      result = result.setMinLength(option.validation.min);
+
+    if (result instanceof SlashCommandStringOption && option.validation?.max !== undefined)
+      result = result.setMaxLength(option.validation.max);
+
+    if (
+      (result instanceof SlashCommandNumberOption || result instanceof SlashCommandIntegerOption) &&
+      option.validation?.min !== undefined
+    )
+      result = result.setMinValue(option.validation.min);
+
+    if (
+      (result instanceof SlashCommandNumberOption || result instanceof SlashCommandIntegerOption) &&
+      option.validation?.max !== undefined
+    )
+      result = result.setMaxValue(option.validation.max);
+
+    return result;
   }
 
   function setupChoices<
@@ -108,6 +138,7 @@ const setCommandOption = (
       ? commandOption.addChoices(...(option.choices as APIApplicationCommandOptionChoice<B>[]))
       : commandOption;
   }
+
   switch (option.type) {
     case CodeyCommandOptionType.STRING:
       return <SlashCommandBuilder>builder.addStringOption((x) => setupCommand(setupChoices(x)));
