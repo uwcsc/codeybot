@@ -25,6 +25,7 @@ import {
 import { updateMemberRole, getRoleName, loadRoleMembers } from '../utils/roles';
 import { CodeyUserError } from '../codeyUserError';
 import { logger } from '../logger/default';
+import { openDB } from './db';
 
 const NOTIF_CHANNEL_ID: string = vars.NOTIF_CHANNEL_ID;
 const OFFICE_STATUS_CHANNEL_ID: string = vars.OFFICE_STATUS_CHANNEL_ID;
@@ -49,6 +50,7 @@ export const initCrons = async (client: Client): Promise<void> => {
   createCoffeeChatCron(client).start();
   createOfficeStatusCron(client).start();
   assignCodeyRoleForLeaderboard(client).start();
+  createCoinDecayCron().start();
 };
 
 interface officeStatus {
@@ -217,4 +219,11 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
         }
       });
     });
+  });
+
+// Decays the Codey Coin Balances on January 1, May 1, and September 1
+export const createCoinDecayCron = (): CronJob =>
+  new CronJob('0 0 1 1,5,9 *', async function () {
+    const db = await openDB();
+    await db.run('UPDATE user_coin SET balance = ROUND(balance / 3)');
   });
