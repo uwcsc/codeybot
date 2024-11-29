@@ -1,3 +1,4 @@
+import { container } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
 import {
   CodeyCommandDetails,
@@ -30,7 +31,6 @@ const officeExecuteCommand: SapphireMessageExecuteType = async (
         value: `(519) 888-4567 x33870`,
       },
     ]);
-  // look at info.ts about coin to see embded details
   return { embeds: [officeEmbed] };
 };
 
@@ -38,8 +38,8 @@ export const officeCommandDetails: CodeyCommandDetails = {
   name: 'office',
   aliases: [],
   description: 'Get information about the CSC office.',
-  detailedDescription: `no detailed description yet`,
-
+  detailedDescription: `**Examples:** 
+  \`${container.botPrefix}office\``,
   isCommandResponseEphemeral: false,
   messageWhenExecutingCommand: 'Retrieving information about the office...',
   executeCommand: officeExecuteCommand,

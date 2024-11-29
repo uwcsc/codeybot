@@ -261,7 +261,7 @@
 ## office
 - **Aliases:** None
 - **Description:** Get information about the CSC office.
-- no detailed description yet
+- **Examples:** <br>  `.office`
 - **Options:** None
 - **Subcommands:** None
 
