@@ -151,6 +151,14 @@
     - ``bet``: How much to bet - default is 10.
 - **Subcommands:** None
 
+## worldle
+- **Aliases:** `wl`, `country-guess`
+- **Description:** Play Worldle - Guess the country
+- **Examples:**<br>`.worldle`<br>`.worldle 100`<br>`.wl 50`
+- **Options:** 
+    - ``bet``: A valid bet amount
+- **Subcommands:** None
+
 # INTERVIEWER
 ## interviewers
 - **Aliases:** `int`, `interviewer`
