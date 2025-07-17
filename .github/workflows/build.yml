@@ -80,7 +80,7 @@ jobs:
           cache-from: uwcsclub/codey-bot:cache
           file: docker/${{env.DEPLOYMENT_TARGET}}/Dockerfile
           push: true
-          tags: uwcsclub/codey-bot:${{ github.sha }}${{ github.event_name == 'release' && format(',uwcsclub/codey-bot:{0}' , env.RELEASE_TAG) || '' }}
+          tags: uwcsclub/codey-bot:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
