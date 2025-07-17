@@ -1,6 +1,6 @@
 services:
   codey-bot:
-    image: uwcsclub/codey-bot:latest
+    image: uwcsclub/codey-bot:latest-prod
     container_name: codey-production
     restart: always
     env_file:

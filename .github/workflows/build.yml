@@ -52,16 +52,14 @@ jobs:
         run: |
           echo "DEPLOYMENT_TARGET=production" >> $GITHUB_ENV
           echo "RELEASE_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-          echo "DEPLOYMENT_HOST=${{secrets.DEPLOY_HOST}}" >> $GITHUB_ENV
-          echo "DISCORD_TOKEN=${{secrets.DISCORD_TOKEN}}" >> $GITHUB_ENV
+          echo "DOCKER_TAG=latest-prod" >> $GITHUB_ENV
 
       # set target deployment to staging on push
       - name: Configuration for pushes
         if: ${{ github.event_name == 'push' }}
         run: |
           echo "DEPLOYMENT_TARGET=staging" >> $GITHUB_ENV
-          echo "DEPLOYMENT_HOST=${{secrets.STAGING_DEPLOY_HOST}}" >> $GITHUB_ENV
-          echo "DISCORD_TOKEN=${{secrets.STAGING_DISCORD_TOKEN}}" >> $GITHUB_ENV
+          echo "DOCKER_TAG=latest-staging" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -80,7 +78,7 @@ jobs:
           cache-from: uwcsclub/codey-bot:cache
           file: docker/${{env.DEPLOYMENT_TARGET}}/Dockerfile
           push: true
-          tags: uwcsclub/codey-bot:latest
+          tags: uwcsclub/codey-bot:${{ env.DOCKER_TAG }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

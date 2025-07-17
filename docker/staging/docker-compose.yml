@@ -1,6 +1,6 @@
 services:
   codey-bot:
-    image: uwcsclub/codey-bot:latest
+    image: uwcsclub/codey-bot:latest-staging
     container_name: codey-staging
     restart: always
     env_file:
