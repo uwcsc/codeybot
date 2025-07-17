@@ -14,17 +14,31 @@ import { PDFDocument } from 'pdf-lib';
 import { Logger } from 'winston';
 import { applyBonusByUserId } from '../components/coin';
 import { vars } from '../config';
-import { sendKickEmbed } from '../utils/embeds';
+import { sendKickEmbed, DEFAULT_EMBED_COLOUR } from '../utils/embeds';
 import { convertPdfToPic } from '../utils/pdfToPic';
 import { openDB } from '../components/db';
 import { spawnSync } from 'child_process';
+import { User } from 'discord.js';
+import { getCoinEmoji } from '../components/emojis';
+import { adjustCoinBalanceByUserId, UserCoinEvent } from '../components/coin';
 
 const ANNOUNCEMENTS_CHANNEL_ID: string = vars.ANNOUNCEMENTS_CHANNEL_ID;
 const RESUME_CHANNEL_ID: string = vars.RESUME_CHANNEL_ID;
+const COUNTING_CHANNEL_ID: string = vars.COUNTING_CHANNEL_ID;
 const IRC_USER_ID: string = vars.IRC_USER_ID;
 const PDF_FILE_PATH = 'tmp/resume.pdf';
 const HEIC_FILE_PATH = 'tmp/img.heic';
 const CONVERTED_IMG_PATH = 'tmp/img.jpg';
+
+// Variables and constants associated with the counting game
+const COINS_PER_MESSAGE = 0.1; // Number of coins awarded = COINS_PER_MESSAGE * highest counting number * number of messages sent by user
+const COUNTING_AUTHOR_DELAY = 1; // The minimum number of users that must count for someone to go again
+const previousCountingAuthors: Array<User> = []; // Stores the most recent counters
+const authorMessageCounts: Map<User, number> = new Map(); // Stores how many messages each user sent
+const COIN_AWARD_NUMBER_THRESHOLD = 20; // The minimum number that must be reached for coins to be awarded
+const MAX_COINS_PER_NUMBER_COUNTED = 2; // The maximum number of coins a user can receive every 100 numbers counted
+const MAX_COINS_PER_MESSAGE_SENT = 20;
+let currentCountingNumber = 1;
 
 /*
  * If honeypot is to exist again, then add HONEYPOT_CHANNEL_ID to the config
@@ -93,13 +107,12 @@ const convertResumePdfsIntoImages = async (
   message: Message,
 ): Promise<Message<boolean> | undefined> => {
   const attachment = message.attachments.first();
-  const hasAttachment = attachment;
   const isPDF = attachment && attachment.contentType === 'application/pdf';
   const isImage =
     attachment && attachment.contentType && attachment.contentType.startsWith('image');
 
   // If no resume pdf is provided, nuke message and DM user about why their message got nuked
-  if (!(hasAttachment && (isPDF || isImage))) {
+  if (!(attachment && (isPDF || isImage))) {
     const user = message.author.id;
     const channel = message.channelId;
 
@@ -200,6 +213,91 @@ const convertResumePdfsIntoImages = async (
   }
 };
 
+const countingGameLogic = async (
+  client: Client,
+  message: Message,
+): Promise<Message<boolean> | undefined> => {
+  // Check to see if game should end
+  let reasonForFailure = '';
+  if (isNaN(Number(message.content))) {
+    // Message was not a number
+    reasonForFailure = `"${message.content}" is not a number!`;
+  } else if (previousCountingAuthors.find((author) => author === message.author)) {
+    // Author is still on cooldown
+    reasonForFailure = `<@${message.author.id}> counted too recently!`;
+  } else if (Number(message.content) != currentCountingNumber) {
+    // Wrong number was sent
+    reasonForFailure = `${message.content} is not the next number! The next number was ${currentCountingNumber}.`;
+  }
+
+  if (reasonForFailure) {
+    return endCountingGame(client, message, reasonForFailure);
+  }
+
+  // If checks passed, continue the game
+  currentCountingNumber++;
+  message.react('✅');
+  previousCountingAuthors.unshift(message.author); // Add current author to list of authors on cooldown
+  while (previousCountingAuthors.length > COUNTING_AUTHOR_DELAY) {
+    previousCountingAuthors.pop(); // Remove last author from cooldown
+  }
+  const currentAuthorCount: number | undefined = authorMessageCounts.get(message.author);
+  authorMessageCounts.set(message.author, currentAuthorCount ? currentAuthorCount + 1 : 1);
+
+  return;
+};
+
+const endCountingGame = async (
+  client: Client,
+  message: Message,
+  reasonForFailure: string,
+): Promise<Message<boolean> | undefined> => {
+  currentCountingNumber--; // since the current counting number wasn't reached, decrement the value
+  // Builds game over embed
+  const endGameEmbed = new EmbedBuilder()
+    .setColor(DEFAULT_EMBED_COLOUR)
+    .setTitle('Counting Game Over')
+    .addFields([
+      {
+        name: 'Reason for Game Over',
+        value: reasonForFailure,
+      },
+    ]);
+
+  if (currentCountingNumber < COIN_AWARD_NUMBER_THRESHOLD) {
+    endGameEmbed.setDescription(
+      `Coins will not be awarded because the threshold, ${COIN_AWARD_NUMBER_THRESHOLD}, was not reached.`,
+    );
+  } else {
+    const sortedAuthorMessageCounts: Array<[User, number]> = Array.from(authorMessageCounts).sort(
+      (a, b) => b[1] - a[1],
+    ); // Turns map into descending sorted array
+    const coinsAwarded: Array<string> = ['**Coins awarded:**'];
+    for (const pair of sortedAuthorMessageCounts) {
+      // Changes number of messages sent to number of coins awarded
+      // Multiplication and division of 100 should prevent floating point errors
+      pair[1] = Math.min(
+        Math.round((pair[1] * Math.round(1000 * COINS_PER_MESSAGE) * currentCountingNumber) / 100) /
+          10,
+        MAX_COINS_PER_NUMBER_COUNTED * currentCountingNumber,
+        MAX_COINS_PER_MESSAGE_SENT * pair[1],
+      );
+
+      coinsAwarded.push(`<@${pair[0].id}> - ${pair[1]} ${getCoinEmoji()}`);
+      await adjustCoinBalanceByUserId(message.author.id, pair[1], UserCoinEvent.Counting);
+    }
+
+    endGameEmbed.setDescription(coinsAwarded.join('\n'));
+  }
+
+  currentCountingNumber = 1;
+  message.react('❌');
+  previousCountingAuthors.length = 0;
+  authorMessageCounts.clear();
+
+  return await message.channel?.send({ embeds: [endGameEmbed] });
+};
+
 export const initMessageCreate = async (
   client: Client,
   logger: Logger,
@@ -217,6 +315,10 @@ export const initMessageCreate = async (
   // If channel is in resumes, convert the message attachment to an image
   if (message.channelId === RESUME_CHANNEL_ID) {
     await convertResumePdfsIntoImages(client, message);
+  }
+
+  if (message.channelId === COUNTING_CHANNEL_ID) {
+    await countingGameLogic(client, message);
   }
 
   // Ignore DMs; include announcements, thread, and regular text channels
