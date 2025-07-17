@@ -52,3 +52,4 @@ Check out our [Command Wiki](docs/COMMAND-WIKI.md) for more details on CodeyBot 
 ## License
 
 All rights reserved for images.
+
