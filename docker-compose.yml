@@ -2,6 +2,7 @@ services:
   codey-bot:
     image: codey:latest
     container_name: codey-bot
+    restart: always
     env_file:
       - .env
     environment:
