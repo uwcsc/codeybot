@@ -34,6 +34,7 @@ import {
   startGame,
 } from '../../components/games/blackjack';
 import { pluralize } from '../../utils/pluralize';
+import { adjustBlackjackGameResult } from '../../components/games/blackjackLeaderboards';
 
 // CodeyCoin constants
 const DEFAULT_BET = 10;
@@ -121,6 +122,7 @@ const getBalanceChange = (game: GameState): number => {
 const getEmbedColourFromGame = (game: GameState): keyof typeof Colors => {
   if (game.stage === BlackjackStage.DONE) {
     const balance = getBalanceChange(game);
+
     // Player lost coins
     if (balance < 0) {
       return 'Red';
@@ -138,7 +140,7 @@ const getEmbedColourFromGame = (game: GameState): keyof typeof Colors => {
 };
 
 // Retrieve game status at different states
-const getDescriptionFromGame = (game: GameState): string => {
+const getDescriptionFromGame = async (game: GameState): Promise<string> => {
   const amountDiff = Math.abs(getBalanceChange(game));
   if (game.stage === BlackjackStage.DONE) {
     // Player surrendered
@@ -170,14 +172,15 @@ const getDescriptionFromGame = (game: GameState): string => {
 };
 
 // Display embed to play game
-const getEmbedFromGame = (game: GameState): EmbedBuilder => {
+const getEmbedFromGame = async (game: GameState): Promise<EmbedBuilder> => {
   const embed = new EmbedBuilder().setTitle('Blackjack');
 
   embed.setColor(getEmbedColourFromGame(game));
 
+  const description = await getDescriptionFromGame(game);
   embed.addFields([
     // Show bet amount and game description
-    { name: `Bet: ${game.bet} ${getCoinEmoji()}`, value: getDescriptionFromGame(game) },
+    { name: `Bet: ${game.bet} ${getCoinEmoji()}`, value: description },
     // Show player and dealer value and hands
     {
       name: `Player: ${game.playerValue.join(' or ')}`,
@@ -193,7 +196,9 @@ const getEmbedFromGame = (game: GameState): EmbedBuilder => {
 };
 
 // End the game
-const closeGame = (playerId: string, balanceChange = 0) => {
+const closeGame = async (playerId: string, game: GameState) => {
+  const balanceChange = getBalanceChange(game);
+  adjustBlackjackGameResult(playerId, balanceChange);
   endGame(playerId);
   adjustCoinBalanceByUserId(playerId, balanceChange, UserCoinEvent.Blackjack);
 };
@@ -239,9 +244,10 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
     return 'Please finish your current game before starting another one!';
   }
 
+  const embed = await getEmbedFromGame(game);
   // Show game initial state and setup reactions
   const msg = await message.reply({
-    embeds: [getEmbedFromGame(game)],
+    embeds: [embed],
     components: game?.stage != BlackjackStage.DONE ? [optionRow] : [],
     fetchReply: true,
   });
@@ -261,9 +267,10 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
 
       // Wait for user action
       game = await performActionFromReaction(reactCollector, author);
+      const updatedEmbed = await getEmbedFromGame(game!);
 
       // Return next game state
-      await msg.edit({ embeds: [getEmbedFromGame(game!)] });
+      await msg.edit({ embeds: [updatedEmbed] });
       await reactCollector.update({ components: [optionRow] });
     } catch (error) {
       if (error instanceof Error && error.message.includes('time')) {
@@ -287,9 +294,10 @@ const blackjackExecuteCommand: SapphireMessageExecuteType = async (
 
   if (game) {
     // Update game embed
-    await msg.edit({ embeds: [getEmbedFromGame(game)], components: [] });
+    const finalEmbed = await getEmbedFromGame(game);
+    await msg.edit({ embeds: [finalEmbed], components: [] });
     // End the game
-    closeGame(author, getBalanceChange(game));
+    closeGame(author, game);
   }
 };
 
