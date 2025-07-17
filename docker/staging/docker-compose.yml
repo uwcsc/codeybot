@@ -1,6 +1,6 @@
 services:
   codey-bot:
-    image: uwcsclub/codey-bot:${TAG}
+    image: uwcsclub/codey-bot:latest
     container_name: codey-staging
     env_file:
       - .env
