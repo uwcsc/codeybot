@@ -304,6 +304,14 @@
     - ``description``: The description of the customization to be set for the user.
 - **Subcommands:** None
 
+# REMINDER
+## timer
+- **Aliases:** None
+- **Description:** Set up a timer for anything you want!
+- **Examples:**<br>  `/timer value seconds:30`<br>  `/timer value minutes:5`<br>  `/timer value hours:2 minutes:30`<br>  `/timer value minutes:10 message:Take a break!`
+- **Options:** None
+- **Subcommands:** `value`, `name`, `description`, `executeCommand`, `isCommandResponseEphemeral`, `options`, `name`, `description`, `required`, `type`
+
 # SUGGESTION 
 ## suggestion 
 - **Aliases:** ``suggest``

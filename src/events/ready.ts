@@ -37,7 +37,7 @@ ${line03}${dev ? ` ${pad}${blc('<')}${llc('/')}${blc('>')} ${llc('DEVELOPMENT MO
 const sendReady = async (client: Client): Promise<void> => {
   const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as TextChannel;
   const latestRelease = (await getRepositoryReleases('uwcsc', 'codeybot'))[0];
-  notif.send(`Codey is up! App version: ${latestRelease.tag_name}`);
+//   notif.send(`Codey is up! App version: ${latestRelease.tag_name}`);
 };
 
 export const initReady = (client: Client): void => {
