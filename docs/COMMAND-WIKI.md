@@ -305,6 +305,16 @@
 - **Subcommands:** None
 
 # REMINDER
+## reminder
+- **Aliases:** None
+- **Description:** Set up a reminder for anything you want!
+- **Examples:**<br>  `/reminder` - Opens an interactive reminder setup form
+- **Options:** 
+    - ``date``: A date in the format YYYY-MM-DD
+    - ``time``: A time in the format HH:DD
+    - ``message``: Message for your Reminder
+- **Subcommands:** None
+
 ## timer
 - **Aliases:** None
 - **Description:** Set up a timer for anything you want!
