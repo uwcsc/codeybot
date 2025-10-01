@@ -222,6 +222,20 @@ const initPeopleCompaniesTable = async (db: Database): Promise<void> => {
       )`);
 };
 
+const initRemindersTable = async (db: Database): Promise<void> => {
+  await db.run(`
+    CREATE TABLE IF NOT EXISTS reminders (
+      id INTEGER PRIMARY KEY NOT NULL,
+      user_id VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      reminder_at TIMESTAMP NOT NULL,
+      message TEXT NOT NULL,
+      status INTEGER NOT NULL DEFAULT 0
+  )
+  `);
+  // TODO includ indexing if performance needs it?
+}
+
 const initTables = async (db: Database): Promise<void> => {
   //initialize all relevant tables
   await initCoffeeChatTables(db);
@@ -236,6 +250,7 @@ const initTables = async (db: Database): Promise<void> => {
   await initResumePreview(db);
   await initCompaniesTable(db);
   await initPeopleCompaniesTable(db);
+  await initRemindersTable(db);
 };
 
 export const openDB = async (): Promise<Database> => {
