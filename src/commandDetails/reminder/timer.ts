@@ -5,9 +5,9 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
+import * as reminderComponents from '../../components/reminder/reminder';
 
 const TIME_UNITS = {
-  seconds: { multiplier: 1, singular: 'second', plural: 'seconds' },
   minutes: { multiplier: 60, singular: 'minute', plural: 'minutes' },
   hours: { multiplier: 3600, singular: 'hour', plural: 'hours' },
   days: { multiplier: 86400, singular: 'day', plural: 'days' },
@@ -23,7 +23,7 @@ const timerExecuteCommand: SapphireMessageExecuteType = (
   return Promise.resolve('Please use a subcommand: `/timer value`'); // Fixed from 'set' to 'value'
 };
 
-const timerSetExecuteCommand: SapphireMessageExecuteType = (
+const timerSetExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
   args,
@@ -58,34 +58,30 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = (
     })
     .join(', ');
 
-  // Handle both Message and ChatInputCommandInteraction
   const user = 'author' in messageFromUser ? messageFromUser.author : messageFromUser.user;
-  const channel = messageFromUser.channel;
 
-  setTimeout(async () => {
-    try {
-      // Try to DM first
-      await user.send(`⏰ **Timer Reminder:** ${reminderMessage}`);
-    } catch (dmError) {
-      // If DM fails, send a temporary message in channel
-      if (channel && 'send' in channel) {
-        try {
-          const fallbackMsg = await channel.send(
-            `<@${user.id}> ⏰ **Timer Reminder:** ${reminderMessage} (couldn't DM you!)`
-          );
-          // delete after 30 seconds to remove spam
-          setTimeout(() => {
-            fallbackMsg.delete().catch(() => {}); // Ignore if already deleted
-          }, 30000);
-        } catch (channelError) {
-          console.error('Failed to send timer reminder:', channelError);
-        }
-      }
-    }
-  }, totalSeconds * 1000);
+  // Calculate the future date/time when the timer should trigger
+  const now = new Date();
+  const futureDateTime = new Date(now.getTime() + totalSeconds * 1000);
 
-  const content = `Timer set for ${timeDescription}! I'll dm you with: "${reminderMessage}"`;
-  return Promise.resolve(content);
+  try {
+    // Save the timer as a reminder in the database
+    await reminderComponents.addReminder(
+      user.id,
+      now.toISOString(),
+      futureDateTime.toISOString(),
+      `⏰ **Timer:** ${reminderMessage}`,
+    );
+
+    const content = `⏰ Timer set for ${timeDescription}! I'll DM you with: "${reminderMessage}"
+
+📅 **Scheduled for:** <t:${Math.floor(futureDateTime.getTime() / 1000)}:F>`;
+
+    return Promise.resolve(content);
+  } catch (error) {
+    console.error('Failed to save timer reminder:', error);
+    return Promise.resolve('Failed to set timer. Please try again.');
+  }
 };
 
 export const timerCommandDetails: CodeyCommandDetails = {
@@ -93,7 +89,6 @@ export const timerCommandDetails: CodeyCommandDetails = {
   aliases: [],
   description: 'Set up a timer for anything you want!',
   detailedDescription: `**Examples:**
-  \`/timer value seconds:30\`
   \`/timer value minutes:5\`
   \`/timer value hours:2 minutes:30\`
   \`/timer value minutes:10 message:Take a break!\``,
@@ -103,19 +98,12 @@ export const timerCommandDetails: CodeyCommandDetails = {
   messageIfFailure: 'Failed to set up a timer.',
   options: [],
   subcommandDetails: {
-    value: {
-      name: 'value',
+    create: {
+      name: 'create',
       description: 'Set a timer with specified duration',
       executeCommand: timerSetExecuteCommand,
       isCommandResponseEphemeral: true,
       options: [
-        {
-          name: 'seconds',
-          description: 'Number of seconds',
-          required: false,
-          
-          type: CodeyCommandOptionType.INTEGER,
-        },
         {
           name: 'minutes',
           description: 'Number of minutes',

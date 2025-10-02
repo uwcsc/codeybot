@@ -1,4 +1,15 @@
-# LEETCODE
+# ADMIN
+## ban
+- **Aliases:** None
+- **Description:** Ban a user.
+- **Examples:**<br>  `.ban @jeff spam`
+- **Options:** 
+    - ``user``: The user to ban.
+    - ``reason``: The reason why we are banning the user.
+- **Subcommands:** None
+
+# COIN
+## coin
 - **Aliases:** None
 - **Description:** Handle coin functions.
 - **Examples:**<br>`.coin adjust @Codey 100`<br>`.coin adjust @Codey -100 Codey broke.`<br>`.coin`<br>`.coin check @Codey`<br>`.coin c @Codey`<br>`.coin info`<br>`.coin i`<br>`.coin update @Codey 100`<br>`.coin update @Codey 0 Reset Codey's balance.`<br>`.coin transfer @Codey 10`<br>`.coin transfer @Codey 15 Lost a bet to Codey `
@@ -12,16 +23,12 @@
 - **Options:** 
     - ``user``: The user to adjust the balance of.
     - ``amount``: The amount to adjust the balance of the specified user by.
-## leetcode
-- **Aliases:** None
-- **Description:** Handle LeetCode functions.
-- 
-- **Options:** None
-- **Subcommands:** `random`, `specific`
+    - ``reason``: The reason why we are adjusting the balance.
+- **Subcommands:** None
 
-## leetcode random
-- **Aliases:** `r`
- the balance of.
+## coin check
+- **Aliases:** `c`, `b`, `balance`, `bal`
+- **Description:** The user to check the balance of.
 - **Examples:**<br>`.coin check @Codey`<br>`.coin c @Codey`
 - **Options:** 
     - ``user``: The user to check the balance of.
@@ -42,15 +49,11 @@
 - **Subcommands:** None
 
 ## coin transfer
-- **Description:** Get a random LeetCode problem.
-- **Examples:**<br>`.leetcode`n<br>`.leetcode random`
+- **Aliases:** `t`
+- **Description:** Transfer coins from your balance to another user.
+- **Examples:**<br>	`.coin transfer @Codey 10`<br>  `.coin transfer @Codey 10 Lost a bet to @Codey`
 - **Options:** 
-    - ``difficulty``: The difficulty of the problem.
-- **Subcommands:** None
-
-## leetcode specific
-- **Aliases:** `spec`, `s`
- to.
+    - ``user``: The user to transfer coins to.
     - ``amount``: The amount to transfer to the specified user.
     - ``reason``: The reason for transferring.
 - **Subcommands:** None
@@ -73,14 +76,10 @@
 - **Options:** None
 - **Subcommands:** `enroll`, `add`, `remove`, `find`, `profile`
 
-- **Description:** Get a LeetCode problem with specified problem ID.
 ## company add
-- **Examples:**<br>`.leetcode specific 1`
-- **Options:** 
-    - ``problem-id``: The problem ID.
-- **Subcommands:** None
-
-chbase.com/organization/microsoft`<br>    `.company a microsoft `
+- **Aliases:** `a`
+- **Description:** Add a company to your profile
+- **Examples:**<br>    `.company add https://www.crunchbase.com/organization/microsoft`<br>    `.company a microsoft `
 - **Options:** 
 - **Subcommands:** None
 
@@ -94,10 +93,13 @@ chbase.com/organization/microsoft`<br>    `.company a microsoft `
 ## company find
 - **Aliases:** `f`
 - **Description:** Find all individuals that work at the company.
-# MISCELLANEOUS
-## help
-- **Aliases:** `wiki`
- the companies you are associated with
+- **Examples:**<br>    `.company find https://www.crunchbase.com/organization/microsoft`<br>    `.company f microsoft`
+- **Options:** 
+- **Subcommands:** None
+
+## company profile
+- **Aliases:** `p`
+- **Description:** List all the companies you are associated with
 - **Examples:**<br>    `.company profile`<br>    `.company p`
 - **Options:** None
 - **Subcommands:** None
@@ -111,15 +113,13 @@ chbase.com/organization/microsoft`<br>    `.company a microsoft `
 
 # FUN
 ## flipcoin
-- **Description:** Get the URL to the wiki page.
-- **Examples:**<br>`.help`<br>`.wiki`
+- **Aliases:** `fc`, `flip`, `flip-coin`, `coin-flip`, `coinflip`
+- **Description:** None
+- **Examples:**<br>  `.flip-coin`<br>  `.fc`<br>  `.flip`<br>  `.coin-flip`<br>  `.coinflip`<br>  `.flipcoin`
 - **Options:** None
 - **Subcommands:** None
 
-## info
-- **Aliases:** None
-- **Description:** Get Codey information - app version, repository link and issue templates.
-ice
+## rolldice
 - **Aliases:** `rd`, `roll`, `roll-dice`, `dice-roll`, `diceroll`, `dice`
 - **Description:** Roll a dice! :game_die:
 - **Examples:**<br>  `.roll-dice 6`<br>  `.dice-roll 30`<br>  `.roll 100`<br>  `.rd 4`<br>  `.diceroll 2`<br>  `.dice 1`<br>  `.rolldice 10`
@@ -132,21 +132,20 @@ ice
 - **Aliases:** `blj`, `blackjack`, `21`
 - **Description:** Play a Blackjack game to win some Codey coins!
 - **Examples:**<br>`.bj 100`<br>`.blj 100`
-- **Examples:**<br>  `.info`
+- **Options:** 
+    - ``bet``: A valid bet amount
+- **Subcommands:** None
+
+## connect4
+- **Aliases:** None
+- **Description:** Play Connect 4!
+- **Examples:**<br>`.connect4`<br>`.connect 4 @user`
 - **Options:** None
 - **Subcommands:** None
 
-## member
+## rps
 - **Aliases:** None
-- **Description:** Get CSC membership information of a user.
-- **Examples:**<br>`.member [id]`
-- **Options:** 
-    - ``uwid``: The Quest ID of the user.
-- **Subcommands:** None
-
-## ping
-- **Aliases:** `pong`
-per, Scissors!
+- **Description:** Play Rock, Paper, Scissors!
 - **Examples:**<br>`.rps`<br>`.rps 10`
 - **Options:** 
     - ``bet``: How much to bet - default is 10.
@@ -181,14 +180,12 @@ per, Scissors!
 - **Examples:**<br>`.interviewer list`<br>`.interviewer list backend`
 - **Options:** 
     - ``domain``: The domain to be examined
-- **Description:** Ping the bot to see if it is alive. :ping_pong:
-- **Examples:**<br>      `.ping`<br>      `.pong`
-- **Options:** None
 - **Subcommands:** None
 
-## uptime
-- **Aliases:** `up`, `timeup`
-e`
+## interviewer pause
+- **Aliases:** `ps`
+- **Description:** Put your interviewer profile on pause
+- **Examples:**<br>`.interviewer pause`
 - **Options:** None
 - **Subcommands:** None
 
@@ -213,18 +210,21 @@ e`
 - **Options:** 
     - ``calendar_url``: A valid calendly.com or x.ai calendar link
 - **Subcommands:** None
-- **Examples:**<br>  `.uptime`<br>  `.up`<br>  `.timeup`
-- **Options:** None
-- **Subcommands:** None
 
-on:** Handle LeetCode functions.
+# LEETCODE
+## leetcode
+- **Aliases:** None
+- **Description:** Handle LeetCode functions.
 - 
 - **Options:** None
 - **Subcommands:** `random`, `specific`
 
-# PROFILE
-## profile
- The difficulty of the problem.
+## leetcode random
+- **Aliases:** `r`
+- **Description:** Get a random LeetCode problem.
+- **Examples:**<br>`.leetcode`n<br>`.leetcode random`
+- **Options:** 
+    - ``difficulty``: The difficulty of the problem.
 - **Subcommands:** None
 
 ## leetcode specific
@@ -236,13 +236,15 @@ on:** Handle LeetCode functions.
 - **Subcommands:** None
 
 # MISCELLANEOUS
-- **Aliases:** `userprofile`, `aboutme`
-- **Description:** Handle user profile functions.
-- **Examples:**<br>  `.profile @Codey`
+## help
+- **Aliases:** `wiki`
+- **Description:** Get the URL to the wiki page.
+- **Examples:**<br>`.help`<br>`.wiki`
 - **Options:** None
-- **Subcommands:** `about`, `grad`, `set`
+- **Subcommands:** None
 
-** None
+## info
+- **Aliases:** None
 - **Description:** Get Codey information - app version, repository link and issue templates.
 - **Examples:**<br>  `.info`
 - **Options:** None
@@ -259,19 +261,21 @@ on:** Handle LeetCode functions.
 ## ping
 - **Aliases:** `pong`
 - **Description:** Ping the bot to see if it is alive. :ping_pong:
-## profile about
-- **Aliases:** `a`
-- **Description:** Display user profile.
-- **Examples:**<br>  `.profile about @Codey`<br>  `.profile a @Codey`
-- **Options:** 
-    - ``user``: The user to give profile of.
+- **Examples:**<br>      `.ping`<br>      `.pong`
+- **Options:** None
 - **Subcommands:** None
 
-## profile grad
-- **Aliases:** `g`
-- **Description:** Update Grad Roles.
-- **Examples:**<br>  `.profile grad`<br>  `.profile g`
-functions.
+## uptime
+- **Aliases:** `up`, `timeup`
+- **Description:** None
+- **Examples:**<br>  `.uptime`<br>  `.up`<br>  `.timeup`
+- **Options:** None
+- **Subcommands:** None
+
+# PROFILE
+## profile
+- **Aliases:** `userprofile`, `aboutme`
+- **Description:** Handle user profile functions.
 - **Examples:**<br>  `.profile @Codey`
 - **Options:** None
 - **Subcommands:** `about`, `grad`, `set`
@@ -300,48 +304,6 @@ functions.
     - ``description``: The description of the customization to be set for the user.
 - **Subcommands:** None
 
-- **Options:** None
-# REMINDER
-- **Subcommands:** None
-
-## reminder
-- **Aliases:** None
-- **Description:** Set up a reminder for anything you want!
-- **Examples:**<br>  `/reminder` - Opens an interactive reminder setup form
-## profile set
-- **Aliases:** `s`
-- **Description:** Set parameters of user profile.
-- **Examples:**<br>  `.profile set @Codey`<br>  `.profile a @Codey`
-- **Options:** 
-    - ``customization``: The customization to be set for the user.
-    - ``description``: The description of the customization to be set for the user.
-value minutes:5`<br>  `/timer value hours:2 minutes:30`<br>  `/timer value minutes:10 message:Take a break!`
-- **Options:** None
-- **Subcommands:** `value`, `name`, `description`, `executeCommand`, `isCommandResponseEphemeral`, `options`, `name`, `description`, `required`, `type`
-
-# SUGGESTION 
-## suggestion 
-- **Aliases:** ``suggest``
-- **Description:** Handle suggestion functions.
-- This command will forward a suggestion to the CSC Discord Mods.     Please note that your suggestion is not anonymous, your Discord username and ID will be recorded.     If you don't want to make a suggestion in public, you could use this command via a DM to Codey instead.
-    **Examples:**
-    ``.suggestion I want a new Discord channel named #hobbies.``
-- **Options:** 
-    - ``details``: Details of your suggestion
-- **Subcommands:** ``list``, ``update``, ``create``
-
-# COFFEE CHAT 
-## coffee 
-- **Aliases:** None
-- **Description:** Handle coffee chat functions.
-- **Examples:**
-    ``.coffee match``
-    ``.coffee test 10``
-- **Options:** None
-- **Subcommands:** ``match``, ``test``
-
-- **Subcommands:** None
-
 # REMINDER
 ## reminder
 - **Aliases:** None
@@ -353,9 +315,9 @@ value minutes:5`<br>  `/timer value hours:2 minutes:30`<br>  `/timer value minut
 ## timer
 - **Aliases:** None
 - **Description:** Set up a timer for anything you want!
-- **Examples:**<br>  `/timer value seconds:30`<br>  `/timer value minutes:5`<br>  `/timer value hours:2 minutes:30`<br>  `/timer value minutes:10 message:Take a break!`
+- **Examples:**<br>  `/timer value minutes:5`<br>  `/timer value hours:2 minutes:30`<br>  `/timer value minutes:10 message:Take a break!`
 - **Options:** None
-- **Subcommands:** `value`, `name`, `description`, `executeCommand`, `isCommandResponseEphemeral`, `options`, `name`, `description`, `required`, `type`
+- **Subcommands:** `create`, `name`, `description`, `executeCommand`, `isCommandResponseEphemeral`, `options`, `name`, `description`, `required`, `type`
 
 # SUGGESTION 
 ## suggestion 
