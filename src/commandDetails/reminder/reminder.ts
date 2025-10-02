@@ -20,6 +20,7 @@ import {
   TextInputStyle,
 } from 'discord.js';
 import * as reminderComponents from '../../components/reminder/reminder';
+import { genericViewResponse } from './sharedViews';
 
 const getUser = (messageFromUser: Message | ChatInputCommandInteraction) => {
   return 'user' in messageFromUser ? messageFromUser.user : messageFromUser.author;
@@ -158,6 +159,7 @@ const reminderCreateCommand: SapphireMessageExecuteType = async (
     }
     reminderComponents.addReminder(
       user.id,
+      true,
       now.toISOString(),
       inputDateTime.toISOString(),
       message,
@@ -203,69 +205,9 @@ const reminderViewCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-  const user = getUser(messageFromUser);
-  let list = await reminderComponents.getReminders(user.id);
-  console.log('Fetching reminders for user:', user.id);
-
-  if (!list || list.length === 0) {
-    return '📭 You have no reminders set.';
-  }
-
-  let response = '📝 **Your Reminders:**\n\n';
-
-  list.forEach((reminder, index) => {
-    // Parse the ISO date string
-    const reminderDate = new Date(reminder.reminder_at);
-    const createdDate = new Date(reminder.created_at);
-
-    // Format dates nicely
-    const reminderFormatted = reminderDate.toLocaleString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZoneName: 'short',
-    });
-
-    const createdFormatted = createdDate.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
-    // Calculate time until reminder
-    const now = new Date();
-    const timeDiff = reminderDate.getTime() - now.getTime();
-    let timeUntil = '';
-
-    if (timeDiff > 0) {
-      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-
-      if (days > 0) {
-        timeUntil = `⏳ In ${days}d ${hours}h`;
-      } else if (hours > 0) {
-        timeUntil = `⏳ In ${hours}h ${minutes}m`;
-      } else {
-        timeUntil = `⏳ In ${minutes}m`;
-      }
-    } else {
-      timeUntil = `🔴 **OVERDUE**`;
-    }
-
-    response += `**${index + 1}.** ${reminder.message}\n`;
-    response += `📅 **When:** ${reminderFormatted}\n`;
-    response += `${timeUntil}\n`;
-    response += `📝 *Created: ${createdFormatted}*\n\n`;
-  });
-
-  return response;
+    let ret = await genericViewResponse(_client, messageFromUser, args)
+    return ret as SapphireMessageResponse
 };
-// ...existing code...
 
 export const reminderCommandDetails: CodeyCommandDetails = {
   name: 'reminder',

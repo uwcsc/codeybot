@@ -226,6 +226,7 @@ const initRemindersTable = async (db: Database): Promise<void> => {
   await db.run(`
     CREATE TABLE IF NOT EXISTS reminders (
       id INTEGER PRIMARY KEY NOT NULL,
+      is_reminder BOOLEAN NOT NULL,
       user_id VARCHAR(255) NOT NULL,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       reminder_at TIMESTAMP NOT NULL,

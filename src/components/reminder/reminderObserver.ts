@@ -50,7 +50,7 @@ export class ReminderObserver extends EventEmitter {
         await user.send({
           embeds: [
             {
-              title: '🔔 Reminder!',
+              title: reminder.is_reminder? 'Reminder!' : 'Timer',
               description: reminder.message,
               color: 0x00ff00,
               timestamp: new Date().toISOString(),

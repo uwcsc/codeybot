@@ -6,6 +6,8 @@ import {
   SapphireMessageResponse,
 } from '../../codeyCommand';
 import * as reminderComponents from '../../components/reminder/reminder';
+import { ChatInputCommandInteraction, Message } from 'discord.js';
+import { genericViewResponse } from './sharedViews';
 
 const TIME_UNITS = {
   minutes: { multiplier: 60, singular: 'minute', plural: 'minutes' },
@@ -15,12 +17,12 @@ const TIME_UNITS = {
 
 type TimeUnit = keyof typeof TIME_UNITS;
 
-const timerExecuteCommand: SapphireMessageExecuteType = (
+const timerExecuteCommand: SapphireMessageExecuteType = async (
   _client,
-  _messageFromUser,
-  _args,
+  messageFromUser,
+  args,
 ): Promise<SapphireMessageResponse> => {
-  return Promise.resolve('Please use a subcommand: `/timer value`'); // Fixed from 'set' to 'value'
+  return Promise.resolve('Please use a subcommand: `/timer create`');
 };
 
 const timerSetExecuteCommand: SapphireMessageExecuteType = async (
@@ -68,9 +70,10 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
     // Save the timer as a reminder in the database
     await reminderComponents.addReminder(
       user.id,
+      false,
       now.toISOString(),
       futureDateTime.toISOString(),
-      `⏰ **Timer:** ${reminderMessage}`,
+      `${reminderMessage}`,
     );
 
     const content = `⏰ Timer set for ${timeDescription}! I'll DM you with: "${reminderMessage}"
@@ -82,6 +85,15 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
     console.error('Failed to save timer reminder:', error);
     return Promise.resolve('Failed to set timer. Please try again.');
   }
+};
+
+const timerViewCommand: SapphireMessageExecuteType = async (
+  _client,
+  messageFromUser,
+  args,
+): Promise<SapphireMessageResponse> => {
+  let ret = await genericViewResponse(_client, messageFromUser, args, false);
+  return ret as SapphireMessageResponse;
 };
 
 export const timerCommandDetails: CodeyCommandDetails = {
@@ -131,7 +143,17 @@ export const timerCommandDetails: CodeyCommandDetails = {
       ],
       aliases: [],
       detailedDescription:
-        'Set a timer by specifying seconds, minutes, hours, and/or days with an optional message',
+        'Set a timer by specifying minutes, hours, and/or days with an optional message',
+      subcommandDetails: {},
+    },
+    view: {
+      name: 'view',
+      description: 'View any timers you set!',
+      executeCommand: timerViewCommand,
+      isCommandResponseEphemeral: true,
+      options: [],
+      aliases: [],
+      detailedDescription: '',
       subcommandDetails: {},
     },
   },

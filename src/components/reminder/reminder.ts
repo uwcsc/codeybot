@@ -7,7 +7,7 @@ export enum Status {
 }
 
 export interface Reminder {
-  userId: string;
+  user_id: string;
   created_at: string;
   reminder_at: string;
   message: string;
@@ -23,13 +23,20 @@ export const getDueReminders = async (): Promise<Reminder[]> => {
     now
   );
 };
-/*
-  Returns a list of reminders by userID.
-*/
+
+// Returns a list of reminders that have yet to be shown
 export const getReminders = async (userId: string): Promise<Reminder[] | undefined> => {
   const db = await openDB();
   console.log(`Received request for user_id ${userId}`);
-  return await db.all('SELECT * FROM reminders WHERE user_id = ?', userId);
+  return await db.all('SELECT * FROM reminders WHERE user_id = ? AND status = 0 AND is_reminder = 1', userId);
+};
+
+
+// Returns a list of timers that have yet to be shown
+export const getTimers = async (userId: string): Promise<Reminder[] | undefined> => {
+  const db = await openDB();
+  console.log(`Received request for user_id ${userId}`);
+  return await db.all('SELECT * FROM reminders WHERE user_id = ? AND status = 0 AND is_reminder = 0', userId);
 };
 
 // Mark reminder as sent
@@ -40,7 +47,8 @@ export const markReminderAsSent = async (reminderId: number): Promise<void> => {
 
 // Adds a reminder to the DB
 export const addReminder = async (
-  userId: string,
+  user_id: string,
+  is_reminder: boolean,
   created_at: string,
   reminder_at: string,
   message: string,
@@ -48,18 +56,24 @@ export const addReminder = async (
   const db = await openDB();
 
   console.log('addReminder parameters:');
-  console.log('userId:', userId);
+  console.log('userId:', user_id);
   console.log('created_at:', created_at);
   console.log('reminder_at:', reminder_at);
   console.log('message:', message);
 
   // Save reminder into DB
+  // TODO Include type for announcements(user_id can be ignored, since message will need to be pinged in #announcements)
+  // Status metrics:
+    // 0: Not pinged
+    // 1: Pinged
+    // -1: Error
   await db.run(
     `
-    INSERT INTO reminders (user_id, created_at, reminder_at, message, status)
-    VALUES(?,?,?,?,?);
+    INSERT INTO reminders (user_id, is_reminder, created_at, reminder_at, message, status)
+    VALUES(?,?,?,?,?,?);
     `,
-    userId,
+    user_id,
+    is_reminder,
     created_at,
     reminder_at,
     message,
