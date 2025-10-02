@@ -6,6 +6,7 @@ import { vars } from '../config';
 import { logger } from '../logger/default';
 import { getRepositoryReleases } from '../utils/github';
 import { updateWiki } from '../utils/updateWiki';
+import { ReminderObserver } from '../components/reminder/reminderObserver';
 
 const dev = process.env.NODE_ENV === 'dev';
 
@@ -46,5 +47,9 @@ export const initReady = (client: Client): void => {
   sendReady(client);
   initCrons(client);
   initEmojis(client);
+
+    let reminderObserver = new ReminderObserver(client);
+  reminderObserver.start();
+
   if (dev) updateWiki(); // will not run in staging/prod
 };

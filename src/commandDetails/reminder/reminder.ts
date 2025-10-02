@@ -19,13 +19,20 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from 'discord.js';
-import * as reminderComponents from '../../components/reminder'
+import * as reminderComponents from '../../components/reminder/reminder';
 
+const getUser = (messageFromUser: Message | ChatInputCommandInteraction) => {
+  return 'user' in messageFromUser ? messageFromUser.user : messageFromUser.author;
+};
+
+// Create a new reminder
 const reminderCreateCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
+  const user = getUser(messageFromUser);
+
   // Check if messageFromUser is actually a ChatInputCommandInteraction (slash command)
 
   const interaction = messageFromUser as ChatInputCommandInteraction;
@@ -144,15 +151,17 @@ const reminderCreateCommand: SapphireMessageExecuteType = async (
           `Please fix the following errors:\n${validationErrors
             .map((error) => `• ${error}`)
             .join('\n')}`,
-
         )
         .setColor(Colors.Red);
       await modalSubmit.reply({ embeds: [errorEmbed], ephemeral: true });
       return '';
     }
-
-          // TODO Add backend reminder functionality here
-          reminderComponents.addReminder(messageFromUser.client.id!, now.toISOString(), inputDateTime.toISOString(), message)
+    reminderComponents.addReminder(
+      user.id,
+      now.toISOString(),
+      inputDateTime.toISOString(),
+      message,
+    );
     // Create success output embed
     const outputEmbed = new EmbedBuilder()
       .setTitle('📝 Reminder Created Successfully!')
@@ -179,134 +188,136 @@ const reminderCreateCommand: SapphireMessageExecuteType = async (
   return '';
 };
 
+// Test command (just returns the user ID for now)
 const reminderExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-    return 'ooga booga'
-}
+  return `User id is ${messageFromUser.client.id}`;
+};
 
+// View reminders
 const reminderViewCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-    let list = await reminderComponents.getReminders(messageFromUser.client.user.id);
-    console.log('Fetching reminders for user:', messageFromUser.client.user.id);
-    
-    if (!list || list.length === 0) {
-        return "📭 You have no reminders set.";
-    }
-    
-    let response = "📝 **Your Reminders:**\n\n";
-    
-    list.forEach((reminder, index) => {
-        // Parse the ISO date string
-        const reminderDate = new Date(reminder.reminder_at);
-        const createdDate = new Date(reminder.created_at);
-        
-        // Format dates nicely
-        const reminderFormatted = reminderDate.toLocaleString('en-US', {
-            weekday: 'short',
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZoneName: 'short'
-        });
-        
-        const createdFormatted = createdDate.toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-        
-        // Calculate time until reminder
-        const now = new Date();
-        const timeDiff = reminderDate.getTime() - now.getTime();
-        let timeUntil = '';
-        
-        if (timeDiff > 0) {
-            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-            
-            if (days > 0) {
-                timeUntil = `⏳ In ${days}d ${hours}h`;
-            } else if (hours > 0) {
-                timeUntil = `⏳ In ${hours}h ${minutes}m`;
-            } else {
-                timeUntil = `⏳ In ${minutes}m`;
-            }
-        } else {
-            timeUntil = `🔴 **OVERDUE**`;
-        }
-        
-        response += `**${index + 1}.** ${reminder.message}\n`;
-        response += `📅 **When:** ${reminderFormatted}\n`;
-        response += `${timeUntil}\n`;
-        response += `📝 *Created: ${createdFormatted}*\n\n`;
+  const user = getUser(messageFromUser);
+  let list = await reminderComponents.getReminders(user.id);
+  console.log('Fetching reminders for user:', user.id);
+
+  if (!list || list.length === 0) {
+    return '📭 You have no reminders set.';
+  }
+
+  let response = '📝 **Your Reminders:**\n\n';
+
+  list.forEach((reminder, index) => {
+    // Parse the ISO date string
+    const reminderDate = new Date(reminder.reminder_at);
+    const createdDate = new Date(reminder.created_at);
+
+    // Format dates nicely
+    const reminderFormatted = reminderDate.toLocaleString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short',
     });
-    
-    return response;
-}
+
+    const createdFormatted = createdDate.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    // Calculate time until reminder
+    const now = new Date();
+    const timeDiff = reminderDate.getTime() - now.getTime();
+    let timeUntil = '';
+
+    if (timeDiff > 0) {
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (days > 0) {
+        timeUntil = `⏳ In ${days}d ${hours}h`;
+      } else if (hours > 0) {
+        timeUntil = `⏳ In ${hours}h ${minutes}m`;
+      } else {
+        timeUntil = `⏳ In ${minutes}m`;
+      }
+    } else {
+      timeUntil = `🔴 **OVERDUE**`;
+    }
+
+    response += `**${index + 1}.** ${reminder.message}\n`;
+    response += `📅 **When:** ${reminderFormatted}\n`;
+    response += `${timeUntil}\n`;
+    response += `📝 *Created: ${createdFormatted}*\n\n`;
+  });
+
+  return response;
+};
 // ...existing code...
 
-
 export const reminderCommandDetails: CodeyCommandDetails = {
-    name: 'reminder',
-    aliases: [],
-    description: 'Set up a reminder for anything you want!',
-    detailedDescription: `**Examples:**
+  name: 'reminder',
+  aliases: [],
+  description: 'Set up a reminder for anything you want!',
+  detailedDescription: `**Examples:**
   \`/reminder\` - Opens an interactive reminder setup form`,
-    isCommandResponseEphemeral: true,
-    messageWhenExecutingCommand: 'Setting up reminder form...',
-    executeCommand: reminderExecuteCommand,
-    messageIfFailure: 'Failed to set up reminder form.',
-    options: [],
-    subcommandDetails: {
-        create: {
-            name: 'create',
-            description: 'Set a timer with specified duration',
-            executeCommand: reminderCreateCommand,
-            isCommandResponseEphemeral: true,
-            options: [
-                {
-                    name: 'date',
-                    description: 'A date in the format YYYY-MM-DD',
-                    type: CodeyCommandOptionType.STRING,
-                    required: false,
-                },
-                {
-                    name: 'time',
-                    description: 'A time in the format HH:DD',
-                    type: CodeyCommandOptionType.STRING,
-                    required: false,
-                },
-                {
-                    name: 'message',
-                    description: 'Message for your Reminder',
-                    type: CodeyCommandOptionType.STRING,
-                    required: false,
-                },
-            ],
-            aliases: [],
-            detailedDescription: '',
-            subcommandDetails: {}
+  isCommandResponseEphemeral: true,
+  messageWhenExecutingCommand: 'Setting up reminder form...',
+  executeCommand: reminderExecuteCommand,
+  messageIfFailure: 'Failed to set up reminder form.',
+  options: [],
+  subcommandDetails: {
+    create: {
+      name: 'create',
+      description: 'Set a timer with specified duration',
+      executeCommand: reminderCreateCommand,
+      isCommandResponseEphemeral: true,
+      options: [
+        {
+          name: 'date',
+          description: 'A date in the format YYYY-MM-DD',
+          type: CodeyCommandOptionType.STRING,
+          required: false,
         },
-
-        view: {
-            name: 'view',
-            description: 'View any reminders you set!',
-            executeCommand: reminderViewCommand,
-            isCommandResponseEphemeral: true,
-            options: [],
-            aliases: [],
-            detailedDescription: '',
-            subcommandDetails: {}
+        {
+          name: 'time',
+          description: 'A time in the format HH:DD',
+          type: CodeyCommandOptionType.STRING,
+          required: false,
         },
+        {
+          name: 'message',
+          description: 'Message for your Reminder',
+          type: CodeyCommandOptionType.STRING,
+          required: false,
+        },
+      ],
+      aliases: [],
+      detailedDescription: '',
+      subcommandDetails: {},
     },
-}
+
+    view: {
+      name: 'view',
+      description: 'View any reminders you set!',
+      executeCommand: reminderViewCommand,
+      isCommandResponseEphemeral: true,
+      options: [],
+      aliases: [],
+      detailedDescription: '',
+      subcommandDetails: {},
+    },
+  },
+};

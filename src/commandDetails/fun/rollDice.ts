@@ -23,7 +23,16 @@ const rollDiceExecuteCommand: SapphireMessageExecuteType = (
     return new Promise((resolve, _reject) => resolve("that's too many sides!"));
   }
   const diceFace = getRandomIntFrom1(sides);
-  return new Promise((resolve, _reject) => resolve(`you rolled a ${diceFace}!`));
+  let userId: string;
+  if ('author' in _messageFromUser) {
+    userId = _messageFromUser.author.id;
+  } else if ('user' in _messageFromUser) {
+    console.log("using user")
+    userId = _messageFromUser.user.id;
+  } else {
+    userId = 'unknown';
+  }
+  return new Promise((resolve, _reject) => resolve(`your id is ${userId}!`));
 };
 
 export const rollDiceCommandDetails: CodeyCommandDetails = {
