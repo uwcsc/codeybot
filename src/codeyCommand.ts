@@ -322,7 +322,6 @@ export class CodeyCommand extends SapphireCommand {
     interaction: SapphireCommand.ChatInputCommandInteraction,
   ): Promise<APIMessage | Message<boolean> | undefined> {
     const { client } = container;
-
     // Get subcommand name
     let subcommandName = '';
     try {
@@ -373,7 +372,6 @@ export class CodeyCommand extends SapphireCommand {
       ) {
         successResponse.response = { content: successResponse.response };
       }
-
       // cannot double reply to a slash command (in case command replies on its own), runtime error
       if (!interaction.replied) {
         await interaction.reply(

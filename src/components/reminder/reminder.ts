@@ -1,12 +1,7 @@
 import _ from 'lodash';
 import { openDB } from '../db';
-
-export enum Status {
-  Active,
-  Paused,
-}
-
 export interface Reminder {
+  id: any;
   user_id: string;
   created_at: string;
   reminder_at: string;
@@ -45,6 +40,11 @@ export const markReminderAsSent = async (reminderId: number): Promise<void> => {
   await db.run('UPDATE reminders SET status = 1 WHERE id = ?', reminderId);
 };
 
+export const deleteReminder = async (reminderId: number, userId: string, is_reminder: boolean): Promise<void> => {
+  const db = await openDB();
+  await db.run('DELETE FROM reminders WHERE id = ? AND user_id = ? and is_reminder = ?', reminderId, userId, is_reminder);
+};
+
 // Adds a reminder to the DB
 export const addReminder = async (
   user_id: string,
@@ -61,12 +61,6 @@ export const addReminder = async (
   console.log('reminder_at:', reminder_at);
   console.log('message:', message);
 
-  // Save reminder into DB
-  // TODO Include type for announcements(user_id can be ignored, since message will need to be pinged in #announcements)
-  // Status metrics:
-    // 0: Not pinged
-    // 1: Pinged
-    // -1: Error
   await db.run(
     `
     INSERT INTO reminders (user_id, is_reminder, created_at, reminder_at, message, status)

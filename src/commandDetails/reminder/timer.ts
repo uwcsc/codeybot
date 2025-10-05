@@ -7,7 +7,7 @@ import {
 } from '../../codeyCommand';
 import * as reminderComponents from '../../components/reminder/reminder';
 import { ChatInputCommandInteraction, Message } from 'discord.js';
-import { genericViewResponse } from './sharedViews';
+import { genericDeleteResponse, genericViewResponse } from './sharedViews';
 
 const TIME_UNITS = {
   minutes: { multiplier: 60, singular: 'minute', plural: 'minutes' },
@@ -33,7 +33,6 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
   const providedTimes: Array<{ unit: TimeUnit; value: number }> = [];
   let totalSeconds = 0;
 
-  // Check each time unit
   for (const [unit, config] of Object.entries(TIME_UNITS)) {
     const value = args[unit] as number;
     if (value !== undefined && value > 0) {
@@ -41,7 +40,7 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
       totalSeconds += value * config.multiplier;
     }
   }
-
+  console.log('finished checking');
   if (providedTimes.length === 0) {
     return Promise.resolve('Please specify at least one time duration!');
   }
@@ -66,8 +65,11 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
   const now = new Date();
   const futureDateTime = new Date(now.getTime() + totalSeconds * 1000);
 
+  console.log('finished calculations');
   try {
     // Save the timer as a reminder in the database
+
+    console.log('awaiting reminder');
     await reminderComponents.addReminder(
       user.id,
       false,
@@ -79,12 +81,23 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
     const content = `⏰ Timer set for ${timeDescription}! I'll DM you with: "${reminderMessage}"
 
 📅 **Scheduled for:** <t:${Math.floor(futureDateTime.getTime() / 1000)}:F>`;
-
+    console.log('returning!');
     return Promise.resolve(content);
   } catch (error) {
     console.error('Failed to save timer reminder:', error);
     return Promise.resolve('Failed to set timer. Please try again.');
   }
+};
+
+// Delete timers
+// Delete Reminders
+const timerDeleteCommand: SapphireMessageExecuteType = async (
+  _client,
+  messageFromUser,
+  args,
+): Promise<SapphireMessageResponse> => {
+  let ret = await genericDeleteResponse(_client, messageFromUser, args, false);
+  return ret as SapphireMessageResponse;
 };
 
 const timerViewCommand: SapphireMessageExecuteType = async (
@@ -156,5 +169,15 @@ export const timerCommandDetails: CodeyCommandDetails = {
       detailedDescription: '',
       subcommandDetails: {},
     },
+    delete:{
+      name: 'delete',
+      description: 'Delete any timers you set!',
+      executeCommand: timerDeleteCommand,
+      isCommandResponseEphemeral: true,
+      options: [],
+      aliases: [],
+      detailedDescription: '',
+      subcommandDetails: {},
+    }
   },
 };

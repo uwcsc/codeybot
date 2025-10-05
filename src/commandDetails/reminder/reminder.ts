@@ -16,11 +16,12 @@ import {
   EmbedBuilder,
   Message,
   ModalBuilder,
+  StringSelectMenuBuilder,
   TextInputBuilder,
   TextInputStyle,
 } from 'discord.js';
 import * as reminderComponents from '../../components/reminder/reminder';
-import { genericViewResponse } from './sharedViews';
+import { genericDeleteResponse, genericViewResponse } from './sharedViews';
 
 const getUser = (messageFromUser: Message | ChatInputCommandInteraction) => {
   return 'user' in messageFromUser ? messageFromUser.user : messageFromUser.author;
@@ -190,12 +191,14 @@ const reminderCreateCommand: SapphireMessageExecuteType = async (
   return '';
 };
 
+
 // Test command (just returns the user ID for now)
 const reminderExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
+  console.log('executing here!');
   return `User id is ${messageFromUser.client.id}`;
 };
 
@@ -205,8 +208,18 @@ const reminderViewCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-    let ret = await genericViewResponse(_client, messageFromUser, args)
-    return ret as SapphireMessageResponse
+  let ret = await genericViewResponse(_client, messageFromUser, args);
+  return ret as SapphireMessageResponse;
+};
+
+// Delete Reminders
+const reminderDeleteCommand: SapphireMessageExecuteType = async (
+  _client,
+  messageFromUser,
+  args,
+): Promise<SapphireMessageResponse> => {
+  let ret = await genericDeleteResponse(_client, messageFromUser, args);
+  return ret as SapphireMessageResponse;
 };
 
 export const reminderCommandDetails: CodeyCommandDetails = {
@@ -248,6 +261,17 @@ export const reminderCommandDetails: CodeyCommandDetails = {
       ],
       aliases: [],
       detailedDescription: '',
+      subcommandDetails: {},
+    },
+
+    delete: {
+      name: 'delete',
+      description: 'Delete one of your active reminders.',
+      executeCommand: reminderDeleteCommand,
+      isCommandResponseEphemeral: true,
+      options: [],
+      aliases: [],
+      detailedDescription: 'Choose a reminder to permanently delete it.',
       subcommandDetails: {},
     },
 

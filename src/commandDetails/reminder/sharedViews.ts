@@ -1,6 +1,13 @@
 import { SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
 import * as reminderComponents from '../../components/reminder/reminder';
 import { ChatInputCommandInteraction, Client, Message } from 'discord.js';
+import {
+  ActionRowBuilder,
+  Colors,
+  ComponentType,
+  EmbedBuilder,
+  StringSelectMenuBuilder,
+} from 'discord.js';
 
 const getUser = (messageFromUser: Message | ChatInputCommandInteraction) => {
   return 'user' in messageFromUser ? messageFromUser.user : messageFromUser.author;
@@ -81,4 +88,112 @@ export const genericViewResponse = async (
   });
 
   return response;
+};
+
+// Delete a reminder
+export const genericDeleteResponse = async (
+  _client: Client,
+  messageFromUser: any,
+  args: any,
+  is_reminder: boolean = true,
+): Promise<SapphireMessageResponse> => {
+  const interaction = messageFromUser as ChatInputCommandInteraction;
+  const user = getUser(messageFromUser);
+  console.log(`clicked delete ${is_reminder ? 'reminders' : 'timers'}!`);
+
+  // Immediately defer the reply to prevent timeout
+  await interaction.deferReply({ ephemeral: true });
+
+  // Fetch active items for the user (reminders or timers)
+  const items = is_reminder
+    ? await reminderComponents.getReminders(user.id)
+    : await reminderComponents.getTimers(user.id);
+
+  const itemType = is_reminder ? 'reminder' : 'timer';
+  const itemTypeCapitalized = is_reminder ? 'Reminder' : 'Timer';
+
+  console.log(`${itemType}s:`, items);
+
+  if (!items || items.length === 0) {
+    const errorEmbed = new EmbedBuilder()
+      .setTitle(`❌ No ${itemTypeCapitalized}s`)
+      .setDescription(`You do not have any ${itemType}s to delete.`)
+      .setColor(Colors.Red);
+    await interaction.editReply({ embeds: [errorEmbed] });
+    return '';
+  }
+
+  const embed = new EmbedBuilder()
+    .setTitle(`🗑️ Delete a ${itemTypeCapitalized}`)
+    .setDescription(`Select a ${itemType} to delete from the dropdown menu below.`)
+    .setColor(Colors.Red);
+
+  // Create dropdown menu options
+  const options = items.map((item) => ({
+    label: `ID: ${item.id} - "${
+      item.message.length > 80 ? item.message.substring(0, 77) + '...' : item.message
+    }"`,
+    description: `Due: ${new Date(item.reminder_at).toLocaleString()}`,
+    value: item.id.toString(),
+  }));
+
+  const customId = `delete-${itemType}-select`;
+  const selectMenu = new StringSelectMenuBuilder()
+    .setCustomId(customId)
+    .setPlaceholder(`Choose a ${itemType} to delete...`)
+    .addOptions(options);
+
+  const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
+
+  // Send the message with the select menu
+  const response = await interaction.editReply({
+    embeds: [embed],
+    components: [row],
+  });
+
+  try {
+    const selection = await response.awaitMessageComponent({
+      componentType: ComponentType.StringSelect,
+      filter: (i) => i.user.id === user.id && i.customId === customId,
+      time: 60000, // 60 seconds timeout
+    });
+
+    const itemIdToDelete = parseInt(selection.values[0], 10);
+    await reminderComponents.deleteReminder(itemIdToDelete, user.id, is_reminder);
+
+    // Confirm deletion
+    const successEmbed = new EmbedBuilder()
+      .setTitle(`✅ ${itemTypeCapitalized} Deleted`)
+      .setDescription(`Successfully deleted ${itemType} with ID \`${itemIdToDelete}\`.`)
+      .setColor(Colors.Green);
+
+    await selection.update({ embeds: [successEmbed], components: [] });
+  } catch (e) {
+    const timeoutEmbed = new EmbedBuilder()
+      .setTitle('⏰ Timed Out')
+      .setDescription('You did not make a selection in time.')
+      .setColor(Colors.Yellow);
+    await interaction.editReply({ embeds: [timeoutEmbed], components: [] });
+  }
+  return '';
+};
+
+// Test command (just returns the user ID for now)
+const reminderExecuteCommand: SapphireMessageExecuteType = async (
+  _client,
+  messageFromUser,
+  args,
+): Promise<SapphireMessageResponse> => {
+  console.log('executing here!');
+  return `User id is ${messageFromUser.client.id}`;
+};
+
+// View reminders
+const reminderViewCommand: SapphireMessageExecuteType = async (
+  _client,
+  messageFromUser,
+  args,
+): Promise<SapphireMessageResponse> => {
+  let ret = await genericViewResponse(_client, messageFromUser, args);
+  return ret as SapphireMessageResponse;
 };
