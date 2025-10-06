@@ -305,6 +305,13 @@
 - **Subcommands:** None
 
 # REMINDER
+## announcement
+- **Aliases:** None
+- **Description:** Set up an announcement!
+- **Examples:**<br>  `/announcement` - Opens an  setup form
+- **Options:** None
+- **Subcommands:** `create`, `name`, `description`, `executeCommand`, `isCommandResponseEphemeral`, `options`, `name`, `description`, `type`, `required`
+
 ## reminder
 - **Aliases:** None
 - **Description:** Set up a reminder for anything you want!

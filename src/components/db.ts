@@ -234,7 +234,21 @@ const initRemindersTable = async (db: Database): Promise<void> => {
       status INTEGER NOT NULL DEFAULT 0
   )
   `);
-  // TODO includ indexing if performance needs it?
+}
+
+const initAnnouncementsTable = async (db: Database): Promise<void> => {
+  await db.run(`
+    CREATE TABLE IF NOT EXISTS announcements(
+      id INTEGER PRIMARY KEY NOT NULL,
+      user_id VARCHAR(255) NOT NULL,
+      title TEXT NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      reminder_at TIMESTAMP NOT NULL,
+      message TEXT NOT NULL,
+      image_url TEXT,
+      status INTEGER NOT NULL DEFAULT 0
+  )
+  `);
 }
 
 const initTables = async (db: Database): Promise<void> => {
@@ -252,6 +266,7 @@ const initTables = async (db: Database): Promise<void> => {
   await initCompaniesTable(db);
   await initPeopleCompaniesTable(db);
   await initRemindersTable(db);
+  await initAnnouncementsTable(db);
 };
 
 export const openDB = async (): Promise<Database> => {

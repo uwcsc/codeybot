@@ -81,7 +81,6 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
     const content = `⏰ Timer set for ${timeDescription}! I'll DM you with: "${reminderMessage}"
 
 📅 **Scheduled for:** <t:${Math.floor(futureDateTime.getTime() / 1000)}:F>`;
-    console.log('returning!');
     return Promise.resolve(content);
   } catch (error) {
     console.error('Failed to save timer reminder:', error);
@@ -89,8 +88,6 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
   }
 };
 
-// Delete timers
-// Delete Reminders
 const timerDeleteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
@@ -169,7 +166,7 @@ export const timerCommandDetails: CodeyCommandDetails = {
       detailedDescription: '',
       subcommandDetails: {},
     },
-    delete:{
+    delete: {
       name: 'delete',
       description: 'Delete any timers you set!',
       executeCommand: timerDeleteCommand,
@@ -178,6 +175,6 @@ export const timerCommandDetails: CodeyCommandDetails = {
       aliases: [],
       detailedDescription: '',
       subcommandDetails: {},
-    }
+    },
   },
 };
