@@ -7,16 +7,11 @@ import {
 } from '../../codeyCommand';
 import {
   ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
   ChatInputCommandInteraction,
   Colors,
-  ComponentType,
   EmbedBuilder,
   Message,
   ModalBuilder,
-  StringSelectMenuBuilder,
   TextInputBuilder,
   TextInputStyle,
 } from 'discord.js';
@@ -35,13 +30,7 @@ const reminderCreateCommand: SapphireMessageExecuteType = async (
 ): Promise<SapphireMessageResponse> => {
   const user = getUser(messageFromUser);
 
-  // Check if messageFromUser is actually a ChatInputCommandInteraction (slash command)
-
   const interaction = messageFromUser as ChatInputCommandInteraction;
-
-  if (!interaction) {
-    return 'This command only works with slash commands. Please use `/reminder` instead.';
-  }
 
   // Get option values from the command (if provided)
   const dateOption = args['date'] as string;
@@ -94,19 +83,17 @@ const reminderCreateCommand: SapphireMessageExecuteType = async (
     messageInput.setValue(messageOption);
   }
 
-  // Add inputs to action rows (Discord modals support up to 5 action rows with 1 text input each)
   const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(dateInput);
   const secondActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(timeInput);
   const thirdActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput);
 
   modal.addComponents(firstActionRow, secondActionRow, thirdActionRow);
 
-  // Show the modal to the user
   await interaction.showModal(modal);
 
   try {
     const modalSubmit = await interaction.awaitModalSubmit({
-      time: 300000, // 5 minutes timeout
+      time: 300000,
       filter: (i) => i.customId === 'reminder-modal' && i.user.id === interaction.user.id,
     });
 
@@ -191,17 +178,6 @@ const reminderCreateCommand: SapphireMessageExecuteType = async (
   return '';
 };
 
-
-// Test command (just returns the user ID for now)
-const reminderExecuteCommand: SapphireMessageExecuteType = async (
-  _client,
-  messageFromUser,
-  args,
-): Promise<SapphireMessageResponse> => {
-  console.log('executing here!');
-  return `User id is ${messageFromUser.client.id}`;
-};
-
 // View reminders
 const reminderViewCommand: SapphireMessageExecuteType = async (
   _client,
@@ -230,7 +206,6 @@ export const reminderCommandDetails: CodeyCommandDetails = {
   \`/reminder\` - Opens an interactive reminder setup form`,
   isCommandResponseEphemeral: true,
   messageWhenExecutingCommand: 'Setting up reminder form...',
-  executeCommand: reminderExecuteCommand,
   messageIfFailure: 'Failed to set up reminder form.',
   options: [],
   subcommandDetails: {

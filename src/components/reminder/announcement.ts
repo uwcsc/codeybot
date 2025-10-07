@@ -4,7 +4,7 @@ import { openDB } from '../db';
 export interface Announcement {
   id: any;
   user_id: string;
-  title: string; // Added required title field
+  title: string;
   created_at: string;
   reminder_at: string;
   message: string;
@@ -44,7 +44,7 @@ export const addAnnouncement = async (
   created_at: string,
   reminder_at: string,
   message: string,
-  image_url?: string, // Optional parameter
+  image_url?: string,
 ): Promise<void> => {
   const db = await openDB();
   if (image_url) {
@@ -78,12 +78,4 @@ export const addAnnouncement = async (
     );
   }
   console.log("finished announcements")
-};
-
-// Get an announcement with image data
-export const getAnnouncementWithImage = async (
-  announcementId: number,
-): Promise<Announcement | undefined> => {
-  const db = await openDB();
-  return await db.get('SELECT * FROM announcements WHERE id = ?', announcementId);
 };

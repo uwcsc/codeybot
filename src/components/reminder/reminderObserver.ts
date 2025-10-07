@@ -57,7 +57,7 @@ export class ReminderObserver extends EventEmitter {
       if (dueReminders.length > 0) {
         console.log(`📬 Found ${dueReminders.length} due announcement(s)`);
         dueReminders.forEach((reminder: any) => {
-          this.emit('announcementDue', reminder); // emits event for observers
+          this.emit('announcementDue', reminder);
         });
       }
     } catch (error) {
@@ -105,7 +105,7 @@ export class ReminderObserver extends EventEmitter {
         );
         return;
       }
-      // Send the announcement with proper formatting
+
       await channel.send({
         content: announcement.message,
         files: announcement.image_url ? [announcement.image_url] : [],

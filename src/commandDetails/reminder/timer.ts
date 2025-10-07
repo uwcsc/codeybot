@@ -6,7 +6,6 @@ import {
   SapphireMessageResponse,
 } from '../../codeyCommand';
 import * as reminderComponents from '../../components/reminder/reminder';
-import { ChatInputCommandInteraction, Message } from 'discord.js';
 import { genericDeleteResponse, genericViewResponse } from './sharedViews';
 
 const TIME_UNITS = {

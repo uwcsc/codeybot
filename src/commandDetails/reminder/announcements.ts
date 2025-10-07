@@ -8,7 +8,6 @@ import {
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonInteraction,
   ButtonStyle,
   ChatInputCommandInteraction,
   Colors,
@@ -20,9 +19,8 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from 'discord.js';
-import * as reminderComponents from '../../components/reminder/reminder'; // TODO Delete
+
 import * as announcementComponents from '../../components/reminder/announcement';
-import { genericDeleteResponse, genericViewResponse } from './sharedViews';
 
 const getUser = (messageFromUser: Message | ChatInputCommandInteraction) => {
   return 'user' in messageFromUser ? messageFromUser.user : messageFromUser.author;
@@ -37,24 +35,23 @@ const announcementCreateCommand: SapphireMessageExecuteType = async (
   const user = getUser(messageFromUser);
   const interaction = messageFromUser as ChatInputCommandInteraction;
 
-  // Get option values from the command (if provided)
   const dateOption = args['date'] as string;
   const timeOption = interaction.options.getString('time') || '';
   const messageOption = interaction.options.getString('message') || '';
+  const photoOption = interaction.options.getString('photo') || ''; // Add this line
 
-  // Create the modal
   const modal = new ModalBuilder()
     .setCustomId('announcement-modal')
     .setTitle('📅 Set Your Announcement');
 
   const titleInput = new TextInputBuilder()
-    .setCustomId('announcement-title') // Changed ID for consistency
+    .setCustomId('announcement-title')
     .setLabel('Title')
     .setPlaceholder('e.g., Codey eats π')
     .setStyle(TextInputStyle.Short)
     .setRequired(true)
-    .setMaxLength(100) // Increased max length to be more reasonable
-    .setMinLength(3); // Decreased min length
+    .setMaxLength(100)
+    .setMinLength(3);
 
   const dateInput = new TextInputBuilder()
     .setCustomId('announcement-date')
@@ -65,7 +62,6 @@ const announcementCreateCommand: SapphireMessageExecuteType = async (
     .setMaxLength(10)
     .setMinLength(8);
 
-  // Pre-populate date field if provided
   if (dateOption) {
     dateInput.setValue(dateOption);
   }
@@ -105,7 +101,10 @@ const announcementCreateCommand: SapphireMessageExecuteType = async (
     .setRequired(false)
     .setMaxLength(500);
 
-  // Add title to modal (it was missing)
+  if (photoOption) {
+    photoInput.setValue(photoOption);
+  }
+
   const titleActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(titleInput);
   const dateActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(dateInput);
   const timeActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(timeInput);
@@ -135,7 +134,6 @@ const announcementCreateCommand: SapphireMessageExecuteType = async (
     const message = modalSubmit.fields.getTextInputValue('announcement-message').trim();
     const image_url = modalSubmit.fields.getTextInputValue('announcement-photo').trim();
 
-    // Basic validation
     const dateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/;
     const timeRegex = /^\d{1,2}:\d{2}$/;
 
@@ -251,7 +249,6 @@ const announcementViewCommand: SapphireMessageExecuteType = async (
     value: announcement.id.toString(),
   }));
 
-  // Create the select menu
   const selectMenu = new StringSelectMenuBuilder()
     .setCustomId('announcement-select')
     .setPlaceholder('Select an announcement to preview')
@@ -275,7 +272,6 @@ const announcementViewCommand: SapphireMessageExecuteType = async (
     components: [row],
   });
 
-  // Create collector to wait for selection
   const collector = response.createMessageComponentCollector({
     componentType: ComponentType.StringSelect,
     filter: (i) => i.user.id === user.id && i.customId === 'announcement-select',
@@ -285,7 +281,6 @@ const announcementViewCommand: SapphireMessageExecuteType = async (
   collector.on('collect', async (selectInteraction) => {
     const announcementId = parseInt(selectInteraction.values[0], 10);
 
-    // Find the selected announcement
     const selectedAnnouncement = announcements.find((a) => a.id === announcementId);
 
     if (!selectedAnnouncement) {
@@ -308,7 +303,6 @@ const announcementViewCommand: SapphireMessageExecuteType = async (
       `*(Scheduled to be announced on ${formattedTimestamp})*`,
     ].join('\n');
 
-    // Create button to return to list
     const backButton = new ButtonBuilder()
       .setCustomId('back-to-list')
       .setLabel('Back to List')
@@ -324,7 +318,6 @@ const announcementViewCommand: SapphireMessageExecuteType = async (
       files: selectedAnnouncement.image_url ? [selectedAnnouncement.image_url] : [],
     });
 
-    // Create collector for the back button
     const buttonCollector = response.createMessageComponentCollector({
       componentType: ComponentType.Button,
       filter: (i) => i.user.id === user.id && i.customId === 'back-to-list',
@@ -363,10 +356,9 @@ const announcementDeleteCommand: SapphireMessageExecuteType = async (
   const user = getUser(messageFromUser);
   console.log(`clicked delete announcements!`);
 
-  // Immediately defer the reply to prevent timeout
+  // Defering to avoid timeout
   await interaction.deferReply({ ephemeral: true });
 
-  // Fetch active announcements for the user
   const announcements = await announcementComponents.getAnnouncements();
 
   console.log(`announcements:`, announcements);
@@ -385,7 +377,6 @@ const announcementDeleteCommand: SapphireMessageExecuteType = async (
     .setDescription(`Select an announcement to delete from the dropdown menu below.`)
     .setColor(Colors.Red);
 
-  // Create dropdown menu options
   const options = announcements.map((announcement) => ({
     label: `${
       announcement.title.length > 50
@@ -404,7 +395,6 @@ const announcementDeleteCommand: SapphireMessageExecuteType = async (
 
   const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
 
-  // Send the message with the select menu
   const response = await interaction.editReply({
     embeds: [embed],
     components: [row],
@@ -470,6 +460,12 @@ export const announcementCommandDetails: CodeyCommandDetails = {
         {
           name: 'message',
           description: 'What you want to announce.',
+          type: CodeyCommandOptionType.STRING,
+          required: false,
+        },
+        {
+          name: 'photo',
+          description: 'URL of an image to include with the announcement',
           type: CodeyCommandOptionType.STRING,
           required: false,
         },
