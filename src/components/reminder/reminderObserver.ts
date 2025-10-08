@@ -44,7 +44,7 @@ export class ReminderObserver extends EventEmitter {
       if (dueReminders.length > 0) {
         console.log(`📬 Found ${dueReminders.length} due reminder(s)`);
         dueReminders.forEach((reminder: any) => {
-          this.emit('reminderDue', reminder); // emits event for observers
+          this.emit('reminderDue', reminder);
         });
       }
     } catch (error) {

@@ -66,8 +66,6 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
 
   console.log('finished calculations');
   try {
-    // Save the timer as a reminder in the database
-
     console.log('awaiting reminder');
     await reminderComponents.addReminder(
       user.id,
