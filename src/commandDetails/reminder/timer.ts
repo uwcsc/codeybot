@@ -1,4 +1,3 @@
-import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -18,8 +17,8 @@ type TimeUnit = keyof typeof TIME_UNITS;
 
 const timerExecuteCommand: SapphireMessageExecuteType = async (
   _client,
-  messageFromUser,
-  args,
+  _messageFromUser,
+  _args,
 ): Promise<SapphireMessageResponse> => {
   return Promise.resolve('Please use a subcommand: `/timer create`');
 };
@@ -39,7 +38,6 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
       totalSeconds += value * config.multiplier;
     }
   }
-  console.log('finished checking');
   if (providedTimes.length === 0) {
     return Promise.resolve('Please specify at least one time duration!');
   }
@@ -64,9 +62,7 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
   const now = new Date();
   const futureDateTime = new Date(now.getTime() + totalSeconds * 1000);
 
-  console.log('finished calculations');
   try {
-    console.log('awaiting reminder');
     await reminderComponents.addReminder(
       user.id,
       false,
@@ -80,7 +76,6 @@ const timerSetExecuteCommand: SapphireMessageExecuteType = async (
 📅 **Scheduled for:** <t:${Math.floor(futureDateTime.getTime() / 1000)}:F>`;
     return Promise.resolve(content);
   } catch (error) {
-    console.error('Failed to save timer reminder:', error);
     return Promise.resolve('Failed to set timer. Please try again.');
   }
 };
@@ -90,7 +85,7 @@ const timerDeleteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-  let ret = await genericDeleteResponse(_client, messageFromUser, args, false);
+  const ret = await genericDeleteResponse(_client, messageFromUser, args, false);
   return ret as SapphireMessageResponse;
 };
 
@@ -99,7 +94,7 @@ const timerViewCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-  let ret = await genericViewResponse(_client, messageFromUser, args, false);
+  const ret = await genericViewResponse(_client, messageFromUser, args, false);
   return ret as SapphireMessageResponse;
 };
 

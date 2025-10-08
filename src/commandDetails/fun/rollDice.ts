@@ -5,7 +5,7 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from '../../codeyCommand';
-import { getRandomIntFrom1 } from '../../utils/num';
+// import { getRandomIntFrom1 } from '../../utils/num';
 
 const rollDiceExecuteCommand: SapphireMessageExecuteType = (
   _client,
@@ -22,12 +22,11 @@ const rollDiceExecuteCommand: SapphireMessageExecuteType = (
   if (sides > SIDES_UPPER_BOUND) {
     return new Promise((resolve, _reject) => resolve("that's too many sides!"));
   }
-  const diceFace = getRandomIntFrom1(sides);
+  //   const diceFace = getRandomIntFrom1(sides);
   let userId: string;
   if ('author' in _messageFromUser) {
     userId = _messageFromUser.author.id;
   } else if ('user' in _messageFromUser) {
-    console.log("using user")
     userId = _messageFromUser.user.id;
   } else {
     userId = 'unknown';

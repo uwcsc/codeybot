@@ -1,4 +1,3 @@
-import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -105,7 +104,7 @@ const reminderCreateCommand: SapphireMessageExecuteType = async (
     const dateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/;
     const timeRegex = /^\d{1,2}:\d{2}$/;
 
-    let validationErrors = [];
+    const validationErrors = [];
 
     if (!dateRegex.test(date)) {
       validationErrors.push('Date must be in YYYY-MM-DD format');
@@ -125,8 +124,6 @@ const reminderCreateCommand: SapphireMessageExecuteType = async (
     const paddedTime = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
 
     const inputDateTime = new Date(`${paddedDate}T${paddedTime}:00`);
-    console.log(inputDateTime);
-    console.log(inputDateTime);
     const now = new Date();
 
     if (inputDateTime <= now) {
@@ -172,7 +169,7 @@ const reminderCreateCommand: SapphireMessageExecuteType = async (
 
     await modalSubmit.reply({ embeds: [outputEmbed], ephemeral: true });
   } catch (error) {
-    console.log('Modal submission timed out or was cancelled');
+    // Modal submission timed out or was cancelled
   }
 
   return '';
@@ -184,7 +181,7 @@ const reminderViewCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-  let ret = await genericViewResponse(_client, messageFromUser, args);
+  const ret = await genericViewResponse(_client, messageFromUser, args);
   return ret as SapphireMessageResponse;
 };
 
@@ -194,7 +191,7 @@ const reminderDeleteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args,
 ): Promise<SapphireMessageResponse> => {
-  let ret = await genericDeleteResponse(_client, messageFromUser, args);
+  const ret = await genericDeleteResponse(_client, messageFromUser, args);
   return ret as SapphireMessageResponse;
 };
 

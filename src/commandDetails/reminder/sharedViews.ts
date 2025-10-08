@@ -1,6 +1,7 @@
-import { SapphireMessageExecuteType, SapphireMessageResponse } from '../../codeyCommand';
+import { Command } from '@sapphire/framework';
+import { CodeyCommandArguments, SapphireMessageResponse } from '../../codeyCommand';
 import * as reminderComponents from '../../components/reminder/reminder';
-import { ChatInputCommandInteraction, Client, Message } from 'discord.js';
+import { CacheType, ChatInputCommandInteraction, Client, Message } from 'discord.js';
 import {
   ActionRowBuilder,
   Colors,
@@ -15,21 +16,19 @@ const getUser = (messageFromUser: Message | ChatInputCommandInteraction) => {
 
 export const genericViewResponse = async (
   _client: Client,
-  messageFromUser: any,
-  args: any,
-  is_reminder: boolean = true,
+  messageFromUser: Message<boolean> | Command.ChatInputCommandInteraction<CacheType>,
+  _args: CodeyCommandArguments,
+  is_reminder = true,
 ): Promise<SapphireMessageResponse> => {
   const user = getUser(messageFromUser);
 
-  let list = is_reminder
+  const list = is_reminder
     ? await reminderComponents.getReminders(user.id)
     : await reminderComponents.getTimers(user.id);
 
   const itemType = is_reminder ? 'reminders' : 'timers';
   const itemTypeCapitalized = is_reminder ? 'Reminders' : 'Timers';
   const emoji = is_reminder ? '📝' : '⏰';
-
-  console.log(`Fetching ${itemType} for user:`, user.id);
 
   if (!list || list.length === 0) {
     return `📭 You have no ${itemType} set.`;
@@ -93,13 +92,12 @@ export const genericViewResponse = async (
 // Delete a reminder
 export const genericDeleteResponse = async (
   _client: Client,
-  messageFromUser: any,
-  args: any,
-  is_reminder: boolean = true,
+  messageFromUser: Message<boolean> | Command.ChatInputCommandInteraction<CacheType>,
+  _args: CodeyCommandArguments,
+  is_reminder = true,
 ): Promise<SapphireMessageResponse> => {
   const interaction = messageFromUser as ChatInputCommandInteraction;
   const user = getUser(messageFromUser);
-  console.log(`clicked delete ${is_reminder ? 'reminders' : 'timers'}!`);
 
   // Immediately defer the reply to prevent timeout
   await interaction.deferReply({ ephemeral: true });
@@ -111,8 +109,6 @@ export const genericDeleteResponse = async (
 
   const itemType = is_reminder ? 'reminder' : 'timer';
   const itemTypeCapitalized = is_reminder ? 'Reminder' : 'Timer';
-
-  console.log(`${itemType}s:`, items);
 
   if (!items || items.length === 0) {
     const errorEmbed = new EmbedBuilder()
@@ -176,24 +172,4 @@ export const genericDeleteResponse = async (
     await interaction.editReply({ embeds: [timeoutEmbed], components: [] });
   }
   return '';
-};
-
-// Test command (just returns the user ID for now)
-const reminderExecuteCommand: SapphireMessageExecuteType = async (
-  _client,
-  messageFromUser,
-  args,
-): Promise<SapphireMessageResponse> => {
-  console.log('executing here!');
-  return `User id is ${messageFromUser.client.id}`;
-};
-
-// View reminders
-const reminderViewCommand: SapphireMessageExecuteType = async (
-  _client,
-  messageFromUser,
-  args,
-): Promise<SapphireMessageResponse> => {
-  let ret = await genericViewResponse(_client, messageFromUser, args);
-  return ret as SapphireMessageResponse;
 };

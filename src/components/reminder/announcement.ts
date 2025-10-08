@@ -1,8 +1,7 @@
-import _ from 'lodash';
 import { openDB } from '../db';
 
 export interface Announcement {
-  id: any;
+  id: number;
   user_id: string;
   title: string;
   created_at: string;
@@ -77,5 +76,4 @@ export const addAnnouncement = async (
       0,
     );
   }
-  console.log("finished announcements")
 };

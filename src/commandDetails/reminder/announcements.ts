@@ -1,4 +1,3 @@
-import { container } from '@sapphire/framework';
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -125,7 +124,6 @@ const announcementCreateCommand: SapphireMessageExecuteType = async (
       time: 300000, // 5 minutes timeout
       filter: (i) => i.customId === 'announcement-modal' && i.user.id === interaction.user.id,
     });
-    console.log('submitted modal!');
 
     // Match these field IDs with the customIds set on the input fields
     const title = modalSubmit.fields.getTextInputValue('announcement-title').trim();
@@ -137,7 +135,7 @@ const announcementCreateCommand: SapphireMessageExecuteType = async (
     const dateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/;
     const timeRegex = /^\d{1,2}:\d{2}$/;
 
-    let validationErrors = [];
+    const validationErrors = [];
 
     if (!dateRegex.test(date)) {
       validationErrors.push('Date must be in YYYY-MM-DD format');
@@ -157,7 +155,6 @@ const announcementCreateCommand: SapphireMessageExecuteType = async (
     const paddedTime = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
 
     const inputDateTime = new Date(`${paddedDate}T${paddedTime}:00`);
-    console.log(inputDateTime);
     const now = new Date();
 
     if (inputDateTime <= now) {
@@ -202,7 +199,7 @@ const announcementCreateCommand: SapphireMessageExecuteType = async (
       allowedMentions: { parse: ['users', 'roles'] },
     });
   } catch (error) {
-    console.log('Modal submission timed out or was cancelled');
+    return 'Error';
   }
   return '';
 };
@@ -210,7 +207,7 @@ const announcementCreateCommand: SapphireMessageExecuteType = async (
 const announcementExecuteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
-  args,
+  _args,
 ): Promise<SapphireMessageResponse> => {
   return `User id is ${messageFromUser.client.id}`;
 };
@@ -218,7 +215,7 @@ const announcementExecuteCommand: SapphireMessageExecuteType = async (
 const announcementViewCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
-  args,
+  _args,
 ): Promise<SapphireMessageResponse> => {
   const interaction = messageFromUser as ChatInputCommandInteraction;
   const user = getUser(messageFromUser);
@@ -350,18 +347,15 @@ const announcementViewCommand: SapphireMessageExecuteType = async (
 const announcementDeleteCommand: SapphireMessageExecuteType = async (
   _client,
   messageFromUser,
-  args,
+  _args,
 ): Promise<SapphireMessageResponse> => {
   const interaction = messageFromUser as ChatInputCommandInteraction;
   const user = getUser(messageFromUser);
-  console.log(`clicked delete announcements!`);
 
   // Defering to avoid timeout
   await interaction.deferReply({ ephemeral: true });
 
   const announcements = await announcementComponents.getAnnouncements();
-
-  console.log(`announcements:`, announcements);
 
   if (!announcements || announcements.length === 0) {
     const errorEmbed = new EmbedBuilder()

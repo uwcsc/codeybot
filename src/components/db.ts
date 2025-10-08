@@ -234,7 +234,7 @@ const initRemindersTable = async (db: Database): Promise<void> => {
       status INTEGER NOT NULL DEFAULT 0
   )
   `);
-}
+};
 
 const initAnnouncementsTable = async (db: Database): Promise<void> => {
   await db.run(`
@@ -249,7 +249,7 @@ const initAnnouncementsTable = async (db: Database): Promise<void> => {
       status INTEGER NOT NULL DEFAULT 0
   )
   `);
-}
+};
 
 const initTables = async (db: Database): Promise<void> => {
   //initialize all relevant tables

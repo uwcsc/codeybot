@@ -1,5 +1,5 @@
 import { Command } from '@sapphire/framework';
-import { CodeyCommand } from '../../codeyCommand'
+import { CodeyCommand } from '../../codeyCommand';
 import { announcementCommandDetails } from '../../commandDetails/reminder/announcements';
 
 export class AnnouncementCommand extends CodeyCommand {
