@@ -222,6 +222,45 @@ const initPeopleCompaniesTable = async (db: Database): Promise<void> => {
       )`);
 };
 
+const initPhraseUsersTable = async (db: Database): Promise<void> => {
+  // Leaving here for future debugging
+  // await db.run(`DROP TABLE IF EXISTS phrase_users`);
+  await db.run(`
+    CREATE TABLE IF NOT EXISTS phrase_users (
+      user_id VARCHAR(255) NOT NULL,
+      guild_id VARCHAR(255) NOT NULL,
+      opted_in_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      username TEXT NOT NULL,
+      last_message_sync TIMESTAMP DEFAULT NULL,
+      PRIMARY KEY (user_id, guild_id)
+    )`);
+};
+
+const initPhraseMessagesTable = async (db: Database): Promise<void> => {
+  // Leaving here for future debugging
+  // await db.run(`DROP TABLE IF EXISTS phrase_messages`);
+  // await db.run(`DROP INDEX IF EXISTS ix_phrase_messages_user_id`);
+  // await db.run(`DROP INDEX IF EXISTS ix_phrase_messages_message_timestamp`);
+  await db.run(`
+    CREATE TABLE IF NOT EXISTS phrase_messages (
+      id INTEGER PRIMARY KEY NOT NULL,
+      user_id VARCHAR(255) NOT NULL,
+      guild_id VARCHAR(255) NOT NULL,
+      message_content TEXT NOT NULL,
+      channel_id VARCHAR(255) NOT NULL,
+      message_id VARCHAR(255) UNIQUE NOT NULL,
+      message_timestamp TIMESTAMP NOT NULL,
+      collected_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(user_id, guild_id) REFERENCES phrase_users(user_id, guild_id) ON DELETE CASCADE
+    )`);
+  await db.run(
+    `CREATE INDEX IF NOT EXISTS ix_phrase_messages_user_guild ON phrase_messages (user_id, guild_id)`,
+  );
+  await db.run(
+    `CREATE INDEX IF NOT EXISTS ix_phrase_messages_message_timestamp ON phrase_messages (message_timestamp)`,
+  );
+};
+
 const initTables = async (db: Database): Promise<void> => {
   //initialize all relevant tables
   await initCoffeeChatTables(db);
@@ -236,6 +275,8 @@ const initTables = async (db: Database): Promise<void> => {
   await initResumePreview(db);
   await initCompaniesTable(db);
   await initPeopleCompaniesTable(db);
+  await initPhraseUsersTable(db);
+  await initPhraseMessagesTable(db);
 };
 
 export const openDB = async (): Promise<Database> => {

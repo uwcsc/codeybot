@@ -272,6 +272,36 @@
 - **Options:** None
 - **Subcommands:** None
 
+# PHRASE
+## phrase
+- **Aliases:** None
+- **Description:** Handle phrase functions.
+- **Examples:**<br>`.phrase signup`<br>`.phrase s<br>`.phrase create`<br>`.phrase c<br>`.phrase create @Codey`<br>`.phrase c @Codey<br>`.phrase quit<br>`.phrase q`
+- **Options:** None
+- **Subcommands:** `signup`, `create`, `quit`
+
+## phrase create
+- **Aliases:** `c`
+- **Description:** Generate phrases of you!
+- **Examples:**<br>`.phrase create`<br>`.phrase c`<br>`.phrase create @username`<br>`.phrase c @username`
+- **Options:** 
+    - ``user``: User to generate a phrase for (defaults to yourself)
+- **Subcommands:** None
+
+## phrase quit
+- **Aliases:** `q`
+- **Description:** Opt out of phrase generation
+- **Examples:**<br>`.phrase quit`<br>`.phrase q`
+- **Options:** None
+- **Subcommands:** None
+
+## phrase signup
+- **Aliases:** `s`
+- **Description:** Sign up to generate phrases of you!
+- **Examples:**<br>`.phrase signup`<br>`.phrase s`
+- **Options:** None
+- **Subcommands:** None
+
 # PROFILE
 ## profile
 - **Aliases:** `userprofile`, `aboutme`
