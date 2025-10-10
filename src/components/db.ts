@@ -223,6 +223,7 @@ const initPeopleCompaniesTable = async (db: Database): Promise<void> => {
 };
 
 const initPhraseUsersTable = async (db: Database): Promise<void> => {
+  // Leaving here for future debugging
   // await db.run(`DROP TABLE IF EXISTS phrase_users`);
   await db.run(`
     CREATE TABLE IF NOT EXISTS phrase_users (
@@ -236,6 +237,7 @@ const initPhraseUsersTable = async (db: Database): Promise<void> => {
 };
 
 const initPhraseMessagesTable = async (db: Database): Promise<void> => {
+  // Leaving here for future debugging
   // await db.run(`DROP TABLE IF EXISTS phrase_messages`);
   // await db.run(`DROP INDEX IF EXISTS ix_phrase_messages_user_id`);
   // await db.run(`DROP INDEX IF EXISTS ix_phrase_messages_message_timestamp`);

@@ -5,6 +5,7 @@ import _ from 'lodash';
 import fetch from 'node-fetch';
 import { alertMatches } from '../components/coffeeChat';
 import { alertUsers } from './officeOpenDM';
+import { performDailyMessageSync, performMonthlyCleanup } from './phrase';
 import { vars } from '../config';
 import { DEFAULT_EMBED_COLOUR } from '../utils/embeds';
 import { getMatch, writeHistoricMatches } from '../components/coffeeChat';
@@ -49,6 +50,8 @@ export const initCrons = async (client: Client): Promise<void> => {
   createCoffeeChatCron(client).start();
   createOfficeStatusCron(client).start();
   assignCodeyRoleForLeaderboard(client).start();
+  createPhraseMessageSyncCron(client).start();
+  createPhraseMonthlyCleanupCron().start();
 };
 
 interface officeStatus {
@@ -217,4 +220,26 @@ export const assignCodeyRoleForLeaderboard = (client: Client): CronJob =>
         }
       });
     });
+  });
+
+// Daily phrase message sync - runs at 12:00 AM every day
+export const createPhraseMessageSyncCron = (client: Client): CronJob =>
+  new CronJob('0 0 0 * * *', async function () {
+    logger.info('Starting daily phrase message sync');
+    try {
+      await performDailyMessageSync(client);
+    } catch (error) {
+      logger.error('Error in daily phrase message sync:', error);
+    }
+  });
+
+// Monthly phrase cleanup - runs at 12:00 AM on the 1st day of every month
+export const createPhraseMonthlyCleanupCron = (): CronJob =>
+  new CronJob('0 0 0 1 * *', async function () {
+    logger.info('Starting monthly phrase message cleanup');
+    try {
+      await performMonthlyCleanup();
+    } catch (error) {
+      logger.error('Error in monthly phrase cleanup:', error);
+    }
   });

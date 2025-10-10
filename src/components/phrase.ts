@@ -66,6 +66,7 @@ export const collectUserMessages = async (
   userId: string,
   guildId: string,
   username: string,
+  sinceDate?: Date | null,
 ): Promise<number> => {
   const db = await openDB();
   let totalCollected = 0;
@@ -77,9 +78,14 @@ export const collectUserMessages = async (
       return 0;
     }
 
-    // Calculate cutoff date (1 year ago from now)
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    // Determine cutoff date: use provided date, or default to 1 year ago
+    const cutoffDate =
+      sinceDate ||
+      (() => {
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        return oneYearAgo;
+      })();
 
     // Get all text channels in the guild
     const textChannels = guild.channels.cache.filter(
@@ -96,8 +102,9 @@ export const collectUserMessages = async (
 
         let lastMessageId: string | undefined;
         let hasMoreMessages = true;
+        let foundOldMessage = false;
 
-        while (hasMoreMessages) {
+        while (hasMoreMessages && !foundOldMessage) {
           const options: { limit: number; before?: string } = { limit: 100 };
           if (lastMessageId) {
             options.before = lastMessageId;
@@ -110,7 +117,7 @@ export const collectUserMessages = async (
             break;
           }
 
-          // Filter messages from the specific user within the last year
+          // Filter messages from the specific user within the cutoff date
           const userMessages = messages.filter(
             (msg: Message) =>
               msg.author.id === userId &&
@@ -118,13 +125,13 @@ export const collectUserMessages = async (
               msg.content.trim().length > 0 &&
               !msg.author.bot &&
               !msg.content.trim().startsWith('.') &&
-              msg.createdAt >= oneYearAgo, // Only messages from last year
+              msg.createdAt >= cutoffDate, // Only messages after cutoff
           );
 
-          // Check if we've gone past the 1-year cutoff
+          // Check if we've gone past the cutoff date
           const oldestMessage = messages.last();
-          if (oldestMessage && oldestMessage.createdAt < oneYearAgo) {
-            hasMoreMessages = false; // Stop fetching older messages
+          if (oldestMessage && oldestMessage.createdAt < cutoffDate) {
+            foundOldMessage = true;
           }
 
           // Insert messages into database
@@ -161,7 +168,7 @@ export const collectUserMessages = async (
 
           // Set up for next iteration
           const lastMessage = messages.last();
-          if (lastMessage && messages.size === 100) {
+          if (lastMessage && messages.size === 100 && !foundOldMessage) {
             lastMessageId = lastMessage.id;
           } else {
             hasMoreMessages = false;
@@ -183,9 +190,12 @@ export const collectUserMessages = async (
       guildId,
     );
 
-    logger.info(
-      `Collected ${totalCollected} messages for user ${username} (${userId}) in guild ${guildId}`,
-    );
+    if (totalCollected > 0) {
+      logger.info(
+        `Collected ${totalCollected} messages for user ${username} (${userId}) in guild ${guildId}`,
+      );
+    }
+
     return totalCollected;
   } catch (error) {
     logger.error('Error in collectUserMessages:', error);
@@ -242,26 +252,35 @@ export const signUpUserWithCollection = async (
 export const generateMarkovPhrase = (messages: string[], maxLength = 50): string => {
   if (messages.length === 0) return "I don't have anything to say!";
 
+  // Combine all messages into one large corpus with sentence boundary markers
+  // This allows the chain to cross between different original messages
+  const combinedText = messages.join(' <SENTENCE_END> ');
+  const allWords = combinedText
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0);
+
+  if (allWords.length < 3) return "I don't have enough words to work with!";
+
   // Build both trigram and bigram transitions for fallback
   const trigramTransitions: Map<string, string[]> = new Map();
   const bigramTransitions: Map<string, string[]> = new Map();
   const trigramStarters: string[] = [];
   const bigramStarters: string[] = [];
 
-  for (const message of messages) {
-    const words = message
-      .trim()
-      .split(/\s+/)
-      .filter((word) => word.length > 0);
-    if (words.length < 2) continue;
+  // Build trigram data
+  if (allWords.length >= 3) {
+    for (let i = 0; i < allWords.length - 2; i++) {
+      const currentTriplet = `${allWords[i]} ${allWords[i + 1]} ${allWords[i + 2]}`;
 
-    // Build trigram data if we have enough words
-    if (words.length >= 3) {
-      trigramStarters.push(`${words[0]} ${words[1]} ${words[2]}`);
-      
-      for (let i = 0; i < words.length - 3; i++) {
-        const currentTriplet = `${words[i]} ${words[i + 1]} ${words[i + 2]}`;
-        const nextWord = words[i + 3];
+      // Skip triplets that contain sentence boundaries for starters
+      if (!currentTriplet.includes('<SENTENCE_END>')) {
+        trigramStarters.push(currentTriplet);
+      }
+
+      // Build transitions (including across sentence boundaries, but filter them out later)
+      if (i < allWords.length - 3) {
+        const nextWord = allWords[i + 3];
 
         if (!trigramTransitions.has(currentTriplet)) {
           trigramTransitions.set(currentTriplet, []);
@@ -269,13 +288,20 @@ export const generateMarkovPhrase = (messages: string[], maxLength = 50): string
         trigramTransitions.get(currentTriplet)!.push(nextWord);
       }
     }
+  }
 
-    // Always build bigram data as fallback
-    bigramStarters.push(`${words[0]} ${words[1]}`);
-    
-    for (let i = 0; i < words.length - 2; i++) {
-      const currentPair = `${words[i]} ${words[i + 1]}`;
-      const nextWord = words[i + 2];
+  // Build bigram data as fallback
+  for (let i = 0; i < allWords.length - 1; i++) {
+    const currentPair = `${allWords[i]} ${allWords[i + 1]}`;
+
+    // Skip pairs that contain sentence boundaries for starters
+    if (!currentPair.includes('<SENTENCE_END>')) {
+      bigramStarters.push(currentPair);
+    }
+
+    // Build transitions
+    if (i < allWords.length - 2) {
+      const nextWord = allWords[i + 2];
 
       if (!bigramTransitions.has(currentPair)) {
         bigramTransitions.set(currentPair, []);
@@ -303,16 +329,52 @@ export const generateMarkovPhrase = (messages: string[], maxLength = 50): string
 
   while (iterations < maxIterations) {
     let possibleNext = transitions.get(currentContext);
-    
+
     // Fallback to bigrams if trigram fails
     if (usesTrigrams && (!possibleNext || possibleNext.length === 0)) {
       const bigramContext = result.slice(-2).join(' ');
       possibleNext = bigramTransitions.get(bigramContext);
     }
-    
+
     if (!possibleNext || possibleNext.length === 0) break;
 
-    const nextWord = possibleNext[Math.floor(Math.random() * possibleNext.length)];
+    // Filter out sentence boundary markers and select next word
+    const validNext = possibleNext.filter((word) => word !== '<SENTENCE_END>');
+
+    // If we hit a sentence boundary, we have a chance to either:
+    // 1. End the current phrase (30% chance)
+    // 2. Jump to a new random context (20% chance)
+    // 3. Continue with current context (50% chance)
+    if (validNext.length === 0 || possibleNext.includes('<SENTENCE_END>')) {
+      const rand = Math.random();
+      if (rand < 0.3 && result.length >= 8) {
+        // End phrase naturally
+        break;
+      } else if (rand < 0.5 && result.length >= 5) {
+        // Jump to new context to mix things up
+        const newContext = starters[Math.floor(Math.random() * starters.length)];
+        const newWords = newContext.split(' ').slice(-contextSize);
+
+        // Only add words that aren't already at the end to avoid repetition
+        const lastWords = result.slice(-contextSize);
+        if (newWords.join(' ') !== lastWords.join(' ')) {
+          result.push(...newWords);
+          currentContext = newWords.join(' ');
+        }
+        iterations++;
+        continue;
+      }
+      // Otherwise try to continue with available valid words
+      if (validNext.length === 0) break;
+    }
+
+    const nextWord =
+      validNext.length > 0
+        ? validNext[Math.floor(Math.random() * validNext.length)]
+        : possibleNext[Math.floor(Math.random() * possibleNext.length)];
+
+    if (nextWord === '<SENTENCE_END>') break;
+
     result.push(nextWord);
 
     // Update current context (slide the window)
@@ -321,27 +383,31 @@ export const generateMarkovPhrase = (messages: string[], maxLength = 50): string
 
     // Stop at natural sentence endings (but ensure minimum length)
     if (nextWord.match(/[.!?]$/) && result.length >= 8) break;
-    
+
     // Better connector handling - only stop if we're at a natural pause
     if (result.length > 12) {
       // Check if this is a sentence starter that would indicate a new thought
-      if (nextWord.match(/^(But|However|Therefore|Meanwhile|Additionally|Furthermore|Moreover|Nevertheless|Nonetheless)$/i)) {
+      if (
+        nextWord.match(
+          /^(But|However|Therefore|Meanwhile|Additionally|Furthermore|Moreover|Nevertheless|Nonetheless)$/i,
+        )
+      ) {
         // Look ahead to see if we can complete the current thought
-        const nextContext = usesTrigrams ? 
-          `${result.slice(-2).join(' ')} ${nextWord}` : 
-          `${result.slice(-1)[0]} ${nextWord}`;
-        
-        const lookahead = usesTrigrams ? 
-          trigramTransitions.get(nextContext) : 
-          bigramTransitions.get(nextContext);
-        
+        const nextContext = usesTrigrams
+          ? `${result.slice(-2).join(' ')} ${nextWord}`
+          : `${result.slice(-1)[0]} ${nextWord}`;
+
+        const lookahead = usesTrigrams
+          ? trigramTransitions.get(nextContext)
+          : bigramTransitions.get(nextContext);
+
         // If there's no good continuation after the connector, stop before it
         if (!lookahead || lookahead.length === 0) {
           result.pop(); // Remove the connector
           break;
         }
       }
-      
+
       // Stop at coordinating conjunctions only if phrase is getting very long
       if (result.length > 20 && nextWord.match(/^(And|Or|So|Then|Now|Well)$/i)) {
         result.pop(); // Remove the connector
@@ -352,37 +418,47 @@ export const generateMarkovPhrase = (messages: string[], maxLength = 50): string
     iterations++;
   }
 
+  // Clean up the result array to remove any sentence boundary markers that might have slipped through
+  const cleanedResult = result.filter((word) => word !== '<SENTENCE_END>');
+
   // Ensure we have a reasonable ending
-  let finalPhrase = result.join(' ');
-  
+  let finalPhrase = cleanedResult.join(' ');
+
   // Remove trailing connectors that make the phrase feel incomplete
   const words = finalPhrase.split(' ');
-  while (words.length > 3 && words[words.length - 1].match(/^(and|or|but|so|then|now|well|also|too|though|yet|however)$/i)) {
+  while (
+    words.length > 3 &&
+    words[words.length - 1].match(/^(and|or|but|so|then|now|well|also|too|though|yet|however)$/i)
+  ) {
     words.pop();
     finalPhrase = words.join(' ');
   }
-  
+
   // If phrase ends abruptly, try to find a better ending point
   if (!finalPhrase.match(/[.!?]$/) && words.length > 3) {
     // Look for the last reasonable stopping point (punctuation or common endings)
     for (let i = words.length - 1; i >= Math.max(3, words.length - 5); i--) {
       const word = words[i];
-      if (word.match(/[.!?]$/) || 
-          word.match(/^(too|though|yet|now|then|here|there|well|right|okay|ok)$/i)) {
+      if (
+        word.match(/[.!?]$/) ||
+        word.match(/^(too|though|yet|now|then|here|there|well|right|okay|ok)$/i)
+      ) {
         finalPhrase = words.slice(0, i + 1).join(' ');
         break;
       }
     }
   }
-  
+
   // Add punctuation if still missing
   if (!finalPhrase.match(/[.!?]$/)) {
     // Add appropriate punctuation based on content
-    if (finalPhrase.toLowerCase().includes('what') || 
-        finalPhrase.toLowerCase().includes('how') || 
-        finalPhrase.toLowerCase().includes('why') ||
-        finalPhrase.toLowerCase().includes('when') ||
-        finalPhrase.toLowerCase().includes('where')) {
+    if (
+      finalPhrase.toLowerCase().includes('what') ||
+      finalPhrase.toLowerCase().includes('how') ||
+      finalPhrase.toLowerCase().includes('why') ||
+      finalPhrase.toLowerCase().includes('when') ||
+      finalPhrase.toLowerCase().includes('where')
+    ) {
       finalPhrase += '?';
     } else if (finalPhrase.match(/wow|great|awesome|amazing|cool|nice/i)) {
       finalPhrase += '!';
@@ -392,4 +468,79 @@ export const generateMarkovPhrase = (messages: string[], maxLength = 50): string
   }
 
   return finalPhrase;
+};
+
+// Daily sync function to update all users' message data
+export const performDailyMessageSync = async (client: Client): Promise<void> => {
+  const db = await openDB();
+
+  try {
+    logger.info('Starting daily message sync for all phrase users');
+
+    // Get all opted-in users
+    const users = await db.all(
+      'SELECT user_id, guild_id, username, last_message_sync FROM phrase_users',
+    );
+
+    let totalUsersProcessed = 0;
+    let totalMessagesCollected = 0;
+
+    for (const user of users) {
+      try {
+        const lastSync = user.last_message_sync ? new Date(user.last_message_sync) : null;
+        const guild = client.guilds.cache.get(user.guild_id);
+
+        if (!guild) {
+          logger.warn(`Guild ${user.guild_id} not found for user ${user.username}`);
+          continue;
+        }
+
+        // Collect new messages since last sync using the unified function
+        const messagesCollected = await collectUserMessages(
+          client,
+          user.user_id,
+          user.guild_id,
+          user.username,
+          lastSync,
+        );
+
+        totalMessagesCollected += messagesCollected;
+        totalUsersProcessed++;
+
+        // Small delay to respect rate limits
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        logger.error(`Error syncing messages for user ${user.username}:`, error);
+      }
+    }
+
+    logger.info(
+      `Daily sync complete: processed ${totalUsersProcessed} users, collected ${totalMessagesCollected} messages`,
+    );
+  } catch (error) {
+    logger.error('Error in daily message sync:', error);
+  }
+};
+
+// Monthly cleanup function to remove messages older than 1 year
+export const performMonthlyCleanup = async (): Promise<void> => {
+  const db = await openDB();
+
+  try {
+    logger.info('Starting monthly message cleanup');
+
+    // Calculate cutoff date (1 year ago)
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    // Delete old messages
+    const result = await db.run(
+      'DELETE FROM phrase_messages WHERE message_timestamp < ?',
+      oneYearAgo.toISOString(),
+    );
+
+    logger.info(`Monthly cleanup complete: removed ${result.changes} old messages`);
+  } catch (error) {
+    logger.error('Error in monthly cleanup:', error);
+  }
 };
