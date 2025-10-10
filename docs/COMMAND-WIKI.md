@@ -304,6 +304,28 @@
     - ``description``: The description of the customization to be set for the user.
 - **Subcommands:** None
 
+# REMINDER
+## announcement
+- **Aliases:** None
+- **Description:** Set up an announcement!
+- **Examples:**<br>  `/announcement` - Opens an  setup form
+- **Options:** None
+- **Subcommands:** `create`, `name`, `description`, `executeCommand`, `isCommandResponseEphemeral`, `options`, `name`, `description`, `type`, `required`
+
+## reminder
+- **Aliases:** None
+- **Description:** Set up a reminder for anything you want!
+- **Examples:**<br>  `/reminder` - Opens an interactive reminder setup form
+- **Options:** None
+- **Subcommands:** `create`, `name`, `description`, `executeCommand`, `isCommandResponseEphemeral`, `options`, `name`, `description`, `type`, `required`
+
+## timer
+- **Aliases:** None
+- **Description:** Set up a timer for anything you want!
+- **Examples:**<br>  `/timer value minutes:5`<br>  `/timer value hours:2 minutes:30`<br>  `/timer value minutes:10 message:Take a break!`
+- **Options:** None
+- **Subcommands:** `create`, `name`, `description`, `executeCommand`, `isCommandResponseEphemeral`, `options`, `name`, `description`, `required`, `type`
+
 # SUGGESTION 
 ## suggestion 
 - **Aliases:** ``suggest``
