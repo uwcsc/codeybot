@@ -57,7 +57,8 @@ export const getUserMessages = async (userId: string, guildId: string): Promise<
     userId,
     guildId,
   );
-  return rows.map((row) => row.message_content);
+  // Sanitize messages when retrieving them (handles legacy data)
+  return rows.map((row) => sanitizeMessageContent(row.message_content));
 };
 
 export const collectUserMessages = async (
@@ -238,52 +239,157 @@ export const signUpUserWithCollection = async (
   }
 };
 
-export const generateMarkovPhrase = (messages: string[], maxLength = 100): string => {
+export const generateMarkovPhrase = (messages: string[], maxLength = 50): string => {
   if (messages.length === 0) return "I don't have anything to say!";
 
-  // Build word transitions map
-  const transitions: Map<string, string[]> = new Map();
-  const starters: string[] = [];
+  // Build both trigram and bigram transitions for fallback
+  const trigramTransitions: Map<string, string[]> = new Map();
+  const bigramTransitions: Map<string, string[]> = new Map();
+  const trigramStarters: string[] = [];
+  const bigramStarters: string[] = [];
 
   for (const message of messages) {
     const words = message
       .trim()
       .split(/\s+/)
       .filter((word) => word.length > 0);
-    if (words.length === 0) continue;
+    if (words.length < 2) continue;
 
-    // Track sentence starters
-    starters.push(words[0]);
+    // Build trigram data if we have enough words
+    if (words.length >= 3) {
+      trigramStarters.push(`${words[0]} ${words[1]} ${words[2]}`);
+      
+      for (let i = 0; i < words.length - 3; i++) {
+        const currentTriplet = `${words[i]} ${words[i + 1]} ${words[i + 2]}`;
+        const nextWord = words[i + 3];
 
-    // Build transitions
-    for (let i = 0; i < words.length - 1; i++) {
-      const currentWord = words[i];
-      const nextWord = words[i + 1];
-
-      if (!transitions.has(currentWord)) {
-        transitions.set(currentWord, []);
+        if (!trigramTransitions.has(currentTriplet)) {
+          trigramTransitions.set(currentTriplet, []);
+        }
+        trigramTransitions.get(currentTriplet)!.push(nextWord);
       }
-      transitions.get(currentWord)!.push(nextWord);
+    }
+
+    // Always build bigram data as fallback
+    bigramStarters.push(`${words[0]} ${words[1]}`);
+    
+    for (let i = 0; i < words.length - 2; i++) {
+      const currentPair = `${words[i]} ${words[i + 1]}`;
+      const nextWord = words[i + 2];
+
+      if (!bigramTransitions.has(currentPair)) {
+        bigramTransitions.set(currentPair, []);
+      }
+      bigramTransitions.get(currentPair)!.push(nextWord);
     }
   }
+
+  // Prefer trigrams but fallback to bigrams if needed
+  const usesTrigrams = trigramStarters.length > 0;
+  const transitions = usesTrigrams ? trigramTransitions : bigramTransitions;
+  const starters = usesTrigrams ? trigramStarters : bigramStarters;
+  const contextSize = usesTrigrams ? 3 : 2;
 
   if (starters.length === 0) return "I don't have anything to say!";
 
   // Generate phrase
   const result: string[] = [];
-  let currentWord = starters[Math.floor(Math.random() * starters.length)];
-  result.push(currentWord);
+  let currentContext = starters[Math.floor(Math.random() * starters.length)];
+  const startWords = currentContext.split(' ');
+  result.push(...startWords);
 
-  for (let i = 0; i < maxLength && transitions.has(currentWord); i++) {
-    const possibleNext = transitions.get(currentWord)!;
-    if (possibleNext.length === 0) break;
+  let iterations = 0;
+  const maxIterations = Math.min(maxLength - contextSize, 40);
 
-    currentWord = possibleNext[Math.floor(Math.random() * possibleNext.length)];
-    result.push(currentWord);
+  while (iterations < maxIterations) {
+    let possibleNext = transitions.get(currentContext);
+    
+    // Fallback to bigrams if trigram fails
+    if (usesTrigrams && (!possibleNext || possibleNext.length === 0)) {
+      const bigramContext = result.slice(-2).join(' ');
+      possibleNext = bigramTransitions.get(bigramContext);
+    }
+    
+    if (!possibleNext || possibleNext.length === 0) break;
 
-    // Stop at sentence endings
-    if (currentWord.match(/[.!?]$/)) break;
+    const nextWord = possibleNext[Math.floor(Math.random() * possibleNext.length)];
+    result.push(nextWord);
+
+    // Update current context (slide the window)
+    const lastWords = result.slice(-contextSize);
+    currentContext = lastWords.join(' ');
+
+    // Stop at natural sentence endings (but ensure minimum length)
+    if (nextWord.match(/[.!?]$/) && result.length >= 8) break;
+    
+    // Better connector handling - only stop if we're at a natural pause
+    if (result.length > 12) {
+      // Check if this is a sentence starter that would indicate a new thought
+      if (nextWord.match(/^(But|However|Therefore|Meanwhile|Additionally|Furthermore|Moreover|Nevertheless|Nonetheless)$/i)) {
+        // Look ahead to see if we can complete the current thought
+        const nextContext = usesTrigrams ? 
+          `${result.slice(-2).join(' ')} ${nextWord}` : 
+          `${result.slice(-1)[0]} ${nextWord}`;
+        
+        const lookahead = usesTrigrams ? 
+          trigramTransitions.get(nextContext) : 
+          bigramTransitions.get(nextContext);
+        
+        // If there's no good continuation after the connector, stop before it
+        if (!lookahead || lookahead.length === 0) {
+          result.pop(); // Remove the connector
+          break;
+        }
+      }
+      
+      // Stop at coordinating conjunctions only if phrase is getting very long
+      if (result.length > 20 && nextWord.match(/^(And|Or|So|Then|Now|Well)$/i)) {
+        result.pop(); // Remove the connector
+        break;
+      }
+    }
+
+    iterations++;
   }
 
-  return result.join(' ');
+  // Ensure we have a reasonable ending
+  let finalPhrase = result.join(' ');
+  
+  // Remove trailing connectors that make the phrase feel incomplete
+  const words = finalPhrase.split(' ');
+  while (words.length > 3 && words[words.length - 1].match(/^(and|or|but|so|then|now|well|also|too|though|yet|however)$/i)) {
+    words.pop();
+    finalPhrase = words.join(' ');
+  }
+  
+  // If phrase ends abruptly, try to find a better ending point
+  if (!finalPhrase.match(/[.!?]$/) && words.length > 3) {
+    // Look for the last reasonable stopping point (punctuation or common endings)
+    for (let i = words.length - 1; i >= Math.max(3, words.length - 5); i--) {
+      const word = words[i];
+      if (word.match(/[.!?]$/) || 
+          word.match(/^(too|though|yet|now|then|here|there|well|right|okay|ok)$/i)) {
+        finalPhrase = words.slice(0, i + 1).join(' ');
+        break;
+      }
+    }
+  }
+  
+  // Add punctuation if still missing
+  if (!finalPhrase.match(/[.!?]$/)) {
+    // Add appropriate punctuation based on content
+    if (finalPhrase.toLowerCase().includes('what') || 
+        finalPhrase.toLowerCase().includes('how') || 
+        finalPhrase.toLowerCase().includes('why') ||
+        finalPhrase.toLowerCase().includes('when') ||
+        finalPhrase.toLowerCase().includes('where')) {
+      finalPhrase += '?';
+    } else if (finalPhrase.match(/wow|great|awesome|amazing|cool|nice/i)) {
+      finalPhrase += '!';
+    } else {
+      finalPhrase += '.';
+    }
+  }
+
+  return finalPhrase;
 };
