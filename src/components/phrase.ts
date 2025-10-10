@@ -76,6 +76,10 @@ export const collectUserMessages = async (
       return 0;
     }
 
+    // Calculate cutoff date (1 year ago from now)
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
     // Get all text channels in the guild
     const textChannels = guild.channels.cache.filter(
       (channel) => channel.isTextBased() && channel.type === 0, // GUILD_TEXT
@@ -105,15 +109,22 @@ export const collectUserMessages = async (
             break;
           }
 
-          // Filter messages from the specific user
+          // Filter messages from the specific user within the last year
           const userMessages = messages.filter(
             (msg: Message) =>
               msg.author.id === userId &&
               msg.content &&
               msg.content.trim().length > 0 &&
               !msg.author.bot &&
-              !msg.content.trim().startsWith('.'),
+              !msg.content.trim().startsWith('.') &&
+              msg.createdAt >= oneYearAgo, // Only messages from last year
           );
+
+          // Check if we've gone past the 1-year cutoff
+          const oldestMessage = messages.last();
+          if (oldestMessage && oldestMessage.createdAt < oneYearAgo) {
+            hasMoreMessages = false; // Stop fetching older messages
+          }
 
           // Insert messages into database
           for (const [, message] of userMessages) {
