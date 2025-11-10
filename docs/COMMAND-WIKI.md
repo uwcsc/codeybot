@@ -304,6 +304,35 @@
     - ``description``: The description of the customization to be set for the user.
 - **Subcommands:** None
 
+# UWFLOW
+## uwflow
+- **Aliases:** None
+- **Description:** Handle UWFlow commands.
+- **Examples:**
+- **Options:** None
+- **Subcommands:** `info`, `req`, `search`
+
+## uwflow info
+- **Aliases:** `information`, `i`
+- **Description:** Get course information
+- **Examples:**<br>`.uwflow info cs135`<br>`.uwflow information cs246`<br>`.uwflow i cs240`
+- **Options:** 
+- **Subcommands:** None
+
+## uwflow req
+- **Aliases:** `requisite`
+- **Description:** Get course requisites
+- **Examples:**<br>`.uwflow req cs135`<br>`.uwflow requisite cs246`
+- **Options:** 
+- **Subcommands:** None
+
+## uwflow search
+- **Aliases:** None
+- **Description:** Search for courses in specified range
+- **Examples:**<br>`.uwflow search CS 100 200`<br>`.uwflow search cs 100 200`
+- **Options:** 
+- **Subcommands:** None
+
 # SUGGESTION 
 ## suggestion 
 - **Aliases:** ``suggest``
