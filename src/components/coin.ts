@@ -33,6 +33,7 @@ export enum UserCoinEvent {
   RpsWin,
   CoinTransferReceiver,
   CoinTransferSender,
+  Worldle,
 }
 
 export type Bonus = {
